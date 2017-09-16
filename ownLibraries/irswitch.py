@@ -4,8 +4,19 @@ import RPi.GPIO as GPIO
 class IRSwitch():
 	"""
 	Controla un Filtro IR de tipo Switch empleando los pines 2, 3 y 4 para 
+	Especificaciones:
+		- Rated voltage: DC 3.3V~12V
+		- DC resistance: 42ohm (at 20'C)
+		- Action voltage: DC 3.3V~12V
+		- Minimum pulse width: 0.05s
+		- Working temperature range: -20'C~70'C
+		- Working normal after place 48H under 70'C / 90% humidity 
+		- Switch control time: 50~200ms
+		- Switch time: >100,000 times 
+		- Drop test from 6 sides, 70g pressure
+		- Visual window size: 8mm (diameter)
 	"""
-	def __init__(self,tiempoPulsoMiliSegundos = 10):
+	def __init__(self,tiempoPulsoMiliSegundos = 50):
 		self.tiempoParaPulso = tiempoPulsoMiliSegundos/1000
 		self.tiempoDeInercia = self.tiempoParaPulso/10
 		self.forwardPin = 2
