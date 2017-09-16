@@ -47,13 +47,11 @@ cam.set(3,width)
 cam.set(4,height)
 
 miFiltro = IRSwitch()
-
-
-
+miFiltro.quitarFiltroIR()
 
 while (1):
 	# Establezco las configuraciones iniciales
-	miFiltro.quitarFiltroIR()
+	
 	cam.set(3,3280)
 	cam.set(4,2464)
 	# Leo el frame de prueba
@@ -75,6 +73,7 @@ while (1):
 		ret0, image2=cam.read()
 		cv2.imwrite('./VideoCapture/' + date_string + '_a5mp.jpg',image2)
 		print('captured frame at: '+ date_string)
+		miFiltro.quitarFiltroIR()
 
 	if ch == ord('q'):
 		#print(myFlowMahine.velocidades)
