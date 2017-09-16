@@ -5,7 +5,7 @@ import time
 import datetime
 import numpy as np
 
-directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo11'
+directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeLibreriasPropias = directorioDeTrabajo +'/ownLibraries'
 
 sys.path.insert(0, directorioDeLibreriasPropias)
