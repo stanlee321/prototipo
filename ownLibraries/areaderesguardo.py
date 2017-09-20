@@ -129,7 +129,7 @@ class AreaDeResguardo():
 
 		#for i in range(numeroDeInfracciones):
 			#sys.stdout.write("\033[F")
-		#	pass
+			#pass
 						
 		vectorRuidoso, velocidad, indiceFrameActual = self.calcularFlujoTotalEnFrame(imagenActual)
 		imagenActualEnGris = cv2.cvtColor(imagenActual, cv2.COLOR_BGR2GRAY)

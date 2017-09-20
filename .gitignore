@@ -1,3 +1,10 @@
+__pycache__/
+ownLibraries/__pycache__/
 casosDebug/
 casosReportados/
 VideoCapture/
+*.py~
+\?*
+ownLibraries/*.py~
+ownLibraries/\?*
+
