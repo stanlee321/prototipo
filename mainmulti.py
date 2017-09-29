@@ -338,7 +338,9 @@ if __name__ == '__main__':
 	poligono  = data[0]
 	src = ['./installationFiles/heroes.mp4', 0]
 	#vs = WebcamVideoStream(src=src[1], height = 640, width = 480).start()
-	vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
+	#vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
+	vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
+
 
 	fps = FPS().start() 
 
@@ -397,7 +399,7 @@ if __name__ == '__main__':
 
 		pipeline.run()
 		print(colorLiteral)
-		cv2.imshow('resized', cv2.resize(frame_resized,(frame_resized.shape[1]*2,frame_resized.shape[0]*2)))
+		#cv2.imshow('resized', cv2.resize(frame_resized,(frame_resized.shape[1]*2,frame_resized.shape[0]*2)))
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
