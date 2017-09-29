@@ -332,12 +332,12 @@ def dump_to_disk(con, filename):
 
 if __name__ == '__main__':
 
-	data = np.load('./installationFiles/heroes.npy')
+	#data = np.load('./installationFiles/heroes.npy')
 	print(data)
-	semaforo = CreateSemaforo(periodoSemaforo = 0)
+	semaforo = CreateSemaforo(periodoSemaforo = 10)
 	poligono  = data[0]
 	src = ['./installationFiles/heroes.mp4', 0]
-	vs = WebcamVideoStream(src=src[0], height = 640, width = 480).start()
+	vs = WebcamVideoStream(src=src[1], height = 640, width = 480).start()
 	fps = FPS().start() 
 
 	ON = True
