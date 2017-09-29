@@ -356,9 +356,9 @@ if __name__ == '__main__':
 
 	log = logging.getLogger("main")
 
-	#bg_instance = cv2.createBackgroundSubtractorMOG2(history=500, detectShadows=True)
-	#bg = BackgroundSub(bg = bg_instance)
-	bg = None
+	bg_instance = cv2.createBackgroundSubtractorMOG2(history=500, detectShadows=True)
+	bg = BackgroundSub(bg = bg_instance)
+	#bg = None
 	frame_number = -1
 	_frame_number = -1
 	function1 = Function_1() # Saver to db
