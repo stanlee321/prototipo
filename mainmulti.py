@@ -163,12 +163,18 @@ class Function_1(PipelineProcessor):
 	# function 1 to be injected to the parallel process
 	def interfase_para_bg(self, bg_object, frame_real, frame_resized, frame_number, state):
 		if state == 'ROJO' or 'rojo':
-			out = bg_object.injector(frame_real = frame_real, frame_resized = frame_resized, frame_number = frame_number)
+			#out = bg_object.injector(frame_real = frame_real, frame_resized = frame_resized, frame_number = frame_number)
 			
 			#print('form function 1...:', self.saver.ask_for_time)
 			#print('from F1', self.saver.create_folder_and_save())
-			print(out)
+			#print(out)
 			#return out
+			x1 = 3000
+			x2 = 3200
+
+			y1 = 2200
+			y2 = 2400
+			frame_real = frame_real[y1:y2, x2:x1] 
 			self.saver.create_folder_and_save(frame_number, frame_real,'FUN1')
 
 			print('hello from red')
