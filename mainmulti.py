@@ -332,8 +332,8 @@ def dump_to_disk(con, filename):
 
 if __name__ == '__main__':
 
-	#data = np.load('./installationFiles/heroes.npy')
-	#print(data)
+	data = np.load('./installationFiles/heroes.npy')
+	print(data)
 	semaforo = CreateSemaforo(periodoSemaforo = 10)
 	poligono  = data[0]
 	src = ['./installationFiles/heroes.mp4', 0]
