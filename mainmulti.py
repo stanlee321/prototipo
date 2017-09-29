@@ -175,7 +175,7 @@ class Function_1(PipelineProcessor):
 			y1 = 2200
 			y2 = 2400
 			frame_real = frame_real[y2:y1, x1:x2] 
-			#self.saver.create_folder_and_save(frame_number, frame_real,'FUN1')
+			self.saver.create_folder_and_save(frame_number, frame_real,'FUN1')
 
 			print('hello from red')
 			print('HELLO FROM  FUNCTION 1', frame_number)
@@ -201,7 +201,7 @@ class Function_2(PipelineProcessor):
 	def insert_data(self, frame_resized, frame_number, state):
 
 		if state == 'ROJO' or 'rojo':
-			#self.saver.create_folder_and_save(frame_number, frame_resized, 'FUN2')
+			self.saver.create_folder_and_save(frame_number, frame_resized, 'FUN2')
 						
 			print('HELLO FROM  FUNCTION 2', frame_number)
 		elif state == 'AMARILLO' or 'amarillo':
