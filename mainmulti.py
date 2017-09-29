@@ -37,8 +37,8 @@ ENCODING = 'utf-8'
 
 # CREATE DB into the memory
 #conn = sqlite3.connect('file::memory:?cache=shared'+'__1')
-#conn = sqlite3.connect(':memory:')
-conn = sqlite3.connect('data.db')
+conn = sqlite3.connect(':memory:')
+#conn = sqlite3.connect('data.db')
 #conn = sqlite3.connect('infractions.db')
 c = conn.cursor()
 
@@ -162,7 +162,7 @@ class Function_1(PipelineProcessor):
 
 	# function 1 to be injected to the parallel process
 	def interfase_para_bg(self, bg_object, frame_real, frame_resized, frame_number, state):
-		if state == 'ROJO':
+		if state == 'ROJO' or 'rojo':
 			out = bg_object.injector(frame_real = frame_real, frame_resized = frame_resized, frame_number = frame_number)
 			
 			#print('form function 1...:', self.saver.ask_for_time)
@@ -177,7 +177,7 @@ class Function_1(PipelineProcessor):
 
 			print('HELLO FROM  FUNCTION 1', frame_number)
 
-		elif state == 'VERDE':
+		elif state == 'VERDE' or 'verde':
 
 			print('HELLO FROM  FUNCTION 1', frame_number)
 
@@ -194,7 +194,7 @@ class Function_2(PipelineProcessor):
 	# function 2 to be injected to the parallel process
 	def insert_data(self, frame_resized, frame_number, state):
 
-		if state == 'ROJO':
+		if state == 'ROJO' or 'rojo':
 			self.saver.create_folder_and_save(frame_number, frame_resized, 'FUN2')
 						
 			print('HELLO FROM  FUNCTION 2', frame_number)
@@ -203,7 +203,7 @@ class Function_2(PipelineProcessor):
 			
 			print('HELLO FROM  FUNCTION 2', frame_number)
 
-		elif state == 'VERDE':
+		elif state == 'VERDE' or 'rojo':
 			
 			
 			print('HELLO FROM  FUNCTION 2', frame_number)
@@ -395,7 +395,7 @@ if __name__ == '__main__':
 
 		pipeline.run()
 		print(colorLiteral)
-		#cv2.imshow('resized', cv2.resize(frame_resized,(frame_resized.shape[1]*2,frame_resized.shape[0]*2)))
+		cv2.imshow('resized', cv2.resize(frame_resized,(frame_resized.shape[1]*2,frame_resized.shape[0]*2)))
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
