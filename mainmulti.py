@@ -37,8 +37,8 @@ ENCODING = 'utf-8'
 
 # CREATE DB into the memory
 #conn = sqlite3.connect('file::memory:?cache=shared'+'__1')
-conn = sqlite3.connect(':memory:')
-#conn = sqlite3.connect('data.db')
+#conn = sqlite3.connect(':memory:')
+conn = sqlite3.connect('data.db')
 #conn = sqlite3.connect('infractions.db')
 c = conn.cursor()
 
@@ -163,11 +163,11 @@ class Function_1(PipelineProcessor):
 	# function 1 to be injected to the parallel process
 	def interfase_para_bg(self, bg_object, frame_real, frame_resized, frame_number, state):
 		if state == 'ROJO':
-			#out = bg_object.injector(frame_real = frame_real, frame_resized = frame_resized, frame_number = frame_number)
+			out = bg_object.injector(frame_real = frame_real, frame_resized = frame_resized, frame_number = frame_number)
 			
 			#print('form function 1...:', self.saver.ask_for_time)
 			#print('from F1', self.saver.create_folder_and_save())
-
+			print(out)
 			#return out
 			self.saver.create_folder_and_save(frame_number, frame_real,'FUN1')
 
@@ -194,36 +194,9 @@ class Function_2(PipelineProcessor):
 	# function 2 to be injected to the parallel process
 	def insert_data(self, frame_resized, frame_number, state):
 
-		#retval, buff = cv2.imencode('.jpg', frame_resized)
-
-		#jpg_as_text = base64.b64encode(buff)
-
-
-		#image_64_encode = base64.encodestring(jpg_as_text)
-		#base64_string = image_64_encode.decode(ENCODING)
-
-		#base64_string_resized = base64_string
-
-
 		if state == 'ROJO':
-			#print('form function 2...:', self.saver.ask_for_time)
 			self.saver.create_folder_and_save(frame_number, frame_resized, 'FUN2')
-
-			#print('from F2', self.saver.create_folder_and_save())
-
-			#Saver.update_date_from_saver_method(ask_for_time)
-			#Saver.save()
-			#print(frame_number)
-			#datadict[frame_number] = frame_resized
-
-			#self.temp_data[frame_number] = frame_resized
-			#self.temp_data.append(frame_number)
-			#print(len(self.temp_data))
-			#print('len',len(datadict))
-			
-			#with conn:
-			#	c.execute("INSERT INTO infractions VALUES (:frame_resized, :frame_number)", {'frame_resized': base64_string_resized, 'frame_number': frame_number})
-			
+						
 			print('HELLO FROM  FUNCTION 2', frame_number)
 		elif state == 'AMARILLO':
 
@@ -299,6 +272,21 @@ class SaveData(object):
 		
 		#return path_to_folder, path_to_file[0:-9]
 		#return 
+	@staticmethod
+	def create_db_and_save(frame_number, frame, tag):
+
+		retval, buff = cv2.imencode('.jpg', frame_resized)
+
+		jpg_as_text = base64.b64encode(buff)
+
+
+		image_64_encode = base64.encodestring(jpg_as_text)
+		base64_string = image_64_encode.decode(ENCODING)
+
+		base64_string_resized = base64_string
+		with conn:
+			c.execute("INSERT INTO infractions VALUES (:frame_resized, :frame_number)", {'frame_resized': base64_string_resized, 'frame_number': frame_number})
+
 
 
 # Auxilar function to be the interfase for output resized frame and normal frame
@@ -423,6 +411,7 @@ if __name__ == '__main__':
 	#dump_to_disk(conn, 'file::memory:?cache=shared')
 	#with open('DATAPICKE.pickle', 'wb') as handle:
 	#			pickle.dump(datadict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+	
 	#conn.close()
 
 	# stop the timer and display FPS information
