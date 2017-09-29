@@ -29,14 +29,14 @@ class PoliciaInfractor():
 		self.lineaTraseraLK =  np.array([poligonoPartida[1],poligonoPartida[2]])
 		ditanciaEnX = self.lineaDePintadoLK[1][0] - self.lineaDePintadoLK[0][0]
 		ditanciaEnY = self.lineaDePintadoLK[1][1] - self.lineaDePintadoLK[0][1]
-		self.numeroDePuntos = 10
+		self.numeroDePuntos = 9
 		self.stepX = ditanciaEnX//self.numeroDePuntos
 		self.stepY = ditanciaEnY//self.numeroDePuntos
 		self.lk_params = dict(  winSize  = (15,15),
-								maxLevel = 2,
+								maxLevel = 7,
 								criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 		# erase 4 lines featureparams
-		self.feature_params = dict( maxCorners = 7,
+		self.feature_params = dict( maxCorners = self.numeroDePuntos+1,
 									qualityLevel = 0.3,
 									minDistance = 7,
 									blockSize = 7 )
@@ -47,21 +47,30 @@ class PoliciaInfractor():
 		self.restablecerLineaLK()
 
 	def restablecerLineaLK(self,):
-		self.lineaDeResguardoDelantera = np.array([self.lineaDePintadoLK[0]])
+		self.lineaDeResguardoDelantera = np.array([[self.lineaDePintadoLK[0]]])
 		for numeroDePunto in range(1,self.numeroDePuntos+1):
-			self.lineaDeResguardoDelantera = np.append(self.lineaDeResguardoDelantera,[self.lineaDePintadoLK[0]+numeroDePunto*np.array([self.stepX,self.stepY])],axis=0)
-
+			self.lineaDeResguardoDelantera = np.append(self.lineaDeResguardoDelantera,[[self.lineaDePintadoLK[0]+numeroDePunto*np.array([self.stepX,self.stepY])]],axis=0)
 
 	def evolucionarLineaVigilancia(self,imagenActual):
+		# la imagen introducida esta en RGB, 240,320,3
 		huboCambio = False
 		imagenActualEnGris = cv2.cvtColor(imagenActual, cv2.COLOR_BGR2GRAY)
 		lineaAcondicionada = []
 		for array in self.lineaDeResguardoDelantera:
-			lineaAcondicionada.append([list(array)])
+			lineaAcondicionada.append([list(array[0]*1.0)])
 		lineaAcondicionada = np.array(lineaAcondicionada)
-		lineaAcondicionada = cv2.goodFeaturesToTrack(imagenActualEnGris, mask = None, **self.feature_params)
-		self.lineaDeResguardoDelantera, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, lineaAcondicionada, None, **self.lk_params)
-		print('Nuevos puntos: ',self.lineaDeResguardoDelantera)
+		print('lineaAcondicionada ',lineaAcondicionada)
+		print('lineaAcondicionada ',type(lineaAcondicionada))
+		print('lineaAcondicionada ',lineaAcondicionada.shape)
+		goodf = cv2.goodFeaturesToTrack(imagenActualEnGris, mask = None, **self.feature_params)
+		print('goodf',goodf)
+		print('good',type(goodf))
+		print('good',goodf.shape)
+		print(self.imagenAuxiliar.shape)
+		print(imagenActualEnGris.shape)
+		#self.lineaDeResguardoDelantera, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, lineaAcondicionada.astype(int), None, **self.lk_params)
+		#self.lineaDeResguardoDelantera = lineaAcondicionada.astype(int)
+		#print('Nuevos puntos: ',self.lineaDeResguardoDelantera)
 		self.imagenAuxiliar = imagenActualEnGris
 		return huboCambio
 
@@ -96,16 +105,15 @@ if __name__ == '__main__':
 		toPlot = miPolicia.obtenerLinea()
 	
 		for punto in toPlot:
-			print('Point: ',punto)
-			frameActual = cv2.circle(frameActual,tuple(punto[0]), 1, (255,255,255), -1)# tuple(map(tuple,toPlot))
+			frameActual = cv2.circle(frameActual,tuple(punto[0]), 4, (0,0,0), -1)# tuple(map(tuple,toPlot))
 
 		cv2.imshow('Visual',frameActual)
 		
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
 			break
-		print(time.time()-tiempoAuxiliar)
+		#print(time.time()-tiempoAuxiliar)
 		tiempoAuxiliar = time.time()
-		while time.time()-tiempoAuxiliar<1:
+		while time.time()-tiempoAuxiliar<0.033:
 			True
 		#a-=1
