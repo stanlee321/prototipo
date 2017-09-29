@@ -1,5 +1,8 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 # import the necessary packages
-from __future__ import print_function
+#from __future__ import print_function
 from ownLibraries.utils import WebcamVideoStream
 from ownLibraries.utils import FPS
 from ownLibraries.semaforo import CreateSemaforo
@@ -15,8 +18,9 @@ import sqlite3
 from multiprocessing import Process
 import threading
 import base64
-
-
+import datetime
+import pickle
+import os
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -32,8 +36,9 @@ ENCODING = 'utf-8'
 
 
 # CREATE DB into the memory
+#conn = sqlite3.connect('file::memory:?cache=shared'+'__1')
 conn = sqlite3.connect(':memory:')
-
+#conn = sqlite3.connect('data.db')
 #conn = sqlite3.connect('infractions.db')
 c = conn.cursor()
 
@@ -43,17 +48,12 @@ c.execute("""CREATE TABLE infractions (
             )""")
 
 
-
-
-
 def mydecorator(function):
 
 	def wrapper(*args, **kwargs):
 		print('hello from here')
 		return function(*args, **kwargs)
 	return wrapper
-
-
 
 
 class PipelineRunner(object):
@@ -68,26 +68,10 @@ class PipelineRunner(object):
 		#thread.start()                                  # Start the execution
 
 
-
 	def load_data(self, data):
 
 		self.context = data
 
-	#@load_data.setter
-	#def load_data(self):
-	#	self.bg_object = self.context['bg_object']
-	#	self.frame_real = self.context['frame_real']
-	#	self.frame_resized = self.context['frame_resized']
-	#	self.frame_number = self.context['frame_number']
-	#	self.state = self.context['state']
-
-	#@load_data.deleter
-	#def load_data(self):
-	#	self.bg_object = None
-	#	self.frame_real = None
-	#	self.frame_resized = None
-	#	self.frame_number = None
-	#	self.state = None
 
 	def run(self):
 		# Runing again the run() method.
@@ -103,7 +87,9 @@ class PipelineProcessor(object):
     '''
     def __init__(self):
         self.log = logging.getLogger(self.__class__.__name__)
-        self.contour = None
+        print('HELLO FROM THE PARENNNNNNNNT')
+        self.saver = SaveData()
+
 
 
 class MultiJobs(PipelineProcessor):
@@ -139,6 +125,22 @@ class MultiJobs(PipelineProcessor):
 
 
 
+	#@load_data.setter
+	#def load_data(self):
+	#	self.bg_object = self.context['bg_object']
+	#	self.frame_real = self.context['frame_real']
+	#	self.frame_resized = self.context['frame_resized']
+	#	self.frame_number = self.context['frame_number']
+	#	self.state = self.context['state']
+
+	#@load_data.deleter
+	#def load_data(self):
+	#	self.bg_object = None
+	#	self.frame_real = None
+	#	self.frame_resized = None
+	#	self.frame_number = None
+	#	self.state = None
+
 	def __call__(self, context):
 
 		self.bg_object = context['bg_object']
@@ -157,18 +159,31 @@ class Function_1(PipelineProcessor):
 	def __init__(self):
 		super(Function_1, self).__init__()
 
+
 	# function 1 to be injected to the parallel process
 	def interfase_para_bg(self, bg_object, frame_real, frame_resized, frame_number, state):
-		if state == 'ROJO':
+		if state == 'ROJO' or 'rojo':
 			#out = bg_object.injector(frame_real = frame_real, frame_resized = frame_resized, frame_number = frame_number)
-			#return out
 			
+			#print('form function 1...:', self.saver.ask_for_time)
+			#print('from F1', self.saver.create_folder_and_save())
+			#print(out)
+			#return out
+			x1 = 3000
+			x2 = 3200
+
+			y1 = 2200
+			y2 = 2400
+			frame_real = frame_real[y1:y2, x2:x1] 
+			self.saver.create_folder_and_save(frame_number, frame_real,'FUN1')
+
+			print('hello from red')
 			print('HELLO FROM  FUNCTION 1', frame_number)
 		elif state == 'AMARILLO':
 
 			print('HELLO FROM  FUNCTION 1', frame_number)
 
-		elif state == 'VERDE':
+		elif state == 'VERDE' or 'verde':
 
 			print('HELLO FROM  FUNCTION 1', frame_number)
 
@@ -177,14 +192,94 @@ class Function_1(PipelineProcessor):
 			print('HELLO FROM  FUNCTION 1', frame_number)
 
 
-
 class Function_2(PipelineProcessor):
 
 	def __init__(self):
 		super(Function_2, self).__init__()
-
+		
 	# function 2 to be injected to the parallel process
 	def insert_data(self, frame_resized, frame_number, state):
+
+		if state == 'ROJO' or 'rojo':
+			self.saver.create_folder_and_save(frame_number, frame_resized, 'FUN2')
+						
+			print('HELLO FROM  FUNCTION 2', frame_number)
+		elif state == 'AMARILLO':
+
+			
+			print('HELLO FROM  FUNCTION 2', frame_number)
+
+		elif state == 'VERDE' or 'rojo':
+			
+			
+			print('HELLO FROM  FUNCTION 2', frame_number)
+
+
+		elif state == 'No hay semaforo':
+
+			
+			print('HELLO FROM  FUNCTION 2', frame_number)
+	
+	
+
+
+class SaveData(object):
+
+	ask_for_time = datetime.datetime.now().strftime('%Y-%m-%d::%H:%M:%S')
+
+	def __init__(self):
+		self.save_folder = None
+		self.save_file = None
+	
+
+
+	def folder_and_file(self, folderName, fileName):
+
+		self.save_folder = folderName
+		self.save_file = fileName
+
+		return self.save_folder, self.save_file
+
+	@classmethod
+	def update_time(cls):
+		cls.ask_for_time = datetime.datetime.now().strftime('%Y-%m-%d::%H:%M:%S')
+
+
+	@classmethod
+	def update_folders_and_files(cls):
+		cls.update_time()
+
+		folder_and_file_name = cls.ask_for_time.split('::')
+		for_folder, for_file = folder_and_file_name[0], folder_and_file_name [1]
+
+		path_for_folder = './data' + '/' + '{}'.format(for_folder)
+		path_for_file = path_for_folder + '/' + '{}'.format(for_file)
+
+		return path_for_folder, path_for_file
+	@staticmethod
+	def create_folder_and_save(frame_number, frame, tag):
+
+		#folder_name, file_name = Saveto.folder_and_file(Saveto.get_time('forFolder'), './data/{}/{}_frame_{}.jpg'.format(Function_2.get_time('forFolder'),
+		#											Function_2.get_time('forFile'), frame_number)  )
+		
+
+		path_to_folder, path_to_file = SaveData.update_folders_and_files()
+		
+		try:
+			os.makedirs(path_to_folder)
+		except Exception as e:
+			print(e)
+		if os.path.isdir(path_to_folder) == os.path.isdir(path_to_file[0:-9]):
+			#print('Folder already exist or ..', e)
+			print('Files are beeing created in .... ', path_to_folder)
+			cv2.imwrite(path_to_file+'_{}_{}.jpg'.format(frame_number, tag), frame)
+		#print(SaveData.update_folders_and_files())
+
+		
+		#return path_to_folder, path_to_file[0:-9]
+		#return 
+	@staticmethod
+	def create_db_and_save(frame_number, frame, tag):
 
 		retval, buff = cv2.imencode('.jpg', frame_resized)
 
@@ -195,27 +290,8 @@ class Function_2(PipelineProcessor):
 		base64_string = image_64_encode.decode(ENCODING)
 
 		base64_string_resized = base64_string
-
-		if state == 'ROJO':
-			with conn:
-				c.execute("INSERT INTO infractions VALUES (:frame_resized, :frame_number)", {'frame_resized': base64_string_resized, 'frame_number': frame_number})
-			
-			print('HELLO FROM  FUNCTION 2', frame_number)
-		elif state == 'AMARILLO':
-
-			
-			print('HELLO FROM  FUNCTION 2', frame_number)
-
-		elif state == 'VERDE':
-
-			
-			print('HELLO FROM  FUNCTION 2', frame_number)
-
-
-		elif state == 'No hay semaforo':
-
-			
-			print('HELLO FROM  FUNCTION 2', frame_number)
+		with conn:
+			c.execute("INSERT INTO infractions VALUES (:frame_resized, :frame_number)", {'frame_resized': base64_string_resized, 'frame_number': frame_number})
 
 
 
@@ -243,14 +319,35 @@ def runInParallel(*fns):
 		p.join()
 
 
+
+def dump_to_disk(con, filename):
+	"""
+	Dumps the tables of an in-memory database into a file-based SQLite database.
+
+	@param con:         Connection to in-memory database.
+	@param filename:    Name of the file to write to.
+	"""
+	
+	cur = c3.cursor()
+	with c3:
+		c3.execute("ATTACH DATABASE '{}' AS inmem".format(filename))
+
+	print('Hi, saving...db')
+
+
+
 if __name__ == '__main__':
 
 	data = np.load('./installationFiles/heroes.npy')
 	print(data)
-	semaforo = CreateSemaforo(periodoSemaforo = 0)
+	semaforo = CreateSemaforo(periodoSemaforo = 10)
 	poligono  = data[0]
 	src = ['./installationFiles/heroes.mp4', 0]
-	vs = WebcamVideoStream(src=src[0], height = 640, width = 480).start()
+	#vs = WebcamVideoStream(src=src[1], height = 640, width = 480).start()
+	#vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
+	vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
+
+
 	fps = FPS().start() 
 
 	ON = True
@@ -263,9 +360,9 @@ if __name__ == '__main__':
 
 	frame_number = -1
 	_frame_number = -1
-
 	function1 = Function_1() # Saver to db
 	function2 = Function_2() # BG substractor
+
 
 
 	pipeline = PipelineRunner(pipeline=[MultiJobs( fun1 = function1, fun2 = function2)], log_level=logging.DEBUG)
@@ -301,13 +398,13 @@ if __name__ == '__main__':
 		frame_number += 1	
 		pipeline.load_data({
 	        'frame_resized': frame_resized,
-	        'frame_real': frame_number,
+	        'frame_real': frame_real,
 	        'bg_object': bg,
 	        'state': colorLiteral,
 	        'frame_number': frame_number,})
 
 		pipeline.run()
-
+		print(colorLiteral)
 		#cv2.imshow('resized', cv2.resize(frame_resized,(frame_resized.shape[1]*2,frame_resized.shape[0]*2)))
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
@@ -320,7 +417,12 @@ if __name__ == '__main__':
 		# update the FPS counter
 		
 		fps.update()
-	conn.close()
+
+	#dump_to_disk(conn, 'file::memory:?cache=shared')
+	#with open('DATAPICKE.pickle', 'wb') as handle:
+	#			pickle.dump(datadict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+	
+	#conn.close()
 
 	# stop the timer and display FPS information
 	fps.stop()
