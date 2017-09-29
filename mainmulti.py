@@ -179,7 +179,7 @@ class Function_1(PipelineProcessor):
 
 			print('hello from red')
 			print('HELLO FROM  FUNCTION 1', frame_number)
-		elif state == 'AMARILLO':
+		elif state == 'AMARILLO'  or 'amarillo':
 
 			print('HELLO FROM  FUNCTION 1', frame_number)
 
@@ -204,7 +204,7 @@ class Function_2(PipelineProcessor):
 			#self.saver.create_folder_and_save(frame_number, frame_resized, 'FUN2')
 						
 			print('HELLO FROM  FUNCTION 2', frame_number)
-		elif state == 'AMARILLO':
+		elif state == 'AMARILLO' or 'amarillo':
 
 			
 			print('HELLO FROM  FUNCTION 2', frame_number)
@@ -298,7 +298,7 @@ class SaveData(object):
 # Auxilar function to be the interfase for output resized frame and normal frame
 def genero_frame(frame, size = (320,240)):
 
-	real_frame = frame.copy()
+	real_frame = frame
 	out = cv2.resize(frame, size)
 
 	return  out, real_frame
@@ -343,9 +343,9 @@ if __name__ == '__main__':
 	semaforo = CreateSemaforo(periodoSemaforo = 10)
 	poligono  = data[0]
 	src = ['./installationFiles/heroes.mp4', 0]
-	#vs = WebcamVideoStream(src=src[1], height = 640, width = 480).start()
+	vs = WebcamVideoStream(src=src[1], height = 640, width = 480).start()
 	#vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
-	vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
+	#vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
 
 
 	fps = FPS().start() 
@@ -355,9 +355,9 @@ if __name__ == '__main__':
 
 	log = logging.getLogger("main")
 
-	bg_instance = cv2.createBackgroundSubtractorMOG2(history=500, detectShadows=True)
-	bg = BackgroundSub(bg = bg_instance)
-
+	#bg_instance = cv2.createBackgroundSubtractorMOG2(history=500, detectShadows=True)
+	#bg = BackgroundSub(bg = bg_instance)
+	bg = None
 	frame_number = -1
 	_frame_number = -1
 	function1 = Function_1() # Saver to db
