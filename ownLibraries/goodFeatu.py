@@ -31,6 +31,9 @@ while(1):
     frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # calculate optical flow
     p1, st, err = cv2.calcOpticalFlowPyrLK(old_gray, frame_gray, p0, None, **lk_params)
+    print(p1)
+    print(type(p1))
+    print(p1.shape)
     # Select good points
     good_new = p1[st==1]
     good_old = p0[st==1]
