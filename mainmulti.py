@@ -337,7 +337,9 @@ if __name__ == '__main__':
 	semaforo = CreateSemaforo(periodoSemaforo = 10)
 	poligono  = data[0]
 	src = ['./installationFiles/heroes.mp4', 0]
-	vs = WebcamVideoStream(src=src[1], height = 640, width = 480).start()
+	#vs = WebcamVideoStream(src=src[1], height = 640, width = 480).start()
+	vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
+
 	fps = FPS().start() 
 
 	ON = True
