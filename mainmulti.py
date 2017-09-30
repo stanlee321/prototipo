@@ -346,7 +346,7 @@ if __name__ == '__main__':
 	poligono  = data[0]
 	src = ['./installationFiles/heroes.mp4', 0]
 	#vs = WebcamVideoStream(src=src[1], height = 640, width = 480).start()
-	vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536, queueSize=16).start()
+	vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536, queueSize=128).start()
 	#vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
 	#vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
 	time.sleep(1.0)
