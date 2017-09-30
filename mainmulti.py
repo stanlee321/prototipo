@@ -203,7 +203,7 @@ class Function_2(PipelineProcessor):
 	def insert_data(self, frame_resized, frame_number, state):
 
 		if state == 'ROJO' or 'rojo':
-			self.saver.create_folder_and_save(frame_number, frame_resized, 'FUN2')
+			#self.saver.create_folder_and_save(frame_number, frame_resized, 'FUN2')
 						
 			print('HELLO FROM  FUNCTION 2', frame_number)
 		elif state == 'AMARILLO' or 'amarillo':
@@ -346,9 +346,9 @@ if __name__ == '__main__':
 	poligono  = data[0]
 	src = ['./installationFiles/heroes.mp4', 0]
 	#vs = WebcamVideoStream(src=src[1], height = 640, width = 480).start()
-	vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536, queueSize=64).start()
+	#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536, queueSize=128).start()
 	#vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
-	#vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
+	vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450, queueSize=128).start()
 	time.sleep(1.0)
 
 	fps = FPS().start() 
