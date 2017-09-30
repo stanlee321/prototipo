@@ -3,8 +3,8 @@
 
 # import the necessary packages
 #from __future__ import print_function
-from ownLibraries.utils import WebcamVideoStream
-from ownLibraries.utils import FPS
+from ownLibraries.utils2 import WebcamVideoStream
+from ownLibraries.utils2 import FPS
 from ownLibraries.semaforo import CreateSemaforo
 import logging
 import imutils
@@ -172,9 +172,11 @@ class Function_1(PipelineProcessor):
 			#x1 = 3000
 			#x2 = 3200
 
-			y1 = 2200
-			y2 = 2400
+			#y1 = 2200
+			#y2 = 2400
 			#frame_real = frame_real[y2:y1, x1:x2] 
+
+			#frame_real = cv2.resize(frame_real, (2048, 1536))
 			self.saver.create_folder_and_save(frame_number, frame_real,'FUN1')
 
 			print('hello from red')
@@ -344,10 +346,10 @@ if __name__ == '__main__':
 	poligono  = data[0]
 	src = ['./installationFiles/heroes.mp4', 0]
 	#vs = WebcamVideoStream(src=src[1], height = 640, width = 480).start()
-	vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()
+	vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536, queueSize=16).start()
 	#vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
 	#vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
-
+	time.sleep(1.0)
 
 	fps = FPS().start() 
 
