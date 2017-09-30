@@ -402,7 +402,7 @@ if __name__ == '__main__':
 		pipeline.load_data({
 	        'frame_resized': frame_resized,
 	        'frame_real': frame_real,
-	        'bg_object': bg,
+	        'bg_object': None,
 	        'state': colorLiteral,
 	        'frame_number': frame_number,})
 
