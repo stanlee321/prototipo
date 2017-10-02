@@ -530,15 +530,15 @@ if __name__ == '__main__':
 		frame_number += 1
 		t1 = time.time()
 	
-		pipeline.load_data({
-	        'frame_resized': frame_resized,
-	        'frame_real': frame_real,
-	        'bg_object': bg,
-	        'state': colorLiteral,
-	        'frame_number': frame_number,})
-		pipeline.run()
-		matches = new_2_bg.visual(frame_resized)
-		print('MATCHES', matches)
+		#pipeline.load_data({
+	    #    'frame_resized': frame_resized,
+	    #    'frame_real': frame_real,
+	    #    'bg_object': bg,
+	    #    'state': colorLiteral,
+	    #    'frame_number': frame_number,})
+		#pipeline.run()
+		#matches = new_2_bg.visual(frame_resized)
+		#print('MATCHES', matches)
 		"""
 		for (i, match) in enumerate(matches):
 			contour, centroid = match[0], match[1]
