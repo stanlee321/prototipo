@@ -15,12 +15,15 @@ import numpy as np
 from bg import BackgroundSub
 import logging
 import sqlite3
-from multiprocessing import Process
+from multiprocessing import Process, Queue, Pool
 import threading
 import base64
 import datetime
 import pickle
 import os
+import some_math
+import bgsubcnt 
+
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -115,13 +118,18 @@ class MultiJobs(PipelineProcessor):
 		p1 = Process(target=self.fun1.interfase_para_bg, args=(self.bg_object, self.frame_real,
 					 						self.frame_resized, self.frame_number, self.state))
 		p1.start()
+		#pool1 = Pool(2,self.fun1.interfase_para_bg, (self.bg_object, self.frame_real,self.frame_resized, self.frame_number, self.state))
+
 		
 		p2 = Process(target=self.fun2.insert_data, args=(self.frame_resized, self.frame_number, self.state))
+
 		p2.start()
+		#pool2 = Pool(2,self.fun2.insert_data, (self.frame_resized, self.frame_number, self.state))
 
 
-		p1.join()
-		p2.join()
+
+		#p1.join()
+		#p2.join()
 
 
 
@@ -162,9 +170,8 @@ class Function_1(PipelineProcessor):
 
 	# function 1 to be injected to the parallel process
 	def interfase_para_bg(self, bg_object, frame_real, frame_resized, frame_number, state):
+
 		if state == 'ROJO' or 'rojo':
-			#out = bg_object.injector(frame_real = frame_real, frame_resized = frame_resized, frame_number = frame_number)
-			
 			#print('form function 1...:', self.saver.ask_for_time)
 			#print('from F1', self.saver.create_folder_and_save())
 			#print(out)
@@ -296,6 +303,136 @@ class SaveData(object):
 			c.execute("INSERT INTO infractions VALUES (:frame_resized, :frame_number)", {'frame_resized': base64_string_resized, 'frame_number': frame_number})
 
 
+class CreateBG(object):
+	def __init__(self):
+		# Define the parameters needed for motion detection
+		self.k = 31
+		self.alpha = 0.02 # Define weighting coefficient for running average
+		self.motion_thresh = 35 # Threshold for what difference in pixels  
+		self.running_avg = None # Initialize variable for running average
+		self.min_contour_width=15 
+		self.min_contour_height=15
+	#@property
+	def visual(self, current_frame):
+
+		gray_frame = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
+		t1 = time.time()
+		smooth_frame = cv2.GaussianBlur(gray_frame, (self.k, self.k), 0)
+
+		# If this is the first frame, making running avg current frame
+		if self.running_avg is None:
+			self.running_avg = np.float32(smooth_frame) 
+
+		# Find absolute difference between the current smoothed frame and the running average
+		diff = cv2.absdiff(np.float32(smooth_frame), np.float32(self.running_avg))
+		t2 = time.time()
+
+		print('THE DIFF TOOOOK', t2-t1)
+
+
+		# Then add current frame to running average after
+		cv2.accumulateWeighted(np.float32(smooth_frame), self.running_avg, self.alpha)
+
+		# For all pixels with a difference > thresh, turn pixel to 255, otherwise 0
+		_, subtracted = cv2.threshold(diff, self.motion_thresh, 1, cv2.THRESH_BINARY)
+
+		matches = []
+		
+		subtracted = np.array(subtracted * 255, dtype = np.uint8)
+
+		fg_mask = subtracted	
+
+		im2, contours, hierarchy = cv2.findContours(subtracted, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
+
+		#cv2.imshow('im2', im2)
+
+		#print( len(contours))
+		
+		for (i, contour) in enumerate(contours):
+		    (x, y, w, h) = cv2.boundingRect(contour)
+		    contour_valid = (w >= self.min_contour_width) and (h >= self.min_contour_height)
+		    if not contour_valid:
+		        continue
+
+		    centroid = some_math.get_centroid(x, y, w, h)
+
+		    matches.append(((x, y, w, h), centroid))
+
+
+		#cv2.imshow('Thresholded difference', subtracted)
+
+		return matches
+		#cv2.imshow('Actual image', current_frame)
+		#cv2.imshow('Gray-scale', gray_frame)
+		#cv2.imshow('Smooth', smooth_frame)
+		#cv2.imshow('Difference', diff)
+
+	#cv2.destroyAllWindows()
+
+
+class CreateBG2():
+	def __init__(self):
+		# Define the parameters needed for motion detection
+
+		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*60)
+		self.k = 31
+		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+		self.min_contour_width=15 
+		self.min_contour_height=15
+		#self.kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3),(0,0))
+
+		self.input_q = Queue(maxsize=5)
+		self.output_q = Queue(maxsize=5)
+
+		self.process = Process(target= self.worker, args=(self.input_q, self.output_q))
+		self.process.daemon = True
+
+		pool = Pool(2,self.worker, (self.input_q, self.output_q))
+		#self.process.start()
+
+		#thread = threading.Thread(target=self.worker, args=(self.input_q, self.output_q))
+		#thread.daemon = True                            # Daemonize thread
+		#thread.start() 
+
+
+	def visual(self, current_frame):
+
+		self.input_q.put(current_frame)
+
+		matches = self.output_q.get()
+		
+		return matches
+
+	def worker(self, input_q, output_q):
+
+		while True:
+			#print('WORKDERRR')
+			matches = []
+
+			gray = cv2.cvtColor(input_q.get(), cv2.COLOR_BGR2GRAY)
+
+			smooth_frame = cv2.GaussianBlur(gray, (self.k,self.k), 1.5)
+			#smooth_frame = cv2.bilateralFilter(gray,4,75,75)
+			#smooth_frame =cv2.bilateralFilter(smooth_frame,15,75,75)
+
+
+			self.fgmask = self.fgbg.apply(smooth_frame, self.kernel, 0.1)
+
+			im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
+			for (i, contour) in enumerate(contours):
+			    (x, y, w, h) = cv2.boundingRect(contour)
+			    contour_valid = (w >= self.min_contour_width) and (h >= self.min_contour_height)
+			    if not contour_valid:
+			        continue
+			    centroid = some_math.get_centroid(x, y, w, h)
+
+			    matches.append(((x, y, w, h), centroid))
+
+			#return matches
+			output_q.put(matches)
+
+
+
 
 # Auxilar function to be the interfase for output resized frame and normal frame
 def genero_frame(frame, size = (320,240)):
@@ -304,21 +441,6 @@ def genero_frame(frame, size = (320,240)):
 	out = cv2.resize(frame, size)
 
 	return  out, real_frame
-
-
-
-# parallel process to be worked
-def runInParallel(*fns):
-	"""
-		Function to run in parallel two or more functions *fns
-	"""
-	proc = []
-	for fn in fns:
-		p = Process(target=fn)
-		p.start()
-		proc.append(p)
-	for p in proc:
-		p.join()
 
 
 
@@ -336,7 +458,14 @@ def dump_to_disk(con, filename):
 
 	print('Hi, saving...db')
 
-
+def myTimedecorator(function):
+	
+	def wrapper(*args, **kwargs):
+		t1 = time.time()
+		f = function(*args,**kwargs)
+		t2 = time.time()
+		print('TIME TOOK:::', t2-t1)
+	return wrapper
 
 if __name__ == '__main__':
 
@@ -344,11 +473,11 @@ if __name__ == '__main__':
 	print(data)
 	semaforo = CreateSemaforo(periodoSemaforo = 10)
 	poligono  = data[0]
-	src = ['./installationFiles/heroes.mp4', 0]
-	#vs = WebcamVideoStream(src=src[1], height = 640, width = 480).start()
+	src = ['./installationFiles/mySquare.mp4', 0]
+	vs = WebcamVideoStream(src=src[0], height = 640, width = 480).start()
 	#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536, queueSize=128).start()
 	#vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944, queueSize=128).start()
-	vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450, queueSize=128).start()
+	#vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450, queueSize=128).start()
 	time.sleep(1.0)
 
 	fps = FPS().start() 
@@ -358,7 +487,9 @@ if __name__ == '__main__':
 
 	log = logging.getLogger("main")
 
+	#bg_instance = cv2.createBackgroundSubtractorKNN(history=500,dist2Threshold=1 ,detectShadows=True)
 	bg_instance = cv2.createBackgroundSubtractorMOG2(history=500, detectShadows=True)
+
 	bg = BackgroundSub(bg = bg_instance)
 	#bg = None
 	frame_number = -1
@@ -366,7 +497,8 @@ if __name__ == '__main__':
 	function1 = Function_1() # Saver to db
 	function2 = Function_2() # BG substractor
 
-
+	new_bg = CreateBG()
+	new_2_bg = CreateBG2( )
 
 	pipeline = PipelineRunner(pipeline=[MultiJobs( fun1 = function1, fun2 = function2)], log_level=logging.DEBUG)
 
@@ -387,28 +519,44 @@ if __name__ == '__main__':
 		# Get signals from the semaforo
 		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame_real)
 		
-
-
 		# fake frame for debugs
 		_frame_number += 1
 
 		# skip every 2nd frame to speed up processing
 		if _frame_number % 2 != 0:
 			continue
-
 		# frame number that will be passed to pipline
 		# this needed to make video from cutted frames
-		frame_number += 1	
+		frame_number += 1
+		t1 = time.time()
+	
 		pipeline.load_data({
 	        'frame_resized': frame_resized,
 	        'frame_real': frame_real,
 	        'bg_object': bg,
 	        'state': colorLiteral,
 	        'frame_number': frame_number,})
-
 		pipeline.run()
-		print(colorLiteral)
-		#cv2.imshow('resized', cv2.resize(frame_resized,(frame_resized.shape[1]*2,frame_resized.shape[0]*2)))
+		matches = new_2_bg.visual(frame_resized)
+		print('MATCHES', matches)
+		"""
+		for (i, match) in enumerate(matches):
+			contour, centroid = match[0], match[1]
+			print(contour, centroid)
+			#if self.check_exit(centroid, exit_masks):
+			#    continue
+			print(match[0])
+
+			x, y, w, h = contour
+			#the_box.append([contour])
+			print('THE BOXXXXXXXXXXXXXXXXXXXX', contour)
+			cv2.rectangle(frame_resized, (x, y), (x + w - 1, y + h - 1),(0,0,255), 1)
+			cv2.circle(frame_resized, centroid, 2, (0,255,0), -1)
+		#cv2.imshow('boxes', frame_resized)
+		"""
+		t2 = time.time()
+
+		print('THE TIME THAT TAKE TO RUN THIS', t2-t1)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
@@ -420,11 +568,10 @@ if __name__ == '__main__':
 		# update the FPS counter
 		
 		fps.update()
-
+		print(senalColor, colorLiteral, flancoSemaforo)
 	#dump_to_disk(conn, 'file::memory:?cache=shared')
 	#with open('DATAPICKE.pickle', 'wb') as handle:
 	#			pickle.dump(datadict, handle, protocol=pickle.HIGHEST_PROTOCOL)
-	
 	#conn.close()
 
 	# stop the timer and display FPS information
@@ -436,3 +583,12 @@ if __name__ == '__main__':
 	cv2.destroyAllWindows()
 	vs.stop()
 
+
+"""
+def mydecorator(function):
+
+	def wrapper(*args, **kwargs):
+		print('hello from here')
+		return function(*args, **kwargs)
+	return wrapper
+"""
