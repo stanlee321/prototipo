@@ -525,10 +525,9 @@ if __name__ == '__main__':
 		_frame_number += 1
 
 		# skip every 2nd frame to speed up processing
-		if _frame_number % 2 != 0:
+		if _frame_number % 4 != 0:
 			continue
 
-		t2 = time.time()
 
 
 
@@ -572,7 +571,8 @@ if __name__ == '__main__':
 		#print('[INFO] elapsed time: {:.2f}'.format(time.time() - t))
 
 		# update the FPS counter
-		
+		t2 = time.time()
+
 		#print(senalColor, colorLiteral, flancoSemaforo)
 	#dump_to_disk(conn, 'file::memory:?cache=shared')
 	#with open('DATAPICKE.pickle', 'wb') as handle:
