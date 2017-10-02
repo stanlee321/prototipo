@@ -529,7 +529,8 @@ if __name__ == '__main__':
 		# this needed to make video from cutted frames
 		frame_number += 1
 		t1 = time.time()
-	
+		matches = new_2_bg.visual(frame_resized)
+
 		#pipeline.load_data({
 	    #    'frame_resized': frame_resized,
 	    #    'frame_real': frame_real,
@@ -537,7 +538,6 @@ if __name__ == '__main__':
 	    #    'state': colorLiteral,
 	    #    'frame_number': frame_number,})
 		#pipeline.run()
-		#matches = new_2_bg.visual(frame_resized)
 		#print('MATCHES', matches)
 		"""
 		for (i, match) in enumerate(matches):
