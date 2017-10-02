@@ -506,9 +506,11 @@ if __name__ == '__main__':
 	while ON:
 		# grab the frame from the threaded video stream and resize it
 		# to have a maximum width of 400 pixels
+		
+		t1 = time.time()
+
 		frame = vs.read()
 
-		t = time.time()
 
 		if not frame.any():
 			log.error("Frame capture failed, stopping...")
@@ -528,7 +530,6 @@ if __name__ == '__main__':
 		# frame number that will be passed to pipline
 		# this needed to make video from cutted frames
 		frame_number += 1
-		t1 = time.time()
 		matches = new_2_bg.visual(frame_resized)
 
 		pipeline.load_data({
@@ -554,9 +555,7 @@ if __name__ == '__main__':
 			cv2.circle(frame_resized, centroid, 2, (0,255,0), -1)
 		#cv2.imshow('boxes', frame_resized)
 		"""
-		t2 = time.time()
 
-		print('THE TIME THAT TAKE TO RUN THIS', t2-t1)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
@@ -573,6 +572,8 @@ if __name__ == '__main__':
 	#with open('DATAPICKE.pickle', 'wb') as handle:
 	#			pickle.dump(datadict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 	#conn.close()
+		t2 = time.time()
+		print('THE TIME THAT TAKE TO RUN THIS', t2-t1)
 
 	# stop the timer and display FPS information
 	fps.stop()
