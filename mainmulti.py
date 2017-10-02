@@ -176,12 +176,12 @@ class Function_1(PipelineProcessor):
 			#print('from F1', self.saver.create_folder_and_save())
 			#print(out)
 			#return out
-			x1 = 3000
-			x2 = 3200
+			#x1 = 3000
+			#x2 = 3200
 
-			y1 = 2200
-			y2 = 2400
-			frame_real = frame_real[y1:y2, x1:x2] 
+			#y1 = 2200
+			#y2 = 2400
+			#frame_real = frame_real[y1:y2, x1:x2] 
 
 			#frame_real = cv2.resize(frame_real, (2048, 1536))
 			self.saver.create_folder_and_save(frame_number, frame_real,'FUN1')
