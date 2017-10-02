@@ -531,13 +531,13 @@ if __name__ == '__main__':
 		t1 = time.time()
 		matches = new_2_bg.visual(frame_resized)
 
-		#pipeline.load_data({
-	    #    'frame_resized': frame_resized,
-	    #    'frame_real': frame_real,
-	    #    'bg_object': bg,
-	    #    'state': colorLiteral,
-	    #    'frame_number': frame_number,})
-		#pipeline.run()
+		pipeline.load_data({
+	        'frame_resized': frame_resized,
+	        'frame_real': frame_real,
+	        'bg_object': bg,
+	   	    'state': colorLiteral,
+	        'frame_number': frame_number,})
+		pipeline.run()
 		#print('MATCHES', matches)
 		"""
 		for (i, match) in enumerate(matches):
