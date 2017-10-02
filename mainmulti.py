@@ -525,7 +525,7 @@ if __name__ == '__main__':
 		_frame_number += 1
 
 		# skip every 2nd frame to speed up processing
-		if _frame_number % 4 != 0:
+		if _frame_number % 2 != 0:
 			continue
 
 
