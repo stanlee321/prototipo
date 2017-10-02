@@ -474,8 +474,8 @@ if __name__ == '__main__':
 	semaforo = CreateSemaforo(periodoSemaforo = 10)
 	poligono  = data[0]
 	src = ['./installationFiles/mySquare.mp4', 0]
-	#vs = WebcamVideoStream(src=src[1], height = 640, width = 480).start()
-	vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536, queueSize=128).start()
+	#vs = WebcamVideoStream(src=src[0], height = 640, width = 480).start()
+	vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536, queueSize=0).start()
 	#vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944, queueSize=128).start()
 	#vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450, queueSize=128).start()
 	time.sleep(1.0)
@@ -515,18 +515,19 @@ if __name__ == '__main__':
 		if not frame.any():
 			log.error("Frame capture failed, stopping...")
 			break
-
 		frame_resized, frame_real = genero_frame(frame)
 
 		# Get signals from the semaforo
 		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame_real)
-		
 		# fake frame for debugs
 		_frame_number += 1
 
 		# skip every 2nd frame to speed up processing
-		#if _frame_number % 2 != 0:
-		#	continue
+		if _frame_number % 2 != 0:
+			continue
+
+		t2 = time.time()
+
 
 
 		# frame number that will be passed to pipline
@@ -541,6 +542,8 @@ if __name__ == '__main__':
 	   	    'state': colorLiteral,
 	        'frame_number': frame_number,})
 		pipeline.run()
+
+
 		#print('MATCHES', matches)
 		"""
 		for (i, match) in enumerate(matches):
@@ -557,7 +560,6 @@ if __name__ == '__main__':
 			cv2.circle(frame_resized, centroid, 2, (0,255,0), -1)
 		#cv2.imshow('boxes', frame_resized)
 		"""
-		t2 = time.time()
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
@@ -569,13 +571,13 @@ if __name__ == '__main__':
 
 		# update the FPS counter
 		
-		fps.update()
-		print(senalColor, colorLiteral, flancoSemaforo)
+		#print(senalColor, colorLiteral, flancoSemaforo)
 	#dump_to_disk(conn, 'file::memory:?cache=shared')
 	#with open('DATAPICKE.pickle', 'wb') as handle:
 	#			pickle.dump(datadict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 	#conn.close()
 		print('THE TIME THAT TAKE TO RUN THIS', t2-t1)
+		fps.update()
 
 	# stop the timer and display FPS information
 	fps.stop()
