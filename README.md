@@ -5,7 +5,7 @@ Implementation SmartCamera with a picam using python, opencv and machine learnin
 You can see our results in our page [here](http://deepmicrosystems.com/visual/)
 
 And a video demo also 
-[![Video visualization demo](https://youtu.be/4Ew56N_uMIk)
+[[![Video visualization demo](https://i.ytimg.com/vi/4Ew56N_uMIk/2.jpg)](https://youtu.be/4Ew56N_uMIk)
 
 
 In Bolivia there is a huge problem regarding Road culture, this project intends to solve this problem with the use of Artificial Inteliligence and Internet of things devices to create a SmartCamera running in a Pi3 device, this repo contaion the basic code for his implementation
