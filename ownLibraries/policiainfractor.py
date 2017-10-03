@@ -3,6 +3,7 @@ import cv2
 import time
 import math
 import numpy as np
+from analisisonda import AnalisisOnda
 
 import matplotlib.pyplot as graficaActual
 
@@ -30,6 +31,9 @@ class PoliciaInfractor():
 		self.areaDeConfirmacion = np.array(poligonoLlegada)
 		self.lineaDePintadoLK =  np.array([poligonoPartida[0],poligonoPartida[3]])
 		self.lineaTraseraLK =  np.array([poligonoPartida[1],poligonoPartida[2]])
+
+		self.miFiltro = AnalisisOnda()
+
 		ditanciaEnX = self.lineaDePintadoLK[1][0] - self.lineaDePintadoLK[0][0]
 		ditanciaEnY = self.lineaDePintadoLK[1][1] - self.lineaDePintadoLK[0][1]
 		vectorParalelo = self.lineaDePintadoLK[1] - self.lineaDePintadoLK[0]
@@ -47,6 +51,8 @@ class PoliciaInfractor():
 		self.lineaEmpuje = np.zeros((self.numeroDePuntos+1,1,2))
 		self.numeroAutosCruzando = 0
 		self.restablecerLineaLK()
+		self.seguimientoEncendido = False
+		self.aApagar = False
 
 	def inicializar(self,):
 		"""
@@ -60,7 +66,7 @@ class PoliciaInfractor():
 			self.lineaDeResguardoDelantera = np.append(self.lineaDeResguardoDelantera,[[self.lineaDePintadoLK[0]+numeroDePunto*np.array([self.stepX,self.stepY])]],axis=0)
 		self.lineaFijaDelantera = self.lineaDeResguardoDelantera
 
-	def evolucionarLineaVigilancia(self,imagenActual):
+	def evolucionarLineaVigilancia(self,numeroDeFrame,imagenActual):
 		"""
 		Get into the new frame, updates the flow and follows the item as required
 		"""
@@ -73,15 +79,24 @@ class PoliciaInfractor():
 		self.lineaDeResguardoDelantera = np.array(self.lineaDeResguardoDelantera,dtype = np.float32)	# This solved the problem although the array seemed to ve  in float32, adding this specification to this line solved the problem
 		self.lineaFijaDelantera = np.array(self.lineaFijaDelantera,dtype = np.float32)
 		tiempoParaLK = time.time()
-		nuevoArrayAActualizar, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaDeResguardoDelantera, None, **self.lk_params)	
+		
 		
 		# Se compara las lineas anterior y nueva para obtener el flujo en dirección deseada
 		
-		variacionIntegral = self.obtenerMagnitudMovimiento(self.lineaDeResguardoDelantera,nuevoArrayAActualizar)
+		#variacionIntegral = self.obtenerMagnitudMovimiento(self.lineaDeResguardoDelantera,nuevoArrayAActualizar)
 
 		arrayAuxiliarParaVelocidad, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaFijaDelantera, None, **self.lk_params)
 		self.lineaEmpuje = arrayAuxiliarParaVelocidad
 		flujoTotal = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
+		ondaFiltrada, flanco = self.miFiltro.obtenerOndaFiltrada(flujoTotal)
+		if flanco == 1:
+			self.seguimientoEncendido = True
+		elif flanco<0:
+			self.aApagar = True
+		if self.seguimientoEncendido:
+			nuevoArrayAActualizar, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaDeResguardoDelantera, None, **self.lk_params)	
+		else:
+			nuevoArrayAActualizar = self.lineaDeResguardoDelantera
 		tiempoParaLK = time.time() - tiempoParaLK
 		print('LK demoro:', tiempoParaLK)
 		self.lineaDeResguardoDelantera = nuevoArrayAActualizar
@@ -91,14 +106,14 @@ class PoliciaInfractor():
 			if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:
 				self.numeroAutosCruzando+=1
 				self.restablecerLineaLK()
-		return flujoTotal
+		return ondaFiltrada,flanco,flujoTotal
 
 	def obtenerLinea(self):
 		"""
 		Returns the starting line in tuple format, ready to read or plot with opencv
 		"""
 		aDevolver = []
-		for punto in self.lineaEmpuje:
+		for punto in self.lineaDeResguardoDelantera:
 			aDevolver.append(tuple(punto[0]))
 		return aDevolver#self.lineaDeResguardoDelantera
 
@@ -150,13 +165,16 @@ if __name__ == '__main__':
 	numeroAutosCruzando = 0
 	tiempoAuxiliar = time.time()
 	velocidades = []
+	velocidadesFiltradas = []
+	flanco = []
+	frame = 0
 
 	while True:
 		ret, frameActual = camaraParaFlujo.read()
 
 		frameActual = cv2.resize(frameActual,(320,240))
 		tiempoAuxiliar = time.time()
-		magnitud = miPolicia.evolucionarLineaVigilancia(frameActual)
+		filtrado,flancoRes,magnitud = miPolicia.evolucionarLineaVigilancia(frame,frameActual)
 		print('Tiempo de evolución de linea: ', time.time()-tiempoAuxiliar)
 		toPlot = miPolicia.obtenerLinea()
 	
@@ -169,6 +187,8 @@ if __name__ == '__main__':
 		
 		
 		velocidades.append(magnitud)
+		velocidadesFiltradas.append(filtrado)
+		flanco.append(flancoRes)
 
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
@@ -177,7 +197,10 @@ if __name__ == '__main__':
 		if ch == ord('p'):
 			x = range(len(velocidades))
 			graficaActual.title('Velocidad Y objetos')
-			graficaActual.plot(x,velocidades)
+			graficaActual.plot(x,velocidades,label='vel')
+			graficaActual.plot(x,velocidadesFiltradas,label='Fil')
+			graficaActual.plot(x,flanco,label='Fla')
+			graficaActual.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),ncol=4, fancybox=True, shadow=True)
 			graficaActual.show()
 
 		if ch == ord('r'):
@@ -186,4 +209,5 @@ if __name__ == '__main__':
 		
 		#while time.time()-tiempoAuxiliar<0.05:
 		#	True
+		frame += 1
 		tiempoAuxiliar = time.time()

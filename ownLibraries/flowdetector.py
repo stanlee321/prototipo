@@ -33,8 +33,8 @@ class FlowDetector():
 		self.MagnitudesVelocidad = np.array((0.0,0.0,0.0,0.0))
 		self.MagnitudesVelocidadFiltradas = np.array((0.0,0.0,0.0,0.0))
 		self.velocidadesFiltradas = []
-		self.a_coeff = np.array((1.,-1.1429805,0.4128016,0,0,0)) #0.8hz
-		self.b_coeff = np.array((0.06745527, 0.13491055, 0.06745527,0,0,0))
+		#self.a_coeff = np.array((1.,-1.1429805,0.4128016,0,0,0)) #0.8hz
+		#self.b_coeff = np.array((0.06745527, 0.13491055, 0.06745527,0,0,0))
 		#self.a_coeff = np.array(( 1.,-1.45424359,0.57406192,0,0,0)) #0.5 hz
 		#self.b_coeff = np.array((0.02995458,0.05990916,0.02995458,0,0,0))
 		self.a_coeff = np.array(( 1.,-2.37409474,1.92935567,-0.53207537))# AGRESSIVE
