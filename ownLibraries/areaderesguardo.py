@@ -1,3 +1,7 @@
+"""
+This class simulates a zebra cross, and get data regarding flow and invasion to this area
+"""
+
 import os
 import sys
 import cv2

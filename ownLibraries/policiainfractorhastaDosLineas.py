@@ -44,14 +44,10 @@ class PoliciaInfractor():
 		# erase 4 lines featureparams
 		self.lineaDeResguardoDelantera = np.array([self.lineaDePintadoLK[0]])
 		self.lineaFijaDelantera = np.zeros((self.numeroDePuntos+1,1,2))
-		self.lineaEmpuje = np.zeros((self.numeroDePuntos+1,1,2))
 		self.numeroAutosCruzando = 0
 		self.restablecerLineaLK()
 
 	def inicializar(self,):
-		"""
-		Resets the starting line to get ready to the next frame
-		"""
 		self.restablecerLineaLK()
 
 	def restablecerLineaLK(self,):
@@ -61,9 +57,6 @@ class PoliciaInfractor():
 		self.lineaFijaDelantera = self.lineaDeResguardoDelantera
 
 	def evolucionarLineaVigilancia(self,imagenActual):
-		"""
-		Get into the new frame, updates the flow and follows the item as required
-		"""
 		# la imagen introducida esta en RGB, 240,320,3
 		variacionIntegral = 0
 		imagenActualEnGris = cv2.cvtColor(imagenActual, cv2.COLOR_BGR2GRAY)
@@ -75,12 +68,13 @@ class PoliciaInfractor():
 		tiempoParaLK = time.time()
 		nuevoArrayAActualizar, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaDeResguardoDelantera, None, **self.lk_params)	
 		
+
 		# Se compara las lineas anterior y nueva para obtener el flujo en dirección deseada
 		
 		variacionIntegral = self.obtenerMagnitudMovimiento(self.lineaDeResguardoDelantera,nuevoArrayAActualizar)
+		
 
 		arrayAuxiliarParaVelocidad, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaFijaDelantera, None, **self.lk_params)
-		self.lineaEmpuje = arrayAuxiliarParaVelocidad
 		flujoTotal = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
 		tiempoParaLK = time.time() - tiempoParaLK
 		print('LK demoro:', tiempoParaLK)
@@ -94,18 +88,9 @@ class PoliciaInfractor():
 		return flujoTotal
 
 	def obtenerLinea(self):
-		"""
-		Returns the starting line in tuple format, ready to read or plot with opencv
-		"""
-		aDevolver = []
-		for punto in self.lineaEmpuje:
-			aDevolver.append(tuple(punto[0]))
-		return aDevolver#self.lineaDeResguardoDelantera
+		return self.lineaDeResguardoDelantera
 
 	def obtenerVectorMovimiento(self,vectorAntiguo, nuevoVector):
-		"""
-		Gets the movement vector of all points in the starting line, this is used more like an internal method
-		"""
 		x = 0
 		y = 0
 		for numeroDePunto in range(1,self.numeroDePuntos+1):
@@ -116,9 +101,6 @@ class PoliciaInfractor():
 		return (x,y)
 
 	def obtenerMagnitudMovimiento(self,vectorAntiguo, nuevoVector):
-		"""
-		Gets the real magnitud of movement perpendicular to the starting point
-		"""
 		(x,y) = self.obtenerVectorMovimiento(vectorAntiguo, nuevoVector)
 		moduloPerpendicular = self.vectorPerpendicularUnitario[0]*x+self.vectorPerpendicularUnitario[1]*y
 		return moduloPerpendicular
@@ -126,9 +108,6 @@ class PoliciaInfractor():
 
 
 if __name__ == '__main__':
-	"""
-	This small trial is a proff of work for the current class
-	"""
 	try:
 		nombreDeVideo = directorioDeVideos+'/'+sys.arg[1]
 		camaraParaFlujo = cv2.VideoCapture(nombreDeVideo)
@@ -161,7 +140,7 @@ if __name__ == '__main__':
 		toPlot = miPolicia.obtenerLinea()
 	
 		for punto in toPlot:
-			frameActual = cv2.circle(frameActual,punto, 4, (0,0,0), -1)# tuple(map(tuple,toPlot))
+			frameActual = cv2.circle(frameActual,tuple(punto[0]), 4, (0,0,0), -1)# tuple(map(tuple,toPlot))
 		font = cv2.FONT_HERSHEY_SIMPLEX
 		cv2.putText(frameActual, str(int(magnitud)), (20,20), font, 0.4,(255,255,255),1,cv2.LINE_AA)
 		cv2.putText(frameActual, str(miPolicia.numeroAutosCruzando), (20,40), font, 0.4,(255,255,255),1,cv2.LINE_AA)
@@ -184,6 +163,6 @@ if __name__ == '__main__':
 			miPolicia.restablecerLineaLK()
 		#print(time.time()-tiempoAuxiliar)
 		
-		#while time.time()-tiempoAuxiliar<0.05:
-		#	True
+		while time.time()-tiempoAuxiliar<0.05:
+			True
 		tiempoAuxiliar = time.time()

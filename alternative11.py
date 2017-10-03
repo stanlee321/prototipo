@@ -38,6 +38,9 @@ mostrarImagen = False
 
 # Función principal
 def __main_function__():
+	"""
+	Main function running all objects and variables needed to accomplish the task
+	"""
 	global archivoDeVideo
 	# Creamos el reporte inicial
 	miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)			# Se crea por defecto con nombre de la fecha y hora actual
@@ -107,6 +110,9 @@ def __main_function__():
 	
 
 	while True:
+		"""
+		Main loop, running the repetitive tasks, can be broken from inside
+		"""
 		# LEEMOS LA CAMARA DE FLUJO
 		if archivoDeVideo=='':
 			ret, capturaActual = camaraParaFlujo.read()
@@ -183,7 +189,9 @@ def __main_function__():
 
 # Se introducen los argumentos de control en el formato establecido
 if __name__ == '__main__':
-	# Tomamos los ingresos para controlar el video
+	"""
+	Get the initial conditions to start the program, you can chose to make a Debug Run, Simulated Run, Normal Run, etc
+	"""
 	for input in sys.argv:
 		if input == 'NoDebug':
 			generarArchivosDebug = False

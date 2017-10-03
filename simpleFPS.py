@@ -1,3 +1,7 @@
+"""
+This file simulates simple captures for the raspberry pi camera
+"""
+
 # import the necessary packages
 from __future__ import print_function
 #from imutils.video import WebcamVideoStream

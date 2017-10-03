@@ -1,3 +1,7 @@
+"""
+This new prototipe includes huge improvements in flow detection and image capture for the raspberry pi 
+"""
+
 import os
 import sys
 import cv2

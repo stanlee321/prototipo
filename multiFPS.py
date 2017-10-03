@@ -1,3 +1,7 @@
+"""
+This file simulates a multithreading for the raspberry pi, improves the image adquisition but not saving process
+"""
+
 # import the necessary packages
 from __future__ import print_function
 #from imutils.video import WebcamVideoStream
