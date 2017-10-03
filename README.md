@@ -1,4 +1,3 @@
-#HEAD
 # SmartCamera project
 
 Implementation SmartCamera with a picam.
@@ -9,6 +8,5 @@ In this repo we develop a method for getting a high resolution video with high f
 
 
 =======
-# prototipo
-In this repository we synchronice the last version of our Automatic Infractor
->>>>>>> 
+# Prototipo
+In this repository we synchronice the last version of our Automatic Infractor. In the last commit we are developing a multiprocessing feature for increase the speed of the process.
