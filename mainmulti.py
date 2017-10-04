@@ -14,7 +14,7 @@ import logging
 
 #from new_libs import math_and_utils
 #from new_libs.BackgroundsubCNT import CreateBGCNT
-from new_libs.math_and_utils import Genero_Frame
+#from new_libs.math_and_utils import Genero_Frame
 
 from new_libs.utilsforFPS import WebcamVideoStream
 from new_libs.utilsforFPS import FPS
@@ -64,6 +64,13 @@ def mydecorator(function):
 
 def show_bg(matches):
 
+	DIVIDER_COLOUR = (255, 255, 0)
+	BOUNDING_BOX_COLOUR = (255, 0, 0)
+	CENTROID_COLOUR = (0, 0, 255)
+	CAR_COLOURS = [(0, 0, 255)]
+	EXIT_COLOR = (66, 183, 42)
+
+
 	for (i, match) in enumerate(matches):
 		contour, centroid = match[0], match[1]
 		#if self.check_exit(centroid, exit_masks):
@@ -93,8 +100,6 @@ if __name__ == '__main__':
 	#vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
 	vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
 	
-
-
 	time.sleep(1.0)
 	fps = FPS().start() 
 	ON = True
@@ -113,12 +118,8 @@ if __name__ == '__main__':
 
 	#pipeline = PipelineRunner(pipeline=[MultiJobs( fun1 = function1, fun2 = function2)], log_level=logging.DEBUG)
 	pipeline = PipelineRunner(pipeline=[CreateBGCNT(), Filtering()], log_level=logging.DEBUG)
-	generate_frames = Genero_Frame()
-	DIVIDER_COLOUR = (255, 255, 0)
-	BOUNDING_BOX_COLOUR = (255, 0, 0)
-	CENTROID_COLOUR = (0, 0, 255)
-	CAR_COLOURS = [(0, 0, 255)]
-	EXIT_COLOR = (66, 183, 42)
+	#generate_frames = Genero_Frame()
+
 
 	print('jhello')
 	while ON:
@@ -127,18 +128,16 @@ if __name__ == '__main__':
 		# to have a maximum width of 400 pixels
 		t1 = time.time()
 
-		frame = vs.read()
-
+		frame, frame_resized = vs.read()
 
 		if not frame.any():
 			log.error("Frame capture failed, stopping...")
 			break
-		frame_resized, frame_real = generate_frames(frame)
 		t2 = time.time()
 
 		t3 = time.time()
 		# Get signals from the semaforo
-		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame)
+		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame_resized)
 		# fake frame for debugs
 		_frame_number += 1
 
@@ -153,14 +152,13 @@ if __name__ == '__main__':
 		# this needed to make video from cutted frames
 		frame_number += 1
 
-		
 		pipeline.load_data({
 	        'frame_resized': frame_resized,
-	        'frame_real': frame_real,
+	        'frame_real': frame,
 	   	    'state': colorLiteral,
 	        'frame_number': frame_number,})
 		pipeline.run()
-
+		#cv2.imshow('frame_resized', frame_resized)
 
 		t4 = time.time()
 
