@@ -26,7 +26,7 @@ class Video_Camera(Thread):
     def initialize_video_stream(self):
         self.rawCapture = pc.array.PiRGBArray(self.camera, size=self.camera.resolution) 
         self.stream = self.camera.capture_continuous(self.rawCapture,
-             format=&amp;quot;bgr&amp;quot;, 
+             format='h264',
              use_video_port=True)
 
     def start(self):
