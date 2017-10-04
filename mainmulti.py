@@ -14,12 +14,12 @@ import logging
 
 #from new_libs import math_and_utils
 #from new_libs.BackgroundsubCNT import CreateBGCNT
-#from new_libs.math_and_utils import Genero_Frame
+from new_libs.math_and_utils import Genero_Frame
 
 from new_libs.utilsforFPS import WebcamVideoStream
 from new_libs.utilsforFPS import FPS
 from new_libs.semaforo import CreateSemaforo
-
+from camPi import Video_Camera
 from multiprocessing import Process, Queue, Pool
 
 from pipeline import (
@@ -99,8 +99,21 @@ if __name__ == '__main__':
 	#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()
 	#vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
 	
-	vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
+	#vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
 	
+
+	fps = 30
+	width = 2450
+	height = 3266
+	vflip = 1
+	hflip = 1
+	mins = 1
+
+
+	vs = Video_Camera(fps,width,height,vflip,hflip,mins)
+	vs.initialize_video_stream()
+	vs.start()
+
 	time.sleep(1.0)
 	fps = FPS().start() 
 	ON = True
@@ -130,7 +143,8 @@ if __name__ == '__main__':
 		t5 = time.time()
 		t1 = time.time()
 
-		frame, frame_resized = vs.read()
+		frame = vs.read()
+		frame, frame_resized = Genero_Frame(frame)
 
 		if not frame.any():
 			log.error("Frame capture failed, stopping...")
