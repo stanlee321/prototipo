@@ -1,6 +1,6 @@
 import picamera.camera as pc
 from collections import deque
-
+from threading import Thread
 
 
 class Video_Camera(Thread):
