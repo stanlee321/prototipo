@@ -14,7 +14,7 @@ import logging
 
 #from new_libs import math_and_utils
 #from new_libs.BackgroundsubCNT import CreateBGCNT
-from new_libs.math_and_utils import genero_frame
+from new_libs.math_and_utils import Genero_Frame
 
 from new_libs.utilsforFPS import WebcamVideoStream
 from new_libs.utilsforFPS import FPS
@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
 	#pipeline = PipelineRunner(pipeline=[MultiJobs( fun1 = function1, fun2 = function2)], log_level=logging.DEBUG)
 	pipeline = PipelineRunner(pipeline=[CreateBGCNT(), Filtering()], log_level=logging.DEBUG)
-
+	generate_frames = Genero_Frame()
 	DIVIDER_COLOUR = (255, 255, 0)
 	BOUNDING_BOX_COLOUR = (255, 0, 0)
 	CENTROID_COLOUR = (0, 0, 255)
@@ -133,7 +133,7 @@ if __name__ == '__main__':
 		if not frame.any():
 			log.error("Frame capture failed, stopping...")
 			break
-		frame_resized, frame_real = genero_frame(frame)
+		frame_resized, frame_real = generate_frames(frame)
 		t2 = time.time()
 
 		t3 = time.time()
@@ -154,12 +154,12 @@ if __name__ == '__main__':
 		frame_number += 1
 
 		
-		#pipeline.load_data({
-	    #    'frame_resized': frame_resized,
-	    #    'frame_real': frame_real,
-	   	#    'state': colorLiteral,
-	    #    'frame_number': frame_number,})
-		#pipeline.run()
+		pipeline.load_data({
+	        'frame_resized': frame_resized,
+	        'frame_real': frame_real,
+	   	    'state': colorLiteral,
+	        'frame_number': frame_number,})
+		pipeline.run()
 
 
 		t4 = time.time()
