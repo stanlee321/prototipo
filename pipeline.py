@@ -105,27 +105,21 @@ class CreateBGCNT(PipelineProcessor):
 
 	def __call__(self, context):
 
-		if context['state'] == 'ROJO' or 'rojo':
+		self.input_q.put(context['frame_resized'])
 
+		matches = self.output_q.get()
+		
+		context['matches'] = matches
+		#return context['matches'], context['frame_resized'], context['frame_number'], context['frame_real']
+		return context
 
-			self.input_q.put(context['frame_resized'])
-
-			matches = self.output_q.get()
-			
-			context['matches'] = matches
-			#return context['matches'], context['frame_resized'], context['frame_number'], context['frame_real']
-			return context
-		else:
-			return 'Is green  dude do something else dude'
 
 class Filtering(PipelineProcessor):
 
 	def __init__(self):
 		self.counter = -1
 
-	#@classmethod
 	def cutHighResImage(self, HR_IMAGE, FRAME_NUMBER, MATCHES):
-		#print(HR_IMAGE.shape)
 
 		for (i, match) in enumerate(MATCHES):
 			contour, centroid = match[0], match[1]
@@ -144,21 +138,18 @@ class Filtering(PipelineProcessor):
 			return out
 
 	def __call__(self,context):
-		if type(context) != type(''):
-			print('cleaning...')
+		print('cleaning...')
 
-			date =  datetime.datetime.now().strftime('%Y-%m-%d::%H:%M:%S')
+		date =  datetime.datetime.now().strftime('%Y-%m-%d::%H:%M:%S')
 
 
-			cutted = self.cutHighResImage(context['frame_real'],context['frame_number'],context['matches'])
+		cutted = self.cutHighResImage(context['frame_real'],context['frame_number'],context['matches'])
 
-			data = [context['frame_number'], cutted, context['frame_resized'], date]
+		data = [context['frame_number'], cutted, context['frame_resized'], date]
 
-			return data
-			#self.cutHighResImage(context['frame_real'],context['frame_number'],context['matches'])
+		return data
+		#self.cutHighResImage(context['frame_real'],context['frame_number'],context['matches'])
 
-		else:
-			return 'is Green dude do something else'
 
 
 class FIFO(PipelineProcessor):
@@ -168,17 +159,13 @@ class FIFO(PipelineProcessor):
 		self.input_q = Queue(maxsize = queue_size)
 
 	def __call__(self, context):
-		if type(context) != type(''):
 
-			self.input_q.put(context)
+		self.input_q.put(context)
 
-			#print(self.input_q.get())
-			#return self.input_q.get()
+		#print(self.input_q.get())
+		#return self.input_q.get()
 
-			self.input_q.get()
-		else:
-			print('the rute finish hbere')
-
+		self.input_q.get()
 
 
 
