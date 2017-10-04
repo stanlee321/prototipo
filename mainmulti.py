@@ -80,6 +80,8 @@ def show_bg(matches):
 
 if __name__ == '__main__':
 
+	print('here we start')
+
 	data = np.load('./installationFiles/heroes.npy')
 	print(data)
 	semaforo = CreateSemaforo(periodoSemaforo = 10)
