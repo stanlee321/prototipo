@@ -229,7 +229,7 @@ if __name__ == '__main__':
 		if ch == ord('r'):
 			miPolicia.restablecerLineaLK()
 		
-		
+		print('Ciclo',time.time()-tiempoAuxiliar)
 		while time.time()-tiempoAuxiliar<1/mifps:
 			True
 		frame += 1
