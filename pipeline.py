@@ -153,19 +153,20 @@ class Filtering(PipelineProcessor):
 
 
 class FIFO(PipelineProcessor):
-	def __init__(self, queue_size = 30):
+	def __init__(self, queue_size = 3):
 		super(FIFO, self).__init__()
 
 		self.input_q = Queue(maxsize = queue_size)
 
 	def __call__(self, context):
 
-		self.input_q.put(context)
+		#self.input_q.put(context)
 
 		#print(self.input_q.get())
 		#return self.input_q.get()
 
-		self.input_q.get()
+		#self.input_q.get()
+		pass
 
 
 
