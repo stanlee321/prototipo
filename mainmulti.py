@@ -141,7 +141,6 @@ if __name__ == '__main__':
 		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame)
 		# fake frame for debugs
 		_frame_number += 1
-		t4 = time.time()
 
 
 		# skip every 2nd frame to speed up processing
@@ -163,6 +162,7 @@ if __name__ == '__main__':
 		#pipeline.run()
 
 
+		t4 = time.time()
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
@@ -175,7 +175,7 @@ if __name__ == '__main__':
 		#print(senalColor, colorLiteral, flancoSemaforo)
 	
 		print('THE TIME FROM .read() is ', t2-t1)
-		print('THE TIME FROM .semaforo() is ', t4-t3)
+		print('THE TIME FROM .semaforo() +++++ allis ', t4-t3)
 
 		# update the FPS counter
 		fps.update()
