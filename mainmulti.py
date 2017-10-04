@@ -90,8 +90,8 @@ if __name__ == '__main__':
 	#vs = WebcamVideoStream(src=src[0], height = 640, width = 480).start()
 	#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536, queueSize=8).start()
 	#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()
-	vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
-	#vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
+	#vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
+	vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
 	
 
 
@@ -129,12 +129,12 @@ if __name__ == '__main__':
 
 		frame = vs.read()
 
-		t2 = time.time()
 
 		if not frame.any():
 			log.error("Frame capture failed, stopping...")
 			break
-		#frame_resized, frame_real = genero_frame(frame)
+		frame_resized, frame_real = genero_frame(frame)
+		t2 = time.time()
 
 		t3 = time.time()
 		# Get signals from the semaforo
@@ -167,7 +167,7 @@ if __name__ == '__main__':
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
-		if _frame_number == 1000:
+		if _frame_number == 200:
 			break
 		#print('[INFO] elapsed time: {:.2f}'.format(time.time() - t))
 
