@@ -93,6 +93,8 @@ if __name__ == '__main__':
 	#vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
 	#vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
 	
+
+
 	time.sleep(1.0)
 	fps = FPS().start() 
 	ON = True
@@ -118,7 +120,9 @@ if __name__ == '__main__':
 	CAR_COLOURS = [(0, 0, 255)]
 	EXIT_COLOR = (66, 183, 42)
 
+	print('jhello')
 	while ON:
+
 		# grab the frame from the threaded video stream and resize it
 		# to have a maximum width of 400 pixels
 		
