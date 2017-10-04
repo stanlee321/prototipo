@@ -8,12 +8,13 @@ class Video_Camera(Thread):
         self.input_deque = deque(maxlen=fps*mins*60) 
         self.fps = fps
 
-        self.camera.resolution = (width, height)
+        #self.resolution = (width, height)
         self.vflip = vflip
         self.hflip = hflip
         self.mins = mins
         self.camera = 0
         self.stream = 0
+        self.camera = 0
 
         #...
          
