@@ -64,7 +64,9 @@ class WebcamVideoStream:
 
             # otherwise, read the next frame from the stream
             (self.grabbed, self.frame) = self.stream.read()
-            self.frame_resized = cv2.resize(self.frame,(320,240))
+            #self.frame_resized = cv2.resize(self.frame,(320,240))
+            self.frame_resized = cv2.resize(self.frame,(320,240), fx = 1.2, fy = 1.2)
+
 
     def read(self):
         # return the frame most recently read
