@@ -125,20 +125,23 @@ if __name__ == '__main__':
 
 		# grab the frame from the threaded video stream and resize it
 		# to have a maximum width of 400 pixels
-		
 		t1 = time.time()
+
 		frame = vs.read()
+
+		t2 = time.time()
 
 		if not frame.any():
 			log.error("Frame capture failed, stopping...")
 			break
 		#frame_resized, frame_real = genero_frame(frame)
 
+		t3 = time.time()
 		# Get signals from the semaforo
 		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame)
 		# fake frame for debugs
 		_frame_number += 1
-
+		t4 = time.time()
 
 
 		# skip every 2nd frame to speed up processing
@@ -160,7 +163,6 @@ if __name__ == '__main__':
 		#pipeline.run()
 
 
-		t2 = time.time()
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
@@ -172,7 +174,9 @@ if __name__ == '__main__':
 
 		#print(senalColor, colorLiteral, flancoSemaforo)
 	
-		print('THE TIME THAT TAKE TO RUN THIS', t2-t1)
+		print('THE TIME FROM .read() is ', t2-t1)
+		print('THE TIME FROM .semaforo() is ', t4-t3)
+
 		# update the FPS counter
 		fps.update()
 
