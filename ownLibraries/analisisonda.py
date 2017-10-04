@@ -18,7 +18,7 @@ class AnalisisOnda():
 		self.velocidadesSinNegativo = np.array((0.0,0.0))
 		self.pulsosAutomoviles_funcionSigno = np.array((0.0,0.0))
 
-		self.minimoValorVelocidad = 4
+		self.minimoValorVelocidad = 8
 		self.momentumActual = 0
 		self.indiceActual = 0
 

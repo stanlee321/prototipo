@@ -79,13 +79,8 @@ class PoliciaInfractor():
 		#	lineaAcondicionada.append([list(array[0]*1.0)])
 		self.lineaDeResguardoDelantera = np.array(self.lineaDeResguardoDelantera,dtype = np.float32)	# This solved the problem although the array seemed to ve  in float32, adding this specification to this line solved the problem
 		self.lineaFijaDelantera = np.array(self.lineaFijaDelantera,dtype = np.float32)
-		tiempoParaLK = time.time()
-		
-		
 		# Se compara las lineas anterior y nueva para obtener el flujo en dirección deseada
-		
 		#variacionIntegral = self.obtenerMagnitudMovimiento(self.lineaDeResguardoDelantera,nuevoArrayAActualizar)
-
 		arrayAuxiliarParaVelocidad, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaFijaDelantera, None, **self.lk_params)
 		self.lineaEmpuje = arrayAuxiliarParaVelocidad
 		flujoTotal = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
@@ -95,8 +90,9 @@ class PoliciaInfractor():
 			nuevaInfraccion = {'name':'fechaActual','momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
 			self.listaDeInfracciones.append(nuevaInfraccion)
 			self.seguimientoEncendido = True
-		
+		print('Numero de Infracciones Total: ',len(self.listaDeInfracciones))
 		for infraccion in self.listaDeInfracciones:
+			print('Infraccion de: ',infraccion['frameInicial'],' a ',infraccion['frameFinal'],' con estado: ',infraccion['estado'])
 			if infraccion['estado'] == 'Candidato':
 				nuevoArrayAActualizar, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
 				actualizacion = {'desplazamiento':nuevoArrayAActualizar}
@@ -105,14 +101,11 @@ class PoliciaInfractor():
 					xTest, yTest = vector[0][0], vector[0][1]
 					if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:
 						self.numeroAutosCruzando+=1
-						actualizacion = {'estado':'Confirmado'}
+						actualizacion = {'estado':'Confirmado','frameFinal':numeroDeFrame}
 						infraccion.update(actualizacion)
-
-		tiempoParaLK = time.time() - tiempoParaLK
-		print('LK demoro:', tiempoParaLK)
+		
 		#self.lineaDeResguardoDelantera = nuevoArrayAActualizar
 		self.imagenAuxiliar = imagenActualEnGris
-		
 		return ondaFiltrada,flanco,flujoTotal
 
 	def obtenerLinea(self):
@@ -159,7 +152,6 @@ class PoliciaInfractor():
 		indice = dif2.index(max(dif2))
 		indiceDeMayores.append(indice)
 		dif2.pop(indice)
-
 		return np.array([[nuevoVector[indiceDeMayores[0]][0]],[nuevoVector[indiceDeMayores[1]][0]],[nuevoVector[indiceDeMayores[2]][0]]])
 
 	def obtenerMagnitudMovimiento(self,vectorAntiguo, nuevoVector):
@@ -199,7 +191,7 @@ if __name__ == '__main__':
 	velocidadesFiltradas = []
 	flanco = []
 	frame = 0
-	mifps = 8
+	mifps = 5
 
 	while True:
 		for inciceDescarte in range(30//mifps):
@@ -208,7 +200,6 @@ if __name__ == '__main__':
 		frameActual = cv2.resize(frameActual,(320,240))
 		tiempoAuxiliar = time.time()
 		filtrado,flancoRes,magnitud = miPolicia.evolucionarLineaVigilancia(frame,frameActual)
-		print('Tiempo de evolución de linea: ', time.time()-tiempoAuxiliar)
 		toPlot = miPolicia.obtenerLinea()
 	
 		for punto in toPlot:
@@ -217,7 +208,6 @@ if __name__ == '__main__':
 		cv2.putText(frameActual, str(int(magnitud)), (20,20), font, 0.4,(255,255,255),1,cv2.LINE_AA)
 		cv2.putText(frameActual, str(miPolicia.numeroAutosCruzando), (20,40), font, 0.4,(255,255,255),1,cv2.LINE_AA)
 		cv2.imshow('Visual',frameActual)
-		
 		
 		velocidades.append(magnitud)
 		velocidadesFiltradas.append(filtrado)
@@ -238,7 +228,7 @@ if __name__ == '__main__':
 
 		if ch == ord('r'):
 			miPolicia.restablecerLineaLK()
-		#print(time.time()-tiempoAuxiliar)
+		
 		
 		while time.time()-tiempoAuxiliar<1/mifps:
 			True
