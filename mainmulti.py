@@ -97,9 +97,9 @@ if __name__ == '__main__':
 	src = ['./installationFiles/mySquare.mp4', 0]
 	#vs = WebcamVideoStream(src=src[0], height = 640, width = 480).start()
 	#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()
-	vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
+	#vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
 	
-	#vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
+	vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
 	
 	time.sleep(1.0)
 	fps = FPS().start() 
@@ -127,6 +127,7 @@ if __name__ == '__main__':
 
 		# grab the frame from the threaded video stream and resize it
 		# to have a maximum width of 400 pixels
+		t5 = time.time()
 		t1 = time.time()
 
 		frame, frame_resized = vs.read()
@@ -166,16 +167,16 @@ if __name__ == '__main__':
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
-		if _frame_number == 1000:
+		if _frame_number == 400:
 			break
 		#print('[INFO] elapsed time: {:.2f}'.format(time.time() - t))
 
-
+		t6 = time.time()
 		#print(senalColor, colorLiteral, flancoSemaforo)
 	
 		print('THE TIME FROM .read() is ', t2-t1)
 		print('THE TIME FROM .semaforo() is ', t4-t3)
-
+		print('alll the while', t6-t5)
 		# update the FPS counter
 		fps.update()
 

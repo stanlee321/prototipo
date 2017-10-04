@@ -160,13 +160,12 @@ class FIFO(PipelineProcessor):
 
 	def __call__(self, context):
 
-		#self.input_q.put(context)
+		self.input_q.put(context)
 
 		#print(self.input_q.get())
 		#return self.input_q.get()
 
-		#self.input_q.get()
-		pass
+		self.input_q.get()
 
 
 
