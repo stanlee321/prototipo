@@ -108,7 +108,6 @@ def __main_function__():
 
 	tiempoAuxiliar = time.time()
 	
-
 	while True:
 		"""
 		Main loop, running the repetitive tasks, can be broken from inside
@@ -139,7 +138,6 @@ def __main_function__():
 				miReporte.info('<<<VERDE GREEN VERDE GREEN at: '+datetime.datetime.now().strftime('%H-%M-%S')+' VERDE GREEN VERDE GREEN>>>')
 				reporte = miPoliciaReportando.guardarReportes()
 
-		
 		indiceColor = 0
 		
 		visualizacion = capturaActual

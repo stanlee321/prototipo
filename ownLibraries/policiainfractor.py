@@ -53,6 +53,7 @@ class PoliciaInfractor():
 		self.restablecerLineaLK()
 		self.seguimientoEncendido = False
 		self.aApagar = False
+		self.listaDeInfracciones = []
 
 	def inicializar(self,):
 		"""
@@ -90,22 +91,28 @@ class PoliciaInfractor():
 		flujoTotal = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
 		ondaFiltrada, flanco = self.miFiltro.obtenerOndaFiltrada(flujoTotal)
 		if flanco == 1:
+			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
+			nuevaInfraccion = {'name':'fechaActual','momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
+			self.listaDeInfracciones.append(nuevaInfraccion)
 			self.seguimientoEncendido = True
-		elif flanco<0:
-			self.aApagar = True
-		if self.seguimientoEncendido:
-			nuevoArrayAActualizar, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaDeResguardoDelantera, None, **self.lk_params)	
-		else:
-			nuevoArrayAActualizar = self.lineaDeResguardoDelantera
+		
+		for infraccion in self.listaDeInfracciones:
+			if infraccion['estado'] == 'Candidato':
+				nuevoArrayAActualizar, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
+				actualizacion = {'desplazamiento':nuevoArrayAActualizar}
+				infraccion.update(actualizacion)
+				for vector in nuevoArrayAActualizar:
+					xTest, yTest = vector[0][0], vector[0][1]
+					if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:
+						self.numeroAutosCruzando+=1
+						actualizacion = {'estado':'Confirmado'}
+						infraccion.update(actualizacion)
+
 		tiempoParaLK = time.time() - tiempoParaLK
 		print('LK demoro:', tiempoParaLK)
-		self.lineaDeResguardoDelantera = nuevoArrayAActualizar
+		#self.lineaDeResguardoDelantera = nuevoArrayAActualizar
 		self.imagenAuxiliar = imagenActualEnGris
-		for vector in nuevoArrayAActualizar:
-			xTest, yTest = vector[0][0], vector[0][1]
-			if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:
-				self.numeroAutosCruzando+=1
-				self.restablecerLineaLK()
+		
 		return ondaFiltrada,flanco,flujoTotal
 
 	def obtenerLinea(self):
@@ -113,9 +120,11 @@ class PoliciaInfractor():
 		Returns the starting line in tuple format, ready to read or plot with opencv
 		"""
 		aDevolver = []
-		for punto in self.lineaDeResguardoDelantera:
-			aDevolver.append(tuple(punto[0]))
-		return aDevolver#self.lineaDeResguardoDelantera
+		for infraccion in self.listaDeInfracciones:
+			if infraccion['estado']=='Candidato':
+				for punto in infraccion['desplazamiento']:
+					aDevolver.append(tuple(punto[0]))
+		return aDevolver
 
 	def obtenerVectorMovimiento(self,vectorAntiguo, nuevoVector):
 		"""
@@ -129,6 +138,29 @@ class PoliciaInfractor():
 		x = 10*x/(self.numeroDePuntos+1)
 		y = 10*y/(self.numeroDePuntos+1)
 		return (x,y)
+
+	def obtenerPuntosMoviles(self,vectorAntiguo, nuevoVector):
+		"""
+		Gets center of movement as a tuple of three vectors
+		"""
+		dif2 = []
+		for numeroDePunto in range(1,self.numeroDePuntos+1):
+			x = nuevoVector[numeroDePunto][0][0] - vectorAntiguo[numeroDePunto][0][0]
+			y = nuevoVector[numeroDePunto][0][1] - vectorAntiguo[numeroDePunto][0][1]
+			dif2.append(x**2+y**2)
+		indiceDeMayores = []
+		
+		indice = dif2.index(max(dif2))
+		indiceDeMayores.append(indice)
+		dif2.pop(indice)
+		indice = dif2.index(max(dif2))
+		indiceDeMayores.append(indice)
+		dif2.pop(indice)
+		indice = dif2.index(max(dif2))
+		indiceDeMayores.append(indice)
+		dif2.pop(indice)
+
+		return np.array([[nuevoVector[indiceDeMayores[0]][0]],[nuevoVector[indiceDeMayores[1]][0]],[nuevoVector[indiceDeMayores[2]][0]]])
 
 	def obtenerMagnitudMovimiento(self,vectorAntiguo, nuevoVector):
 		"""
@@ -162,15 +194,16 @@ if __name__ == '__main__':
 	framePrueba = cv2.resize(capturaDeFlujoInicial,(320,240))
 	## Creo los objetos:
 	miPolicia = PoliciaInfractor(framePrueba,verticesPartida,verticesLlegada)
-	numeroAutosCruzando = 0
 	tiempoAuxiliar = time.time()
 	velocidades = []
 	velocidadesFiltradas = []
 	flanco = []
 	frame = 0
+	mifps = 8
 
 	while True:
-		ret, frameActual = camaraParaFlujo.read()
+		for inciceDescarte in range(30//mifps):
+			ret, frameActual = camaraParaFlujo.read()
 
 		frameActual = cv2.resize(frameActual,(320,240))
 		tiempoAuxiliar = time.time()
@@ -207,7 +240,7 @@ if __name__ == '__main__':
 			miPolicia.restablecerLineaLK()
 		#print(time.time()-tiempoAuxiliar)
 		
-		#while time.time()-tiempoAuxiliar<0.05:
-		#	True
+		while time.time()-tiempoAuxiliar<1/mifps:
+			True
 		frame += 1
 		tiempoAuxiliar = time.time()
