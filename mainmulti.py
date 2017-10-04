@@ -162,7 +162,7 @@ if __name__ == '__main__':
 		#pipeline.run()
 
 
-				t4 = time.time()
+		t4 = time.time()
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
