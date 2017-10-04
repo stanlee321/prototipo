@@ -25,7 +25,8 @@ from multiprocessing import Process, Queue, Pool
 from new_libs.pipeline import (
     PipelineRunner,
     CreateBGCNT,
-    Filtering)
+    Filtering,
+    FIFO)
 
 
 # construct the argument parse and parse the arguments
@@ -94,8 +95,8 @@ if __name__ == '__main__':
 	semaforo = CreateSemaforo(periodoSemaforo = 10)
 	poligono  = data[0]
 	src = ['./installationFiles/mySquare.mp4', 0]
-	#vs = WebcamVideoStream(src=src[0], height = 640, width = 480).start()
-	vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()
+	vs = WebcamVideoStream(src=src[0], height = 640, width = 480).start()
+	#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()
 	#vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
 	#vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
 	
@@ -116,7 +117,7 @@ if __name__ == '__main__':
 	#bgsub_CNT = CreateBGCNT()
 
 	#pipeline = PipelineRunner(pipeline=[MultiJobs( fun1 = function1, fun2 = function2)], log_level=logging.DEBUG)
-	pipeline = PipelineRunner(pipeline=[CreateBGCNT(), Filtering()], log_level=logging.DEBUG)
+	pipeline = PipelineRunner(pipeline=[CreateBGCNT(), Filtering(), FIFO()], log_level=logging.DEBUG)
 	#generate_frames = Genero_Frame()
 
 
@@ -150,7 +151,7 @@ if __name__ == '__main__':
 		# frame number that will be passed to pipline
 		# this needed to make video from cutted frames
 		frame_number += 1
-
+		print(colorLiteral)
 		pipeline.load_data({
 	        'frame_resized': frame_resized,
 	        'frame_real': frame,
@@ -164,7 +165,7 @@ if __name__ == '__main__':
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
-		if _frame_number == 200:
+		if _frame_number == 1000:
 			break
 		#print('[INFO] elapsed time: {:.2f}'.format(time.time() - t))
 
