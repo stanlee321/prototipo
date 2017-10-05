@@ -146,6 +146,7 @@ if __name__ == '__main__':
 		t1 = time.time()
 		frame, frame_resized = vs.read()
 		t2 = time.time()
+		_frame_number += 1
 
 		"""
 		if not frame.any():
@@ -157,7 +158,6 @@ if __name__ == '__main__':
 		# Get signals from the semaforo
 		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame_resized)
 		# fake frame for debugs
-		_frame_number += 1
 
 
 		# skip every 2nd frame to speed up processing
