@@ -147,10 +147,11 @@ if __name__ == '__main__':
 		t1 = time.time()
 
 		frame = vs.read()
-		print(frame.shape)
-		"""
+		
 		frame, frame_resized  = process_resize(frame)
 
+
+		"""
 		if not frame.any():
 			log.error("Frame capture failed, stopping...")
 			break
@@ -185,7 +186,7 @@ if __name__ == '__main__':
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
-
+		"""
 		if _frame_number == 400:
 			break
 		#print('[INFO] elapsed time: {:.2f}'.format(time.time() - t))
@@ -193,13 +194,10 @@ if __name__ == '__main__':
 		t6 = time.time()
 		#print(senalColor, colorLiteral, flancoSemaforo)
 	
-		print('THE TIME FROM .read() is ', t2-t1)
-		print('THE TIME FROM .semaforo() is ', t4-t3)
+		#print('THE TIME FROM .read() is ', t2-t1)
+		#print('THE TIME FROM .semaforo() is ', t4-t3)
 		print('alll the while', t6-t5)
 		# update the FPS counter
-		"""
-		t2 = time.time()
-		print(t2-t1)
 		fps.update()
 
 	# stop the timer and display FPS information
