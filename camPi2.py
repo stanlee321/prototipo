@@ -28,6 +28,7 @@ class PiVideoStream:
         # initialize the frame and the variable used to indicate
         # if the thread should be stopped
         self.frame = None
+        self.frame_resized = None
         self.stopped = False
 
 
