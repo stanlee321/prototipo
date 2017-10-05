@@ -143,13 +143,9 @@ if __name__ == '__main__':
 
 		# grab the frame from the threaded video stream and resize it
 		# to have a maximum width of 400 pixels
-		t5 = time.time()
 		t1 = time.time()
-
-		frame = vs.read()
-		
-		frame, frame_resized  = process_resize(frame)
-
+		frame, frame_resized = vs.read()
+		t2 = time.time()
 
 		"""
 		if not frame.any():
@@ -191,12 +187,11 @@ if __name__ == '__main__':
 			break
 		#print('[INFO] elapsed time: {:.2f}'.format(time.time() - t))
 
-		t6 = time.time()
 		#print(senalColor, colorLiteral, flancoSemaforo)
 	
 		#print('THE TIME FROM .read() is ', t2-t1)
 		#print('THE TIME FROM .semaforo() is ', t4-t3)
-		print('alll the while', t6-t5)
+		print('alll the while', t2-t1)
 		# update the FPS counter
 		fps.update()
 
