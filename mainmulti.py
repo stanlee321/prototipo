@@ -155,9 +155,9 @@ if __name__ == '__main__':
 
 		_frame_number += 1
 		
-		if not frame.any():
-			log.error("Frame capture failed, stopping...")
-			break
+		#if not frame.any():
+		#	log.error("Frame capture failed, stopping...")
+		#	break
 
 		# Get signals from the semaforo
 		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame_resized)
@@ -184,8 +184,8 @@ if __name__ == '__main__':
 
 		t4 = time.time()
 
-		if cv2.waitKey(1) & 0xFF == ord('q'):
-			break
+		#if cv2.waitKey(1) & 0xFF == ord('q'):
+		#	break
 		
 		if _frame_number == 400:
 			break
