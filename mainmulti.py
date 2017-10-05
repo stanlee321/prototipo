@@ -103,8 +103,8 @@ if __name__ == '__main__':
 	
 
 	fps = 30
-	width = 2450
-	height = 3266
+	width = 3266
+	height = 2450
 	vflip = 1
 	hflip = 1
 	mins = 1

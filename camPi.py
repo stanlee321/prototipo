@@ -29,19 +29,19 @@ class Video_Camera(Thread):
     def initialize_video_stream(self):
         with pc.PiCamera(framerate=int(self.fps)) as camera:
             with picamera.array.PiRGBArray(camera) as output:
-                camera.resolution = (3266, 2450)
+                camera.resolution = self.resolution
                 self.stream = camera.capture_continuous(output, format='jpeg', use_video_port=True)
 
-                print('Captured %dx%d image' % (
-                output.array.shape[1], output.array.shape[0]))
+                #print('Captured %dx%d image' % (
+                #output.array.shape[1], output.array.shape[0]))
 
                 output.truncate(0)
 
                 camera.resolution = (320,240)
                 self.stream = camera.capture_continuous(output, format='jpeg', use_video_port=True)
 
-                print('Captured %dx%d image' % (
-                output.array.shape[1], output.array.shape[0]))
+                #print('Captured %dx%d image' % (
+                #output.array.shape[1], output.array.shape[0]))
 
     def start(self):
         # start the thread to read frames from the video stream
