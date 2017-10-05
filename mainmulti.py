@@ -144,9 +144,9 @@ if __name__ == '__main__':
 		# grab the frame from the threaded video stream and resize it
 		# to have a maximum width of 400 pixels
 		t1 = time.time()
-		frame = vs.read()
+		frame, frame_resized = vs.read()
 
-		frame, frame_resized = process_resize(frame)
+		#frame, frame_resized = process_resize(frame)
 		#cv2.imshow('frame', frame)
 		#frame = imutils.resize(frame)
 		#frame_resized = imutils.resize(frame, (320,240))
