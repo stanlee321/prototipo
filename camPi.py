@@ -18,6 +18,7 @@ class Video_Camera(Thread):
         self.camera = pc.PiCamera( resolution=(width,height), framerate=int(self.fps))
         self.stream = 0
         self.frame_array = 0
+        self.rawCapture = 0
         #...
          
     def initialize_camera(self):
@@ -42,6 +43,9 @@ class Video_Camera(Thread):
             #    'time':time.time(),
             #    'frame_raw':f.array})
             self.frame_array = f
+
+            self.rawCapture.truncate()
+            self.rawCapture.seek(0)
 
     def read(self):
         #return self.input_deque.pop()
