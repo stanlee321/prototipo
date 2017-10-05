@@ -146,9 +146,9 @@ if __name__ == '__main__':
 		t1 = time.time()
 		frame = vs.read()
 		#frame = imutils.resize(frame)
-		frame_resized = imutils.resize(frame, (320,240))
-		print('frame shape', frame.shape)
-		print('frame_resized', frame_resized.shape)
+		#frame_resized = imutils.resize(frame, (320,240))
+		print('frame type and  shape', type(frame), frame.shape)
+		#print('frame_resized type and shape', frame_resized.shape)
 
 		t2 = time.time()
 		_frame_number += 1
