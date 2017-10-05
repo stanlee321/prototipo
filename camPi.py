@@ -17,8 +17,6 @@ class Video_Camera(Thread):
         self.mins = mins
         self.camera = pc.PiCamera( resolution=(width,height), framerate=int(self.fps))
         self.stream = 0
-        self.camera = 0
-
         #...
          
     def initialize_camera(self):
