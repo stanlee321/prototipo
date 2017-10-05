@@ -153,15 +153,12 @@ if __name__ == '__main__':
 		print('frame type and  shape', type(frame), frame.shape)
 		print('frame_resized type and shape', frame_resized.shape)
 
-		t2 = time.time()
 		_frame_number += 1
-		"""
+		
 		if not frame.any():
 			log.error("Frame capture failed, stopping...")
 			break
-		t2 = time.time()
 
-		t3 = time.time()
 		# Get signals from the semaforo
 		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame_resized)
 		# fake frame for debugs
@@ -189,13 +186,13 @@ if __name__ == '__main__':
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
-		"""
+		
 		if _frame_number == 400:
 			break
 		#print('[INFO] elapsed time: {:.2f}'.format(time.time() - t))
 
 		#print(senalColor, colorLiteral, flancoSemaforo)
-	
+		t2 = time.time()
 		#print('THE TIME FROM .read() is ', t2-t1)
 		#print('THE TIME FROM .semaforo() is ', t4-t3)
 		print('alll the while', t2-t1)
