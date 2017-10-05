@@ -37,12 +37,13 @@ class Video_Camera(Thread):
         #This method is run when the command start() is given to the thread
         for f in self.stream:
             #add frame with timestamp to input queue
-            self.input_deque.append({
-                'time':time.time(),
-                'frame_raw':f.array})
-  
+            #self.input_deque.append({
+            #    'time':time.time(),
+            #    'frame_raw':f.array})
+            self.frame_array = f
 
     def read(self):
-        return self.input_deque.pop()
+        #return self.input_deque.pop()
+        return self.frame_array
 
 
