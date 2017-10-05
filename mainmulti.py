@@ -14,7 +14,7 @@ import logging
 
 #from new_libs import math_and_utils
 #from new_libs.BackgroundsubCNT import CreateBGCNT
-from new_libs.math_and_utils import Genero_Frame
+#from new_libs.math_and_utils import Genero_Frame
 
 from new_libs.utilsforFPS import WebcamVideoStream
 from new_libs.utilsforFPS import FPS
@@ -86,6 +86,11 @@ def show_bg(matches):
 	cv2.imshow('boxes', cv2.resize(frame_resized,(frame_resized.shape[1]*2, frame_resized.shape[0]*2)))
 
 
+def process_resize(frame):
+
+	resized = cv2.resize(frame,(320,340))
+	return frame, resized
+
 if __name__ == '__main__':
 
 	print('here we start')
@@ -142,7 +147,7 @@ if __name__ == '__main__':
 		t1 = time.time()
 
 		frame = vs.read()
-		frame, frame_resized  = Genero_Frame(frame)
+		frame, frame_resized  = process_resize(frame)
 
 		if not frame.any():
 			log.error("Frame capture failed, stopping...")
