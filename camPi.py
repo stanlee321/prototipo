@@ -24,8 +24,10 @@ class Video_Camera(Thread):
             resolution=(self.width,self.height), 
             framerate=int(self.fps))
             #...     
+
+
     def initialize_video_stream(self):
-        with pc.PiCamera( resolution=self.resolution, framerate=int(self.fps)) as camera:
+        with pc.PiCamera(framerate=int(self.fps)) as camera:
             with picamera.array.PiRGBArray(camera) as output:
                 camera.resolution = self.resolution
                 self.stream = self.camera.capture_continuous(output, format='jpeg', use_video_port=True)
