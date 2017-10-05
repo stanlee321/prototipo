@@ -1,4 +1,5 @@
-import picamera.camera as pc
+import picamera as pc
+
 from collections import deque
 from threading import Thread
 
@@ -19,7 +20,7 @@ class Video_Camera(Thread):
         #...
          
     def initialize_camera(self):
-        self.camera = pc.PiCamera(
+        self.camera = pc.camera.PiCamera(
             resolution=(self.width,self.height), 
             framerate=int(self.fps))
             #...
