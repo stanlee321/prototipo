@@ -147,6 +147,8 @@ if __name__ == '__main__':
 		t1 = time.time()
 
 		frame = vs.read()
+		print(frame.shape)
+		"""
 		frame, frame_resized  = process_resize(frame)
 
 		if not frame.any():
@@ -195,6 +197,9 @@ if __name__ == '__main__':
 		print('THE TIME FROM .semaforo() is ', t4-t3)
 		print('alll the while', t6-t5)
 		# update the FPS counter
+		"""
+		t2 = time.time()
+		print(t2-t1)
 		fps.update()
 
 	# stop the timer and display FPS information
