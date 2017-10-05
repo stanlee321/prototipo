@@ -1,4 +1,6 @@
 import picamera as pc
+import picamera.array
+
 
 from collections import deque
 from threading import Thread
@@ -20,13 +22,12 @@ class Video_Camera(Thread):
         #...
          
     def initialize_camera(self):
-        self.camera = pc.camera.PiCamera(
+        self.camera = pc.PiCamera(
             resolution=(self.width,self.height), 
             framerate=int(self.fps))
-            #...
-     
+            #...     
     def initialize_video_stream(self):
-        self.rawCapture = pc.array.PiRGBArray(self.camera, size=self.camera.resolution) 
+        self.rawCapture = picamera.array.PiRGBArray(self.camera, size=self.camera.resolution) 
         self.stream = self.camera.capture_continuous(self.rawCapture,
              format='h264',
              use_video_port=True)
