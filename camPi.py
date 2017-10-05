@@ -35,10 +35,10 @@ class Video_Camera(Thread):
                 #print('Captured %dx%d image' % (
                 #output.array.shape[1], output.array.shape[0]))
 
-                output.truncate(0)
+                #output.truncate(0)
 
-                camera.resolution = (320,240)
-                self.stream = camera.capture_continuous(output, format='jpeg', use_video_port=True)
+                #camera.resolution = (320,240)
+                #self.stream = camera.capture_continuous(output, format='jpeg', use_video_port=True)
 
                 #print('Captured %dx%d image' % (
                 #output.array.shape[1], output.array.shape[0]))
