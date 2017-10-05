@@ -26,9 +26,7 @@ class Video_Camera(Thread):
             #...     
     def initialize_video_stream(self):
         self.rawCapture = picamera.array.PiRGBArray(self.camera, size=self.camera.resolution) 
-        self.stream = self.camera.capture_continuous(self.rawCapture,
-             format='h264',
-             use_video_port=True)
+        self.stream = self.camera.capture_continuous(self.rawCapture,format='jpeg', use_video_port=True)
 
     def start(self):
         # start the thread to read frames from the video stream
