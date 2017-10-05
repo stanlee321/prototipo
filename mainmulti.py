@@ -145,9 +145,11 @@ if __name__ == '__main__':
 		# to have a maximum width of 400 pixels
 		t1 = time.time()
 		frame, frame_resized = vs.read()
+		print('frame shape', frame.shape)
+		print('frame_resized', frame_resized.shape)
+
 		t2 = time.time()
 		_frame_number += 1
-
 		"""
 		if not frame.any():
 			log.error("Frame capture failed, stopping...")
