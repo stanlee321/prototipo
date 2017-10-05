@@ -145,7 +145,8 @@ if __name__ == '__main__':
 		# to have a maximum width of 400 pixels
 		t1 = time.time()
 		frame = vs.read()
-		frame, frame_resized = process_resize(frame)
+		frame = imutils.resize(frame)
+		frame_resized = imutils.resize(frame, (320,240))
 		print('frame shape', frame.shape)
 		print('frame_resized', frame_resized.shape)
 
