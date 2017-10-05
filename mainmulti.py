@@ -103,8 +103,8 @@ if __name__ == '__main__':
 	
 
 	fps = 30
-	width = 3266
-	height = 2450
+	width = 2450
+	height = 3266
 	vflip = 1
 	hflip = 1
 	mins = 1
@@ -143,8 +143,7 @@ if __name__ == '__main__':
 		t5 = time.time()
 		t1 = time.time()
 
-		frame = vs.read()
-		frame, frame_resized = Genero_Frame(frame)
+		frame, frame_resized = vs.read()
 
 		if not frame.any():
 			log.error("Frame capture failed, stopping...")
