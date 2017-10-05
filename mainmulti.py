@@ -26,7 +26,8 @@ from pipeline import (
     PipelineRunner,
     CreateBGCNT,
     Filtering,
-    FIFO)
+    FIFO,
+    Save_to_Disk)
 
 
 # construct the argument parse and parse the arguments
@@ -134,7 +135,7 @@ if __name__ == '__main__':
 	#bgsub_CNT = CreateBGCNT()
 
 	#pipeline = PipelineRunner(pipeline=[MultiJobs( fun1 = function1, fun2 = function2)], log_level=logging.DEBUG)
-	pipeline = PipelineRunner(pipeline=[CreateBGCNT(), Filtering(), FIFO()], log_level=logging.DEBUG)
+	pipeline = PipelineRunner(pipeline=[CreateBGCNT(), Filtering(), FIFO(), Save_to_Disk()], log_level=logging.DEBUG)
 	#generate_frames = Genero_Frame()
 
 

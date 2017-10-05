@@ -165,7 +165,58 @@ class FIFO(PipelineProcessor):
 		#print(self.input_q.get())
 		#return self.input_q.get()
 
-		self.input_q.get()
+		return self.input_q.get()
+
+
+
+
+class Save_to_Disk(PipelineProcessor):
+	ask_for_time = datetime.datetime.now().strftime('%Y-%m-%d::%H:%M:%S')
+	def __init__(self):
+		pass
+	@classmethod
+	def update_folders_and_files(cls):
+		cls.update_time()
+
+		folder_and_file_name = cls.ask_for_time.split('::')
+		for_folder, for_file = folder_and_file_name[0], folder_and_file_name [1]
+
+		path_for_folder = './data' + '/' + '{}'.format(for_folder)
+		path_for_file = path_for_folder + '/' + '{}'.format(for_file)
+
+		return path_for_folder, path_for_file
+	
+	def create_folder_and_save(self, frame_number,matches, frame, tag):
+
+		#folder_name, file_name = Saveto.folder_and_file(Saveto.get_time('forFolder'), './data/{}/{}_frame_{}.jpg'.format(Function_2.get_time('forFolder'),
+		#											Function_2.get_time('forFile'), frame_number)  )
+		path_to_folder, path_to_file = SaveData.update_folders_and_files()
+		
+		try:
+			os.makedirs(path_to_folder)
+		except Exception as e:
+			print(e)
+		if os.path.isdir(path_to_folder) == os.path.isdir(path_to_file[0:-9]):
+			#print('Folder already exist or ..', e)
+			print('Files are beeing created in .... ', path_to_folder)
+			cv2.imwrite(path_to_file+'_{}_{}.jpg'.format(frame_number, tag), frame)
+		#print(SaveData.update_folders_and_files())
+
+		for match in matches:
+			try:
+				os.makedirs(path_to_folder)
+			except Exception as e:
+				print(e)
+			if os.path.isdir(path_to_folder) == os.path.isdir(path_to_file[0:-9]):
+				#print('Folder already exist or ..', e)
+				print('Files are beeing created in .... ', path_to_folder)
+				cv2.imwrite(path_to_file+'_{}_{}.jpg'.format(frame_number, tag), match)
+		#print(SaveData.update_folders_and_files())
+
+
+	def __call__(self,context):
+
+		self.create_folder_and_save(context[0], context[1], context[2], date])
 
 
 
