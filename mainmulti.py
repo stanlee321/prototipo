@@ -19,7 +19,7 @@ from new_libs.math_and_utils import Genero_Frame
 from new_libs.utilsforFPS import WebcamVideoStream
 from new_libs.utilsforFPS import FPS
 from new_libs.semaforo import CreateSemaforo
-from camPi import Video_Camera
+from camPi2 import PiVideoStream
 from multiprocessing import Process, Queue, Pool
 
 from pipeline import (
@@ -110,9 +110,7 @@ if __name__ == '__main__':
 	mins = 1
 
 
-	vs = Video_Camera(fps,width,height,vflip,hflip,mins)
-	vs.initialize_video_stream()
-	vs.start()
+	vs = PiVideoStream(resolution=(width,height), framerate= 30).start()
 
 	time.sleep(1.0)
 	fps = FPS().start() 
@@ -143,7 +141,8 @@ if __name__ == '__main__':
 		t5 = time.time()
 		t1 = time.time()
 
-		frame, frame_resized = vs.read()
+		frame = vs.read()
+		frame, frame_resized  = Genero_Frame(frame)
 
 		if not frame.any():
 			log.error("Frame capture failed, stopping...")
