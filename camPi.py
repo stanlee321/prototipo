@@ -15,7 +15,7 @@ class Video_Camera(Thread):
         self.vflip = vflip
         self.hflip = hflip
         self.mins = mins
-        self.camera = 0
+        self.camera = pc.PiCamera( resolution=(self.width,self.height), framerate=int(self.fps))
         self.stream = 0
         self.camera = 0
 
