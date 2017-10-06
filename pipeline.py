@@ -1,374 +1,460 @@
-import os
-import logging
-
-import numpy as np
 import cv2
+import numpy as np
+import os
 
-import some_math    
+from multiprocessing import Process
+
+import base64
+import logging
+import datetime
+
+import bgsubcnt
+from multiprocessing import Process, Queue, Pool
+from new_libs.math_and_utils import get_centroid
+from new_libs.math_and_utils import distance
+
 
 
 class PipelineRunner(object):
-    '''
-        Very simple pipline.
 
-        Just run passed processors in order with passing context from one to 
-        another.
+	"""
+	Pipeline that take frame_array and frame_integer from the exterior and 
+	make some magic with this this stuffs, parallel process like save to this and bg sub
 
-        You can also set log level for processors.
-    '''
+	"""
 
-    def __init__(self, pipeline=None, log_level=logging.DEBUG):
-        self.pipeline = pipeline or []
-        self.context = {}
-        self.log = logging.getLogger(self.__class__.__name__)
-        self.log.setLevel(log_level)
-        self.log_level = log_level
-        self.contour = None
-        self.set_log_level()
+	def __init__(self, pipeline, log_level=logging.DEBUG):
 
-    def set_context(self, data):
-        self.context = data
+		self.pipeline = pipeline or []
+		self.context = {}
 
-    def add(self, processor):
-        if not isinstance(processor, PipelineProcessor):
-            raise Exception(
-                'Processor should be an isinstance of PipelineProcessor.')
-        processor.log.setLevel(self.log_level)
-        self.pipeline.append(processor)
+	def load_data(self, data):
 
-    def remove(self, name):
-        for i, p in enumerate(self.pipeline):
-            if p.__class__.__name__ == name:
-                del self.pipeline[i]
-                return True
-        return False
+		self.context = data
 
-    def set_log_level(self):
-        for p in self.pipeline:
-            p.log.setLevel(self.log_level)
 
-    def run(self):
-        for p in self.pipeline:
-            self.context = p(self.context)
-
-        self.log.debug("Frame #%d processed.", self.context['frame_number'])
-
-        return self.context
-
+	def run(self):
+		# Runing again the run() method.
+		for p in self.pipeline:
+			self.context = p(self.context)
 
 class PipelineProcessor(object):
     '''
         Base class for processors.
     '''
-
     def __init__(self):
         self.log = logging.getLogger(self.__class__.__name__)
-        self.contour = None
+        print('HELLO FROM THE PARENNNNNNNNT')
 
-        
-class ContourDetection(PipelineProcessor):
-    '''
-        Detecting moving objects.
 
-        Purpose of this processor is to subtrac background, get moving objects
-        and detect them with a cv2.findContours method, and then filter off-by
-        width and height. 
 
-        bg_subtractor - background subtractor isinstance.
-        min_contour_width - min bounding rectangle width.
-        min_contour_height - min bounding rectangle height.
-        save_image - if True will save detected objects mask to file.
-        image_dir - where to save images(must exist).        
-    '''
+class CreateBGCNT(PipelineProcessor):
 
-    def __init__(self, bg_subtractor, min_contour_width=35, min_contour_height=35, save_image=False, image_dir='images'):
-        super(ContourDetection, self).__init__()
+	"""
+	CLASS used to create BGCNT for purposes of extract the rectangle where the 
+	car is in the screen, inputs: cls.visual(frame), outputs: list((rectanglex, rectangley)) positions.
+	"""
+	def __init__(self):
+		# Define the parameters needed for motion detection
 
-        self.bg_subtractor = bg_subtractor
-        self.min_contour_width = min_contour_width
-        self.min_contour_height = min_contour_height
-        self.save_image = save_image
-        self.image_dir = image_dir
+		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*60)
+		self.k = 31
+		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+		self.min_contour_width=30
+		self.min_contour_height=30
 
-    def filter_mask(self, img, a=None):
-        '''
-            This filters are hand-picked just based on visual tests
-        '''
+		self.input_q = Queue(maxsize=5)
+		self.output_q = Queue(maxsize=5)
 
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
+		self.process = Process(target= self.worker, args=(self.input_q, self.output_q))
+		self.process.daemon = True
 
-        # Fill any small holes
-        closing = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
-        # Remove noise
-        opening = cv2.morphologyEx(closing, cv2.MORPH_OPEN, kernel)
+		pool = Pool(2,self.worker, (self.input_q, self.output_q))
 
-        # Dilate to merge adjacent blobs
-        dilation = cv2.dilate(opening, kernel, iterations=2)
+	def worker(self, input_q, output_q):
 
-        return dilation
+		while True:
 
-    def detect_vehicles(self, fg_mask, context):
+			matches = []
 
-        matches = []
+			gray = cv2.cvtColor(input_q.get(), cv2.COLOR_BGR2GRAY)
 
-        # finding external contours
-        im2, contours, hierarchy = cv2.findContours(
-            fg_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
+			smooth_frame = cv2.GaussianBlur(gray, (self.k,self.k), 1.5)
+			#smooth_frame = cv2.bilateralFilter(gray,4,75,75)
+			#smooth_frame =cv2.bilateralFilter(smooth_frame,15,75,75)
 
-        for (i, contour) in enumerate(contours):
-            (x, y, w, h) = cv2.boundingRect(contour)
-            contour_valid = (w >= self.min_contour_width) and (
-                h >= self.min_contour_height)
+			self.fgmask = self.fgbg.apply(smooth_frame, self.kernel, 0.1)
 
-            if not contour_valid:
-                continue
+			im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
+			for (i, contour) in enumerate(contours):
+			    (x, y, w, h) = cv2.boundingRect(contour)
+			    contour_valid = (w >= self.min_contour_width) and (h >= self.min_contour_height)
+			    if not contour_valid:
+			        continue
+			    centroid = get_centroid(x, y, w, h)
 
-            centroid = some_math.get_centroid(x, y, w, h)
-
-            matches.append(((x, y, w, h), centroid))
+			    matches.append(((x, y, w, h), centroid))
+			output_q.put(matches)
 
-        return matches
 
-    def __call__(self, context):
-        frame = context['frame'].copy()
-        frame_number = context['frame_number']
-
-        fg_mask = self.bg_subtractor.apply(frame, None, 0.001)
-        # just thresholding values
-        fg_mask[fg_mask < 240] = 0
-        fg_mask = self.filter_mask(fg_mask, frame_number)
-
-        if self.save_image:
-            some_math.save_frame(fg_mask, self.image_dir +
-                             "/mask_%04d.png" % frame_number, flip=False)
-
-        context['objects'] = self.detect_vehicles(fg_mask, context)
-        context['fg_mask'] = fg_mask
-
-        return context
-
-
-
-class VehicleCounter(PipelineProcessor):
-    '''
-        Counting vehicles that entered in exit zone.
-
-        Purpose of this class based on detected object and local cache create
-        objects pathes and count that entered in exit zone defined by exit masks.
-
-        exit_masks - list of the exit masks.
-        path_size - max number of points in a path.
-        max_dst - max distance between two points.
-    '''
-
-    def __init__(self,  path_size=10, max_dst=30, x_weight=1.0, y_weight=1.0):
-        super(VehicleCounter, self).__init__()
-
-        #self.exit_masks = exit_masks
-
-        self.vehicle_count = 0
-        self.path_size = path_size
-        self.pathes = []
-        self.max_dst = max_dst
-        self.x_weight = x_weight
-        self.y_weight = y_weight
-
-   
-
-    def __call__(self, context):
-        objects = context['objects']
-        context['pathes'] = self.pathes
-        context['vehicle_count'] = self.vehicle_count
-        if not objects:
-            return context
-
-        points = np.array(objects)[:, 0:2]
-        points = points.tolist()
-
-        # add new points if pathes is empty
-        if not self.pathes:
-            for match in points:
-                self.pathes.append([match])
-
-        else:
-            # link new points with old pathes based on minimum distance between
-            # points
-            new_pathes = []
-
-            for path in self.pathes:
-                _min = 999999
-                _match = None
-                for p in points:
-                    if len(path) == 1:
-                        # distance from last point to current
-                        d = some_math.distance(p[0], path[-1][0])
-                    else:
-                        # based on 2 prev points predict next point and calculate
-                        # distance from predicted next point to current
-                        xn = 2 * path[-1][0][0] - path[-2][0][0]
-                        yn = 2 * path[-1][0][1] - path[-2][0][1]
-                        d = some_math.distance(
-                            p[0], (xn, yn),
-                            x_weight=self.x_weight,
-                            y_weight=self.y_weight
-                        )
-
-                    if d < _min:
-                        _min = d
-                        _match = p
-
-                if _match and _min <= self.max_dst:
-                    points.remove(_match)
-                    path.append(_match)
-                    new_pathes.append(path)
-
-                # do not drop path if current frame has no matches
-                if _match is None:
-                    new_pathes.append(path)
-
-            self.pathes = new_pathes
-
-            # add new pathes
-            if len(points):
-                for p in points:
-                    # do not add points that already should be counted
-                    #if self.check_exit(p[1]):
-                    #   continue
-                    self.pathes.append([p])
-
-        # save only last N points in path
-        for i, _ in enumerate(self.pathes):
-            self.pathes[i] = self.pathes[i][self.path_size * -1:]
-
-        # count vehicles and drop counted pathes:
-        new_pathes = []
-        for i, path in enumerate(self.pathes):
-            d = path[-2:]
-
-            if (
-                # need at list two points to count
-                len(d) >= 2 and
-                # prev point not in exit zone
-                #not self.check_exit(d[0][1]) and
-                # current point in exit zone
-                #self.check_exit(d[1][1]) and
-                # path len is bigger then min
-                self.path_size <= len(path)
-            ):
-                self.vehicle_count += 1
-            else:
-                # prevent linking with path that already in exit zone
-                add = True
-                #for p in path:
-                    #if self.check_exit(p[1]):
-                    #    add = False
-                    #    break
-                if add:
-                    new_pathes.append(path)
-
-        self.pathes = new_pathes
-
-        context['pathes'] = self.pathes
-        context['objects'] = objects
-        context['vehicle_count'] = self.vehicle_count
-
-        self.log.debug('#VEHICLES FOUND: %s' % self.vehicle_count)
-
-        return context
-
-
-
-class Visualizer(PipelineProcessor):
-
-    def __init__(self, save_image=True, image_dir='images'):
-        super(Visualizer, self).__init__()
-
-        self.save_image = save_image
-        self.image_dir = image_dir
-
-    #def check_exit(self, point, exit_masks=[]):
-    #    for exit_mask in exit_masks:
-    #        if exit_mask[point[1]][point[0]] == 255:
-    #            return True
-    #    return False
-
-    def draw_pathes(self, img, pathes):
-        if not img.any():
-            return
-
-        for i, path in enumerate(pathes):
-            path = np.array(path)[:, 1].tolist()
-            for point in path:
-                cv2.circle(img, point, 2, CAR_COLOURS[0], -1)
-                cv2.polylines(img, [np.int32(path)], False, CAR_COLOURS[0], 1)
-
-        return img
-
-    def draw_boxes(self, img, pathes):
-
-        DIVIDER_COLOUR = (255, 255, 0)
-        BOUNDING_BOX_COLOUR = (255, 0, 0)
-        CENTROID_COLOUR = (0, 0, 255)
-        CAR_COLOURS = [(0, 0, 255)]
-        EXIT_COLOR = (66, 183, 42)
-
-        for (i, match) in enumerate(pathes):
-
-            contour, centroid = match[-1][:2]
-            #if self.check_exit(centroid, exit_masks):
-            #    continue
-
-            self.contour = contour
-            x, y, w, h = contour
-
-
-
-            cv2.rectangle(img, (x, y), (x + w - 1, y + h - 1),
-                          BOUNDING_BOX_COLOUR, 1)
-            cv2.circle(img, centroid, 2, CENTROID_COLOUR, -1)
-
-        #cv2.imshow('boxes', img)
-        print('print shape from f1', img.shape)
-        return img
-
-    def draw_ui(self, img, vehicle_count, exit_masks=[]):
-
-        # this just add green mask with opacity to the image
-        for exit_mask in exit_masks:
-            _img = np.zeros(img.shape, img.dtype)
-            _img[:, :] = EXIT_COLOR
-            mask = cv2.bitwise_and(_img, _img, mask=exit_mask)
-            cv2.addWeighted(mask, 1, img, 1, 0, img)
-
-        # drawing top block with counts
-        cv2.rectangle(img, (0, 0), (img.shape[1], 50), (0, 0, 0), cv2.FILLED)
-        cv2.putText(img, ("Vehicles passed: {total} ".format(total=vehicle_count)), (30, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
-        
-        return img
-
-    def __call__(self, context):
-        frame = context['frame'].copy()
-        frame_number = context['frame_number']
-        pathes = context['pathes']
-        #exit_masks = context['exit_masks']
-        #vehicle_count = context['vehicle_count']
-
-        #frame = self.draw_ui(frame, vehicle_count, exit_masks)
-        #frame = self.draw_pathes(frame, pathes)
-        frame = self.draw_boxes(frame, pathes)
-
-        #some_math.save_frame(frame, self.image_dir +
-        #                 "/processed_%04d.png" % frame_number)
-        return context
-
-
-#class OutRescale(PipelineProcessor):
-
-#    def __init__(self, frame_number, frame):
-#        super(OutRescale, self).__init__()
-
-
-
-        
+	def __call__(self, context):
 
+		self.input_q.put(context['frame_resized'])
+
+		matches = self.output_q.get()
+		
+		context['matches'] = matches
+		#return context['matches'], context['frame_resized'], context['frame_number'], context['frame_real']
+		return context
+
+
+class Filtering(PipelineProcessor):
+
+	def __init__(self):
+		self.counter = -1
+
+	def cutHighResImage(self, HR_IMAGE, FRAME_NUMBER, MATCHES):
+
+		for (i, match) in enumerate(MATCHES):
+			contour, centroid = match[0], match[1]
+
+			x, y, w, h = contour
+
+			x1, y1 = x, y 
+			x2, y2 = x + w - 1, y + h - 1
+
+			nx1, ny1 = 2*x1, 2*y1
+			nx2, ny2 = 2*x2, 2*y2
+
+			out = HR_IMAGE[ ny1:ny2, nx1:nx2]
+			#cv2.imwrite('./data/tests/save_{}_{}.jpg'.format(FRAME_NUMBER, self.counter), out)
+			#self.counter +=1
+			return out
+
+	def __call__(self,context):
+		print('cleaning...')
+
+		date =  datetime.datetime.now().strftime('%Y-%m-%d::%H:%M:%S')
+
+
+		cutted = self.cutHighResImage(context['frame_real'],context['frame_number'],context['matches'])
+
+		data = [context['frame_number'], cutted, context['frame_resized'], date]
+
+		return data
+		#self.cutHighResImage(context['frame_real'],context['frame_number'],context['matches'])
+
+
+
+class FIFO(PipelineProcessor):
+	def __init__(self, queue_size = 3):
+		super(FIFO, self).__init__()
+
+		self.input_q = Queue(maxsize = queue_size)
+
+	def __call__(self, context):
+
+		self.input_q.put(context)
+
+		return self.input_q.get()
+
+
+
+
+class Save_to_Disk(PipelineProcessor):
+	ask_for_time = datetime.datetime.now().strftime('%Y-%m-%d::%H:%M:%S')
+	def __init__(self):
+		pass
+	@classmethod
+	def update_folders_and_files(cls):
+		cls.update_time()
+
+		folder_and_file_name = cls.ask_for_time.split('::')
+		for_folder, for_file = folder_and_file_name[0], folder_and_file_name [1]
+
+		path_for_folder = './data' + '/' + '{}'.format(for_folder)
+		path_for_file = path_for_folder + '/' + '{}'.format(for_file)
+
+		return path_for_folder, path_for_file
+	
+	def create_folder_and_save(self, frame_number,matches, frame, tag):
+
+		#folder_name, file_name = Saveto.folder_and_file(Saveto.get_time('forFolder'), './data/{}/{}_frame_{}.jpg'.format(Function_2.get_time('forFolder'),
+		#											Function_2.get_time('forFile'), frame_number)  )
+		path_to_folder, path_to_file = SaveData.update_folders_and_files()
+		
+		try:
+			os.makedirs(path_to_folder)
+		except Exception as e:
+			print(e)
+		if os.path.isdir(path_to_folder) == os.path.isdir(path_to_file[0:-9]):
+			#print('Folder already exist or ..', e)
+			print('Files are beeing created in .... ', path_to_folder)
+			cv2.imwrite(path_to_file+'_{}_{}.jpg'.format(frame_number, tag), frame)
+		#print(SaveData.update_folders_and_files())
+
+		for match in matches:
+			try:
+				os.makedirs(path_to_folder)
+			except Exception as e:
+				print(e)
+			if os.path.isdir(path_to_folder) == os.path.isdir(path_to_file[0:-9]):
+				#print('Folder already exist or ..', e)
+				print('Files are beeing created in .... ', path_to_folder)
+				cv2.imwrite(path_to_file+'_{}_{}.jpg'.format(frame_number, tag), match)
+
+	def __call__(self,context):
+
+
+		print(context)
+
+		#self.create_folder_and_save(context[0], context[1], context[2], date])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class MultiJobs(PipelineProcessor):
+
+	def __init__(self, fun1, fun2 ):
+		super(MultiJobs, self).__init__()
+
+
+		# For functions
+		self.bg_object = None
+		self.frame_real = None
+		self.frame_resized = None
+		self.frame_number = None
+		self.state = None
+
+		self.fun1 = fun1
+		self.fun2 = fun2
+
+
+	def runInParallel(self):
+
+
+		p1 = Process(target=self.fun1.interfase_para_bg, args=(self.bg_object, self.frame_real,
+					 						self.frame_resized, self.frame_number, self.state))
+		p1.start()
+		#pool1 = Pool(2,self.fun1.interfase_para_bg, (self.bg_object, self.frame_real,self.frame_resized, self.frame_number, self.state))
+
+		
+		p2 = Process(target=self.fun2.insert_data, args=(self.frame_resized, self.frame_number, self.state))
+
+		p2.start()
+		#pool2 = Pool(2,self.fun2.insert_data, (self.frame_resized, self.frame_number, self.state))
+
+
+
+		#p1.join()
+		#p2.join()
+
+
+
+	#@load_data.setter
+	#def load_data(self):
+	#	self.bg_object = self.context['bg_object']
+	#	self.frame_real = self.context['frame_real']
+	#	self.frame_resized = self.context['frame_resized']
+	#	self.frame_number = self.context['frame_number']
+	#	self.state = self.context['state']
+
+	#@load_data.deleter
+	#def load_data(self):
+	#	self.bg_object = None
+	#	self.frame_real = None
+	#	self.frame_resized = None
+	#	self.frame_number = None
+	#	self.state = None
+
+	def __call__(self, context):
+
+		self.bg_object = context['bg_object']
+		self.frame_real = context['frame_real']
+		self.frame_resized = context['frame_resized']
+		self.frame_number = context['frame_number']
+		self.state = context['state']
+
+		self.runInParallel()
+		#cv2.imshow('resized', cv2.resize(self.frame_resized,(self.frame_resized.shape[1]*2, self.frame_resized.shape[0]*2)))
+
+		return context
+
+
+class Function_1(PipelineProcessor):
+	def __init__(self):
+		super(Function_1, self).__init__()
+
+
+	# function 1 to be injected to the parallel process
+	def interfase_para_bg(self, bg_object, frame_real, frame_resized, frame_number, state):
+
+		if state == 'ROJO' or 'rojo':
+			#print('form function 1...:', self.saver.ask_for_time)
+			#print('from F1', self.saver.create_folder_and_save())
+			#print(out)
+			#return out
+			#x1 = 3000
+			#x2 = 3200
+
+			#y1 = 2200
+			#y2 = 2400
+			#frame_real = frame_real[y1:y2, x1:x2] 
+
+			#frame_real = cv2.resize(frame_real, (2048, 1536))
+			self.saver.create_folder_and_save(frame_number, frame_real,'FUN1')
+
+			print('hello from red')
+			print('HELLO FROM  FUNCTION 1', frame_number)
+		elif state == 'AMARILLO'  or 'amarillo':
+
+			print('HELLO FROM  FUNCTION 1', frame_number)
+
+		elif state == 'VERDE' or 'verde':
+
+			print('HELLO FROM  FUNCTION 1', frame_number)
+
+		elif state == 'No hay semaforo':
+
+			print('HELLO FROM  FUNCTION 1', frame_number)
+
+
+class Function_2(PipelineProcessor):
+
+	def __init__(self):
+		super(Function_2, self).__init__()
+		
+	# function 2 to be injected to the parallel process
+	def insert_data(self, frame_resized, frame_number, state):
+
+		if state == 'ROJO' or 'rojo':
+			self.saver.create_folder_and_save(frame_number, frame_resized, 'FUN2')
+						
+			print('HELLO FROM  FUNCTION 2', frame_number)
+		elif state == 'AMARILLO' or 'amarillo':
+
+			
+			print('HELLO FROM  FUNCTION 2', frame_number)
+
+		elif state == 'VERDE' or 'rojo':
+			
+			
+			print('HELLO FROM  FUNCTION 2', frame_number)
+
+
+		elif state == 'No hay semaforo':
+
+			
+			print('HELLO FROM  FUNCTION 2', frame_number)
+	
+	
+
+
+class SaveData(object):
+
+	ask_for_time = datetime.datetime.now().strftime('%Y-%m-%d::%H:%M:%S')
+
+
+	def __init__(self):
+		self.save_folder = None
+		self.save_file = None
+
+
+	def folder_and_file(self, folderName, fileName):
+
+		self.save_folder = folderName
+		self.save_file = fileName
+
+		return self.save_folder, self.save_file
+
+	@classmethod
+	def update_time(cls):
+		cls.ask_for_time = datetime.datetime.now().strftime('%Y-%m-%d::%H:%M:%S')
+
+
+	@classmethod
+	def update_folders_and_files(cls):
+		cls.update_time()
+
+		folder_and_file_name = cls.ask_for_time.split('::')
+		for_folder, for_file = folder_and_file_name[0], folder_and_file_name [1]
+
+		path_for_folder = './data' + '/' + '{}'.format(for_folder)
+		path_for_file = path_for_folder + '/' + '{}'.format(for_file)
+
+		return path_for_folder, path_for_file
+	@staticmethod
+	def create_folder_and_save(frame_number, frame, tag):
+
+		#folder_name, file_name = Saveto.folder_and_file(Saveto.get_time('forFolder'), './data/{}/{}_frame_{}.jpg'.format(Function_2.get_time('forFolder'),
+		#											Function_2.get_time('forFile'), frame_number)  )
+		
+
+		path_to_folder, path_to_file = SaveData.update_folders_and_files()
+		
+		try:
+			os.makedirs(path_to_folder)
+		except Exception as e:
+			print(e)
+		if os.path.isdir(path_to_folder) == os.path.isdir(path_to_file[0:-9]):
+			#print('Folder already exist or ..', e)
+			print('Files are beeing created in .... ', path_to_folder)
+			cv2.imwrite(path_to_file+'_{}_{}.jpg'.format(frame_number, tag), frame)
+		#print(SaveData.update_folders_and_files())
+
+		
+		#return path_to_folder, path_to_file[0:-9]
+	@staticmethod
+	def create_db_and_save(frame_number, frame, tag):
+
+		retval, buff = cv2.imencode('.jpg', frame_resized)
+
+		jpg_as_text = base64.b64encode(buff)
+
+
+		image_64_encode = base64.encodestring(jpg_as_text)
+		base64_string = image_64_encode.decode(ENCODING)
+
+		base64_string_resized = base64_string
+		with conn:
+			c.execute("INSERT INTO infractions VALUES (:frame_resized, :frame_number)", {'frame_resized': base64_string_resized, 'frame_number': frame_number})
+
+
+"""
+
+class Queue:
+    def __init__(self):
+        self.items = []
+
+    def isEmpty(self):
+        return self.items == []
+
+    def enqueue(self, item):
+        self.items.insert(0,item)
+
+    def dequeue(self):
+        return self.items.pop()
+
+    def size(self):
+        return len(self.items)
+
+
+q=Queue()
+	
+q.enqueue(4)
+q.enqueue('dog')
+q.enqueue(True)
+print(q.size())
+
+"""
