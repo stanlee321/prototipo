@@ -17,7 +17,7 @@ from new_libs.semaforo import CreateSemaforo
 from new_libs.camPi import PiVideoStream
 from multiprocessing import Process, Queue, Pool
 
-from new_libs.pipeline import (
+from pipeline import (
     PipelineRunner,
     CreateBGCNT,
     Filtering,
