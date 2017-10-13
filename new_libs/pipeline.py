@@ -121,6 +121,8 @@ class CreateBGCNT(PipelineProcessor):
 
 class Filtering(PipelineProcessor):
 
+	scale = None
+
 	def __init__(self):
 
 		self.counter = -1
@@ -128,14 +130,9 @@ class Filtering(PipelineProcessor):
 		self.frame_number = None
 		self.matches = None
 
-		#self.process = Process(target= self.cutHighResImage, args=(self.HR_IMAGE, self.frame_number, self.matches))
-		#self.process.daemon = True
-
-		#pool = Pool(2, self.cutHighResImage,(,) )
-
 	def cutHighResImage(self, HR_IMAGE, FRAME_NUMBER, MATCHES):
 
-		"""for (i, match) in enumerate(MATCHES):
+		for (i, match) in enumerate(MATCHES):
 			contour, centroid = match[0], match[1]
 
 			x, y, w, h = contour
@@ -143,16 +140,14 @@ class Filtering(PipelineProcessor):
 			x1, y1 = x, y 
 			x2, y2 = x + w - 1, y + h - 1
 
-			nx1, ny1 = 2*x1, 2*y1
-			nx2, ny2 = 2*x2, 2*y2
+			nx1, ny1 = Filtering.scale*x1, Filtering.scale*y1
+			nx2, ny2 = Filtering.scale*x2, Filtering.scale*y2
 
 
 			out = HR_IMAGE[ny1:ny2, nx1:nx2]
 			#cv2.imwrite('./data/tests/save_{}_{}.jpg'.format(FRAME_NUMBER, self.counter), out)
 			#self.counter +=1
 			return out
-		"""
-		return HR_IMAGE
 
 	def __call__(self,context):
 		print('cleaning...')
@@ -160,11 +155,9 @@ class Filtering(PipelineProcessor):
 		date =  datetime.datetime.now().strftime('%Y-%m-%d::%H:%M:%S')
 
 
-		#cutted = self.cutHighResImage(context['frame_real'],context['frame_number'],context['matches'])
-		HR_IMAGE = self.cutHighResImage(context['frame_real'],context['frame_number'],context['matches'])
-		cutted = None
+		cutted = self.cutHighResImage(context['frame_real'],context['frame_number'],context['matches'])
 
-		data = [context['frame_number'], cutted, context['frame_resized'], date, HR_IMAGE ]
+		data = [context['frame_number'], cutted, context['frame_resized'], date]
 
 		return data
 		#self.cutHighResImage(context['frame_real'],context['frame_number'],context['matches'])
@@ -200,7 +193,7 @@ class Save_to_Disk(PipelineProcessor):
 
 		return path_for_folder, path_for_file
 	
-	def create_folder_and_save(self, frame_number, matches, frame, tag, HR_IMAGE):
+	def create_folder_and_save(self, frame_number, matches, frame, tag):
 
 		#folder_name, file_name = Saveto.folder_and_file(Saveto.get_time('forFolder'), './data/{}/{}_frame_{}.jpg'.format(Function_2.get_time('forFolder'),
 		#											Function_2.get_time('forFile'), frame_number)  )
@@ -217,15 +210,24 @@ class Save_to_Disk(PipelineProcessor):
 			#for match in matches:
 			#print('match_shape',match.shape)
 			print('Files are beeing created for matches in .... ', path_to_folder)
-			#cv2.imwrite(path_to_file+'_{}_{}_matches.jpg'.format(frame_number, tag), matches)
-			cv2.imwrite(path_to_file+'_{}_{}_HR_IMAGE.jpg'.format(frame_number, tag), HR_IMAGE)
-
+			cv2.imwrite(path_to_file+'_{}_{}_matches.jpg'.format(frame_number, tag), matches)
 
 	def __call__(self,context):
 
 		#print(context)
 		#pass
-		self.create_folder_and_save(context[0], context[1], context[2], context[3],context[4])
+		self.create_folder_and_save(context[0], context[1], context[2], context[3])
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -86,9 +86,9 @@ def create_main(src):
 		resolution_low = width_low*height_low
 
 		scale = resolution_hight/resolution_low
-		print('SCALE', scale)
+		#print('SCALE', scale)
 
-		#Filtering.scale =  scale 
+		Filtering.scale =  scale 
 
 		pipeline = PipelineRunner(pipeline=[CreateBGCNT(), Filtering(), FIFO(), Save_to_Disk()], log_level=logging.DEBUG)
 	else:
