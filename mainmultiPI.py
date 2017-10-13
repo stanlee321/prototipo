@@ -32,9 +32,7 @@ ap.add_argument("-src", "--source", type=int, default=0,
 args = vars(ap.parse_args())
 
 
-
 ENCODING = 'utf-8'
-
 
 
 def create_main(src):
@@ -66,6 +64,10 @@ def create_main(src):
 		framerate = 30
 		width = 3266
 		height = 2450
+
+		width_low = 160
+		height_low = 120
+
 		vflip = 1
 		hflip = 1
 		mins = 1
@@ -79,8 +81,18 @@ def create_main(src):
 		frame_number = -1
 		_frame_number = -1
 
-		pipeline = PipelineRunner(pipeline=[CreateBGCNT(), Filtering(), FIFO(), Save_to_Disk()], log_level=logging.DEBUG)
+		resolution_hight = width*height
 
+		resolution_low = width_low*height_low
+
+		scale = resolution_hight/resolution_low
+		print('SCALE', scale)
+
+		#Filtering.scale =  scale 
+
+		pipeline = PipelineRunner(pipeline=[CreateBGCNT(), Filtering(), FIFO(), Save_to_Disk()], log_level=logging.DEBUG)
+	else:
+		print('please put:  0 for local source or 1 for PicamSource')
 
 	while ON:
 
@@ -89,7 +101,6 @@ def create_main(src):
 		t1 = time.time()
 		frame, frame_resized = vs.read()
 		#print(frame.shape,frame_resized.shape)
-
 
 
 		_frame_number += 1
@@ -113,7 +124,7 @@ def create_main(src):
 		pipeline.run()
 
 		
-		if _frame_number == 1200:
+		if _frame_number == 400:
 			break
 		t2 = time.time()
 
@@ -136,5 +147,5 @@ def create_main(src):
 	vs.stop()
 
 if __name__ == '__main__':
-	
+
 	create_main(args['source'])
