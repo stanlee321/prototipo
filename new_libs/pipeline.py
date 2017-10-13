@@ -135,7 +135,7 @@ class Filtering(PipelineProcessor):
 
 	def cutHighResImage(self, HR_IMAGE, FRAME_NUMBER, MATCHES):
 
-		for (i, match) in enumerate(MATCHES):
+		"""for (i, match) in enumerate(MATCHES):
 			contour, centroid = match[0], match[1]
 
 			x, y, w, h = contour
@@ -151,6 +151,8 @@ class Filtering(PipelineProcessor):
 			#cv2.imwrite('./data/tests/save_{}_{}.jpg'.format(FRAME_NUMBER, self.counter), out)
 			#self.counter +=1
 			return out
+		"""
+		return HR_IMAGE
 
 	def __call__(self,context):
 		print('cleaning...')
@@ -158,9 +160,11 @@ class Filtering(PipelineProcessor):
 		date =  datetime.datetime.now().strftime('%Y-%m-%d::%H:%M:%S')
 
 
-		cutted = self.cutHighResImage(context['frame_real'],context['frame_number'],context['matches'])
+		#cutted = self.cutHighResImage(context['frame_real'],context['frame_number'],context['matches'])
+		HR_IMAGE = self.cutHighResImage(context['frame_real'],context['frame_number'],context['matches'])
+		cutted = None
 
-		data = [context['frame_number'], cutted, context['frame_resized'], date]
+		data = [context['frame_number'], cutted, context['frame_resized'], date, HR_IMAGE ]
 
 		return data
 		#self.cutHighResImage(context['frame_real'],context['frame_number'],context['matches'])
@@ -196,7 +200,7 @@ class Save_to_Disk(PipelineProcessor):
 
 		return path_for_folder, path_for_file
 	
-	def create_folder_and_save(self, frame_number, matches, frame, tag):
+	def create_folder_and_save(self, frame_number, matches, frame, tag, HR_IMAGE):
 
 		#folder_name, file_name = Saveto.folder_and_file(Saveto.get_time('forFolder'), './data/{}/{}_frame_{}.jpg'.format(Function_2.get_time('forFolder'),
 		#											Function_2.get_time('forFile'), frame_number)  )
@@ -213,13 +217,15 @@ class Save_to_Disk(PipelineProcessor):
 			#for match in matches:
 			#print('match_shape',match.shape)
 			print('Files are beeing created for matches in .... ', path_to_folder)
-			cv2.imwrite(path_to_file+'_{}_{}_matches.jpg'.format(frame_number, tag), matches)
+			#cv2.imwrite(path_to_file+'_{}_{}_matches.jpg'.format(frame_number, tag), matches)
+			cv2.imwrite(path_to_file+'_{}_{}_HR_IMAGE.jpg'.format(frame_number, tag), HR_IMAGE)
+
 
 	def __call__(self,context):
 
 		#print(context)
 		#pass
-		self.create_folder_and_save(context[0], context[1], context[2], context[3])
+		self.create_folder_and_save(context[0], context[1], context[2], context[3],context[4])
 
 
 
