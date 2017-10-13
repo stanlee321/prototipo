@@ -1,2 +1,10 @@
-casosDebug/
-casosReportados/
+.casosDebug
+.casosReportados
+installationFiles/
+.ssd_mobilenet_v1_coco_11_06_2017
+.semaforos
+__pycache__/
+.findPoints
+.out
+.object_detection
+data/
