@@ -124,7 +124,7 @@ def create_main(src):
 		pipeline.run()
 
 		
-		if _frame_number == 400:
+		if _frame_number == 800:
 			break
 		t2 = time.time()
 
