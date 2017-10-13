@@ -47,7 +47,7 @@ class WebcamVideoStream:
         (self.grabbed, self.frame) = self.stream.read()
 
         
-        self.frame_resized = None
+        self.frame_resized = cv2.resize(self.frame,(320,240), fx = 1.2, fy = 1.2)
         # initialize the variable used to indicate if the thread should
         # be stopped
         self.stopped = False
@@ -68,7 +68,6 @@ class WebcamVideoStream:
             (self.grabbed, self.frame) = self.stream.read()
             #self.frame_resized = cv2.resize(self.frame,(320,240))
             self.frame_resized = cv2.resize(self.frame,(320,240), fx = 1.2, fy = 1.2)
-
 
     def read(self):
         # return the frame most recently read

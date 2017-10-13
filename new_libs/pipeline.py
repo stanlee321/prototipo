@@ -122,17 +122,16 @@ class CreateBGCNT(PipelineProcessor):
 class Filtering(PipelineProcessor):
 
 	def __init__(self):
+
 		self.counter = -1
 		self.HR_IMAGE = None
 		self.frame_number = None
 		self.matches = None
 
+		#self.process = Process(target= self.cutHighResImage, args=(self.HR_IMAGE, self.frame_number, self.matches))
+		#self.process.daemon = True
 
-		self.input_queue = Queue(maxsize = queue_size)
-		self.process = Process(target= self.cutHighResImage, args=(self.HR_IMAGE, self.frame_number, self.matches))
-		self.process.daemon = True
-
-		pool = Pool(2,self.worker, (self.input_q, self.output_q))
+		#pool = Pool(2, self.cutHighResImage,(,) )
 
 	def cutHighResImage(self, HR_IMAGE, FRAME_NUMBER, MATCHES):
 
@@ -147,7 +146,8 @@ class Filtering(PipelineProcessor):
 			nx1, ny1 = 2*x1, 2*y1
 			nx2, ny2 = 2*x2, 2*y2
 
-			out = HR_IMAGE[ ny1:ny2, nx1:nx2]
+
+			out = HR_IMAGE[ny1:ny2, nx1:nx2]
 			#cv2.imwrite('./data/tests/save_{}_{}.jpg'.format(FRAME_NUMBER, self.counter), out)
 			#self.counter +=1
 			return out
@@ -164,7 +164,6 @@ class Filtering(PipelineProcessor):
 
 		return data
 		#self.cutHighResImage(context['frame_real'],context['frame_number'],context['matches'])
-
 
 
 class FIFO(PipelineProcessor):
@@ -197,7 +196,7 @@ class Save_to_Disk(PipelineProcessor):
 
 		return path_for_folder, path_for_file
 	
-	def create_folder_and_save(self, frame_number,matches, frame, tag):
+	def create_folder_and_save(self, frame_number, matches, frame, tag):
 
 		#folder_name, file_name = Saveto.folder_and_file(Saveto.get_time('forFolder'), './data/{}/{}_frame_{}.jpg'.format(Function_2.get_time('forFolder'),
 		#											Function_2.get_time('forFile'), frame_number)  )
@@ -208,27 +207,18 @@ class Save_to_Disk(PipelineProcessor):
 		except Exception as e:
 			print(e)
 		if os.path.isdir(path_to_folder) == os.path.isdir(path_to_file[0:-9]):
-			#print('Folder already exist or ..', e)
 			print('Files are beeing created in .... ', path_to_folder)
 			cv2.imwrite(path_to_file+'_{}_{}.jpg'.format(frame_number, tag), frame)
-		#print(SaveData.update_folders_and_files())
-
-		for match in matches:
-			try:
-				os.makedirs(path_to_folder)
-			except Exception as e:
-				print(e)
-			if os.path.isdir(path_to_folder) == os.path.isdir(path_to_file[0:-9]):
-				#print('Folder already exist or ..', e)
-				print('Files are beeing created in .... ', path_to_folder)
-				cv2.imwrite(path_to_file+'_{}_{}.jpg'.format(frame_number, tag), match)
+			#print('matCHEEEEEEEEEEE', matches.shape)
+			#for match in matches:
+			#print('match_shape',match.shape)
+			print('Files are beeing created for matches in .... ', path_to_folder)
+			cv2.imwrite(path_to_file+'_{}_{}_matches.jpg'.format(frame_number, tag), matches)
 
 	def __call__(self,context):
 
-
-		print(context)
-
-		#self.create_folder_and_save(context[0], context[1], context[2], date])
+		#print(context)
+		self.create_folder_and_save(context[0], context[1], context[2], context[3])
 
 
 
