@@ -42,8 +42,8 @@ class PiVideoStream:
             # grab the frame from the stream and clear the stream in
             # preparation for the next frame
             self.frame = f.array
-            #self.frame_resized = cv2.resize(self.frame, (320,240))
-            self.frame_resized = cv2.resize(self.frame, (160,120))
+            self.frame_resized = cv2.resize(self.frame, (320,240))
+            #self.frame_resized = cv2.resize(self.frame, (160,120))
 
             self.rawCapture.truncate(0)
  
