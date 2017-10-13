@@ -217,7 +217,8 @@ class Save_to_Disk(PipelineProcessor):
 
 	def __call__(self,context):
 
-		print(context)
+		#print(context)
+		pass
 		#self.create_folder_and_save(context[0], context[1], context[2], context[3])
 
 
