@@ -143,7 +143,9 @@ class Filtering(PipelineProcessor):
 			nx1, ny1 = Filtering.scale*x1, Filtering.scale*y1
 			nx2, ny2 = Filtering.scale*x2, Filtering.scale*y2
 
-
+			print(nx1, ny1)
+			print(nx2, ny2)
+			
 			out = HR_IMAGE[ny1:ny2, nx1:nx2]
 			#cv2.imwrite('./data/tests/save_{}_{}.jpg'.format(FRAME_NUMBER, self.counter), out)
 			#self.counter +=1
