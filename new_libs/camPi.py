@@ -25,7 +25,7 @@ class PiVideoStream:
 
         self.rawCapture = PiRGBArray(self.camera, size=resolution)
         self.stream = self.camera.capture_continuous(self.rawCapture,
-            format="bgr", use_video_port=False)
+            format="bgr", use_video_port=True)
  
         # initialize the frame and the variable used to indicate
         # if the thread should be stopped
