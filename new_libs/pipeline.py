@@ -220,7 +220,7 @@ class Save_to_Disk(PipelineProcessor):
 			#for match in matches:
 			#print('match_shape',match.shape)
 			print('Files are beeing created for matches in .... ', path_to_folder)
-			#cv2.imwrite(path_to_file+'_{}_{}_matches.jpg'.format(frame_number, tag), matches)
+			cv2.imwrite(path_to_file+'_{}_{}_matches.jpg'.format(frame_number, tag), matches)
 
 	def __call__(self,context):
 
