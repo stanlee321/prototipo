@@ -86,7 +86,7 @@ def create_main(src):
 		resolution_low = width_low*height_low
 
 		scale = resolution_hight/resolution_low
-		#print('SCALE', scale)
+		print('SCALE', scale)
 
 		Filtering.scale =  scale 
 

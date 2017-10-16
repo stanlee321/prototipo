@@ -145,11 +145,11 @@ class Filtering(PipelineProcessor):
 
 			print(nx1, ny1)
 			print(nx2, ny2)
-			
-			out = HR_IMAGE[ny1:ny2, nx1:nx2]
+
+			#out = HR_IMAGE[ny1:ny2, nx1:nx2]
 			#cv2.imwrite('./data/tests/save_{}_{}.jpg'.format(FRAME_NUMBER, self.counter), out)
 			#self.counter +=1
-			return out
+			return None
 
 	def __call__(self,context):
 		print('cleaning...')
@@ -212,7 +212,7 @@ class Save_to_Disk(PipelineProcessor):
 			#for match in matches:
 			#print('match_shape',match.shape)
 			print('Files are beeing created for matches in .... ', path_to_folder)
-			cv2.imwrite(path_to_file+'_{}_{}_matches.jpg'.format(frame_number, tag), matches)
+			#cv2.imwrite(path_to_file+'_{}_{}_matches.jpg'.format(frame_number, tag), matches)
 
 	def __call__(self,context):
 
