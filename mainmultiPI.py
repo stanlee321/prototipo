@@ -99,7 +99,7 @@ def create_main(src):
 		# grab the frame from the threaded video stream and resize it
 		# in his core
 		t1 = time.time()
-		frame, frame_resized = vs.read()
+		frame= vs.read()
 		#print(frame.shape,frame_resized.shape)
 
 
@@ -134,7 +134,7 @@ def create_main(src):
 		print('alll the while took', t2-t1)
 		# update the FPS counter
 		
-		cv2.imshow('frame', frame_resized)
+		cv2.imshow('frame', frame)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
