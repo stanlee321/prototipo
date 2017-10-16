@@ -65,8 +65,8 @@ def create_main(src):
 		width = 3266
 		height = 2450
 
-		width_low = 160
-		height_low = 120
+		width_low = 320
+		height_low = 240
 
 		vflip = 1
 		hflip = 1
@@ -134,7 +134,7 @@ def create_main(src):
 		print('alll the while took', t2-t1)
 		# update the FPS counter
 		
-		cv2.imshow('frame', frame_resized)
+		cv2.imshow('frame', frame)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
