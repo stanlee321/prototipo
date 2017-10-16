@@ -134,7 +134,7 @@ def create_main(src):
 		print('alll the while took', t2-t1)
 		# update the FPS counter
 		
-		cv2.imshow('frame', frames)
+		cv2.imshow('frame', frame)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
