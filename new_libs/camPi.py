@@ -18,6 +18,9 @@ class PiVideoStream:
         self.camera.vflip = vf
         self.camera.hflip = hf
 
+        self.camera.exposure_mode = 'off'
+
+        time.sleep(1)
 
         self.rawCapture = PiRGBArray(self.camera, size=resolution)
         self.stream = self.camera.capture_continuous(self.rawCapture,
