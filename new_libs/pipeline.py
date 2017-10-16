@@ -147,7 +147,7 @@ class Filtering(PipelineProcessor):
 
 			#nx1, ny1 = Filtering.scale*x1, Filtering.scale*y1
 			#nx1, ny1 = Filtering.scale*x1, Filtering.scale*y1
-			nx2, ny2 = 2*x2, 2*y2
+			nx1, ny1 = 2*x1, 2*y1
 			nx2, ny2 = 2*x2, 2*y2
 
 
