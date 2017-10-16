@@ -63,8 +63,8 @@ def create_main(src):
 
 		framerate = 30
 		
-		width = 2560
-		height = 1920
+		width = 1920
+		height = 2560
 
 
 		width_low = 320
