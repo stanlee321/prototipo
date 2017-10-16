@@ -110,6 +110,7 @@ class CreateBGCNT(PipelineProcessor):
 
 	def __call__(self, context):
 
+		t1 = time.time()
 		self.input_q.put(context['frame_resized'])
 
 		matches = self.output_q.get()
@@ -140,16 +141,19 @@ class Filtering(PipelineProcessor):
 			x1, y1 = x, y 
 			x2, y2 = x + w - 1, y + h - 1
 
-			nx1, ny1 = Filtering.scale*x1, Filtering.scale*y1
-			nx2, ny2 = Filtering.scale*x2, Filtering.scale*y2
+			#nx1, ny1 = Filtering.scale*x1, Filtering.scale*y1
+			#nx1, ny1 = Filtering.scale*x1, Filtering.scale*y1
+			nx2, ny2 = 2*x2, 2*y2
+			nx2, ny2 = 2*x2, 2*y2
+
 
 			print(nx1, ny1)
 			print(nx2, ny2)
 
-			#out = HR_IMAGE[ny1:ny2, nx1:nx2]
+			out = HR_IMAGE[ny1:ny2, nx1:nx2]
 			#cv2.imwrite('./data/tests/save_{}_{}.jpg'.format(FRAME_NUMBER, self.counter), out)
 			#self.counter +=1
-			return None
+			return out
 
 	def __call__(self,context):
 		print('cleaning...')

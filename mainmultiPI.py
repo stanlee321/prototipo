@@ -117,6 +117,7 @@ def create_main(src):
 		
 		print(colorLiteral)
 		
+		
 		pipeline.load_data({
 	        'frame_resized': frame_resized,
 	        'frame_real': frame,
@@ -125,7 +126,8 @@ def create_main(src):
 		pipeline.run()
 
 		
-		if _frame_number == 800:
+
+		if _frame_number == 400:
 			break
 		t2 = time.time()
 
