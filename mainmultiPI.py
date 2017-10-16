@@ -61,8 +61,6 @@ def create_main(src):
 
 		from new_libs.camPi import PiVideoStream
 
-
-
 		framerate = 30
 		width = 3266
 		height = 2450
@@ -73,9 +71,10 @@ def create_main(src):
 		vflip = 1
 		hflip = 1
 		mins = 1
+		
 		vs = PiVideoStream(resolution=(width,height), framerate = framerate).start()
 
-		time.sleep(2.0)
+		time.sleep(1.0)
 		fps = FPS().start() 
 
 		log = logging.getLogger("mainmulti")
@@ -101,14 +100,14 @@ def create_main(src):
 		# grab the frame from the threaded video stream and resize it
 		# in his core
 		t1 = time.time()
-		frame= vs.read()
+		frame, frame_resized = vs.read()
 		#print(frame.shape,frame_resized.shape)
-		frame = imutils.resize(frame, width=400)
+
 
 		_frame_number += 1
 
 		# Get signals from the semaforo
-		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame)
+		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame_resized)
 
 		# skip every 2nd frame to speed up processing
 		if _frame_number % 2 != 0:
@@ -136,7 +135,7 @@ def create_main(src):
 		print('alll the while took', t2-t1)
 		# update the FPS counter
 		
-		cv2.imshow('frame', frame)
+		cv2.imshow('frame', frame_resized)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
