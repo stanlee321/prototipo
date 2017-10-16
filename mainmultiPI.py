@@ -162,7 +162,7 @@ if __name__ == '__main__':
 	poligono  = data[0]
 
 	ON = True
-	
+
 	framerate = 30
 	width = 3266
 	height = 2450
@@ -174,7 +174,7 @@ if __name__ == '__main__':
 	hflip = 1
 	mins = 1
 	
-	vs = PiVideoStream(resolution=(width,height), framerate = framerate).start()
+	vs = PiVideoStream().start()
 
 	time.sleep(1.0)
 	fps = FPS().start() 
@@ -236,8 +236,7 @@ if __name__ == '__main__':
 		# update the FPS counter
 		
 		cv2.imshow('frame', frame_resized)
-		if cv2.waitKey(1) & 0xFF == ord('q'):
-			break
+		key = cv2.waitKey(1) & 0xFF
 
 		fps.update()
 
