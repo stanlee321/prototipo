@@ -155,6 +155,14 @@ if __name__ == '__main__':
 	#create_main(args['source'])
 	from new_libs.camPi import PiVideoStream
 
+
+	data = np.load('./installationFiles/heroes.npy')
+	print(data)
+	semaforo = CreateSemaforo(periodoSemaforo = 10)
+	poligono  = data[0]
+
+	ON = True
+	
 	framerate = 30
 	width = 3266
 	height = 2450
