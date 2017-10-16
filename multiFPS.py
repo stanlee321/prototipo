@@ -20,7 +20,7 @@ directorioDeLibreriasPropias = directorioDeTrabajo +'/ownLibraries'
 saveDirectory = directorioDeTrabajo+'/VideoCapture/'
 
 sys.path.insert(0, directorioDeLibreriasPropias)
-from utils import WebcamVideoStream, FPS
+from ownLibraries.utils import WebcamVideoStream, FPS
 
 if not os.path.exists(saveDirectory):
 	os.makedirs(saveDirectory)
@@ -55,7 +55,8 @@ while True:
 	# grab the frame from the threaded video stream and resize it
 	# to have a maximum width of 400 pixels
 	frame = vs.read()
-	frame = imutils.resize(frame)#, width=1000)
+	print(frame.shape)
+	#frame = imutils.resize(frame)#, width=1000)
 
 	# check to see if the frame should be displayed to our screen
 	#if args["display"] > 0:
@@ -63,10 +64,11 @@ while True:
 	#	key = cv2.waitKey(1) & 0xFF
 	#comparator = counter %100
 
-	if True:#comparator == 0:
-		cv2.imwrite(saveDirectory+'frame_{}_{}.jpg'.format(counter, date_string), frame[yMin:yMax,xMin:xMax])
-		print(counter)
+	#if True:#comparator == 0:
+	#	cv2.imwrite(saveDirectory+'frame_{}_{}.jpg'.format(counter, date_string), frame[yMin:yMax,xMin:xMax])
+	#	print(counter)
 		# update the FPS counter
+	#cv2.imshow('frame',frame)
 	counter +=1
 	fps.update()
 	print(time.time()-tiempoAuxiliar)
