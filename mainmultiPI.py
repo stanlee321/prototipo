@@ -13,6 +13,9 @@ import imutils
 from new_libs.utilsforFPS import WebcamVideoStream
 from new_libs.utilsforFPS import FPS
 
+
+
+
 from new_libs.semaforo import CreateSemaforo
 from multiprocessing import Process, Queue, Pool
 
@@ -61,6 +64,8 @@ def create_main(src):
 
 		from new_libs.camPi import PiVideoStream
 
+
+
 		framerate = 30
 		width = 3266
 		height = 2450
@@ -101,7 +106,7 @@ def create_main(src):
 		t1 = time.time()
 		frame= vs.read()
 		#print(frame.shape,frame_resized.shape)
-
+		frame = imutils.resize(frame, width=400)
 
 		_frame_number += 1
 

@@ -55,6 +55,11 @@ class CreateBGCNT():
 			output_q.put(matches)
 
 
+	def visual(self, LOW_RES_FRAM, matches):
+		x, y, w, h = matches[0]
+		cv2.rectangle(LOW_RES_FRAM, (x, y), (w, h), (255,0,0), 2)
+		cv2.imshow('FRAME_WITH_DTECTED_BOXES', LOW_RES_FRAM)
+
 
 	def __call__(self, LOW_RES_FRAM, SHOW = False):
 
@@ -63,9 +68,6 @@ class CreateBGCNT():
 		matches = self.output_q.get()
 
 		if SHOW == True:
-			x, y, w, h = matches[0]
-
-			cv2.rectangle(LOW_RES_FRAM, (x, y), (w, h), (255,0,0), 2)
-			cv2.imshow('FRAME_WITH_DTECTED_BOXES', LOW_RES_FRAM)
-
+			self.visual(LOW_RES_FRAM, matches)
+		
 		return matches
