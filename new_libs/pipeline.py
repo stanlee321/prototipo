@@ -137,6 +137,7 @@ class Filtering(PipelineProcessor):
 
 	def cutHighResImage(self, HR_IMAGE, FRAME_NUMBER, MATCHES):
 
+
 		for (i, match) in enumerate(MATCHES):
 			contour, centroid = match[0], match[1]
 
@@ -184,6 +185,7 @@ class FIFO(PipelineProcessor):
 		self.input_q.put(context)
 
 		return self.input_q.get()
+
 
 
 

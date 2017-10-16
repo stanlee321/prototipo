@@ -117,14 +117,14 @@ def create_main(src):
 		
 		print(colorLiteral)
 		
-		
+		"""
 		pipeline.load_data({
 	        'frame_resized': frame_resized,
 	        'frame_real': frame,
 	   	    'state': colorLiteral,
 	        'frame_number': frame_number,})
 		pipeline.run()
-
+		"""
 		
 
 		if _frame_number == 400:
@@ -134,9 +134,9 @@ def create_main(src):
 		print('alll the while took', t2-t1)
 		# update the FPS counter
 		
-		#cv2.imshow('frame', frame)
-		#if cv2.waitKey(1) & 0xFF == ord('q'):
-		#	break
+		cv2.imshow('frame', fframe_resized)
+		if cv2.waitKey(1) & 0xFF == ord('q'):
+			break
 
 		fps.update()
 
