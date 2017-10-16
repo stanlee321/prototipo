@@ -127,8 +127,8 @@ def create_main(src):
 		"""
 		
 
-		if _frame_number == 400:
-			break
+		#if _frame_number == 400:
+		#	break
 		t2 = time.time()
 
 		print('alll the while took', t2-t1)
