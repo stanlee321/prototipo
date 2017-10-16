@@ -46,10 +46,10 @@ def create_main(src):
 
 	if src == 0:
 		fuente = ['./installationFiles/heroes.mp4', 0]
-		vs = WebcamVideoStream(src=fuente[0], height = 640, width = 480).start()
-		#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()
-		#vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
-		#vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
+		vs = WebcamVideoStream(src=fuente[0], height = 640, width = 480).start() # 0.5 pmx
+		#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()	# 2 mpx
+		#vs = WebcamVideoStream(src=src[1], height = 2560, width = 1920).start()	# 5 mpx
+		#vs = WebcamVideoStream(src=src[1], height = 3264, width = 2448).start()
 		fps = FPS().start()
 
 		frame_number = -1
@@ -62,12 +62,8 @@ def create_main(src):
 		from new_libs.camPi import PiVideoStream
 
 		framerate = 30
-		width = 3264
-		height = 2448
-
-		#height = 2560
-		#width = 1920
-
+		width = 2560
+		height = 1920
 
 
 		width_low = 320
