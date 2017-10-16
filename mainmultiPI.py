@@ -62,10 +62,11 @@ def create_main(src):
 		from new_libs.camPi import PiVideoStream
 
 		framerate = 30
+		#width = 3266
+		#height = 2450
 
-		
-		width = 3266
-		height = 2450
+		height = 640
+		width = 480
 
 		width_low = 320
 		height_low = 240
@@ -73,7 +74,7 @@ def create_main(src):
 		vflip = 1
 		hflip = 1
 		mins = 1
-		vs = PiVideoStream().start()
+		vs = PiVideoStream(resolution=(width,height), framerate = framerate).start()
 
 		time.sleep(1.0)
 		fps = FPS().start() 
