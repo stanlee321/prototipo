@@ -71,8 +71,7 @@ def create_main(src):
 		vflip = 1
 		hflip = 1
 		mins = 1
-
-		vs = PiVideoStream(resolution=(width,height), framerate = framerate).start()
+		vs = PiVideoStream().start()
 
 		time.sleep(1.0)
 		fps = FPS().start() 
@@ -152,99 +151,4 @@ def create_main(src):
 
 if __name__ == '__main__':
 
-	#create_main(args['source'])
-	from new_libs.camPi import PiVideoStream
-
-
-	data = np.load('./installationFiles/heroes.npy')
-	print(data)
-	semaforo = CreateSemaforo(periodoSemaforo = 10)
-	poligono  = data[0]
-
-	ON = True
-
-	framerate = 30
-	width = 3266
-	height = 2450
-
-	width_low = 320
-	height_low = 240
-
-	vflip = 1
-	hflip = 1
-	mins = 1
-	
-	vs = PiVideoStream().start()
-
-	time.sleep(1.0)
-	fps = FPS().start() 
-
-	log = logging.getLogger("mainmulti")
-
-	frame_number = -1
-	_frame_number = -1
-
-	resolution_hight = width*height
-
-	resolution_low = width_low*height_low
-
-	scale = resolution_hight/resolution_low
-	print('SCALE', scale)
-
-	Filtering.scale =  scale 
-
-	pipeline = PipelineRunner(pipeline=[CreateBGCNT(), Filtering(), FIFO(), Save_to_Disk()], log_level=logging.DEBUG)
-
-	while ON:
-
-		# grab the frame from the threaded video stream and resize it
-		# in his core
-		t1 = time.time()
-		frame, frame_resized = vs.read()
-		#print(frame.shape,frame_resized.shape)
-
-
-		_frame_number += 1
-
-		# Get signals from the semaforo
-		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame_resized)
-
-		# skip every 2nd frame to speed up processing
-		if _frame_number % 2 != 0:
-			continue
-		# frame number that will be passed to pipline
-		# this needed to make video from cutted frames
-		frame_number += 1
-		
-		print(colorLiteral)
-		
-		"""
-		pipeline.load_data({
-	        'frame_resized': frame_resized,
-	        'frame_real': frame,
-	   	    'state': colorLiteral,
-	        'frame_number': frame_number,})
-		pipeline.run()
-		"""
-		
-
-		#if _frame_number == 400:
-		#	break
-		t2 = time.time()
-
-		print('alll the while took', t2-t1)
-		# update the FPS counter
-		
-		cv2.imshow('frame', frame_resized)
-		key = cv2.waitKey(1) & 0xFF
-
-		fps.update()
-
-	# stop the timer and display FPS information
-	fps.stop()
-	print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-	print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
-	 
-	# do a bit of cleanup
-	cv2.destroyAllWindows()
-	vs.stop()
+	create_main(args['source'])
