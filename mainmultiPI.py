@@ -62,11 +62,11 @@ def create_main(src):
 		from new_libs.camPi import PiVideoStream
 
 		framerate = 30
-		#width = 3266
-		#height = 2450
+		width = 3264
+		height = 2448
 
-		height = 2592
-		width = 1944
+		#height = 2560
+		#width = 1920
 
 
 
