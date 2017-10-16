@@ -65,8 +65,10 @@ def create_main(src):
 		#width = 3266
 		#height = 2450
 
-		height = 640
-		width = 480
+		height = 2048
+		width = 1536
+
+
 
 		width_low = 320
 		height_low = 240
