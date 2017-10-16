@@ -13,6 +13,7 @@ from multiprocessing import Process, Queue, Pool
 from new_libs.math_and_utils import get_centroid
 from new_libs.math_and_utils import distance
 
+import time
 
 
 class PipelineRunner(object):
@@ -116,7 +117,10 @@ class CreateBGCNT(PipelineProcessor):
 		matches = self.output_q.get()
 		
 		context['matches'] = matches
+
+		t2 = time.time()
 		#return context['matches'], context['frame_resized'], context['frame_number'], context['frame_real']
+		print('self.output_q.get() took', t2-t1)
 		return context
 
 
