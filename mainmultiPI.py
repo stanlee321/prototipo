@@ -13,9 +13,6 @@ import imutils
 from new_libs.utilsforFPS import WebcamVideoStream
 from new_libs.utilsforFPS import FPS
 
-
-
-
 from new_libs.semaforo import CreateSemaforo
 from multiprocessing import Process, Queue, Pool
 
@@ -78,7 +75,7 @@ def create_main(src):
 		mins = 1
 		vs = PiVideoStream(resolution=(width,height), framerate = framerate).start()
 
-		time.sleep(1.0)
+		time.sleep(2.0)
 		fps = FPS().start() 
 
 		log = logging.getLogger("mainmulti")
