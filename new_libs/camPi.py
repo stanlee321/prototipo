@@ -19,13 +19,13 @@ class PiVideoStream:
         self.camera.vflip = vf
         self.camera.hflip = hf
 
-        self.camera.exposure_mode = 'off'
+        #self.camera.exposure_mode = 'off'
 
-        time.sleep(1)
+        #time.sleep(1)
 
         self.rawCapture = PiRGBArray(self.camera, size=resolution)
         self.stream = self.camera.capture_continuous(self.rawCapture,
-            format="bgr", use_video_port=True)
+            format="bgr", use_video_port=False)
  
         # initialize the frame and the variable used to indicate
         # if the thread should be stopped
