@@ -65,8 +65,8 @@ def create_main(src):
 		#width = 3266
 		#height = 2450
 
-		height = 2048
-		width = 1536
+		height = 2592
+		width = 1944
 
 
 
