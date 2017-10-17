@@ -13,6 +13,7 @@ from multiprocessing import Process, Queue, Pool
 from new_libs.math_and_utils import get_centroid
 from new_libs.math_and_utils import distance
 
+import time
 
 
 class PipelineRunner(object):
@@ -110,12 +111,16 @@ class CreateBGCNT(PipelineProcessor):
 
 	def __call__(self, context):
 
+		t1 = time.time()
 		self.input_q.put(context['frame_resized'])
 
 		matches = self.output_q.get()
 		
 		context['matches'] = matches
+
+		t2 = time.time()
 		#return context['matches'], context['frame_resized'], context['frame_number'], context['frame_real']
+		print('self.output_q.get() took', t2-t1)
 		return context
 
 
@@ -132,6 +137,7 @@ class Filtering(PipelineProcessor):
 
 	def cutHighResImage(self, HR_IMAGE, FRAME_NUMBER, MATCHES):
 
+
 		for (i, match) in enumerate(MATCHES):
 			contour, centroid = match[0], match[1]
 
@@ -140,16 +146,19 @@ class Filtering(PipelineProcessor):
 			x1, y1 = x, y 
 			x2, y2 = x + w - 1, y + h - 1
 
-			nx1, ny1 = Filtering.scale*x1, Filtering.scale*y1
-			nx2, ny2 = Filtering.scale*x2, Filtering.scale*y2
+			#nx1, ny1 = Filtering.scale*x1, Filtering.scale*y1
+			#nx1, ny1 = Filtering.scale*x1, Filtering.scale*y1
+			nx1, ny1 = 2*x1, 2*y1
+			nx2, ny2 = 2*x2, 2*y2
+
 
 			print(nx1, ny1)
 			print(nx2, ny2)
 
-			#out = HR_IMAGE[ny1:ny2, nx1:nx2]
+			out = HR_IMAGE[ny1:ny2, nx1:nx2]
 			#cv2.imwrite('./data/tests/save_{}_{}.jpg'.format(FRAME_NUMBER, self.counter), out)
 			#self.counter +=1
-			return None
+			return out
 
 	def __call__(self,context):
 		print('cleaning...')
@@ -176,6 +185,7 @@ class FIFO(PipelineProcessor):
 		self.input_q.put(context)
 
 		return self.input_q.get()
+
 
 
 
@@ -212,7 +222,7 @@ class Save_to_Disk(PipelineProcessor):
 			#for match in matches:
 			#print('match_shape',match.shape)
 			print('Files are beeing created for matches in .... ', path_to_folder)
-			#cv2.imwrite(path_to_file+'_{}_{}_matches.jpg'.format(frame_number, tag), matches)
+			cv2.imwrite(path_to_file+'_{}_{}_matches.jpg'.format(frame_number, tag), matches)
 
 	def __call__(self,context):
 

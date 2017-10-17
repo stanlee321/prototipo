@@ -46,10 +46,10 @@ def create_main(src):
 
 	if src == 0:
 		fuente = ['./installationFiles/heroes.mp4', 0]
-		vs = WebcamVideoStream(src=fuente[0], height = 640, width = 480).start()
-		#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()
-		#vs = WebcamVideoStream(src=src[1], height = 2592, width = 1944).start()
-		#vs = WebcamVideoStream(src=src[1], height = 3266, width = 2450).start()
+		vs = WebcamVideoStream(src=fuente[0], height = 640, width = 480).start() # 0.5 pmx
+		#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()	# 2 mpx
+		#vs = WebcamVideoStream(src=src[1], height = 2560, width = 1920).start()	# 5 mpx
+		#vs = WebcamVideoStream(src=src[1], height = 3264, width = 2448).start()
 		fps = FPS().start()
 
 		frame_number = -1
@@ -61,12 +61,16 @@ def create_main(src):
 
 		from new_libs.camPi import PiVideoStream
 
-		framerate = 30
-		width = 3266
-		height = 2450
+		framerate = 16
 
-		width_low = 160
-		height_low = 120
+		#width = 2048
+		#height = 1536
+
+		width = 2240
+		height = 1680 
+
+		width_low = 320
+		height_low = 240
 
 		vflip = 1
 		hflip = 1
@@ -117,24 +121,26 @@ def create_main(src):
 		
 		print(colorLiteral)
 		
+		"""
 		pipeline.load_data({
 	        'frame_resized': frame_resized,
 	        'frame_real': frame,
 	   	    'state': colorLiteral,
 	        'frame_number': frame_number,})
 		pipeline.run()
-
+		"""
 		
-		if _frame_number == 800:
-			break
+
+		#if _frame_number == 400:
+		#	break
 		t2 = time.time()
 
 		print('alll the while took', t2-t1)
 		# update the FPS counter
 		
-		#cv2.imshow('frame', frame)
-		#if cv2.waitKey(1) & 0xFF == ord('q'):
-		#	break
+		cv2.imshow('frame', frame_resized)
+		if cv2.waitKey(1) & 0xFF == ord('q'):
+			break
 
 		fps.update()
 

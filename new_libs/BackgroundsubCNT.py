@@ -6,10 +6,6 @@ from new_libs.math_and_utils import distance
 
 
 
-
-
-
-
 class CreateBGCNT():
 
 	"""
@@ -59,81 +55,19 @@ class CreateBGCNT():
 			output_q.put(matches)
 
 
-	def __call__(self, LOW_RES_FRAM):
+	def visual(self, LOW_RES_FRAM, matches):
+		x, y, w, h = matches[0]
+		cv2.rectangle(LOW_RES_FRAM, (x, y), (w, h), (255,0,0), 2)
+		cv2.imshow('FRAME_WITH_DTECTED_BOXES', LOW_RES_FRAM)
+
+
+	def __call__(self, LOW_RES_FRAM, SHOW = False):
 
 		self.input_q.put(LOW_RES_FRAM)
 
 		matches = self.output_q.get()
+
+		if SHOW == True:
+			self.visual(LOW_RES_FRAM, matches)
 		
-		return matches, LOW_RES_FRAM
-
-
-
-""" USELESS CLASS FOR NOW 
-
-class CreateBG(object):
-	def __init__(self):
-		# Define the parameters needed for motion detection
-		self.k = 31
-		self.alpha = 0.02 # Define weighting coefficient for running average
-		self.motion_thresh = 35 # Threshold for what difference in pixels  
-		self.running_avg = None # Initialize variable for running average
-		self.min_contour_width=15 
-		self.min_contour_height=15
-	#@property
-	def visual(self, current_frame):
-
-		gray_frame = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
-		t1 = time.time()
-		smooth_frame = cv2.GaussianBlur(gray_frame, (self.k, self.k), 0)
-
-		# If this is the first frame, making running avg current frame
-		if self.running_avg is None:
-			self.running_avg = np.float32(smooth_frame) 
-
-		# Find absolute difference between the current smoothed frame and the running average
-		diff = cv2.absdiff(np.float32(smooth_frame), np.float32(self.running_avg))
-		t2 = time.time()
-
-		print('THE DIFF TOOOOK', t2-t1)
-
-
-		# Then add current frame to running average after
-		cv2.accumulateWeighted(np.float32(smooth_frame), self.running_avg, self.alpha)
-
-		# For all pixels with a difference > thresh, turn pixel to 255, otherwise 0
-		_, subtracted = cv2.threshold(diff, self.motion_thresh, 1, cv2.THRESH_BINARY)
-
-		matches = []
-		
-		subtracted = np.array(subtracted * 255, dtype = np.uint8)
-
-		fg_mask = subtracted	
-
-		im2, contours, hierarchy = cv2.findContours(subtracted, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
-
-		#cv2.imshow('im2', im2)
-
-		#print( len(contours))
-		
-		for (i, contour) in enumerate(contours):
-		    (x, y, w, h) = cv2.boundingRect(contour)
-		    contour_valid = (w >= self.min_contour_width) and (h >= self.min_contour_height)
-		    if not contour_valid:
-		        continue
-
-		    centroid = math_and_utils.get_centroid(x, y, w, h)
-
-		    matches.append(((x, y, w, h), centroid))
-
-
-		#cv2.imshow('Thresholded difference', subtracted)
-
 		return matches
-		#cv2.imshow('Actual image', current_frame)
-		#cv2.imshow('Gray-scale', gray_frame)
-		#cv2.imshow('Smooth', smooth_frame)
-		#cv2.imshow('Difference', diff)
-
-	#cv2.destroyAllWindows()
-"""
