@@ -25,7 +25,7 @@ sys.path.insert(0, directorioDeLibreriasPropias)
 from mask import VisualLayer
 from mireporte import MiReporte
 from semaforo import CreateSemaforo
-from agentereportero import AgenteReportero
+from policiainfractor import PoliciaInfractor
 
 # Se crean las variables de constantes de trabajo del programa
 ## Parametros de input video
@@ -95,20 +95,20 @@ def __main_function__():
 	capturaDeFlujoInicial = cv2.resize(capturaDeFlujoInicial,(320,240))
 	
 	# Creación de objetos:
-	miPoliciaReportando = AgenteReportero(capturaDeFlujoInicial,verticesPartida,verticesLlegada,misVerticesExtremos,mifps,nombreCarpetaDeReporte,generarArchivosDebug)	# True generara el reporte para debug, por ahora debe estar en este modo
+	miPoliciaReportando = PoliciaInfractor(capturaDeFlujoInicial,verticesPartida,verticesLlegada)
 	if mostrarImagen:
 		visualLabel = VisualLayer()
 		visualLabel.crearMascaraCompleta(size = (240,320))
 		visualLabel.crearBarraInformacion(height = 240)
 		visualLabel.crearBarraDeProgreso()
 		visualLabel.ponerPoligono(np.array(verticesPartida))
-		visualLabel.ponerPoligono(np.array(verticesLlegada))
-	#miPoliciaReportando.inicializarAgente()
+		#visualLabel.ponerPoligono(np.array(verticesLlegada))
 
 	miSemaforo = CreateSemaforo(periodoDeSemaforo)
 
 	tiempoAuxiliar = time.time()
-	
+
+	frameActual = 0	
 
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
@@ -126,42 +126,42 @@ def __main_function__():
 		if senalColor >= 1:					# Si estamos en rojo, realizamos una accion
 			if flancoSemaforo == 1:			# esto se inicial al principio de este estado
 				nuevaCarpeta = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-				miPoliciaReportando.inicializarAgente(nuevaCarpeta)
-				miReporte.moverRegistroACarpeta(nuevaCarpeta)
-				miReporte.info('<<<ROJO RED ROJO RED at: '+datetime.datetime.now().strftime('%H-%M-%S')+' ROJO RED ROJO RED>>>')
-			numeroDeFrame = miPoliciaReportando.introducirImagen(capturaActual)
+				miPoliciaReportando.inicializarAgente()
+				frameActual = 0	
+				print('RED')
+				#miReporte.moverRegistroACarpeta(nuevaCarpeta)
+				#miReporte.info('<<<ROJO RED ROJO RED at: '+datetime.datetime.now().strftime('%H-%M-%S')+' ROJO RED ROJO RED>>>')
+			miPoliciaReportando.evolucionarLineaVigilancia(frameActual,capturaActual)
 
 		elif senalColor == 0:		# Si estamos en verde realizamos otra accion
 			if flancoSemaforo == -1: # esto se inicial al principio de este estado
-				miReporte.info('# Reportando')
-				miReporte.info('<<<VERDE GREEN VERDE GREEN at: '+datetime.datetime.now().strftime('%H-%M-%S')+' VERDE GREEN VERDE GREEN>>>')
-				reporte = miPoliciaReportando.guardarReportes()
+				print('GREEN')#miReporte.info('# Reportando')
+				#miReporte.info('<<<VERDE GREEN VERDE GREEN at: '+datetime.datetime.now().strftime('%H-%M-%S')+' VERDE GREEN VERDE GREEN>>>')
+				#>>reporte = miPoliciaReportando.guardarReportes()
 
-		
 		indiceColor = 0
 		
 		visualizacion = capturaActual
-		for infraction in miPoliciaReportando.misInfracciones:
-			if (infraction['estado'] == 'Confirmado'):		# (infraction['estado'] == 'Confirmado') |
-				for puntos in infraction['desplazamiento']:
-					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
-					for punto in puntosExtraidos:
-						cv2.circle(visualizacion, tuple(punto), 1, (0,0,255), -1)
-
-			elif infraction['estado'] == 'Candidato':
-				for puntos in infraction['desplazamiento']:
-					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
-					for punto in puntosExtraidos:
-						cv2.circle(visualizacion, tuple(punto), 1, colores[indiceColor].tolist(), -1)
+		for infraction in miPoliciaReportando.listaPorConfirmar:
+			for puntos in infraction['desplazamiento']:
+				puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
+				for punto in puntosExtraidos:
+					cv2.circle(visualizacion, tuple(punto), 1, colores[indiceColor].tolist(), -1)
 			indiceColor +=1
+
+		for infraction in miPoliciaReportando.listaDeInfracciones:
+			for puntos in infraction['desplazamiento']:
+				puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
+				for punto in puntosExtraidos:
+					cv2.circle(visualizacion, tuple(punto), 1, (0,0,255), -1)
 			
 		if mostrarImagen:
 			cv2.polylines(visualizacion, np.array([poligonoSemaforo])//2, True, (200,200,200))
 			visualLabel.agregarTextoEn(colorLiteral, 0)
-			visualLabel.agregarTextoEn("F{}".format(0), 1)
-			visualLabel.agregarTextoEn(numeroDeFrame, 2)
-			visualLabel.agregarTextoEn(str(miPoliciaReportando.reporteInfracciones()[0])+'/'+str(miPoliciaReportando.reporteInfracciones()[1]), 3)
-			visualLabel.agregarTextoEn('G'+str(miPoliciaReportando.reporteInfracciones()[-1]), 4)
+			visualLabel.agregarTextoEn("F{}".format(frameActual), 1)
+			visualLabel.agregarTextoEn("I{}".format(miPoliciaReportando.infraccionesConfirmadas), 2)
+			#>visualLabel.agregarTextoEn(str(miPoliciaReportando.reporteInfracciones()[0])+'/'+str(miPoliciaReportando.reporteInfracciones()[1]), 3)
+			#>visualLabel.agregarTextoEn('G'+str(miPoliciaReportando.reporteInfracciones()[-1]), 4)
 			if senalColor == 1: visualLabel.establecerColorFondoDe(backgroudColour = (0,0,255), numeroDeCaja = 0)
 			elif senalColor == 0: visualLabel.establecerColorFondoDe(backgroudColour = (0,255,0), numeroDeCaja = 0)
 			elif senalColor == 2: visualLabel.establecerColorFondoDe(backgroudColour = (0,255,255), numeroDeCaja = 0)
@@ -174,8 +174,8 @@ def __main_function__():
 		#print('Ciclo: ',str(time.time()-tiempoAuxiliar)[:7],' color: ',colorLiteral)
 		#sys.stdout.write("\033[F")
 		tiempoEjecucion = time.time()-tiempoAuxiliar
-		if tiempoEjecucion>periodoDeMuestreo:
-			miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
+		#if tiempoEjecucion>periodoDeMuestreo:
+		#	miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
 		
 		#while time.time()-tiempoAuxiliar<periodoDeMuestreo:
 		#	True
@@ -183,7 +183,9 @@ def __main_function__():
 		if ch == ord('q'):
 			break
 		tiempoAuxiliar = time.time()
-		
+		frameActual +=1
+		print('Periodo: ',time.time()-tiempoAuxiliar)
+		tiempoAuxiliar = time.time()
 
 # Se introducen los argumentos de control en el formato establecido
 if __name__ == '__main__':
