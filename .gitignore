@@ -8,3 +8,4 @@ VideoCapture/
 ownLibraries/*.py~
 ownLibraries/\?*
 
+data
