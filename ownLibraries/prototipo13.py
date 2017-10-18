@@ -81,20 +81,20 @@ def __main_function__():
 	# Arrancando camara
 	if len(archivoDeVideo)==0:	# modo real
 		if os.uname()[1] == 'alvarohurtado-305V4A':
-			miCamara = cv2.VideoCapture(1)
+			camaraParaFlujo = cv2.VideoCapture(1)
 		else:
-			miCamara = cv2.VideoCapture(0)
+			camaraParaFlujo = cv2.VideoCapture(0)
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		try:
-			miCamara = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
+			camaraParaFlujo = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
 			miReporte.info('Archivo de video cargado exitosamente: '+directorioDeVideos+'/'+archivoDeVideo)
 		except Exception as currentException:
 			archivoDeVideo = input('No se pudo cargar el video, ingresar otro nombre:\n')
-			miCamara = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
+			camaraParaFlujo = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
 
 	# Se captura la imagen de flujo inicial y se trabaja con la misma
-	ret, capturaInicial = miCamara.read()
+	ret, capturaInicial = camaraParaFlujo.read()
 
 	# Si estamos trabajando en la raspberry pi, no necesitamos simular la camara de 8Mp
 	miComputadora = os.uname()[1]
@@ -119,22 +119,23 @@ def __main_function__():
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
 		if archivoDeVideo=='':
-			ret, capturaActual = miCamara.read()
+			ret, capturaActual = camaraParaFlujo.read()
 		else:
 			# En caso de modo debug descartamos algunos frames para simular el periodo de muestreo
 			for inciceDescarte in range(videofps//mifps):
-				ret, capturaActual = miCamara.read()
-		otroTiempo = time.time()
+				ret, capturaActual = camaraParaFlujo.read()
+		
 		senalColor, colorLiteral, flancoSemaforo = miSemaforo.obtenerColorEnSemaforo(capturaActual,poligonoSemaforo)
-		print('Semaforo: ',time.time()-otroTiempo)
 		capturaActual = cv2.resize(capturaActual,(320,240))
 		
 		# Si tengo infracciones pendientes las evoluciono
 		if senalColor >= 1:					# Si estamos en rojo, realizamos una accion
 			if flancoSemaforo == 1:			# esto se inicial al principio de este estado
+				nuevaCarpeta = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 				miPoliciaReportando.inicializarAgente()
 				frameActual = 0	
 				print('RED')
+				#miReporte.moverRegistroACarpeta(nuevaCarpeta)
 				#miReporte.info('<<<ROJO RED ROJO RED at: '+datetime.datetime.now().strftime('%H-%M-%S')+' ROJO RED ROJO RED>>>')
 			miPoliciaReportando.evolucionarLineaVigilancia(frameActual,capturaActual)
 
@@ -145,21 +146,21 @@ def __main_function__():
 				#>>reporte = miPoliciaReportando.guardarReportes()
 		indiceColor = 0
 		
-		otroTiempo = time.time()
-		if mostrarImagen:
-			visualizacion = capturaActual
-			for infraction in miPoliciaReportando.listaPorConfirmar:
-				for puntos in infraction['desplazamiento']:
-					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
-					for punto in puntosExtraidos:
-						cv2.circle(visualizacion, tuple(punto), 1, colores[indiceColor].tolist(), -1)
-				indiceColor +=1
+		visualizacion = capturaActual
+		for infraction in miPoliciaReportando.listaPorConfirmar:
+			for puntos in infraction['desplazamiento']:
+				puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
+				for punto in puntosExtraidos:
+					cv2.circle(visualizacion, tuple(punto), 1, colores[indiceColor].tolist(), -1)
+			indiceColor +=1
 
-			for infraction in miPoliciaReportando.listaDeInfracciones:
-				for puntos in infraction['desplazamiento']:
-					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
-					for punto in puntosExtraidos:
-						cv2.circle(visualizacion, tuple(punto), 1, (0,0,255), -1)
+		for infraction in miPoliciaReportando.listaDeInfracciones:
+			for puntos in infraction['desplazamiento']:
+				puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
+				for punto in puntosExtraidos:
+					cv2.circle(visualizacion, tuple(punto), 1, (0,0,255), -1)
+			
+		if mostrarImagen:
 			cv2.polylines(visualizacion, np.array([poligonoSemaforo])//2, True, (200,200,200))
 			visualLabel.agregarTextoEn(colorLiteral, 0)
 			visualLabel.agregarTextoEn("F{}".format(frameActual), 1)
@@ -173,11 +174,10 @@ def __main_function__():
 			visualLabel.establecerMagnitudBarra(magnitude = int(miPoliciaReportando.ultimaVelocidad))
 			visualizacion = visualLabel.aplicarMascaraActualAFrame(visualizacion)
 			cv2.imshow('Visual',visualLabel.aplicarTodo())
-		print('Visualizacion: ',time.time()-otroTiempo)
+		
 		# Visualizacion	
 		#print('Ciclo: ',str(time.time()-tiempoAuxiliar)[:7],' color: ',colorLiteral)
 		#sys.stdout.write("\033[F")
-		frameActual +=1
 		tiempoEjecucion = time.time()-tiempoAuxiliar
 		print('Periodo: ',tiempoEjecucion)
 		tiempoAuxiliar = time.time()
@@ -189,7 +189,7 @@ def __main_function__():
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
 			break
-		
+		frameActual +=1
 		
 # Se introducen los argumentos de control en el formato establecido
 if __name__ == '__main__':
