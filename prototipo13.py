@@ -27,6 +27,7 @@ from mireporte import MiReporte
 from semaforo import CreateSemaforo
 from policiainfractor import PoliciaInfractor
 from desplazamientoimagen import DesplazamientoImagen
+from videostream import VideoStream
 
 # Se crean las variables de constantes de trabajo del programa
 ## Parametros de input video
@@ -81,32 +82,31 @@ def __main_function__():
 	miReporte.info('Cargado exitosamente parametros de instalacion: '+str(parametrosInstalacion))
 
 
-
 	# Arrancando camara
 	if len(archivoDeVideo)==0:	# modo real
 		if os.uname()[1] == 'alvarohurtado-305V4A':
-			miCamara = cv2.VideoCapture(1)
+			miCamara = VideoStream(src = 1, resolution = (640,480)).start()
+			time.sleep(1)
 		else:
-			miCamara = cv2.VideoCapture(0)
-			miCamara.set(3,3296)
-			miCamara.set(4,2512)
+			miCamara = VideoStream(src = 0, resolution = (3296,2512)).start()
+			time.sleep(1)
+			#miCamara.set(3,3296)
+			#miCamara.set(4,2512)
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		try:
-			miCamara = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
+			miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = (640,480)).start()
+			time.sleep(1)
 			miReporte.info('Archivo de video cargado exitosamente: '+directorioDeVideos+'/'+archivoDeVideo)
 		except Exception as currentException:
 			archivoDeVideo = input('No se pudo cargar el video, ingresar otro nombre:\n')
 			miCamara = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
 
 	# Se captura la imagen de flujo inicial y se trabaja con la misma
-	ret, capturaInicial = miCamara.read()
+	capturaAlta, capturaInicial = miCamara.read()
 
 	# Si estamos trabajando en la raspberry pi, no necesitamos simular la camara de 8Mp
 	miComputadora = os.uname()[1]
-	if miComputadora != 'raspberrypi':
-		capturaInicial = cv2.resize(capturaInicial,(3296,2512))
-	capturaInicial = cv2.resize(capturaInicial,(320,240))
 	
 	# Creación de objetos:
 	miPoliciaReportando = PoliciaInfractor(capturaInicial,verticesPartida,verticesLlegada)
@@ -126,18 +126,18 @@ def __main_function__():
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
 		if archivoDeVideo=='':
-			ret, capturaActual = miCamara.read()
+			capturaAlta, capturaActual  = miCamara.read()
 		else:
 			# En caso de modo debug descartamos algunos frames para simular el periodo de muestreo
 			for inciceDescarte in range(videofps//mifps):
-				ret, capturaActual = miCamara.read()
+				capturaAlta, capturaActual  = miCamara.read()
 
 		frameActual = miRegistroDesplazado.introducirImagen(capturaActual)
 		otroTiempo = time.time()
 		senalColor, colorLiteral, flancoSemaforo = miSemaforo.obtenerColorEnSemaforo(capturaActual,poligonoSemaforo)
 		print('Semaforo: ',time.time()-otroTiempo)
 		otroTiempo = time.time()
-		capturaActual = cv2.resize(capturaActual,(320,240))
+		#ERASEcapturaActual = cv2.resize(capturaActual,(320,240))
 		print('Resize: ',time.time()-otroTiempo)
 		
 		# Si tengo infracciones pendientes las evoluciono
