@@ -78,10 +78,13 @@ def __main_function__():
 
 	miReporte.info('Cargado exitosamente parametros de instalacion: '+str(parametrosInstalacion))
 
-	# Arrancando camara de flujo
+	# Arrancando camara
 	if len(archivoDeVideo)==0:	# modo real
-		camaraParaFlujo = cv2.VideoCapture(1)
-		miReporte.info('Activada Exitosamente cámara de flujo!')
+		if os.uname()[1] == 'alvarohurtado-305V4A':
+			camaraParaFlujo = cv2.VideoCapture(1)
+		else:
+			camaraParaFlujo = cv2.VideoCapture(0)
+		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		try:
 			camaraParaFlujo = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
@@ -91,11 +94,16 @@ def __main_function__():
 			camaraParaFlujo = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
 
 	# Se captura la imagen de flujo inicial y se trabaja con la misma
-	ret, capturaDeFlujoInicial = camaraParaFlujo.read()
-	capturaDeFlujoInicial = cv2.resize(capturaDeFlujoInicial,(320,240))
+	ret, capturaInicial = camaraParaFlujo.read()
+
+	# Si estamos trabajando en la raspberry pi, no necesitamos simular la camara de 8Mp
+	miComputadora = os.uname()[1]
+	if miComputadora != 'raspberrypi':
+		capturaInicial = cv2.resize(capturaInicial,(3296,2512))
+	capturaInicial = cv2.resize(capturaInicial,(320,240))
 	
 	# Creación de objetos:
-	miPoliciaReportando = PoliciaInfractor(capturaDeFlujoInicial,verticesPartida,verticesLlegada)
+	miPoliciaReportando = PoliciaInfractor(capturaInicial,verticesPartida,verticesLlegada)
 	if mostrarImagen:
 		visualLabel = VisualLayer()
 		visualLabel.crearMascaraCompleta(size = (240,320))
@@ -105,9 +113,7 @@ def __main_function__():
 		#visualLabel.ponerPoligono(np.array(verticesLlegada))
 
 	miSemaforo = CreateSemaforo(periodoDeSemaforo)
-
 	tiempoAuxiliar = time.time()
-
 	frameActual = 0	
 
 	while True:
@@ -138,7 +144,6 @@ def __main_function__():
 				print('GREEN')#miReporte.info('# Reportando')
 				#miReporte.info('<<<VERDE GREEN VERDE GREEN at: '+datetime.datetime.now().strftime('%H-%M-%S')+' VERDE GREEN VERDE GREEN>>>')
 				#>>reporte = miPoliciaReportando.guardarReportes()
-
 		indiceColor = 0
 		
 		visualizacion = capturaActual
@@ -174,6 +179,8 @@ def __main_function__():
 		#print('Ciclo: ',str(time.time()-tiempoAuxiliar)[:7],' color: ',colorLiteral)
 		#sys.stdout.write("\033[F")
 		tiempoEjecucion = time.time()-tiempoAuxiliar
+		print('Periodo: ',tiempoEjecucion)
+		tiempoAuxiliar = time.time()
 		#if tiempoEjecucion>periodoDeMuestreo:
 		#	miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
 		
@@ -182,11 +189,8 @@ def __main_function__():
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
 			break
-		tiempoAuxiliar = time.time()
 		frameActual +=1
-		print('Periodo: ',time.time()-tiempoAuxiliar)
-		tiempoAuxiliar = time.time()
-
+		
 # Se introducen los argumentos de control en el formato establecido
 if __name__ == '__main__':
 	# Tomamos los ingresos para controlar el video
