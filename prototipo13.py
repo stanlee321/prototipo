@@ -80,6 +80,8 @@ def __main_function__():
 
 	miReporte.info('Cargado exitosamente parametros de instalacion: '+str(parametrosInstalacion))
 
+
+
 	# Arrancando camara
 	if len(archivoDeVideo)==0:	# modo real
 		if os.uname()[1] == 'alvarohurtado-305V4A':
