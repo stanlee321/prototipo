@@ -9,7 +9,7 @@ class DesplazamientoImagen():
     {'index':0,'image':imgNPArray,'images':listaDeNumpyArray}
     que permite controlar la entrada en memoria RAM
     """
-    def __init__(self,size = 20):
+    def __init__(self,size = 12):
         self.maximotamano = size
         self.lista = []
         self.ultimoIndice = 0
@@ -22,7 +22,7 @@ class DesplazamientoImagen():
             self.lista.pop()
         return self.ultimoIndice -1
 
-    def reestablecerDesplazamiento(self,size = 20):
+    def reestablecerDesplazamiento(self,size = 12):
         self.maximotamano = size
         del self.lista
         self.lista = []

@@ -26,6 +26,7 @@ from mask import VisualLayer
 from mireporte import MiReporte
 from semaforo import CreateSemaforo
 from policiainfractor import PoliciaInfractor
+from desplazamientoimagen import DesplazamientoImagen
 
 # Se crean las variables de constantes de trabajo del programa
 ## Parametros de input video
@@ -39,6 +40,7 @@ semaforoSimuladoTexto = 'real '
 mifps = 8
 generarArchivosDebug = True
 mostrarImagen = False
+longitudRegistro = 1000
 
 # Función principal
 def __main_function__():
@@ -106,6 +108,7 @@ def __main_function__():
 	
 	# Creación de objetos:
 	miPoliciaReportando = PoliciaInfractor(capturaInicial,verticesPartida,verticesLlegada)
+	miRegistroDesplazado = DesplazamientoImagen(longitudRegistro)
 	if mostrarImagen:
 		visualLabel = VisualLayer()
 		visualLabel.crearMascaraCompleta(size = (240,320))
@@ -126,19 +129,25 @@ def __main_function__():
 			# En caso de modo debug descartamos algunos frames para simular el periodo de muestreo
 			for inciceDescarte in range(videofps//mifps):
 				ret, capturaActual = miCamara.read()
+
+		frameActual = miRegistroDesplazado.introducirImagen(capturaActual)
 		otroTiempo = time.time()
 		senalColor, colorLiteral, flancoSemaforo = miSemaforo.obtenerColorEnSemaforo(capturaActual,poligonoSemaforo)
 		print('Semaforo: ',time.time()-otroTiempo)
+		otroTiempo = time.time()
 		capturaActual = cv2.resize(capturaActual,(320,240))
+		print('Resize: ',time.time()-otroTiempo)
 		
 		# Si tengo infracciones pendientes las evoluciono
 		if senalColor >= 1:					# Si estamos en rojo, realizamos una accion
 			if flancoSemaforo == 1:			# esto se inicial al principio de este estado
 				miPoliciaReportando.inicializarAgente()
-				frameActual = 0	
+				miRegistroDesplazado.reestablecerDesplazamiento(longitudRegistro)
 				print('RED')
 				#miReporte.info('<<<ROJO RED ROJO RED at: '+datetime.datetime.now().strftime('%H-%M-%S')+' ROJO RED ROJO RED>>>')
+				otroTiempo = time.time()
 			miPoliciaReportando.evolucionarLineaVigilancia(frameActual,capturaActual)
+			print('Policia Reportando: ',time.time()-otroTiempo)
 
 		elif senalColor == 0:		# Si estamos en verde realizamos otra accion
 			if flancoSemaforo == -1: # esto se inicial al principio de este estado
@@ -179,18 +188,19 @@ def __main_function__():
 		# Visualizacion	
 		#print('Ciclo: ',str(time.time()-tiempoAuxiliar)[:7],' color: ',colorLiteral)
 		#sys.stdout.write("\033[F")
-		frameActual +=1
+		
 		tiempoEjecucion = time.time()-tiempoAuxiliar
 		print('Periodo: ',tiempoEjecucion)
 		tiempoAuxiliar = time.time()
 		#if tiempoEjecucion>periodoDeMuestreo:
 		#	miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
-		
 		#while time.time()-tiempoAuxiliar<periodoDeMuestreo:
 		#	True
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
 			break
+		if ch == ord('r'):
+			print('----------------------------------------> ',len(miRegistroDesplazado.lista))
 		
 		
 # Se introducen los argumentos de control en el formato establecido
