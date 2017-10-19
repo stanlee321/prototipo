@@ -79,7 +79,7 @@ if __name__=='__main__':
 	fuente = ['../installationFiles/mySquare.mp4', 0]
 
 	# Create  BG object and get source input
-	bg = CreateBGCNTv2()
+	bg = CreateBGCNT()
 	vs = VideoStream(src = fuente[0], resolution = (640, 480)).start() # 0.5 pmx
 
 	fps = FPS().start()
