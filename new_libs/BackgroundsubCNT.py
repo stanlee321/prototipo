@@ -82,9 +82,9 @@ class CreateBGCNT():
 			x,y,w,h = contour
 			cv2.rectangle(self.frame_resized, (x,y),(x+w-1, y+h-1),(0,0,255),1)
 			cv2.circle(self.frame_resized, centroid,2,(0,255,0),-1)
-		#cv2.imshow('boxes', self.frame_resized)
+		cv2.imshow('boxes', self.frame_resized)
 
-
+import numpy as np
 
 if __name__=='__main__':
 
@@ -94,15 +94,18 @@ if __name__=='__main__':
 
 
 	fuente = ['../installationFiles/mySquare.mp4', 0]
+	data = np.load('../installationFiles/mySquare.npy')
 
+	poligono = data[0]
+	print('POLIGONOOOOOOOOOOOOOOOO',poligono)
 	# Create  BG object and get source input
 	bg = CreateBGCNT()
-	vs = VideoStream(src = fuente[0], resolution = (640, 480)).start() # 0.5 pmx
+	vs = VideoStream(src = fuente[1], resolution = (640, 480), poligono = poligono).start() # 0.5 pmx
 
 	fps = FPS().start()
 
 	while True:
-		frame, frame_resized = vs.read()
+		frame, frame_resized,_ = vs.read()
 		# Feed frames
 		bg.alimentar(frame_resized)
 
@@ -111,7 +114,7 @@ if __name__=='__main__':
 
 		# Want to see?, put the next two lines
 		bg.draw()
-		cv2.imshow('frame', frame_resized)
+		#cv2.imshow('frame', frame_resized)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
