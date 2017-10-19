@@ -38,7 +38,7 @@ class FPS:
 
 
 class WebcamVideoStream:
-	def __init__(self, src=0, resolution = (320,240)):
+	def __init__(self, src=0, resolution = (320,240), poligono=None):
 
 		width, height= resolution[0], resolution[1]
 		# initialize the video camera stream and read the first frame
@@ -54,6 +54,25 @@ class WebcamVideoStream:
 		# Resized artifact variable
 		#self.frame_resized = cv2.resize(self.frame, (320,240))	
 		self.frame_resized =  cv2.resize(self.frame, (320,240))
+
+
+		# Semaforo part
+
+		# find MAX, MIN values  in poligono
+		maxinX = max([x[0] for x in poligono])
+		maxinY = max([y[1] for y in poligono])
+
+		mininX = min([x[0] for x in poligono])
+		mininY = min([y[1] for y in poligono])
+
+		self.x0 = mininX//2
+		self.x1 = maxinX//2
+
+		self.y0 = mininY//2
+		self.y1 = maxinY//2
+
+		self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
+
 	def start(self):
 		# start the thread to read frames from the video stream
 		t = Thread(target=self.update, args=())
@@ -71,13 +90,16 @@ class WebcamVideoStream:
 			# otherwise, read the next frame from the stream
 			(self.grabbed, self.frame) = self.stream.read()
 
+
 			# Set new resolution for the consumers
 			self.frame_resized = cv2.resize(self.frame, (320,240))
+
+			self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
 			#print('shape?',self.frame_resized.shape)
 
 	def read(self):
 		# return the frame most recently read
-		return self.frame, self.frame_resized
+		return self.frame, self.frame_resized, self.imagen_semaforo
 
 	def stop(self):
 		# indicate that the thread should be stopped
@@ -86,7 +108,7 @@ class WebcamVideoStream:
 
 
 class VideoStream:
-	def __init__(self, src=0, usePiCamera=False, resolution=(320, 240),	framerate=32):
+	def __init__(self, src=0, usePiCamera=False, resolution=(320, 240),	framerate=32, poligono = None):
 		# check to see if the picamera module should be used
 		if usePiCamera:
 			# only import the picamera packages unless we are
@@ -102,7 +124,7 @@ class VideoStream:
 		# otherwise, we are using OpenCV so initialize the webcam
 		# stream
 		else:
-			self.stream = WebcamVideoStream(src=src, resolution=resolution)
+			self.stream = WebcamVideoStream(src=src, resolution=resolution, poligono = poligono)
 
 	def start(self):
 		# start the threaded video stream
@@ -161,7 +183,7 @@ if __name__ == '__main__':
 		# grab the frame from the threaded video file stream, resize
 		# it, and convert it to grayscale (while still retaining 3
 		# channels)
-		frame, frame_resized = vs.read()
+		frame, frame_resized,_ = vs.read()
 		
 		#print('shape', frame)
 		#frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

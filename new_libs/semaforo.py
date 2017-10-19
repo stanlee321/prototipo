@@ -223,9 +223,9 @@ class Real(Semaforo):
 		Load some semaforo Image and find color on it using svm_model
 		"""
 		# Load image and some magic	
-		img = imagen
-		#cv2.imshow('semaforo', cv2.resize(img,(img.shape[1]*5,img.shape[0]*5)))
-		hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+		
+		#cv2.imshow('semaforo', cv2.resize(imagen,(imagen.shape[1]*5,imagen.shape[0]*5)))
+		hsv = cv2.cvtColor(imagen, cv2.COLOR_BGR2HSV)
 		
 		# SOME MASKS
 		mask_red = cv2.inRange(hsv, self.lower_red, self.upper_red)
@@ -235,7 +235,7 @@ class Real(Semaforo):
 		full_mask = mask_red + mask_yellow + mask_green
 
 		# Put the mask and filter the R, Y , G colors in _imagen_
-		res = cv2.bitwise_and(img,img, mask= full_mask)
+		res = cv2.bitwise_and(imagen,imagen, mask= full_mask)
 
 
 
@@ -281,13 +281,14 @@ class Real(Semaforo):
 		else:
 			pass
 
-	def encontrarSemaforoObtenerColor(self,poligono, imagen):
+	def encontrarSemaforoObtenerColor(self, imagen):
 		# Find the color in this piece of poligono and
 		# return colorPrediction, literalColour, self.flanco
-
+		"""
 		literalColour = 'error?'
 
 		ignore_mask_color = (255,) * 3
+		
 		# find MAX, MIN values  in poligono
 		maxinX = max([x[0] for x in poligono])
 		maxinY = max([y[1] for y in poligono])
@@ -295,25 +296,33 @@ class Real(Semaforo):
 		mininX = min([x[0] for x in poligono])
 		mininY = min([y[1] for y in poligono])
 
-		x0 = mininX
-		x1 = maxinX
+		x0 = mininX//2
+		x1 = maxinX//2
 
-		y0 = mininY
-		y1 = maxinY
+		y0 = mininY//2
+		y1 = maxinY//2
+		"""
+		#print(x0,y0,x1,y1)
+
+		#poligono = [(x0,y0),(x1,y1)]
+		#cv2.imshow('imagen',cv2.resize(imagen[y0:y1,x0:x1],(480,240)))
 
 		# Create mask of Zeros with shape iqual to image input shape.
-		mask =  np.zeros((imagen.shape[0], imagen.shape[1],imagen.shape[2]), np.uint8)
+		#mask =  np.zeros((imagen.shape[0], imagen.shape[1],imagen.shape[2]), np.uint8)
 
 		# Adjust poligono to mask
-		fillPolyImage = cv2.fillPoly(mask, np.array([poligono]), ignore_mask_color)
+		#fillPolyImage = cv2.fillPoly(mask, np.array([poligono]), ignore_mask_color)
 
 		# All zeros except the poligon region in image input
-		masked_image = cv2.bitwise_and(imagen,mask)
+		#masked_image = cv2.bitwise_and(imagen,mask)
+		#cv2.imshow('imagen',cv2.resize(masked_image[y0:y1,x0:x1],(480,240)))
 
 		# Feed to the SMV with cuted masked_image using max and min points (rectangle like)
 		# again, all zeros except poligion region of interest.
 
-		colorPrediction = self.find_color(masked_image[y0:y1,x0:x1])
+		#colorPrediction = self.find_color(masked_image[y0:y1,x0:x1])
+		colorPrediction = self.find_color(imagen)
+
 
 		if colorPrediction == 1:
 			literalColour = 'ROJO'
@@ -374,8 +383,8 @@ class CreateSemaforo(Semaforo):
 		else:
 			self.blueprint_semaforo = Real()
 	
-	def obtenerColorEnSemaforo(self, img, poligono):
-		numerico, literal, flancoErrado = self.blueprint_semaforo.encontrarSemaforoObtenerColor(poligono = poligono, imagen = img )
+	def obtenerColorEnSemaforo(self, img):
+		numerico, literal, flancoErrado = self.blueprint_semaforo.encontrarSemaforoObtenerColor(imagen = img )
 		if self.periodoSemaforo == 0 :
 			self.littleFilter[4] = self.littleFilter[3]
 			self.littleFilter[3] = self.littleFilter[2]
