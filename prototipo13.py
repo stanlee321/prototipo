@@ -28,6 +28,7 @@ from semaforo import CreateSemaforo
 from policiainfractor import PoliciaInfractor
 from desplazamientoimagen import DesplazamientoImagen
 from videostreamv2 import VideoStream
+from BackgroundsubCNT import CreateBGCNT
 
 # Se crean las variables de constantes de trabajo del programa
 ## Parametros de input video
@@ -111,6 +112,7 @@ def __main_function__():
 	# Creación de objetos:
 	miPoliciaReportando = PoliciaInfractor(capturaInicial,verticesPartida,verticesLlegada)
 	miRegistroDesplazado = DesplazamientoImagen(longitudRegistro)
+	remocionFondo = CreateBGCNT()
 	if mostrarImagen:
 		visualLabel = VisualLayer()
 		visualLabel.crearMascaraCompleta(size = (240,320))
@@ -126,11 +128,11 @@ def __main_function__():
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
 		if archivoDeVideo=='':
-			capturaAlta, capturaActual,semaforo  = miCamara.read()
+			capturaAlta, capturaActual, semaforo  = miCamara.read()
 		else:
 			# En caso de modo debug descartamos algunos frames para simular el periodo de muestreo
 			for inciceDescarte in range(videofps//mifps):
-				capturaAlta, capturaActual,semaforo  = miCamara.read()
+				capturaAlta, capturaActual, semaforo  = miCamara.read()
 
 		frameActual = miRegistroDesplazado.introducirImagen(capturaActual)
 		print('Introducido ', sys.getsizeof(capturaAlta),' in ', capturaAlta.shape)
@@ -138,8 +140,9 @@ def __main_function__():
 		senalColor, colorLiteral, flancoSemaforo = miSemaforo.obtenerColorEnSemaforo(semaforo)
 		print('Semaforo: ',time.time()-otroTiempo)
 		otroTiempo = time.time()
-		#ERASEcapturaActual = cv2.resize(capturaActual,(320,240))
-		print('Resize: ',time.time()-otroTiempo)
+		remocionFondo.alimentar(capturaActual)
+		remocionFondo.draw()
+		print('Remocion de fonde: ',time.time()-otroTiempo)
 		
 		# Si tengo infracciones pendientes las evoluciono
 		if senalColor >= 1:					# Si estamos en rojo, realizamos una accion

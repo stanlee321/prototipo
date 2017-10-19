@@ -94,10 +94,10 @@ if __name__=='__main__':
 	from videostream import VideoStream
 	from videostream import FPS
 
-	fuente = [directorioDeVideos+'/mySquare.mp4', 0]
+	fuente = directorioDeVideos+'/mySquare.mp4'
 	# Create  BG object and get source input
 	bg = CreateBGCNT()
-	vs = VideoStream(src = fuente[0], resolution = (640, 480)).start() # 0.5 pmx
+	vs = VideoStream(src = fuente, resolution = (640, 480)).start() # 0.5 pmx
 
 
 	fps = FPS().start()
