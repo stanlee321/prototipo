@@ -12,12 +12,12 @@ import logging
 import imutils
 
 from new_libs.videostream import VideoStream
-from new_libs.videostreamerlib import FPS
+from new_libs.videostream import FPS
 
 
 from new_libs.semaforo import CreateSemaforo
 from multiprocessing import Process, Queue, Pool
-from new_libs.BackgroundsubCNT import CreateBGCNTv2
+from new_libs.BackgroundsubCNT import CreateBGCNT
 
 """
 from new_libs.pipeline import (
@@ -49,7 +49,7 @@ def create_main(fnt):
 	poligono  = data[0]
 
 	ON = True
-	bg = CreateBGCNTv2()
+	bg = CreateBGCNT()
 	vs = VideoStream(src = fuente[fnt], resolution = (640, 480)).start() # 0.5 pmx
 	#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()	# 2 mpx
 	#vs = WebcamVideoStream(src=src[1], height = 2560, width = 1920).start()	# 5 mpx
@@ -89,8 +89,7 @@ def create_main(fnt):
 		# frame number that will be passed to pipline
 		# this needed to make video from cutted frames
 		frame_number += 1
-		
-		#print(colorLiteral)
+		print(colorLiteral)
 		
 		"""
 		pipeline.load_data({

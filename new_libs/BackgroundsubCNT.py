@@ -1,8 +1,7 @@
 import cv2
 import bgsubcnt
 from multiprocessing import Process, Queue, Pool
-from math_and_utils import get_centroid
-from math_and_utils import distance
+
 
 
 class CreateBGCNT():
@@ -55,10 +54,28 @@ class CreateBGCNT():
 			    contour_valid = (w >= self.min_contour_width) and (h >= self.min_contour_height)
 			    if not contour_valid:
 			        continue
-			    centroid = get_centroid(x, y, w, h)
+			    centroid = CreateBGCNT.get_centroid(x, y, w, h)
 
 			    matches.append(((x, y, w, h), centroid))
 			output_q.put(matches)
+
+
+	@staticmethod
+	def distance(x, y, type='euclidian', x_weight=1.0, y_weight=1.0):
+
+		if type == 'euclidian':
+			return math.sqrt(float((x[0] - y[0])**2) / x_weight + float((x[1] - y[1])**2) / y_weight)
+
+	@staticmethod
+	def get_centroid(x, y, w, h):
+		x1 = int(w / 2)
+		y1 = int(h / 2)
+
+		cx = x + x1
+		cy = y + y1
+
+		return (cx, cy)
+		
 	def draw(self):
 		for (i, match) in enumerate(self.matches):
 			contour, centroid = match[0], match[1]
@@ -73,7 +90,7 @@ if __name__=='__main__':
 
 
 	from videostream import VideoStream
-	from videostreamerlib import FPS
+	from videostream import FPS
 
 
 	fuente = ['../installationFiles/mySquare.mp4', 0]
