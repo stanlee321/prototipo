@@ -1,4 +1,3 @@
-import os
 import cv2
 import bgsubcnt
 from multiprocessing import Process, Queue, Pool
@@ -68,7 +67,9 @@ class CreateBGCNT():
 			cv2.circle(self.frame_resized, centroid,2,(0,255,0),-1)
 		#cv2.imshow('boxes', self.frame_resized)
 
+import os
 directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
+
 
 if __name__=='__main__':
 
@@ -76,11 +77,11 @@ if __name__=='__main__':
 	from videostream import VideoStream
 	from videostreamerlib import FPS
 
-
 	fuente = [directorioDeVideos+'/mySquare.mp4', 0]
 	# Create  BG object and get source input
 	bg = CreateBGCNT()
 	vs = VideoStream(src = fuente[0], resolution = (640, 480)).start() # 0.5 pmx
+
 
 	fps = FPS().start()
 
