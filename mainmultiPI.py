@@ -78,13 +78,10 @@ def create_main(fnt):
 
 		t3 = time.time()
 		# Get signals from the semaforo
-		#senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame_resized)
+		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame_resized)
 		t4 = time.time()
 
-		# Feed
-		bg.alimentar(frame_resized)
-		print(bg.matches)
-	
+		
 		print('sEMAForo took', t4-t3)
 		# skip every 2nd frame to speed up processing
 		if _frame_number % 2 != 0:
@@ -112,7 +109,7 @@ def create_main(fnt):
 		print('alll the while took', t6-t5)
 		# update the FPS counter
 		
-		cv2.imshow('frame', frame_resized)
+		#cv2.imshow('frame', frame_resized)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
