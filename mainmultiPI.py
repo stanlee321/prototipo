@@ -10,12 +10,16 @@ import time
 import argparse
 import logging
 import imutils
-from new_libs.utilsforFPS import WebcamVideoStream
-from new_libs.utilsforFPS import FPS
+
+from new_libs.videostream import VideoStream
+from new_libs.videostreamerlib import FPS
+
 
 from new_libs.semaforo import CreateSemaforo
 from multiprocessing import Process, Queue, Pool
+from new_libs.BackgroundsubCNT import CreateBGCNTv2
 
+"""
 from new_libs.pipeline import (
     PipelineRunner,
     CreateBGCNT,
@@ -23,10 +27,10 @@ from new_libs.pipeline import (
     FIFO,
     Save_to_Disk)
 
-
+"""
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-src", "--source", type=int, default=0,
+ap.add_argument("-src", "--source", type=int or str, default=0,
 	help="1 for PICAMERA and 0 for local source or video")
 
 args = vars(ap.parse_args())
@@ -35,83 +39,53 @@ args = vars(ap.parse_args())
 ENCODING = 'utf-8'
 
 
-def create_main(src):
 
-	data = np.load('./installationFiles/heroes.npy')
+def create_main(fnt):
+
+	data = np.load('./installationFiles/mySquare.npy')
+	fuente = ['./installationFiles/mySquare.mp4', 0]
 	print(data)
-	semaforo = CreateSemaforo(periodoSemaforo = 10)
+	semaforo = CreateSemaforo(periodoSemaforo = 0)
 	poligono  = data[0]
 
 	ON = True
+	bg = CreateBGCNTv2()
+	vs = VideoStream(src = fuente[fnt], resolution = (640, 480)).start() # 0.5 pmx
+	#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()	# 2 mpx
+	#vs = WebcamVideoStream(src=src[1], height = 2560, width = 1920).start()	# 5 mpx
+	#vs = WebcamVideoStream(src=src[1], height = 3264, width = 2448).start()
+	fps = FPS().start()
 
-	if src == 0:
-		fuente = ['./installationFiles/heroes.mp4', 0]
-		vs = WebcamVideoStream(src=fuente[0], height = 640, width = 480).start() # 0.5 pmx
-		#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()	# 2 mpx
-		#vs = WebcamVideoStream(src=src[1], height = 2560, width = 1920).start()	# 5 mpx
-		#vs = WebcamVideoStream(src=src[1], height = 3264, width = 2448).start()
-		fps = FPS().start()
-
-		frame_number = -1
-		_frame_number = -1
-		pipeline = PipelineRunner(pipeline=[CreateBGCNT(), Filtering(), FIFO(), Save_to_Disk()], log_level=logging.DEBUG)
-
-
-	elif src == 1:
-
-		from new_libs.camPi import PiVideoStream
-
-		framerate = 16
-
-		#width = 2048
-		#height = 1536
-
-		width = 2240
-		height = 1680 
-
-		width_low = 320
-		height_low = 240
-
-		vflip = 1
-		hflip = 1
-		mins = 1
-		vs = PiVideoStream(resolution=(width,height), framerate = framerate).start()
-
-		time.sleep(1.0)
-		fps = FPS().start() 
-
-		log = logging.getLogger("mainmulti")
-
-		frame_number = -1
-		_frame_number = -1
-
-		resolution_hight = width*height
-
-		resolution_low = width_low*height_low
-
-		scale = resolution_hight/resolution_low
-		print('SCALE', scale)
-
-		Filtering.scale =  scale 
-
-		pipeline = PipelineRunner(pipeline=[CreateBGCNT(), Filtering(), FIFO(), Save_to_Disk()], log_level=logging.DEBUG)
-	else:
-		print('please put:  0 for local source or 1 for PicamSource')
+	frame_number = -1
+	_frame_number = -1
+	#pipeline = PipelineRunner(pipeline=[CreateBGCNT(), Filtering(), FIFO(), Save_to_Disk()], log_level=logging.DEBUG)
 
 	while ON:
 
+		t5 = time.time()
 		# grab the frame from the threaded video stream and resize it
 		# in his core
 		t1 = time.time()
 		frame, frame_resized = vs.read()
-		#print(frame.shape,frame_resized.shape)
 
+		print('frame.shape',frame.shape)
+		print('frame_resized.shape',frame_resized.shape)
+
+		t2 = time.time()
+		print('Producer took: ', t2-t1)
 
 		_frame_number += 1
 
+		t3 = time.time()
 		# Get signals from the semaforo
-		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame_resized)
+		#senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame_resized)
+		t4 = time.time()
 
+		# Feed
+		bg.alimentar(frame_resized)
+		print(bg.matches)
+	
+		print('sEMAForo took', t4-t3)
 		# skip every 2nd frame to speed up processing
 		if _frame_number % 2 != 0:
 			continue
@@ -119,7 +93,7 @@ def create_main(src):
 		# this needed to make video from cutted frames
 		frame_number += 1
 		
-		print(colorLiteral)
+		#print(colorLiteral)
 		
 		"""
 		pipeline.load_data({
@@ -130,12 +104,12 @@ def create_main(src):
 		pipeline.run()
 		"""
 		
-
+		bg.draw()
 		#if _frame_number == 400:
 		#	break
-		t2 = time.time()
+		t6 = time.time()
 
-		print('alll the while took', t2-t1)
+		print('alll the while took', t6-t5)
 		# update the FPS counter
 		
 		cv2.imshow('frame', frame_resized)
