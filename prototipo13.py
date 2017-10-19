@@ -41,7 +41,7 @@ semaforoSimuladoTexto = 'real '
 mifps = 8
 generarArchivosDebug = True
 mostrarImagen = False
-longitudRegistro = 1000
+longitudRegistro = 12
 
 # Función principal
 def __main_function__():
@@ -133,6 +133,7 @@ def __main_function__():
 				capturaAlta, capturaActual  = miCamara.read()
 
 		frameActual = miRegistroDesplazado.introducirImagen(capturaActual)
+		print('Introducido ', sys.getsizeof(capturaAlta),' in ', capturaAlta.shape)
 		otroTiempo = time.time()
 		senalColor, colorLiteral, flancoSemaforo = miSemaforo.obtenerColorEnSemaforo(capturaActual,poligonoSemaforo)
 		print('Semaforo: ',time.time()-otroTiempo)

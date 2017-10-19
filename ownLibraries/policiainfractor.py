@@ -207,7 +207,7 @@ if __name__ == '__main__':
 		camaraParaFlujo = cv2.VideoCapture(nombreDeVideo)
 		archivoParametrosACargar = nombreDeVideo[:-4]+'.npy'
 	except:
-		nombreDeVideo = directorioDeVideos+'/mSquare.mp4'
+		nombreDeVideo = directorioDeVideos+'/mySquare.mp4'
 		camaraParaFlujo = cv2.VideoCapture(nombreDeVideo)
 		archivoParametrosACargar = nombreDeVideo[:-4]+'.npy'
 

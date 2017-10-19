@@ -5,9 +5,9 @@ from multiprocessing import Process, Queue, Pool
 from math_and_utils import get_centroid
 from math_and_utils import distance
 
-directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
 
 class CreateBGCNT():
+
 	"""
 	CLASS used to create BGCNT for purposes of extract the rectangle where the 
 	car is in the screen, inputs: cls.visual(frame), outputs: list((rectanglex, rectangley)) positions.
@@ -29,17 +29,25 @@ class CreateBGCNT():
 
 		pool = Pool(2,self.worker, (self.input_q, self.output_q))
 
+		self.matches = None
+
+	def alimentar(self, current_frame):
+		self.frame_resized = current_frame
+		self.input_q.put(self.frame_resized)
+		matches = self.output_q.get()
+		self.matches = matches
+
 	def worker(self, input_q, output_q):
 
 		while True:
 
 			matches = []
+
 			gray = cv2.cvtColor(input_q.get(), cv2.COLOR_BGR2GRAY)
 
 			smooth_frame = cv2.GaussianBlur(gray, (self.k,self.k), 1.5)
 			#smooth_frame = cv2.bilateralFilter(gray,4,75,75)
 			#smooth_frame =cv2.bilateralFilter(smooth_frame,15,75,75)
-
 			self.fgmask = self.fgbg.apply(smooth_frame, self.kernel, 0.1)
 
 			im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
@@ -52,34 +60,52 @@ class CreateBGCNT():
 
 			    matches.append(((x, y, w, h), centroid))
 			output_q.put(matches)
+	def draw(self):
+		for (i, match) in enumerate(self.matches):
+			contour, centroid = match[0], match[1]
+			x,y,w,h = contour
+			cv2.rectangle(self.frame_resized, (x,y),(x+w-1, y+h-1),(0,0,255),1)
+			cv2.circle(self.frame_resized, centroid,2,(0,255,0),-1)
+		#cv2.imshow('boxes', self.frame_resized)
+
+directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
+
+if __name__=='__main__':
 
 
-	def __call__(self, LOW_RES_FRAM):
-
-		self.input_q.put(LOW_RES_FRAM)
-
-		matches = self.output_q.get()
-		
-		return matches, LOW_RES_FRAM
+	from videostream import VideoStream
+	from videostreamerlib import FPS
 
 
-if __name__ == '__main__':
-	"""
-	This small trial is a proff of work for the current class
-	"""
-	miSustraccionPrueba = CreateBGCNT()
+	fuente = [directorioDeVideos+'/mySquare.mp4', 0]
+	# Create  BG object and get source input
+	bg = CreateBGCNT()
+	vs = VideoStream(src = fuente[0], resolution = (640, 480)).start() # 0.5 pmx
 
-	try:
-		nombreDeVideo = directorioDeVideos+'/{}.mp4'.format(sys.argv[1])
-		camaraParaFlujo = cv2.VideoCapture(nombreDeVideo)
-	except:
-		nombreDeVideo = directorioDeVideos+'/mSquare.mp4'
-		camaraParaFlujo = cv2.VideoCapture(nombreDeVideo)
-		
-	ret, capturaDeFlujoInicial = camaraParaFlujo.read()
+	fps = FPS().start()
 
 	while True:
-		print(miSustraccionPrueba(capturaDeFlujoInicial))
-		ch = 0xFF & cv2.waitKey(5)
-		if ch == ord('q'):
+		frame, frame_resized = vs.read()
+		# Feed frames
+		bg.alimentar(frame_resized)
+
+		# You want the matches?
+		#print(bg.matches)
+
+		# Want to see?, put the next two lines
+		bg.draw()
+		cv2.imshow('frame', frame_resized)
+
+		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
+		fps.update()
+
+	# stop the timer and display FPS information
+	fps.stop()
+	print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
+	print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+	 
+	# do a bit of cleanup
+	cv2.destroyAllWindows()
+	vs.stop()
+
