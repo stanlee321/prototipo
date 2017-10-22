@@ -202,8 +202,8 @@ class Real(Semaforo):
 		self.upper_red = np.array([180,255,255], dtype=np.uint8)
 
 		# GREEN range
-		self.lower_green = np.array([70,120,0], dtype=np.uint8)
-		self.upper_green = np.array([90,180,255], dtype=np.uint8)
+		self.lower_green = np.array([70,0,0], dtype=np.uint8)
+		self.upper_green = np.array([90,255,255], dtype=np.uint8)
 
 		# SOME VARIABLES for SVM, if retrain the SVM in another
 		# resolution, change this val to this resolution.
@@ -249,7 +249,7 @@ class Real(Semaforo):
 
 
 
-		#cv2.imshow('res', cv2.resize(res,(res.shape[1]*5,res.shape[0]*5)))
+		cv2.imshow('res', cv2.resize(res,(res.shape[1]*5,res.shape[0]*5)))
 		###########################
 		# SVM PART (CLASSIFICATION) ML PROCESS
 		###########################
