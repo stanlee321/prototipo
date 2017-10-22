@@ -86,7 +86,7 @@ class WebcamVideoStream:
 		# second parameter : Remember Frames until the end?
 		# thirth parameter : first parameter * FPS excpeted
 
-		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*15)
+		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*10)
 		self.k = 31
 		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 
@@ -95,6 +95,7 @@ class WebcamVideoStream:
 		self.min_contour_height=30
 
 		self.matches = []
+		self.frame_number = -1
 
 	def start(self):
 		# start the thread to read frames from the video stream
@@ -138,10 +139,17 @@ class WebcamVideoStream:
 			# this is the bsubcnt result 
 			self.fgmask = self.fgbg.apply(smooth_frame, self.kernel, 0.1)
 
+			# just thresholding values
+			self.fgmask[self.fgmask < 240] = 0
+			
+			self.fgmask = self.filter_mask(self.fgmask, self.frame_number)
+
 
 			# Find the contours 
 			im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
 			
+
+
 			# for all the contours, calculate his centroid and position in the current frame
 			for (i, contour) in enumerate(contours):
 				(x, y, w, h) = cv2.boundingRect(contour)
@@ -159,6 +167,8 @@ class WebcamVideoStream:
 					cv2.circle(self.frame_resized, centroid,2,(0,255,0),-1)
 				else:
 					pass
+
+			self.frame_number += 1
 	def read(self):
 		# return the frame most recently read
 		return self.frame, self.frame_resized, self.imagen_semaforo, self.matches
@@ -166,6 +176,25 @@ class WebcamVideoStream:
 	def stop(self):
 		# indicate that the thread should be stopped
 		self.stopped = True
+
+
+	def filter_mask(self, img, a=None):
+		'''
+		This filters are hand-picked just based on visual tests
+		'''
+
+		kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
+
+		# Fill any small holes
+		closing = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
+		# Remove noise
+		opening = cv2.morphologyEx(closing, cv2.MORPH_OPEN, kernel)
+
+		# Dilate to merge adjacent blobs
+		dilation = cv2.dilate(opening, kernel, iterations=2)
+
+		#cv2.imwrite('../blob/blob_frame_{}.jpg'.format(a), img)
+		return dilation
 
 	@staticmethod
 	def distance(x, y, type='euclidian', x_weight=1.0, y_weight=1.0):
