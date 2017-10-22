@@ -13,7 +13,7 @@ class CreateBGCNT():
 	def __init__(self):
 		# Define the parameters needed for motion detection
 
-		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*60)
+		self.fgbg = bgsubcnt.createBackgroundSubtractor(33, False, 33*15)
 		self.k = 31
 		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 		self.min_contour_width=30
@@ -56,7 +56,10 @@ class CreateBGCNT():
 			        continue
 			    centroid = CreateBGCNT.get_centroid(x, y, w, h)
 
-			    matches.append(((x, y, w, h), centroid))
+			    matches.append(((x, y, w, h), centroid, self.fgmask))
+			    #matches.append(((x, y, w, h), centroid, smooth_frame))
+
+
 			output_q.put(matches)
 
 
@@ -82,7 +85,67 @@ class CreateBGCNT():
 			x,y,w,h = contour
 			cv2.rectangle(self.frame_resized, (x,y),(x+w-1, y+h-1),(0,0,255),1)
 			cv2.circle(self.frame_resized, centroid,2,(0,255,0),-1)
-		cv2.imshow('boxes', self.frame_resized)
+			cv2.imshow('boxes', cv2.resize(match[2], (640,480)))
+
+
+
+class CreateBGCNTtest():
+
+	"""
+	CLASS used to create BGCNT for purposes of extract the rectangle where the 
+	car is in the screen, inputs: cls.visual(frame), outputs: list((rectanglex, rectangley)) positions.
+	"""
+	def __init__(self):
+		# Define the parameters needed for motion detection
+
+		self.fgbg = bgsubcnt.createBackgroundSubtractor(7, False, 7*15)
+		self.k = 31
+		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+		self.min_contour_width=30
+		self.min_contour_height=30
+
+
+	def alimentar(self, frame):
+
+		matches = []
+
+		gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+		smooth_frame = cv2.GaussianBlur(gray, (self.k,self.k), 1.5)
+		#smooth_frame = cv2.bilateralFilter(gray,4,75,75)
+		#smooth_frame =cv2.bilateralFilter(smooth_frame,15,75,75)
+		self.fgmask = self.fgbg.apply(smooth_frame, self.kernel, 0.1)
+
+		#im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
+		#output_q.put(matches)
+		cv2.imshow('mask', cv2.resize(self.fgmask,  (640,480)))
+
+
+	@staticmethod
+	def distance(x, y, type='euclidian', x_weight=1.0, y_weight=1.0):
+
+		if type == 'euclidian':
+			return math.sqrt(float((x[0] - y[0])**2) / x_weight + float((x[1] - y[1])**2) / y_weight)
+
+	@staticmethod
+	def get_centroid(x, y, w, h):
+		x1 = int(w / 2)
+		y1 = int(h / 2)
+
+		cx = x + x1
+		cy = y + y1
+
+		return (cx, cy)
+		
+	def draw(self):
+		for (i, match) in enumerate(self.matches):
+			contour, centroid = match[0], match[1]
+			x,y,w,h = contour
+			cv2.rectangle(self.frame_resized, (x,y),(x+w-1, y+h-1),(0,0,255),1)
+			cv2.circle(self.frame_resized, centroid,2,(0,255,0),-1)
+			#cv2.imshow('boxes', cv2.resize(match[2], (640,480)))
+
+
 
 import numpy as np
 
@@ -99,7 +162,7 @@ if __name__=='__main__':
 	poligono = data[0]
 	print('POLIGONOOOOOOOOOOOOOOOO',poligono)
 	# Create  BG object and get source input
-	bg = CreateBGCNT()
+	bg = CreateBGCNTtest()
 	vs = VideoStream(src = fuente[1], resolution = (640, 480), poligono = poligono).start() # 0.5 pmx
 
 	fps = FPS().start()
@@ -113,9 +176,7 @@ if __name__=='__main__':
 		#print(bg.matches)
 
 		# Want to see?, put the next two lines
-		bg.draw()
-		#cv2.imshow('frame', frame_resized)
-
+		#bg.draw()
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 		fps.update()
@@ -124,7 +185,6 @@ if __name__=='__main__':
 	fps.stop()
 	print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
 	print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
-	 
 	# do a bit of cleanup
 	cv2.destroyAllWindows()
 	vs.stop()
