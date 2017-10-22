@@ -43,8 +43,8 @@ ENCODING = 'utf-8'
 def create_main(fnt):
 
 	data = np.load('./installationFiles/mySquare.npy')
-	fuente = ['./installationFiles/mySquare.mp4', 0]
-	#fuente = ['../trialVideos/mySquare.mp4', 0]
+	#fuente = ['./installationFiles/mySquare.mp4', 0]
+	fuente = ['../trialVideos/mySquare.mp4', 0]
 	print(data)
 	semaforo = CreateSemaforo(periodoSemaforo = 0)
 	poligono  = data[0]
