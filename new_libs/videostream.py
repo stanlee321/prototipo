@@ -118,7 +118,7 @@ class WebcamVideoStream:
 			print("FRAME ORIGIN SHaPe????????????", self.frame.shape)
 			print('-----------------------------------------------')
 			# Set new resolution for the consumers
-			self.frame_resized = cv2.resize(self.frame, (320,240))
+			self.frame_resized = None #cv2.resize(self.frame, (320,240))
 
 			self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
 			#print('shape?',self.frame_resized.shape)
