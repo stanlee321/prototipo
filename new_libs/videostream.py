@@ -113,6 +113,7 @@ class WebcamVideoStream:
 
 			# otherwise, read the next frame from the stream
 			(self.grabbed, self.frame) = self.stream.read()
+			print(self.frame)
 			print('-----------------------------------------------')
 			print("FRAME ORIGIN SHaPe????????????", self.frame.shape)
 			print('-----------------------------------------------')
