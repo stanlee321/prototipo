@@ -108,7 +108,8 @@ def create_main(fnt):
 		t6 = time.time()
 		print('alll the while took', t6-t5)
 
-		cv2.imshow('frame', cv2.resize(frame_resized,(640,480)))
+	
+		cv2.imshow('frame', cv2.resize(frame_resized,(320,240)))
 		#cv2.imwrite('frame.jpg', cv2.resize(frame_resized,(640,480)))
 		#break
 		if _frame_number == 2500:
