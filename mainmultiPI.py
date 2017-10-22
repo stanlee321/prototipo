@@ -113,8 +113,8 @@ def create_main(fnt):
 		cv2.imshow('frame', frame_resized)
 		#cv2.imwrite('frame.jpg', cv2.resize(frame_resized,(640,480)))
 		#break
-		#if _frame_number == 2500:
-		#	break
+		if _frame_number == 2500:
+			break
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break

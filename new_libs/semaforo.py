@@ -198,7 +198,7 @@ class Real(Semaforo):
 		self.upper_yellow = np.array([27,255,255], dtype=np.uint8)
 
 		# RED range
-		self.lower_red = np.array([140,100,0], dtype=np.uint8)
+		self.lower_red = np.array([140,0,0], dtype=np.uint8) #_,100,_
 		self.upper_red = np.array([180,255,255], dtype=np.uint8)
 
 		# GREEN range
@@ -249,7 +249,7 @@ class Real(Semaforo):
 
 
 
-		cv2.imshow('res', cv2.resize(res,(res.shape[1]*5,res.shape[0]*5)))
+		#cv2.imshow('res', cv2.resize(res,(res.shape[1]*5,res.shape[0]*5)))
 		###########################
 		# SVM PART (CLASSIFICATION) ML PROCESS
 		###########################
