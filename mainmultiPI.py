@@ -54,8 +54,8 @@ def create_main(fnt):
 	#height = 640
 	#width = 480
 
-	height = 3264
-	width = 2448
+	height =  2560
+	width = 1920
 
 	#bg = CreateBGCNT()
 	vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono, draw=True).start() # 0.5 pmx
