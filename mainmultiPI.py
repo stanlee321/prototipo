@@ -70,7 +70,7 @@ def create_main(fnt):
 		# grab the frame from the threaded video stream and resize it
 		# in his core
 		t1 = time.time()
-		frame, frame_resized, imagen_semaforo = vs.read()
+		frame, frame_resized, imagen_semaforo, matches = vs.read()
 
 		t2 = time.time()
 		print('Producer took: ', t2-t1)
@@ -79,9 +79,10 @@ def create_main(fnt):
 
 		t3 = time.time()
 		# Get signals from the semaforo
-		#senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame_resized)
 		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(imagen_semaforo)
 
+
+		print(matches)
 		t4 = time.time()
 
 		
@@ -103,44 +104,18 @@ def create_main(fnt):
 		pipeline.run()
 		"""
 		
-		#bg.draw()
 		
 		t6 = time.time()
-
 		print('alll the while took', t6-t5)
-		# update the FPS counter
-		#print(poligono)
-		#x,y,w,h = poligono[0][0],poligono[1],poligono[2],poligono[3]
 
-		"""
-		x1,x2,x3,x4 = poligono
-
-		#print(x1,x2,x3,x4)
-
-		x = x1[0]//2
-		y = x1[1]//2
-
-		w = x3[0]//2
-		h = x3[1]//2
-		
-		cv2.rectangle(frame_resized, (x,y),(w-1, h-1),(0,0,255),1)
-
-		cv2.circle(frame_resized, (x,y),2,(0,255,0),-1)
-		cv2.circle(frame_resized, (w,h),2,(0,255,255),-1)
-		#cv2.circle(frame_resized, poligono[2],2,(0,255,0),-1)
-		#cv2.circle(frame_resized, poligono[3],2,(0,255,0),-1)
-
-		"""
-
-
-		#cv2.imshow('frame', cv2.resize(frame_resized,(640,480)))
+		cv2.imshow('frame', cv2.resize(frame_resized,(640,480)))
 		#cv2.imwrite('frame.jpg', cv2.resize(frame_resized,(640,480)))
 		#break
 		if _frame_number == 2500:
 			break
 
-		#if cv2.waitKey(1) & 0xFF == ord('q'):
-		#	break
+		if cv2.waitKey(1) & 0xFF == ord('q'):
+			break
 
 		fps.update()
 

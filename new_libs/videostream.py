@@ -3,6 +3,7 @@
 from threading import Thread
 import cv2
 import datetime
+import bgsubcnt
 
 
 class FPS:
@@ -73,6 +74,18 @@ class WebcamVideoStream:
 
 		self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
 
+
+
+		# BG?
+
+		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*15)
+		self.k = 31
+		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+		self.min_contour_width=30
+		self.min_contour_height=30
+
+		self.matches = []
+
 	def start(self):
 		# start the thread to read frames from the video stream
 		t = Thread(target=self.update, args=())
@@ -97,15 +110,51 @@ class WebcamVideoStream:
 			self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
 			#print('shape?',self.frame_resized.shape)
 
+
+			# BG???
+			self.matches = []
+
+			gray = cv2.cvtColor(self.frame_resized, cv2.COLOR_BGR2GRAY)
+
+			smooth_frame = cv2.GaussianBlur(gray, (self.k,self.k), 1.5)
+			#smooth_frame = cv2.bilateralFilter(gray,4,75,75)
+			#smooth_frame =cv2.bilateralFilter(smooth_frame,15,75,75)
+			self.fgmask = self.fgbg.apply(smooth_frame, self.kernel, 0.1)
+
+			im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
+			for (i, contour) in enumerate(contours):
+				(x, y, w, h) = cv2.boundingRect(contour)
+				contour_valid = (w >= self.min_contour_width) and (h >= self.min_contour_height)
+				if not contour_valid:
+					continue
+				centroid =  WebcamVideoStream.get_centroid(x, y, w, h)
+
+				self.matches.append(((x, y, w, h), centroid))
+				cv2.rectangle(self.frame_resized, (x,y),(x+w-1, y+h-1),(0,0,255),1)
+				cv2.circle(self.frame_resized, centroid,2,(0,255,0),-1)
 	def read(self):
 		# return the frame most recently read
-		return self.frame, self.frame_resized, self.imagen_semaforo
+		return self.frame, self.frame_resized, self.imagen_semaforo, self.matches
 
 	def stop(self):
 		# indicate that the thread should be stopped
 		self.stopped = True
 
+	@staticmethod
+	def distance(x, y, type='euclidian', x_weight=1.0, y_weight=1.0):
 
+		if type == 'euclidian':
+			return math.sqrt(float((x[0] - y[0])**2) / x_weight + float((x[1] - y[1])**2) / y_weight)
+
+	@staticmethod
+	def get_centroid(x, y, w, h):
+		x1 = int(w / 2)
+		y1 = int(h / 2)
+
+		cx = x + x1
+		cy = y + y1
+
+		return (cx, cy)
 
 class VideoStream:
 	def __init__(self, src=0, usePiCamera=False, resolution=(320, 240),	framerate=32, poligono = None):

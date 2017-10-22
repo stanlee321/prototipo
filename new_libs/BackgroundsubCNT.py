@@ -13,7 +13,7 @@ class CreateBGCNT():
 	def __init__(self):
 		# Define the parameters needed for motion detection
 
-		self.fgbg = bgsubcnt.createBackgroundSubtractor(33, False, 33*15)
+		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*15)
 		self.k = 31
 		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 		self.min_contour_width=30
@@ -28,6 +28,7 @@ class CreateBGCNT():
 		pool = Pool(2,self.worker, (self.input_q, self.output_q))
 
 		self.matches = None
+		self.frame_resized = None
 
 	def alimentar(self, current_frame):
 		self.frame_resized = current_frame
@@ -38,7 +39,7 @@ class CreateBGCNT():
 	def worker(self, input_q, output_q):
 
 		while True:
-
+			time.sleep(0.13)
 			matches = []
 
 			gray = cv2.cvtColor(input_q.get(), cv2.COLOR_BGR2GRAY)
@@ -56,7 +57,7 @@ class CreateBGCNT():
 			        continue
 			    centroid = CreateBGCNT.get_centroid(x, y, w, h)
 
-			    matches.append(((x, y, w, h), centroid, self.fgmask))
+			    matches.append(((x, y, w, h), centroid))
 			    #matches.append(((x, y, w, h), centroid, smooth_frame))
 
 
@@ -85,7 +86,7 @@ class CreateBGCNT():
 			x,y,w,h = contour
 			cv2.rectangle(self.frame_resized, (x,y),(x+w-1, y+h-1),(0,0,255),1)
 			cv2.circle(self.frame_resized, centroid,2,(0,255,0),-1)
-			cv2.imshow('boxes', cv2.resize(match[2], (640,480)))
+		cv2.imshow('boxes', cv2.resize(self.frame_resized, (640,480)))
 
 
 
@@ -143,12 +144,12 @@ class CreateBGCNTtest():
 			x,y,w,h = contour
 			cv2.rectangle(self.frame_resized, (x,y),(x+w-1, y+h-1),(0,0,255),1)
 			cv2.circle(self.frame_resized, centroid,2,(0,255,0),-1)
-			#cv2.imshow('boxes', cv2.resize(match[2], (640,480)))
+		cv2.imshow('boxes', cv2.resize(match[2], (640,480)))
 
 
 
 import numpy as np
-
+import time
 if __name__=='__main__':
 
 
@@ -162,21 +163,22 @@ if __name__=='__main__':
 	poligono = data[0]
 	print('POLIGONOOOOOOOOOOOOOOOO',poligono)
 	# Create  BG object and get source input
-	bg = CreateBGCNTtest()
-	vs = VideoStream(src = fuente[1], resolution = (640, 480), poligono = poligono).start() # 0.5 pmx
+	bg = CreateBGCNT()
+	vs = VideoStream(src = fuente[0], resolution = (640, 480), poligono = poligono).start() # 0.5 pmx
 
 	fps = FPS().start()
 
 	while True:
 		frame, frame_resized,_ = vs.read()
 		# Feed frames
+		time.sleep(0.13)
 		bg.alimentar(frame_resized)
 
 		# You want the matches?
 		#print(bg.matches)
 
 		# Want to see?, put the next two lines
-		#bg.draw()
+		bg.draw()
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 		fps.update()
