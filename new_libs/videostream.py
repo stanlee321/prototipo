@@ -39,7 +39,7 @@ class FPS:
 
 
 class WebcamVideoStream:
-	def __init__(self, src=0, resolution = (320,240), poligono=None):
+	def __init__(self, src=0, resolution = (320,240), poligono=None, draw=False):
 
 		width, height= resolution[0], resolution[1]
 		# initialize the video camera stream and read the first frame
@@ -51,7 +51,7 @@ class WebcamVideoStream:
 		# initialize the variable used to indicate if the thread should
 		# be stopped
 		self.stopped = False
-
+		self.draw = draw
 		# Resized artifact variable
 		#self.frame_resized = cv2.resize(self.frame, (320,240))	
 		self.frame_resized =  cv2.resize(self.frame, (320,240))
@@ -66,6 +66,9 @@ class WebcamVideoStream:
 		mininX = min([x[0] for x in poligono])
 		mininY = min([y[1] for y in poligono])
 
+		# Values to cut the self.frame_resized for the 
+		# semaforo input
+
 		self.x0 = mininX//2
 		self.x1 = maxinX//2
 
@@ -76,11 +79,18 @@ class WebcamVideoStream:
 
 
 
-		# BG?
+		##### BG part
+
+		# (3, False, 3*15) are parameters to adjust the bgsub behavior
+		# first parameter : Number of frames until the bg "rememver the differences"
+		# second parameter : Remember Frames until the end?
+		# thirth parameter : first parameter * FPS excpeted
 
 		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*15)
 		self.k = 31
 		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+
+		# Adjust the minimum size of the blog matching contour
 		self.min_contour_width=30
 		self.min_contour_height=30
 
@@ -111,17 +121,28 @@ class WebcamVideoStream:
 			#print('shape?',self.frame_resized.shape)
 
 
-			# BG???
+			##  BackGroundSub part
+
+			# Variable to track the "matched cars" in the bgsubcnt 
 			self.matches = []
+
+			# Starting the Bgsubcnt logic
+
 
 			gray = cv2.cvtColor(self.frame_resized, cv2.COLOR_BGR2GRAY)
 
 			smooth_frame = cv2.GaussianBlur(gray, (self.k,self.k), 1.5)
 			#smooth_frame = cv2.bilateralFilter(gray,4,75,75)
 			#smooth_frame =cv2.bilateralFilter(smooth_frame,15,75,75)
+
+			# this is the bsubcnt result 
 			self.fgmask = self.fgbg.apply(smooth_frame, self.kernel, 0.1)
 
+
+			# Find the contours 
 			im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
+			
+			# for all the contours, calculate his centroid and position in the current frame
 			for (i, contour) in enumerate(contours):
 				(x, y, w, h) = cv2.boundingRect(contour)
 				contour_valid = (w >= self.min_contour_width) and (h >= self.min_contour_height)
@@ -129,9 +150,15 @@ class WebcamVideoStream:
 					continue
 				centroid =  WebcamVideoStream.get_centroid(x, y, w, h)
 
+				# apeend to the matches for output from current frame
 				self.matches.append(((x, y, w, h), centroid))
-				cv2.rectangle(self.frame_resized, (x,y),(x+w-1, y+h-1),(0,0,255),1)
-				cv2.circle(self.frame_resized, centroid,2,(0,255,0),-1)
+
+				# Optional, draw rectangle and circle where you find "movement"
+				if self.draw == True:
+					cv2.rectangle(self.frame_resized, (x,y),(x+w-1, y+h-1),(0,0,255),1)
+					cv2.circle(self.frame_resized, centroid,2,(0,255,0),-1)
+				else:
+					pass
 	def read(self):
 		# return the frame most recently read
 		return self.frame, self.frame_resized, self.imagen_semaforo, self.matches
@@ -157,7 +184,7 @@ class WebcamVideoStream:
 		return (cx, cy)
 
 class VideoStream:
-	def __init__(self, src=0, usePiCamera=False, resolution=(320, 240),	framerate=32, poligono = None):
+	def __init__(self, src=0, usePiCamera=False, resolution=(320, 240),	framerate=32, poligono = None, draw=False):
 		# check to see if the picamera module should be used
 		if usePiCamera:
 			# only import the picamera packages unless we are
@@ -173,7 +200,7 @@ class VideoStream:
 		# otherwise, we are using OpenCV so initialize the webcam
 		# stream
 		else:
-			self.stream = WebcamVideoStream(src=src, resolution=resolution, poligono = poligono)
+			self.stream = WebcamVideoStream(src=src, resolution=resolution, poligono = poligono, draw=draw)
 
 	def start(self):
 		# start the threaded video stream
