@@ -124,51 +124,10 @@ class WebcamVideoStream:
 
 			##  BackGroundSub part
 
-			# Variable to track the "matched cars" in the bgsubcnt 
-			self.matches = []
-
-			# Starting the Bgsubcnt logic
-
-
-			gray = cv2.cvtColor(self.frame_resized, cv2.COLOR_BGR2GRAY)
-
-			smooth_frame = cv2.GaussianBlur(gray, (self.k,self.k), 1.5)
-			#smooth_frame = cv2.bilateralFilter(gray,4,75,75)
-			#smooth_frame =cv2.bilateralFilter(smooth_frame,15,75,75)
-
-			# this is the bsubcnt result 
-			self.fgmask = self.fgbg.apply(smooth_frame, self.kernel, 0.1)
-
-			# just thresholding values
-			self.fgmask[self.fgmask < 240] = 0
-			
-			self.fgmask = self.filter_mask(self.fgmask, self.frame_number)
-
-
-			# Find the contours 
-			im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
-			
-
-
-			# for all the contours, calculate his centroid and position in the current frame
-			for (i, contour) in enumerate(contours):
-				(x, y, w, h) = cv2.boundingRect(contour)
-				contour_valid = (w >= self.min_contour_width) and (h >= self.min_contour_height)
-				if not contour_valid:
-					continue
-				centroid =  WebcamVideoStream.get_centroid(x, y, w, h)
-
-				# apeend to the matches for output from current frame
-				self.matches.append(((x, y, w, h), centroid))
-
-				# Optional, draw rectangle and circle where you find "movement"
-				if self.draw == True:
-					cv2.rectangle(self.frame_resized, (x,y),(x+w-1, y+h-1),(0,0,255),1)
-					cv2.circle(self.frame_resized, centroid,2,(0,255,0),-1)
-				else:
-					pass
-
+			self.BgSubCNT(self.frame_resized)
 			self.frame_number += 1
+
+
 	def read(self):
 		# return the frame most recently read
 		return self.frame, self.frame_resized, self.imagen_semaforo, self.matches
@@ -178,6 +137,51 @@ class WebcamVideoStream:
 		self.stopped = True
 
 
+
+	def BgSubCNT(self,frame,frame_number = None):
+		# Variable to track the "matched cars" in the bgsubcnt 
+		self.matches = []
+
+		# Starting the Bgsubcnt logic
+
+
+		gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+		smooth_frame = cv2.GaussianBlur(gray, (self.k,self.k), 1.5)
+		#smooth_frame = cv2.bilateralFilter(gray,4,75,75)
+		#smooth_frame =cv2.bilateralFilter(smooth_frame,15,75,75)
+
+		# this is the bsubcnt result 
+		self.fgmask = self.fgbg.apply(smooth_frame, self.kernel, 0.1)
+
+		# just thresholding values
+		self.fgmask[self.fgmask < 240] = 0
+		
+		self.fgmask = self.filter_mask(self.fgmask, self.frame_number)
+
+
+		# Find the contours 
+		im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
+		
+
+
+		# for all the contours, calculate his centroid and position in the current frame
+		for (i, contour) in enumerate(contours):
+			(x, y, w, h) = cv2.boundingRect(contour)
+			contour_valid = (w >= self.min_contour_width) and (h >= self.min_contour_height)
+			if not contour_valid:
+				continue
+			centroid =  WebcamVideoStream.get_centroid(x, y, w, h)
+
+			# apeend to the matches for output from current frame
+			self.matches.append(((x, y, w, h), centroid))
+
+			# Optional, draw rectangle and circle where you find "movement"
+			if self.draw == True:
+				cv2.rectangle(frame, (x,y),(x+w-1, y+h-1),(0,0,255),1)
+				cv2.circle(frame, centroid,2,(0,255,0),-1)
+			else:
+				pass
 	def filter_mask(self, img, a=None):
 		'''
 		This filters are hand-picked just based on visual tests
