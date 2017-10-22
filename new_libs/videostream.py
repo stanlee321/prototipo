@@ -113,8 +113,9 @@ class WebcamVideoStream:
 
 			# otherwise, read the next frame from the stream
 			(self.grabbed, self.frame) = self.stream.read()
-
-			print("FRAME ORIGIN SHEP????????????", self.frame.shape)
+			print('-----------------------------------------------')
+			print("FRAME ORIGIN SHaPe????????????", self.frame.shape)
+			print('-----------------------------------------------')
 			# Set new resolution for the consumers
 			self.frame_resized = cv2.resize(self.frame, (320,240))
 
