@@ -91,7 +91,7 @@ class WebcamVideoStream:
 		# first parameter : Number of frames until the bg "rememver the differences"
 		# second parameter : Remember Frames until the end?
 		# thirth parameter : first parameter * FPS excpeted
-
+		print('INIT_PARAMS FOR BG')
 		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*10)
 		self.k = 31
 		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
@@ -128,8 +128,9 @@ class WebcamVideoStream:
 
 
 			##  BackGroundSub part
-
+			print('ENTERING BG SUBBBBBBBBBBBBBBB')
 			self.BgSubCNT(self.frame_resized)
+			print('EXITING BG SUBBBBBBBBBBBBBBB')
 			self.frame_number += 1
 
 

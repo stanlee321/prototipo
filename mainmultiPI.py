@@ -11,7 +11,7 @@ import argparse
 import logging
 import imutils
 
-from new_libs.videostream2 import VideoStream
+from new_libs.videostream import VideoStream
 from new_libs.videostream import FPS
 
 
@@ -75,7 +75,7 @@ def create_main(fnt):
 		# grab the frame from the threaded video stream and resize it
 		# in his core
 		t1 = time.time()
-		frame, frame_resized, imagen_semaforo = vs.read()
+		frame, frame_resized, imagen_semaforo,matches = vs.read()
 
 		t2 = time.time()
 		print('Producer took: ', t2-t1)
@@ -87,7 +87,7 @@ def create_main(fnt):
 		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(imagen_semaforo)
 
 
-		#print(matches)
+		print(matches)
 		t4 = time.time()
 
 		
