@@ -7,4 +7,5 @@ VideoCapture/
 \?*
 ownLibraries/*.py~
 ownLibraries/\?*
-
+installationFiles/
+data/
