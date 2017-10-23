@@ -134,19 +134,20 @@ def __main_function__():
 	_frame_number_auxiliar = 0
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
+
+		otroTiempo = time.time()
 		if archivoDeVideo=='':
 			capturaAlta, capturaActual, matches, senalColor, colorLiteral, flancoSemaforo  = miCamara.read()
 		else:
 			# En caso de modo debug descartamos algunos frames para simular el periodo de muestreo
 			for inciceDescarte in range(videofps//mifps):
-				capturaAlta, capturaActual, semaforo, matches  = miCamara.read()
+				capturaAlta, capturaActual, matches, senalColor, colorLiteral, flancoSemaforo = miCamara.read()
 
 		print('MATCHES powered by BGSUBCNT ARE (BoundingBox, centroid): ',  matches)
 
 
 		frameActual = miRegistroDesplazado.introducirImagen(capturaActual)
 		print('Introducido ', sys.getsizeof(capturaAlta),' in ', capturaAlta.shape)
-		otroTiempo = time.time()
 		#senalColor, colorLiteral, flancoSemaforo = miSemaforo.obtenerColorEnSemaforo(semaforo)
 		print('Semaforo: ',time.time()-otroTiempo)
 		otroTiempo = time.time()
