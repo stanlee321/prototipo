@@ -28,6 +28,7 @@ from semaforo import CreateSemaforo
 from policiainfractor import PoliciaInfractor
 from desplazamientoimagen import DesplazamientoImagen
 from videostream import VideoStream
+from videostream import FPS
 from BackgroundsubCNT import CreateBGCNT
 
 # Se crean las variables de constantes de trabajo del programa
@@ -128,6 +129,9 @@ def __main_function__():
 	frameActual = 0	
 
 	print('ENTERING TO THE WHILE LOOP')
+
+	fps = FPS().start()
+
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
 		if archivoDeVideo=='':
@@ -214,7 +218,13 @@ def __main_function__():
 		if ch == ord('r'):
 			print('----------------------------------------> ',len(miRegistroDesplazado.lista))
 		
-		
+		fps.update()
+
+
+	# stop the timer and display FPS information
+	fps.stop()
+	print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
+	print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 # Se introducen los argumentos de control en el formato establecido
 if __name__ == '__main__':
 	# Tomamos los ingresos para controlar el video
