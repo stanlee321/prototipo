@@ -75,7 +75,7 @@ def create_main(fnt):
 		# grab the frame from the threaded video stream and resize it
 		# in his core
 		t1 = time.time()
-		frame, frame_resized, imagen_semaforo, matches = vs.read()
+		frame, frame_resized, matches, senalColor, colorLiteral, flancoSemaforo  = vs.read()
 
 		t2 = time.time()
 		print('Producer took: ', t2-t1)
@@ -84,7 +84,7 @@ def create_main(fnt):
 
 		t3 = time.time()
 		# Get signals from the semaforo
-		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(imagen_semaforo)
+		#senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(imagen_semaforo)
 
 
 		print(matches)

@@ -5,6 +5,7 @@ import cv2
 import datetime
 import bgsubcnt
 import time
+from .semaforo import CreateSemaforo
 
 class FPS:
     def __init__(self):
@@ -103,6 +104,16 @@ class WebcamVideoStream:
 		self.matches = []
 		self.frame_number = -1
 
+
+		# FOR SEMAFORO
+
+		self.semaforo = CreateSemaforo(periodoSemaforo = 0)
+
+
+		self.senalColor = None
+		self.colorLiteral = None
+		self.flancoSemaforo  = None
+
 	def start(self):
 		# start the thread to read frames from the video stream
 		t = Thread(target=self.update, args=())
@@ -133,10 +144,13 @@ class WebcamVideoStream:
 			print('EXITING BG SUBBBBBBBBBBBBBBB')
 			self.frame_number += 1
 
+			# RETURNING VALUES FRO SEMAFORO
+			self.senalColor, self.colorLiteral, self.flancoSemaforo  = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)
+
 
 	def read(self):
 		# return the frame most recently read
-		return self.frame, self.frame_resized, self.imagen_semaforo, self.matches
+		return self.frame, self.frame_resized, self.matches, self.senalColor, self.colorLiteral, self.flancoSemaforo 
 
 	def stop(self):
 		# indicate that the thread should be stopped
