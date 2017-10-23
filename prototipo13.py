@@ -214,7 +214,7 @@ def __main_function__():
 		#while time.time()-tiempoAuxiliar<periodoDeMuestreo:
 		#	True
 
-		if _frame_number_auxiliar == 2500:
+		if _frame_number_auxiliar == 1000:
 			break
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
