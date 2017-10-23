@@ -127,14 +127,18 @@ def __main_function__():
 	tiempoAuxiliar = time.time()
 	frameActual = 0	
 
+	print('ENTERING TO THE WHILE LOOP')
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
 		if archivoDeVideo=='':
-			capturaAlta, capturaActual, semaforo  = miCamara.read()
+			capturaAlta, capturaActual, semaforo, matches  = miCamara.read()
 		else:
 			# En caso de modo debug descartamos algunos frames para simular el periodo de muestreo
 			for inciceDescarte in range(videofps//mifps):
-				capturaAlta, capturaActual, semaforo  = miCamara.read()
+				capturaAlta, capturaActual, semaforo, matches  = miCamara.read()
+
+		print('MATCHES powered by BGSUBCNT ARE 22222222: ',  matches)
+
 
 		frameActual = miRegistroDesplazado.introducirImagen(capturaActual)
 		print('Introducido ', sys.getsizeof(capturaAlta),' in ', capturaAlta.shape)
