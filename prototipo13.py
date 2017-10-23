@@ -131,7 +131,7 @@ def __main_function__():
 	print('ENTERING TO THE WHILE LOOP')
 
 	fps = FPS().start()
-
+	_frame_number_auxiliar = 0
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
 		if archivoDeVideo=='':
@@ -208,10 +208,14 @@ def __main_function__():
 		tiempoEjecucion = time.time()-tiempoAuxiliar
 		print('Periodo: ',tiempoEjecucion)
 		tiempoAuxiliar = time.time()
+		_frame_number_auxiliar +=1
 		#if tiempoEjecucion>periodoDeMuestreo:
 		#	miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
 		#while time.time()-tiempoAuxiliar<periodoDeMuestreo:
 		#	True
+
+		if _frame_number_auxiliar == 2500:
+			break
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
 			break
