@@ -154,7 +154,7 @@ def __main_function__():
 		#remocionFondo.alimentar(capturaActual)
 		#remocionFondo.draw()
 		print('Remocion de fonde: ',time.time()-otroTiempo)
-		
+		print(' senalColor, colorLiteral, flancoSemaforo ',  senalColor, colorLiteral, flancoSemaforo)
 		# Si tengo infracciones pendientes las evoluciono
 		if senalColor >= 1:					# Si estamos en rojo, realizamos una accion
 			if flancoSemaforo == 1:			# esto se inicial al principio de este estado
@@ -222,7 +222,6 @@ def __main_function__():
 			break
 		if ch == ord('r'):
 			print('----------------------------------------> ',len(miRegistroDesplazado.lista))
-		
 		fps.update()
 
 
