@@ -24,11 +24,11 @@ folderDeInstalacion = directorioDeTrabajo+'/installationFiles'
 sys.path.insert(0, directorioDeLibreriasPropias)
 from mask import VisualLayer
 from mireporte import MiReporte
-from semaforo import CreateSemaforo
+#from semaforo import CreateSemaforo
 from policiainfractor import PoliciaInfractor
 from desplazamientoimagen import DesplazamientoImagen
-from videostream import VideoStream
-from videostream import FPS
+from videostreamv4 import VideoStream
+from videostreamv4 import FPS
 from BackgroundsubCNT import CreateBGCNT
 
 # Se crean las variables de constantes de trabajo del programa
@@ -124,7 +124,7 @@ def __main_function__():
 		visualLabel.ponerPoligono(np.array(verticesPartida))
 		#visualLabel.ponerPoligono(np.array(verticesLlegada))
 
-	miSemaforo = CreateSemaforo(periodoDeSemaforo)
+	#miSemaforo = CreateSemaforo(periodoDeSemaforo)
 	tiempoAuxiliar = time.time()
 	frameActual = 0	
 
@@ -135,7 +135,7 @@ def __main_function__():
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
 		if archivoDeVideo=='':
-			capturaAlta, capturaActual, semaforo, matches  = miCamara.read()
+			capturaAlta, capturaActual, matches, senalColor, colorLiteral, flancoSemaforo  = miCamara.read()
 		else:
 			# En caso de modo debug descartamos algunos frames para simular el periodo de muestreo
 			for inciceDescarte in range(videofps//mifps):
@@ -147,7 +147,7 @@ def __main_function__():
 		frameActual = miRegistroDesplazado.introducirImagen(capturaActual)
 		print('Introducido ', sys.getsizeof(capturaAlta),' in ', capturaAlta.shape)
 		otroTiempo = time.time()
-		senalColor, colorLiteral, flancoSemaforo = miSemaforo.obtenerColorEnSemaforo(semaforo)
+		#senalColor, colorLiteral, flancoSemaforo = miSemaforo.obtenerColorEnSemaforo(semaforo)
 		print('Semaforo: ',time.time()-otroTiempo)
 		otroTiempo = time.time()
 		#remocionFondo.alimentar(capturaActual)

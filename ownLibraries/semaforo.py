@@ -198,12 +198,12 @@ class Real(Semaforo):
 		self.upper_yellow = np.array([27,255,255], dtype=np.uint8)
 
 		# RED range
-		self.lower_red = np.array([140,100,0], dtype=np.uint8)
+		self.lower_red = np.array([140,0,0], dtype=np.uint8) #_,100,_
 		self.upper_red = np.array([180,255,255], dtype=np.uint8)
 
 		# GREEN range
-		self.lower_green = np.array([70,120,0], dtype=np.uint8)
-		self.upper_green = np.array([90,180,255], dtype=np.uint8)
+		self.lower_green = np.array([70,0,0], dtype=np.uint8)
+		self.upper_green = np.array([90,255,255], dtype=np.uint8)
 
 		# SOME VARIABLES for SVM, if retrain the SVM in another
 		# resolution, change this val to this resolution.
