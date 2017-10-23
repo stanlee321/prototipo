@@ -144,10 +144,6 @@ class WebcamVideoStream:
 		return self.frame, self.frame_resized, self.imagen_semaforo, self.matches
 		#print('shape?',self.frame_resized.shape)
 
-	def read(self):
-		# return the frame most recently read
-		return self.frame, self.frame_resized
-
 	def stop(self):
 		# indicate that the thread should be stopped
 		self.stopped = True
