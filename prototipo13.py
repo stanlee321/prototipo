@@ -124,7 +124,7 @@ def __main_function__():
 		visualLabel.ponerPoligono(np.array(verticesPartida))
 		#visualLabel.ponerPoligono(np.array(verticesLlegada))
 
-	#miSemaforo = CreateSemaforo(periodoDeSemaforo)
+	miSemaforo = CreateSemaforo(periodoDeSemaforo)
 	tiempoAuxiliar = time.time()
 	frameActual = 0	
 
