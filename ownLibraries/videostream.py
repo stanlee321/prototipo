@@ -3,7 +3,6 @@
 from threading import Thread
 import cv2
 import datetime
-<<<<<<< HEAD
 import bgsubcnt
 import time
 
