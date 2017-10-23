@@ -58,7 +58,7 @@ def create_main(fnt):
 	width = 2448
 
 	#bg = CreateBGCNT()
-	vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono).start() # 0.5 pmx
+	vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono, draw=True).start() # 0.5 pmx
 	#vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono, draw=True).start() # 0.5 pmx
 	#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()	# 2 mpx
 	#vs = WebcamVideoStream(src=src[1], height = 2560, width = 1920).start()	# 5 mpx
@@ -113,7 +113,8 @@ def create_main(fnt):
 		t6 = time.time()
 		print('alll the while took', t6-t5)
 
-	
+		cv2.imshow('frame',frame_resized)
+
 		#cv2.imshow('frame',cv2.resize(frame_resized,(640,480)))
 		#cv2.imwrite('../frames/frame_{}.jpg'.format(frame_number), cv2.resize(frame_resized,(640,480)))
 		#break

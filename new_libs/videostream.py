@@ -181,7 +181,6 @@ class WebcamVideoStream:
 
 			# apeend to the matches for output from current frame
 			self.matches.append(((x, y, w, h), centroid))
-
 			# Optional, draw rectangle and circle where you find "movement"
 			if self.draw == True:
 				cv2.rectangle(frame, (x,y),(x+w-1, y+h-1),(0,0,255),1)
