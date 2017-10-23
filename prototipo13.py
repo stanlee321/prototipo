@@ -105,7 +105,7 @@ def __main_function__():
 			miCamara = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
 
 	# Se captura la imagen de flujo inicial y se trabaja con la misma
-	capturaAlta, capturaInicial, semaforo, matches = miCamara.read()
+	capturaAlta, capturaInicial, matches, senalColor, colorLiteral, flancoSemaforo = miCamara.read()
 
 	# Si estamos trabajando en la raspberry pi, no necesitamos simular la camara de 8Mp
 	miComputadora = os.uname()[1]
