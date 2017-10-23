@@ -141,7 +141,7 @@ def __main_function__():
 			for inciceDescarte in range(videofps//mifps):
 				capturaAlta, capturaActual, semaforo, matches  = miCamara.read()
 
-		print('MATCHES powered by BGSUBCNT ARE 22222222: ',  matches)
+		print('MATCHES powered by BGSUBCNT ARE (BoundingBox, centroid): ',  matches)
 
 
 		frameActual = miRegistroDesplazado.introducirImagen(capturaActual)

@@ -133,9 +133,9 @@ class WebcamVideoStream:
 
 
 			##  BackGroundSub part
-			print('ENTERING BG SUBBBBBBBBBBBBBBB')
+			print('ENTERING Calibrating ... BGSUBBBBBBBBBBBBBBB')
 			self.BgSubCNT(self.frame_resized)
-			print('EXITING BG SUBBBBBBBBBBBBBBB')
+			print('EXITING  Calibrating ... BGSUBBBBBBBBBBBBBBB')
 			self.frame_number += 1
 
 
