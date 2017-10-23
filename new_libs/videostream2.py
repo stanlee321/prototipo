@@ -114,7 +114,7 @@ class WebcamVideoStream:
 
 			##  BackGroundSub part
 
-			self.frame_number += 1
+			#self.frame_number += 1
 
 
 	def read(self):
