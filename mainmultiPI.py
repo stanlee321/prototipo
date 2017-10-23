@@ -87,7 +87,7 @@ def create_main(fnt):
 		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(imagen_semaforo)
 
 
-		print(matches)
+		#print(matches)
 		t4 = time.time()
 
 		
