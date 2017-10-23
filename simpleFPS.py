@@ -51,9 +51,9 @@ while True:
 	# grab the frame from the threaded video stream and resize it
 	# to have a maximum width of 400 pixels
 	ret0, frame=cam.read()
-
+	print(frame.shape)
 	if True:#comparator == 0:
-		cv2.imwrite(saveDirectory+'frame_{}_{}.jpg'.format(counter, date_string), frame[yMin:yMax,xMin:xMax])
+		#cv2.imwrite(saveDirectory+'frame_{}_{}.jpg'.format(counter, date_string), frame[yMin:yMax,xMin:xMax])
 		print(counter)
 		# update the FPS counter
 	counter +=1

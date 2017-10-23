@@ -25,7 +25,10 @@ sys.path.insert(0, directorioDeLibreriasPropias)
 from mask import VisualLayer
 from mireporte import MiReporte
 from semaforo import CreateSemaforo
-from agentereportero import AgenteReportero
+from policiainfractor import PoliciaInfractor
+from desplazamientoimagen import DesplazamientoImagen
+from videostreamv2 import VideoStream
+from BackgroundsubCNT import CreateBGCNT
 
 # Se crean las variables de constantes de trabajo del programa
 ## Parametros de input video
@@ -39,6 +42,7 @@ semaforoSimuladoTexto = 'real '
 mifps = 8
 generarArchivosDebug = True
 mostrarImagen = False
+longitudRegistro = 12
 
 # Función principal
 def __main_function__():
@@ -78,90 +82,107 @@ def __main_function__():
 
 	miReporte.info('Cargado exitosamente parametros de instalacion: '+str(parametrosInstalacion))
 
-	# Arrancando camara de flujo
+
+	# Arrancando camara
 	if len(archivoDeVideo)==0:	# modo real
-		camaraParaFlujo = cv2.VideoCapture(1)
-		miReporte.info('Activada Exitosamente cámara de flujo!')
+		if os.uname()[1] == 'alvarohurtado-305V4A':
+			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo).start()
+			time.sleep(1)
+		else:
+			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo).start()
+			time.sleep(1)
+			#miCamara.set(3,3296)
+			#miCamara.set(4,2512)
+		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		try:
-			camaraParaFlujo = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
+			miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = (640,480),poligono = poligonoSemaforo).start()
+			time.sleep(1)
 			miReporte.info('Archivo de video cargado exitosamente: '+directorioDeVideos+'/'+archivoDeVideo)
 		except Exception as currentException:
 			archivoDeVideo = input('No se pudo cargar el video, ingresar otro nombre:\n')
-			camaraParaFlujo = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
+			miCamara = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
 
 	# Se captura la imagen de flujo inicial y se trabaja con la misma
-	ret, capturaDeFlujoInicial = camaraParaFlujo.read()
-	capturaDeFlujoInicial = cv2.resize(capturaDeFlujoInicial,(320,240))
+	capturaAlta, capturaInicial, semaforo = miCamara.read()
+
+	# Si estamos trabajando en la raspberry pi, no necesitamos simular la camara de 8Mp
+	miComputadora = os.uname()[1]
 	
 	# Creación de objetos:
-	miPoliciaReportando = AgenteReportero(capturaDeFlujoInicial,verticesPartida,verticesLlegada,misVerticesExtremos,mifps,nombreCarpetaDeReporte,generarArchivosDebug)	# True generara el reporte para debug, por ahora debe estar en este modo
+	miPoliciaReportando = PoliciaInfractor(capturaInicial,verticesPartida,verticesLlegada)
+	miRegistroDesplazado = DesplazamientoImagen(longitudRegistro)
+	remocionFondo = CreateBGCNT()
 	if mostrarImagen:
 		visualLabel = VisualLayer()
 		visualLabel.crearMascaraCompleta(size = (240,320))
 		visualLabel.crearBarraInformacion(height = 240)
 		visualLabel.crearBarraDeProgreso()
 		visualLabel.ponerPoligono(np.array(verticesPartida))
-		visualLabel.ponerPoligono(np.array(verticesLlegada))
-	#miPoliciaReportando.inicializarAgente()
+		#visualLabel.ponerPoligono(np.array(verticesLlegada))
 
 	miSemaforo = CreateSemaforo(periodoDeSemaforo)
-
 	tiempoAuxiliar = time.time()
-	
+	frameActual = 0	
 
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
 		if archivoDeVideo=='':
-			ret, capturaActual = camaraParaFlujo.read()
+			capturaAlta, capturaActual, semaforo  = miCamara.read()
 		else:
 			# En caso de modo debug descartamos algunos frames para simular el periodo de muestreo
 			for inciceDescarte in range(videofps//mifps):
-				ret, capturaActual = camaraParaFlujo.read()
-		
-		senalColor, colorLiteral, flancoSemaforo = miSemaforo.obtenerColorEnSemaforo(capturaActual,poligonoSemaforo)
-		capturaActual = cv2.resize(capturaActual,(320,240))
+				capturaAlta, capturaActual, semaforo  = miCamara.read()
+
+		frameActual = miRegistroDesplazado.introducirImagen(capturaActual)
+		print('Introducido ', sys.getsizeof(capturaAlta),' in ', capturaAlta.shape)
+		otroTiempo = time.time()
+		senalColor, colorLiteral, flancoSemaforo = miSemaforo.obtenerColorEnSemaforo(semaforo)
+		print('Semaforo: ',time.time()-otroTiempo)
+		otroTiempo = time.time()
+		remocionFondo.alimentar(capturaActual)
+		remocionFondo.draw()
+		print('Remocion de fonde: ',time.time()-otroTiempo)
 		
 		# Si tengo infracciones pendientes las evoluciono
 		if senalColor >= 1:					# Si estamos en rojo, realizamos una accion
 			if flancoSemaforo == 1:			# esto se inicial al principio de este estado
-				nuevaCarpeta = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-				miPoliciaReportando.inicializarAgente(nuevaCarpeta)
-				miReporte.moverRegistroACarpeta(nuevaCarpeta)
-				miReporte.info('<<<ROJO RED ROJO RED at: '+datetime.datetime.now().strftime('%H-%M-%S')+' ROJO RED ROJO RED>>>')
-			numeroDeFrame = miPoliciaReportando.introducirImagen(capturaActual)
+				miPoliciaReportando.inicializarAgente()
+				miRegistroDesplazado.reestablecerDesplazamiento(longitudRegistro)
+				print('RED')
+				#miReporte.info('<<<ROJO RED ROJO RED at: '+datetime.datetime.now().strftime('%H-%M-%S')+' ROJO RED ROJO RED>>>')
+				otroTiempo = time.time()
+			miPoliciaReportando.evolucionarLineaVigilancia(frameActual,capturaActual)
+			print('Policia Reportando: ',time.time()-otroTiempo)
 
 		elif senalColor == 0:		# Si estamos en verde realizamos otra accion
 			if flancoSemaforo == -1: # esto se inicial al principio de este estado
-				miReporte.info('# Reportando')
-				miReporte.info('<<<VERDE GREEN VERDE GREEN at: '+datetime.datetime.now().strftime('%H-%M-%S')+' VERDE GREEN VERDE GREEN>>>')
-				reporte = miPoliciaReportando.guardarReportes()
-
-		
+				print('GREEN')#miReporte.info('# Reportando')
+				#miReporte.info('<<<VERDE GREEN VERDE GREEN at: '+datetime.datetime.now().strftime('%H-%M-%S')+' VERDE GREEN VERDE GREEN>>>')
+				#>>reporte = miPoliciaReportando.guardarReportes()
 		indiceColor = 0
 		
-		visualizacion = capturaActual
-		for infraction in miPoliciaReportando.misInfracciones:
-			if (infraction['estado'] == 'Confirmado'):		# (infraction['estado'] == 'Confirmado') |
-				for puntos in infraction['desplazamiento']:
-					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
-					for punto in puntosExtraidos:
-						cv2.circle(visualizacion, tuple(punto), 1, (0,0,255), -1)
-
-			elif infraction['estado'] == 'Candidato':
+		otroTiempo = time.time()
+		if mostrarImagen:
+			visualizacion = capturaActual
+			for infraction in miPoliciaReportando.listaPorConfirmar:
 				for puntos in infraction['desplazamiento']:
 					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
 					for punto in puntosExtraidos:
 						cv2.circle(visualizacion, tuple(punto), 1, colores[indiceColor].tolist(), -1)
-			indiceColor +=1
-			
-		if mostrarImagen:
+				indiceColor +=1
+
+			for infraction in miPoliciaReportando.listaDeInfracciones:
+				for puntos in infraction['desplazamiento']:
+					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
+					for punto in puntosExtraidos:
+						cv2.circle(visualizacion, tuple(punto), 1, (0,0,255), -1)
 			cv2.polylines(visualizacion, np.array([poligonoSemaforo])//2, True, (200,200,200))
 			visualLabel.agregarTextoEn(colorLiteral, 0)
-			visualLabel.agregarTextoEn("F{}".format(0), 1)
-			visualLabel.agregarTextoEn(numeroDeFrame, 2)
-			visualLabel.agregarTextoEn(str(miPoliciaReportando.reporteInfracciones()[0])+'/'+str(miPoliciaReportando.reporteInfracciones()[1]), 3)
-			visualLabel.agregarTextoEn('G'+str(miPoliciaReportando.reporteInfracciones()[-1]), 4)
+			visualLabel.agregarTextoEn("F{}".format(frameActual), 1)
+			visualLabel.agregarTextoEn("I{}".format(miPoliciaReportando.infraccionesConfirmadas), 2)
+			#>visualLabel.agregarTextoEn(str(miPoliciaReportando.reporteInfracciones()[0])+'/'+str(miPoliciaReportando.reporteInfracciones()[1]), 3)
+			#>visualLabel.agregarTextoEn('G'+str(miPoliciaReportando.reporteInfracciones()[-1]), 4)
 			if senalColor == 1: visualLabel.establecerColorFondoDe(backgroudColour = (0,0,255), numeroDeCaja = 0)
 			elif senalColor == 0: visualLabel.establecerColorFondoDe(backgroudColour = (0,255,0), numeroDeCaja = 0)
 			elif senalColor == 2: visualLabel.establecerColorFondoDe(backgroudColour = (0,255,255), numeroDeCaja = 0)
@@ -169,22 +190,25 @@ def __main_function__():
 			visualLabel.establecerMagnitudBarra(magnitude = int(miPoliciaReportando.ultimaVelocidad))
 			visualizacion = visualLabel.aplicarMascaraActualAFrame(visualizacion)
 			cv2.imshow('Visual',visualLabel.aplicarTodo())
-		
+		print('Visualizacion: ',time.time()-otroTiempo)
 		# Visualizacion	
 		#print('Ciclo: ',str(time.time()-tiempoAuxiliar)[:7],' color: ',colorLiteral)
 		#sys.stdout.write("\033[F")
-		tiempoEjecucion = time.time()-tiempoAuxiliar
-		if tiempoEjecucion>periodoDeMuestreo:
-			miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
 		
+		tiempoEjecucion = time.time()-tiempoAuxiliar
+		print('Periodo: ',tiempoEjecucion)
+		tiempoAuxiliar = time.time()
+		#if tiempoEjecucion>periodoDeMuestreo:
+		#	miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
 		#while time.time()-tiempoAuxiliar<periodoDeMuestreo:
 		#	True
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
 			break
-		tiempoAuxiliar = time.time()
+		if ch == ord('r'):
+			print('----------------------------------------> ',len(miRegistroDesplazado.lista))
 		
-
+		
 # Se introducen los argumentos de control en el formato establecido
 if __name__ == '__main__':
 	# Tomamos los ingresos para controlar el video

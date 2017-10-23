@@ -3,8 +3,12 @@
 from threading import Thread
 import cv2
 import datetime
+<<<<<<< HEAD
 import bgsubcnt
 import time
+=======
+
+>>>>>>> 5bb557a5944f673fbd51a77f744499f529c97340
 
 class FPS:
     def __init__(self):
@@ -39,7 +43,11 @@ class FPS:
 
 
 class WebcamVideoStream:
+<<<<<<< HEAD
 	def __init__(self, src=0, resolution = (320,240), poligono=None, draw=False):
+=======
+	def __init__(self, src=0, resolution = (320,240)):
+>>>>>>> 5bb557a5944f673fbd51a77f744499f529c97340
 
 		width, height= resolution[0], resolution[1]
 		# initialize the video camera stream and read the first frame
@@ -50,6 +58,7 @@ class WebcamVideoStream:
 		(self.grabbed, self.frame) = self.stream.read()
 		# initialize the variable used to indicate if the thread should
 		# be stopped
+<<<<<<< HEAD
 		time.sleep(1)
 		self.stopped = False
 		self.draw = draw
@@ -103,6 +112,13 @@ class WebcamVideoStream:
 		self.matches = []
 		self.frame_number = -1
 
+=======
+		self.stopped = False
+
+		# Resized artifact variable
+		#self.frame_resized = cv2.resize(self.frame, (320,240))	
+		self.frame_resized =  cv2.resize(self.frame, (320,240))
+>>>>>>> 5bb557a5944f673fbd51a77f744499f529c97340
 	def start(self):
 		# start the thread to read frames from the video stream
 		t = Thread(target=self.update, args=())
@@ -122,6 +138,7 @@ class WebcamVideoStream:
 
 			# Set new resolution for the consumers
 			self.frame_resized = cv2.resize(self.frame, (320,240))
+<<<<<<< HEAD
 
 			self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
 			#print('shape?',self.frame_resized.shape)
@@ -137,6 +154,13 @@ class WebcamVideoStream:
 	def read(self):
 		# return the frame most recently read
 		return self.frame, self.frame_resized, self.imagen_semaforo, self.matches
+=======
+			#print('shape?',self.frame_resized.shape)
+
+	def read(self):
+		# return the frame most recently read
+		return self.frame, self.frame_resized
+>>>>>>> 5bb557a5944f673fbd51a77f744499f529c97340
 
 	def stop(self):
 		# indicate that the thread should be stopped
@@ -144,6 +168,7 @@ class WebcamVideoStream:
 
 
 
+<<<<<<< HEAD
 	def BgSubCNT(self,frame,frame_number = None):
 		# Variable to track the "matched cars" in the bgsubcnt 
 		self.matches = []
@@ -223,6 +248,10 @@ class WebcamVideoStream:
 
 class VideoStream:
 	def __init__(self, src=0, usePiCamera=False, resolution=(320, 240),	framerate=32, poligono = None, draw=False):
+=======
+class VideoStream:
+	def __init__(self, src=0, usePiCamera=False, resolution=(320, 240),	framerate=32):
+>>>>>>> 5bb557a5944f673fbd51a77f744499f529c97340
 		# check to see if the picamera module should be used
 		if usePiCamera:
 			# only import the picamera packages unless we are
@@ -238,7 +267,11 @@ class VideoStream:
 		# otherwise, we are using OpenCV so initialize the webcam
 		# stream
 		else:
+<<<<<<< HEAD
 			self.stream = WebcamVideoStream(src=src, resolution=resolution, poligono = poligono, draw=draw)
+=======
+			self.stream = WebcamVideoStream(src=src, resolution=resolution)
+>>>>>>> 5bb557a5944f673fbd51a77f744499f529c97340
 
 	def start(self):
 		# start the threaded video stream
@@ -297,7 +330,11 @@ if __name__ == '__main__':
 		# grab the frame from the threaded video file stream, resize
 		# it, and convert it to grayscale (while still retaining 3
 		# channels)
+<<<<<<< HEAD
 		frame, frame_resized,_ = vs.read()
+=======
+		frame, frame_resized = vs.read()
+>>>>>>> 5bb557a5944f673fbd51a77f744499f529c97340
 		
 		#print('shape', frame)
 		#frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

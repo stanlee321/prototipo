@@ -8,4 +8,8 @@ VideoCapture/
 ownLibraries/*.py~
 ownLibraries/\?*
 installationFiles/
+<<<<<<< HEAD
 data/
+=======
+data
+>>>>>>> 5bb557a5944f673fbd51a77f744499f529c97340
