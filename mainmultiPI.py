@@ -11,13 +11,13 @@ import argparse
 import logging
 import imutils
 
-from new_libs.videostream import VideoStream
-from new_libs.videostream import FPS
+from ownLibraries.videostream import VideoStream
+from ownLibraries.videostream import FPS
 
 
-from new_libs.semaforo import CreateSemaforo
+from ownLibraries.semaforo import CreateSemaforo
 from multiprocessing import Process, Queue, Pool
-from new_libs.BackgroundsubCNT import CreateBGCNT
+#from ownLibraries.BackgroundsubCNT import CreateBGCNT
 
 """
 from new_libs.pipeline import (
@@ -113,13 +113,13 @@ def create_main(fnt):
 		t6 = time.time()
 		print('alll the while took', t6-t5)
 
-		cv2.imshow('frame',frame_resized)
+		#cv2.imshow('frame',frame_resized)
 
 		#cv2.imshow('frame',cv2.resize(frame_resized,(640,480)))
 		#cv2.imwrite('../frames/frame_{}.jpg'.format(frame_number), cv2.resize(frame_resized,(640,480)))
 		#break
-		#if _frame_number == 1000:
-		#	break
+		if _frame_number == 1000:
+			break
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
