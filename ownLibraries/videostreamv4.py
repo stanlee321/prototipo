@@ -5,7 +5,7 @@ import cv2
 import datetime
 import bgsubcnt
 import time
-from .semaforo import CreateSemaforo
+from semaforo import CreateSemaforo
 
 class FPS:
     def __init__(self):
