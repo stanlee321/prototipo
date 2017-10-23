@@ -42,21 +42,15 @@ ENCODING = 'utf-8'
 
 def create_main(fnt):
 
-<<<<<<< HEAD
 	data = np.load('./installationFiles/heroes.npy')
 	fuente = ['./installationFiles/heroes.mp4', 0]
 	#fuente = ['../trialVideos/mySquare.mp4', 0]
-=======
-	data = np.load('./installationFiles/mySquare.npy')
-	fuente = ['./installationFiles/mySquare.mp4', 0]
->>>>>>> 5bb557a5944f673fbd51a77f744499f529c97340
 	print(data)
 	semaforo = CreateSemaforo(periodoSemaforo = 0)
 	poligono  = data[0]
 
 	ON = True
 
-<<<<<<< HEAD
 	#height = 640
 	#width = 480
 
@@ -66,13 +60,6 @@ def create_main(fnt):
 	#bg = CreateBGCNT()
 	vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono, draw=True).start() # 0.5 pmx
 	#vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono, draw=True).start() # 0.5 pmx
-=======
-	height = 640
-	width = 480
-
-	#bg = CreateBGCNT()
-	vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono).start() # 0.5 pmx
->>>>>>> 5bb557a5944f673fbd51a77f744499f529c97340
 	#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()	# 2 mpx
 	#vs = WebcamVideoStream(src=src[1], height = 2560, width = 1920).start()	# 5 mpx
 	#vs = WebcamVideoStream(src=src[1], height = 3264, width = 2448).start()
@@ -88,11 +75,7 @@ def create_main(fnt):
 		# grab the frame from the threaded video stream and resize it
 		# in his core
 		t1 = time.time()
-<<<<<<< HEAD
 		frame, frame_resized, imagen_semaforo, matches = vs.read()
-=======
-		frame, frame_resized, imagen_semaforo = vs.read()
->>>>>>> 5bb557a5944f673fbd51a77f744499f529c97340
 
 		t2 = time.time()
 		print('Producer took: ', t2-t1)
@@ -101,16 +84,10 @@ def create_main(fnt):
 
 		t3 = time.time()
 		# Get signals from the semaforo
-<<<<<<< HEAD
 		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(imagen_semaforo)
 
 
 		print(matches)
-=======
-		#senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(poligono = poligono, img = frame_resized)
-		senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(imagen_semaforo)
-
->>>>>>> 5bb557a5944f673fbd51a77f744499f529c97340
 		t4 = time.time()
 
 		
@@ -132,7 +109,6 @@ def create_main(fnt):
 		pipeline.run()
 		"""
 		
-<<<<<<< HEAD
 		
 		t6 = time.time()
 		print('alll the while took', t6-t5)
@@ -148,47 +124,6 @@ def create_main(fnt):
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
-=======
-		#bg.draw()
-		
-		t6 = time.time()
-
-		print('alll the while took', t6-t5)
-		# update the FPS counter
-		#print(poligono)
-		#x,y,w,h = poligono[0][0],poligono[1],poligono[2],poligono[3]
-
-		"""
-		x1,x2,x3,x4 = poligono
-
-		#print(x1,x2,x3,x4)
-
-		x = x1[0]//2
-		y = x1[1]//2
-
-		w = x3[0]//2
-		h = x3[1]//2
-		
-		cv2.rectangle(frame_resized, (x,y),(w-1, h-1),(0,0,255),1)
-
-		cv2.circle(frame_resized, (x,y),2,(0,255,0),-1)
-		cv2.circle(frame_resized, (w,h),2,(0,255,255),-1)
-		#cv2.circle(frame_resized, poligono[2],2,(0,255,0),-1)
-		#cv2.circle(frame_resized, poligono[3],2,(0,255,0),-1)
-
-		"""
-
-
-		#cv2.imshow('frame', cv2.resize(frame_resized,(640,480)))
-		#cv2.imwrite('frame.jpg', cv2.resize(frame_resized,(640,480)))
-		#break
-		if _frame_number == 2500:
-			break
-
-		#if cv2.waitKey(1) & 0xFF == ord('q'):
-		#	break
-
->>>>>>> 5bb557a5944f673fbd51a77f744499f529c97340
 		fps.update()
 
 	# stop the timer and display FPS information
