@@ -4,7 +4,7 @@ from threading import Thread
 import cv2
 import datetime
 import bgsubcnt
-
+import time
 
 class FPS:
     def __init__(self):
@@ -50,6 +50,7 @@ class WebcamVideoStream:
 		(self.grabbed, self.frame) = self.stream.read()
 		# initialize the variable used to indicate if the thread should
 		# be stopped
+		time.sleep(1)
 		self.stopped = False
 		self.draw = draw
 
