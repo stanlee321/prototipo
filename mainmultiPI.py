@@ -11,7 +11,7 @@ import argparse
 import logging
 import imutils
 
-from new_libs.videostream import VideoStream
+from new_libs.videostream2 import VideoStream
 from new_libs.videostream import FPS
 
 
@@ -54,12 +54,12 @@ def create_main(fnt):
 	#height = 640
 	#width = 480
 
-	height =  2560
-	width = 1920
+	height = 3264
+	width = 2448
 
 	#bg = CreateBGCNT()
-	vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono, draw=True).start() # 0.5 pmx
-	vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono, draw=True).start() # 0.5 pmx
+	vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono).start() # 0.5 pmx
+	#vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono, draw=True).start() # 0.5 pmx
 	#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()	# 2 mpx
 	#vs = WebcamVideoStream(src=src[1], height = 2560, width = 1920).start()	# 5 mpx
 	#vs = WebcamVideoStream(src=src[1], height = 3264, width = 2448).start()
@@ -75,7 +75,7 @@ def create_main(fnt):
 		# grab the frame from the threaded video stream and resize it
 		# in his core
 		t1 = time.time()
-		frame, frame_resized, imagen_semaforo, matches = vs.read()
+		frame, frame_resized, imagen_semaforo = vs.read()
 
 		t2 = time.time()
 		print('Producer took: ', t2-t1)

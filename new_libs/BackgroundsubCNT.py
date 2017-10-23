@@ -147,6 +147,102 @@ class CreateBGCNTtest():
 		cv2.imshow('boxes', cv2.resize(match[2], (640,480)))
 
 
+class BG():
+	def __init__(self):
+
+		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*10)
+		self.k = 31
+		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+
+		# Adjust the minimum size of the blog matching contour
+		self.min_contour_width=30
+		self.min_contour_height=30
+
+		self.matches = []
+		self.frame_number = -1
+
+
+	def BgSubCNT(self,frame,frame_number = None):
+		# Variable to track the "matched cars" in the bgsubcnt 
+		self.matches = []
+
+		# Starting the Bgsubcnt logic
+
+
+		gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+		smooth_frame = cv2.GaussianBlur(gray, (self.k,self.k), 1.5)
+		#smooth_frame = cv2.bilateralFilter(gray,4,75,75)
+		#smooth_frame =cv2.bilateralFilter(smooth_frame,15,75,75)
+
+		# this is the bsubcnt result 
+		self.fgmask = self.fgbg.apply(smooth_frame, self.kernel, 0.1)
+
+		# just thresholding values
+		self.fgmask[self.fgmask < 240] = 0
+		
+		self.fgmask = self.filter_mask(self.fgmask, self.frame_number)
+
+
+		# Find the contours 
+		im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
+		
+
+
+		# for all the contours, calculate his centroid and position in the current frame
+		for (i, contour) in enumerate(contours):
+			(x, y, w, h) = cv2.boundingRect(contour)
+			contour_valid = (w >= self.min_contour_width) and (h >= self.min_contour_height)
+			if not contour_valid:
+				continue
+			centroid =  WebcamVideoStream.get_centroid(x, y, w, h)
+
+			# apeend to the matches for output from current frame
+			self.matches.append(((x, y, w, h), centroid))
+
+			# Optional, draw rectangle and circle where you find "movement"
+			if self.draw == True:
+				cv2.rectangle(frame, (x,y),(x+w-1, y+h-1),(0,0,255),1)
+				cv2.circle(frame, centroid,2,(0,255,0),-1)
+			else:
+				pass
+	def filter_mask(self, img, a=None):
+		'''
+		This filters are hand-picked just based on visual tests
+		'''
+
+		kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
+
+		# Fill any small holes
+		closing = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
+		# Remove noise
+		opening = cv2.morphologyEx(closing, cv2.MORPH_OPEN, kernel)
+
+		# Dilate to merge adjacent blobs
+		dilation = cv2.dilate(opening, kernel, iterations=2)
+
+		#cv2.imwrite('../blob/blob_frame_{}.jpg'.format(a), img)
+		return dilation
+
+	def get(self):
+		return self.BgSubCNT(self.frame_resized)
+
+	@staticmethod
+	def distance(x, y, type='euclidian', x_weight=1.0, y_weight=1.0):
+
+		if type == 'euclidian':
+			return math.sqrt(float((x[0] - y[0])**2) / x_weight + float((x[1] - y[1])**2) / y_weight)
+
+	@staticmethod
+	def get_centroid(x, y, w, h):
+		x1 = int(w / 2)
+		y1 = int(h / 2)
+
+		cx = x + x1
+		cy = y + y1
+
+		return (cx, cy)
+
 
 import numpy as np
 import time
