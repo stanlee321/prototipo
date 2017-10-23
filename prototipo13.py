@@ -27,7 +27,7 @@ from mireporte import MiReporte
 from semaforo import CreateSemaforo
 from policiainfractor import PoliciaInfractor
 from desplazamientoimagen import DesplazamientoImagen
-from videostreamv2 import VideoStream
+from videostream import VideoStream
 from BackgroundsubCNT import CreateBGCNT
 
 # Se crean las variables de constantes de trabajo del programa
@@ -86,17 +86,17 @@ def __main_function__():
 	# Arrancando camara
 	if len(archivoDeVideo)==0:	# modo real
 		if os.uname()[1] == 'alvarohurtado-305V4A':
-			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo).start()
+			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, draw = True).start()
 			time.sleep(1)
 		else:
-			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo).start()
+			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, draw = True).start()
 			time.sleep(1)
 			#miCamara.set(3,3296)
 			#miCamara.set(4,2512)
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		try:
-			miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = (640,480),poligono = poligonoSemaforo).start()
+			miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = (640,480),poligono = poligonoSemaforo, draw = True).start()
 			time.sleep(1)
 			miReporte.info('Archivo de video cargado exitosamente: '+directorioDeVideos+'/'+archivoDeVideo)
 		except Exception as currentException:
@@ -104,7 +104,7 @@ def __main_function__():
 			miCamara = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
 
 	# Se captura la imagen de flujo inicial y se trabaja con la misma
-	capturaAlta, capturaInicial, semaforo = miCamara.read()
+	capturaAlta, capturaInicial, semaforo, matches = miCamara.read()
 
 	# Si estamos trabajando en la raspberry pi, no necesitamos simular la camara de 8Mp
 	miComputadora = os.uname()[1]
@@ -112,7 +112,9 @@ def __main_function__():
 	# Creación de objetos:
 	miPoliciaReportando = PoliciaInfractor(capturaInicial,verticesPartida,verticesLlegada)
 	miRegistroDesplazado = DesplazamientoImagen(longitudRegistro)
-	remocionFondo = CreateBGCNT()
+	remocionFondo = matches # List like with arrays 
+
+	print('MATCHES powered by BGSUBCNT ARE: ', remocionFondo)
 	if mostrarImagen:
 		visualLabel = VisualLayer()
 		visualLabel.crearMascaraCompleta(size = (240,320))
@@ -140,8 +142,8 @@ def __main_function__():
 		senalColor, colorLiteral, flancoSemaforo = miSemaforo.obtenerColorEnSemaforo(semaforo)
 		print('Semaforo: ',time.time()-otroTiempo)
 		otroTiempo = time.time()
-		remocionFondo.alimentar(capturaActual)
-		remocionFondo.draw()
+		#remocionFondo.alimentar(capturaActual)
+		#remocionFondo.draw()
 		print('Remocion de fonde: ',time.time()-otroTiempo)
 		
 		# Si tengo infracciones pendientes las evoluciono
