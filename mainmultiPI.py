@@ -75,7 +75,7 @@ def create_main(fnt):
 		# grab the frame from the threaded video stream and resize it
 		# in his core
 		t1 = time.time()
-		frame, frame_resized, imagen_semaforo,matches = vs.read()
+		frame, frame_resized, imagen_semaforo, matches = vs.read()
 
 		t2 = time.time()
 		print('Producer took: ', t2-t1)
@@ -118,8 +118,8 @@ def create_main(fnt):
 		#cv2.imshow('frame',cv2.resize(frame_resized,(640,480)))
 		#cv2.imwrite('../frames/frame_{}.jpg'.format(frame_number), cv2.resize(frame_resized,(640,480)))
 		#break
-		if _frame_number == 1000:
-			break
+		#if _frame_number == 1000:
+		#	break
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
