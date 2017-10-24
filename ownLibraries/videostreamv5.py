@@ -259,6 +259,7 @@ class WebcamVideoStream:
 				nx1, ny1 = self.scale*x1, self.scale*y1
 				nx2, ny2 = self.scale*x2, self.scale*y2
 
+				print('.......................................................')
 				print('ROIS 1', nx1, ny1 )
 				print('ROIS 2', nx2, ny2 )
 
