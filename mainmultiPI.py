@@ -11,13 +11,9 @@ import argparse
 import logging
 import imutils
 
-from new_libs.videostream import VideoStream
-from new_libs.videostream import FPS
-
-
-from new_libs.semaforo import CreateSemaforo
+from ownLibraries.videostreamv5 import VideoStream
+from ownLibraries.videostreamv5 import FPS
 from multiprocessing import Process, Queue, Pool
-from new_libs.BackgroundsubCNT import CreateBGCNT
 
 """
 from new_libs.pipeline import (
@@ -46,7 +42,7 @@ def create_main(fnt):
 	fuente = ['./installationFiles/heroes.mp4', 0]
 	#fuente = ['../trialVideos/mySquare.mp4', 0]
 	print(data)
-	semaforo = CreateSemaforo(periodoSemaforo = 0)
+	#semaforo = CreateSemaforo(periodoSemaforo = 0)
 	poligono  = data[0]
 
 	ON = True
@@ -56,6 +52,7 @@ def create_main(fnt):
 
 	height = 3264
 	width = 2448
+
 
 	#bg = CreateBGCNT()
 	vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono, draw=True).start() # 0.5 pmx
@@ -75,7 +72,7 @@ def create_main(fnt):
 		# grab the frame from the threaded video stream and resize it
 		# in his core
 		t1 = time.time()
-		frame, frame_resized, matches, senalColor, colorLiteral, flancoSemaforo  = vs.read()
+		recortados, frame_resized, senalColor, colorLiteral, flancoSemaforo  = vs.read()
 
 		t2 = time.time()
 		print('Producer took: ', t2-t1)
@@ -86,8 +83,11 @@ def create_main(fnt):
 		# Get signals from the semaforo
 		#senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(imagen_semaforo)
 
-
-		print(matches)
+		for key, value  in  recortados.items():
+			for i, frame in enumerate(value):
+				cv2.imwrite('./frame_{}_element_{}.jpg'.format(key,i), frame)
+		#print(type(recortados))
+		#break
 		t4 = time.time()
 
 		
@@ -95,7 +95,7 @@ def create_main(fnt):
 		# skip every 2nd frame to speed up processing
 		if _frame_number % 2 != 0:
 			continue
-		# frame number that will be passed to pipline
+		# frame number that wpyill be passed to pipline
 		# this needed to make video from cutted frames
 		frame_number += 1
 		print(colorLiteral)
@@ -113,7 +113,7 @@ def create_main(fnt):
 		t6 = time.time()
 		print('alll the while took', t6-t5)
 
-		cv2.imshow('frame',frame_resized)
+		cv2.imshow('frame', frame_resized)
 
 		#cv2.imshow('frame',cv2.resize(frame_resized,(640,480)))
 		#cv2.imwrite('../frames/frame_{}.jpg'.format(frame_number), cv2.resize(frame_resized,(640,480)))

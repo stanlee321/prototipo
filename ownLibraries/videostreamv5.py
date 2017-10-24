@@ -5,7 +5,7 @@ import cv2
 import datetime
 import bgsubcnt
 import time
-from semaforo import CreateSemaforo
+from new_libs.semaforo import CreateSemaforo
 
 class FPS:
     def __init__(self):
@@ -102,7 +102,7 @@ class WebcamVideoStream:
 		self.min_contour_height=30
 
 		self.matches = []
-		self.recordados = {}
+		self.recortados = {}
 
 		self.frame_number = -1
 
@@ -121,7 +121,12 @@ class WebcamVideoStream:
 
 		# Get shape from HD frame and LR frame
 
-		self.scale = self.frame.shape[0] * self.frame.shape[1] // self.frame_resized.shape[0] * self.frame_resized.shape[1]
+		print('HD PIXELS',self.frame.shape, self.frame.shape[0] * self.frame.shape[1] )
+		print('HD PIXELS',self.frame_resized.shape, self.frame_resized.shape[0] * self.frame_resized.shape[1] )
+
+		print('SACLE', self.frame.shape[0] * self.frame.shape[1] / self.frame_resized.shape[0] * self.frame_resized.shape[1])
+
+		self.scale = ((self.frame.shape[0] * self.frame.shape[1]) / (self.frame_resized.shape[0] * self.frame_resized.shape[1])) / 2
 
 	def start(self):
 		# start the thread to read frames from the video stream
@@ -151,6 +156,7 @@ class WebcamVideoStream:
 			print('ENTERING BG SUBBBBBBBBBBBBBBB')
 			self.BgSubCNT(self.frame_resized)
 			print('EXITING BG SUBBBBBBBBBBBBBBB')
+			print('SCALE?=??',self.scale)
 			self.frame_number += 1
 
 			# RETURNING VALUES FOR SEMAFORO
@@ -161,7 +167,7 @@ class WebcamVideoStream:
 
 	def read(self):
 		# return the frame most recently read
-		return self.frame_resized, self.senalColor, self.colorLiteral, self.flancoSemaforo 
+		return self.recortados, self.frame_resized, self.senalColor, self.colorLiteral, self.flancoSemaforo 
 
 	def stop(self):
 		# indicate that the thread should be stopped
@@ -229,7 +235,9 @@ class WebcamVideoStream:
 		return dilation
 
 	def cutHDImage(self, HDframe):
-		self.recordados = {}
+
+		print('ENTERING TO CUT HD IMAGE!!!!!!!!!!')
+		self.recortados = {}
 
 		if len(self.matches) > 0:
 
@@ -239,15 +247,21 @@ class WebcamVideoStream:
 
 				box = match[0]
 
-				x = box[0] * self.scale
-				y = box[1] * self.scale
-				w = box[2] * self.scale
-				h = box[3] * self.scale
+				x = box[0]
+				y = box[1]
+				w = box[2]
+				h = box[3]
 
-				recortado = HDframe[y:h, x:w]
+				x1, y1 = x, y 
+				x2, y2 = x + w - 1, y + h - 1
+
+				nx1, ny1 = self.scale*x1, self.scale*y1
+				nx2, ny2 = self.scale*x2, self.scale*y2
+
+				recortado = HDframe[int(ny1): int(ny2), int(nx1): int(nx2)]
 				listaderecortados.append(recortado)
 
-			self.recortado[self.frame_number] = listaderecortados
+			self.recortados[self.frame_number] = listaderecortados
 		else:
 			pass
 
