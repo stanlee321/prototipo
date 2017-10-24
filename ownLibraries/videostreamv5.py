@@ -158,7 +158,7 @@ class WebcamVideoStream:
 			print('ENTERING BG SUBBBBBBBBBBBBBBB')
 			self.BgSubCNT(self.frame_resized)
 			print('EXITING BG SUBBBBBBBBBBBBBBB')
-			print('SCALE?=??',self.scale)
+			#print('SCALE?=??',self.scale)
 			self.frame_number += 1
 
 			# RETURNING VALUES FOR SEMAFORO
@@ -166,7 +166,11 @@ class WebcamVideoStream:
 
 			# Cutting the HD image
 			self.cutHDImage(self.frame)
-			print('SCALE IS: ', self.scale)
+
+			print('SCALEEEEEEEEEEEEEEEESSSSSSSSSXXXXXXXXXXXYYYYYYYYYYYYYYYYY')
+			print('SCALE IS: ', self.scale_iny)
+			print('SCALE IS: ', self.scale_inx)
+
 
 	def read(self):
 		# return the frame most recently read
