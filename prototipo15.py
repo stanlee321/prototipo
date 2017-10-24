@@ -27,8 +27,8 @@ from mireporte import MiReporte
 #from semaforo import CreateSemaforo
 from policiainfractor import PoliciaInfractor
 from desplazamientoimagen import DesplazamientoImagen
-from videostreamv4 import VideoStream
-from videostreamv4 import FPS
+from videostreamv5 import VideoStream
+from videostreamv5 import FPS
 from BackgroundsubCNT import CreateBGCNT
 
 # Se crean las variables de constantes de trabajo del programa
@@ -47,10 +47,14 @@ longitudRegistro = 12
 
 # Función principal
 def __main_function__():
+	# Import some global varialbes
 	global archivoDeVideo
+
 	# Creamos el reporte inicial
 	miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)			# Se crea por defecto con nombre de la fecha y hora actual
 	miReporte.info('Programa iniciado exitosamente con ingreso de senal video '+archivoDeVideo+entradaReal+' con semaforo '+semaforoSimuladoTexto+str(periodoDeSemaforo) +', corriendo a '+str(mifps)+' Frames por Segundo')
+	
+	# Is statements
 	if generarArchivosDebug: miReporte.info('Generando Archivos de Debug')
 	else: miReporte.info('Generando infracciones unicamente (No debug video)')
 	if mostrarImagen: miReporte.info('Pantalla de muestra de funcionamiento en tiempo real encendida')
@@ -65,6 +69,7 @@ def __main_function__():
 	maximoInfraccionesPorFrame = 20
 	colores = np.random.randint(0,255,(maximoInfraccionesPorFrame,3))
 
+
 	# Cargando los parametros de instalacion:
 	# El archivo de video debe tener como minimo 5 caracteres para estar trnajando en modo simulado, de lo contrario estamos trabajando en modo real
 	if len(archivoDeVideo)>4: archivoParametrosACargar = archivoDeVideo[:-4]+'.npy'
@@ -75,6 +80,7 @@ def __main_function__():
 	verticesPartida = parametrosInstalacion[1]
 	verticesLlegada = parametrosInstalacion[2]
 	angulo = parametrosInstalacion[3]
+
 	try:
 		misVerticesExtremos = parametrosInstalacion[4]
 	except:
@@ -82,7 +88,6 @@ def __main_function__():
 		miReporte.error('NO PUDE cargar la configuracion de la camara de placas, tomando la por defecto')
 
 	miReporte.info('Cargado exitosamente parametros de instalacion: '+str(parametrosInstalacion))
-
 
 	# Arrancando camara
 	if len(archivoDeVideo)==0:	# modo real
