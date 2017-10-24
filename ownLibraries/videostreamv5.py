@@ -121,12 +121,14 @@ class WebcamVideoStream:
 
 		# Get shape from HD frame and LR frame
 
-		print('HD PIXELS',self.frame.shape, self.frame.shape[0] * self.frame.shape[1] )
-		print('HD PIXELS',self.frame_resized.shape, self.frame_resized.shape[0] * self.frame_resized.shape[1] )
+		#print('HD PIXELS',self.frame.shape, self.frame.shape[0] * self.frame.shape[1] )
+		#print('HD PIXELS',self.frame_resized.shape, self.frame_resized.shape[0] * self.frame_resized.shape[1] )
 
-		print('SACLE', self.frame.shape[0] * self.frame.shape[1] / self.frame_resized.shape[0] * self.frame_resized.shape[1])
+		#print('SACLE', self.frame.shape[0] * self.frame.shape[1] / self.frame_resized.shape[0] * self.frame_resized.shape[1])
 
-		self.scale = ((self.frame.shape[0] * self.frame.shape[1]) / (self.frame_resized.shape[0] * self.frame_resized.shape[1])) / 2
+		self.scale_inx = self.frame.shape[0] / self.frame_resized[0]
+		self.scale_iny = self.frame.shape[1] / self.frame_resized[1]
+
 
 	def start(self):
 		# start the thread to read frames from the video stream
@@ -256,8 +258,9 @@ class WebcamVideoStream:
 				x1, y1 = x, y 
 				x2, y2 = x + w - 1, y + h - 1
 
-				nx1, ny1 = self.scale*x1, self.scale*y1
-				nx2, ny2 = self.scale*x2, self.scale*y2
+
+				nx1, ny1 = self.scale_inx*x1, self.scale_iny*y1
+				nx2, ny2 = self.scale_inx*x2, self.scale_iny*y2
 
 				print('.......................................................')
 				print('ROIS 1', nx1, ny1 )
