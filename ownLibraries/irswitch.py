@@ -22,8 +22,8 @@ class IRSwitch():
 		self.tiempoParaPulso = tiempoPulsoMiliSegundos/1000
 		self.tiempoDeInercia = self.tiempoParaPulso/10
 		self.forwardPin = 3
-		self.backwardPin = 2
-		self.enable = 4
+		self.backwardPin = 4
+		self.enable = 2
 		if os.uname()[1] == 'raspberrypi':
 			GPIO.setmode(GPIO.BCM)
 			GPIO.setwarnings(False)
@@ -71,11 +71,11 @@ class IRSwitch():
 if __name__ == '__main__':
 	miFiltroPrueba = IRSwitch(50)
 	counter = 0
-	while (counter<20):
+	while (counter<100):
 		miFiltroPrueba.colocarFiltroIR()
 		print(miFiltroPrueba.obtenerUltimoEstado())
 		time.sleep(1)
 		miFiltroPrueba.quitarFiltroIR()
 		print(miFiltroPrueba.obtenerUltimoEstado())
-		time.sleep(2)
+		time.sleep(3)
 		counter+=1
