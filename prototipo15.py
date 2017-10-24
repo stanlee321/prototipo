@@ -43,7 +43,7 @@ semaforoSimuladoTexto = 'real '
 mifps = 8
 generarArchivosDebug = True
 mostrarImagen = False
-longitudRegistro = 12
+longitudRegistro = 360
 
 # Función principal
 def __main_function__():
@@ -62,9 +62,7 @@ def __main_function__():
 
 	# El directorio de reporte debe crearse al inicio del programa
 	# Variables de control:
-	senalColor = -1				# Señal de forma de onda para el color inicializada en -1, no hay semaforo
 	periodoDeMuestreo = 1.0/mifps # 0.1666667		# 1/mifps
-	flancoSemaforo = 0
 	numeroDeFrame = 0
 	maximoInfraccionesPorFrame = 20
 	colores = np.random.randint(0,255,(maximoInfraccionesPorFrame,3))
@@ -92,17 +90,17 @@ def __main_function__():
 	# Arrancando camara
 	if len(archivoDeVideo)==0:	# modo real
 		if os.uname()[1] == 'alvarohurtado-305V4A':
-			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, draw = True).start()
+			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, draw = mostrarImagen).start()
 			time.sleep(1)
 		else:
-			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, draw = True).start()
+			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, draw = mostrarImagen).start()
 			time.sleep(1)
 			#miCamara.set(3,3296)
 			#miCamara.set(4,2512)
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		try:
-			miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = (640,480),poligono = poligonoSemaforo, draw = True).start()
+			miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = (640,480),poligono = poligonoSemaforo, draw = mostrarImagen).start()
 			time.sleep(1)
 			miReporte.info('Archivo de video cargado exitosamente: '+directorioDeVideos+'/'+archivoDeVideo)
 		except Exception as currentException:
@@ -110,7 +108,7 @@ def __main_function__():
 			miCamara = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
 
 	# Se captura la imagen de flujo inicial y se trabaja con la misma
-	recortados, capturaInicial, senalColor, colorLiteral, flancoSemaforo = miCamara.read()
+	informacion = miCamara.read()
 
 	# Si estamos trabajando en la raspberry pi, no necesitamos simular la camara de 8Mp
 	miComputadora = os.uname()[1]
@@ -142,13 +140,11 @@ def __main_function__():
 
 		otroTiempo = time.time()
 		if archivoDeVideo=='':
-			recortados, capturaActual, senalColor, colorLiteral, flancoSemaforo = miCamara.read()
+			informacion = miCamara.read()
 		else:
 			# En caso de modo debug descartamos algunos frames para simular el periodo de muestreo
 			for inciceDescarte in range(videofps//mifps):
-
-				recortados, capturaActual, senalColor, colorLiteral, flancoSemaforo = miCamara.read()
-
+				informacion = miCamara.read()
 		
 		# If you want to save the frames to some folder ../frame/
 
@@ -156,34 +152,34 @@ def __main_function__():
 		#	for i, frame in enumerate(value):
 		#		cv2.imwrite('../frames/frame_{}_element_{}.jpg'.format(key,i), frame)
 
-
 		#print('recortados dict  powered by BGSUBCNT ARE recordados[frame] = [----frames_i---] : ',  recortados)
+		# informacion = {'index':int,'frameVideo': np.array(320,240),'recortados':list(np.array(x,x)),'semaforo':[informacion['semaforo'][0],informacion['semaforo'][1],informacion['semaforo'][2]]}
 
-		frameActual = miRegistroDesplazado.introducirImagen(capturaActual)
+		frameActual = informacion['index']
+		#miRegistroDesplazado.introducirImagen(recortados)
 
 		#print('Introducido ', sys.getsizeof(capturaAlta),' in ', capturaAlta.shape)
-		#senalColor, colorLiteral, flancoSemaforo = miSemaforo.obtenerColorEnSemaforo(semaforo)
+		#informacion['semaforo'][0], informacion['semaforo'][1], informacion['semaforo'][2] = miSemaforo.obtenerColorEnSemaforo(semaforo)
 		print('Semaforo: ',time.time()-otroTiempo)
 
 		otroTiempo = time.time()
-		#remocionFondo.alimentar(capturaActual)
+		#remocionFondo.alimentar(frameVideo)
 		#remocionFondo.draw()
 		print('Remocion de fonde: ',time.time()-otroTiempo)
-		print(' senalColor, colorLiteral, flancoSemaforo ',  senalColor, colorLiteral, flancoSemaforo)
 		
 		# Si tengo infracciones pendientes las evoluciono
-		if senalColor >= 1:					# Si estamos en rojo, realizamos una accion
-			if flancoSemaforo == 1:			# esto se inicial al principio de este estado
+		if informacion['semaforo'][0] >= 1:					# Si estamos en rojo, realizamos una accion
+			if informacion['semaforo'][2] == 1:			# esto se inicial al principio de este estado
 				miPoliciaReportando.inicializarAgente()
 				miRegistroDesplazado.reestablecerDesplazamiento(longitudRegistro)
 				print('RED')
 				#miReporte.info('<<<ROJO RED ROJO RED at: '+datetime.datetime.now().strftime('%H-%M-%S')+' ROJO RED ROJO RED>>>')
 				otroTiempo = time.time()
-			miPoliciaReportando.evolucionarLineaVigilancia(frameActual,capturaActual)
+			miPoliciaReportando.evolucionarLineaVigilancia(frameActual,frameVideo)
 			print('Policia Reportando: ',time.time()-otroTiempo)
 
-		elif senalColor == 0:		# Si estamos en verde realizamos otra accion
-			if flancoSemaforo == -1: # esto se inicial al principio de este estado
+		elif informacion['semaforo'][0] == 0:		# Si estamos en verde realizamos otra accion
+			if informacion['semaforo'][2] == -1: # esto se inicial al principio de este estado
 				print('GREEN')#miReporte.info('# Reportando')
 				#miReporte.info('<<<VERDE GREEN VERDE GREEN at: '+datetime.datetime.now().strftime('%H-%M-%S')+' VERDE GREEN VERDE GREEN>>>')
 				#>>reporte = miPoliciaReportando.guardarReportes()
@@ -191,7 +187,7 @@ def __main_function__():
 		
 		otroTiempo = time.time()
 		if mostrarImagen:
-			visualizacion = capturaActual
+			visualizacion = frameVideo
 			for infraction in miPoliciaReportando.listaPorConfirmar:
 				for puntos in infraction['desplazamiento']:
 					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
@@ -205,21 +201,21 @@ def __main_function__():
 					for punto in puntosExtraidos:
 						cv2.circle(visualizacion, tuple(punto), 1, (0,0,255), -1)
 			cv2.polylines(visualizacion, np.array([poligonoSemaforo])//2, True, (200,200,200))
-			visualLabel.agregarTextoEn(colorLiteral, 0)
+			visualLabel.agregarTextoEn(informacion['semaforo'][1], 0)
 			visualLabel.agregarTextoEn("F{}".format(frameActual), 1)
 			visualLabel.agregarTextoEn("I{}".format(miPoliciaReportando.infraccionesConfirmadas), 2)
 			#>visualLabel.agregarTextoEn(str(miPoliciaReportando.reporteInfracciones()[0])+'/'+str(miPoliciaReportando.reporteInfracciones()[1]), 3)
 			#>visualLabel.agregarTextoEn('G'+str(miPoliciaReportando.reporteInfracciones()[-1]), 4)
-			if senalColor == 1: visualLabel.establecerColorFondoDe(backgroudColour = (0,0,255), numeroDeCaja = 0)
-			elif senalColor == 0: visualLabel.establecerColorFondoDe(backgroudColour = (0,255,0), numeroDeCaja = 0)
-			elif senalColor == 2: visualLabel.establecerColorFondoDe(backgroudColour = (0,255,255), numeroDeCaja = 0)
+			if informacion['semaforo'][0] == 1: visualLabel.establecerColorFondoDe(backgroudColour = (0,0,255), numeroDeCaja = 0)
+			elif informacion['semaforo'][0] == 0: visualLabel.establecerColorFondoDe(backgroudColour = (0,255,0), numeroDeCaja = 0)
+			elif informacion['semaforo'][0] == 2: visualLabel.establecerColorFondoDe(backgroudColour = (0,255,255), numeroDeCaja = 0)
 			else: visualLabel.establecerColorFondoDe(backgroudColour = (0,0,0), numeroDeCaja = 0)
 			visualLabel.establecerMagnitudBarra(magnitude = int(miPoliciaReportando.ultimaVelocidad))
 			visualizacion = visualLabel.aplicarMascaraActualAFrame(visualizacion)
 			cv2.imshow('Visual',visualLabel.aplicarTodo())
 		print('Visualizacion: ',time.time()-otroTiempo)
 		# Visualizacion	
-		#print('Ciclo: ',str(time.time()-tiempoAuxiliar)[:7],' color: ',colorLiteral)
+		#print('Ciclo: ',str(time.time()-tiempoAuxiliar)[:7],' color: ',informacion['semaforo'][1])
 		#sys.stdout.write("\033[F")
 		
 		tiempoEjecucion = time.time()-tiempoAuxiliar
@@ -231,7 +227,7 @@ def __main_function__():
 		#while time.time()-tiempoAuxiliar<periodoDeMuestreo:
 		#	True
 
-		if _frame_number_auxiliar == 500:
+		if _frame_number_auxiliar == 2000:
 			break
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
@@ -239,7 +235,6 @@ def __main_function__():
 		if ch == ord('r'):
 			print('----------------------------------------> ',len(miRegistroDesplazado.lista))
 		fps.update()
-
 
 	# stop the timer and display FPS information
 	fps.stop()

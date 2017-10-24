@@ -141,7 +141,6 @@ class PoliciaInfractor():
 		for infraccion in self.listaDeInfracciones:
 			print(infraccion['name'],' de ',infraccion['frameInicial'],' a ',infraccion['frameFinal'],' con estado: ',infraccion['estado'])
 
-
 	def obtenerLinea(self):
 		"""
 		Returns the starting line in tuple format, ready to read or plot with opencv
@@ -195,8 +194,6 @@ class PoliciaInfractor():
 		(x,y) = self.obtenerVectorMovimiento(vectorAntiguo, nuevoVector)
 		moduloPerpendicular = self.vectorPerpendicularUnitario[0]*x+self.vectorPerpendicularUnitario[1]*y
 		return moduloPerpendicular
-
-
 
 if __name__ == '__main__':
 	"""
