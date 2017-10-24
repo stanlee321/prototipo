@@ -164,6 +164,7 @@ class WebcamVideoStream:
 
 			# Cutting the HD image
 			self.cutHDImage(self.frame)
+			print('SCALE IS: ', self.scale)
 
 	def read(self):
 		# return the frame most recently read

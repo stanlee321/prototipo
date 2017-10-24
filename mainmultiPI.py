@@ -85,7 +85,8 @@ def create_main(fnt):
 
 		for key, value  in  recortados.items():
 			for i, frame in enumerate(value):
-				cv2.imwrite('../frames/frame_{}_element_{}.jpg'.format(key,i), frame)
+				print(frame.shape)
+				#cv2.imwrite('../frames/frame_{}_element_{}.jpg'.format(key,i), frame)
 		#print(type(recortados))
 		#break
 		print('RECORTADOSSSSSSSSSSSSSSSSSSs', recortados)
