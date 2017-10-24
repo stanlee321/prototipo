@@ -126,8 +126,8 @@ class WebcamVideoStream:
 
 		#print('SACLE', self.frame.shape[0] * self.frame.shape[1] / self.frame_resized.shape[0] * self.frame_resized.shape[1])
 
-		self.scale_inx = self.frame.shape[0] / self.frame_resized[0]
-		self.scale_iny = self.frame.shape[1] / self.frame_resized[1]
+		self.scale_inx = self.frame.shape[0] / self.frame_resized.shape[0]
+		self.scale_iny = self.frame.shape[1] / self.frame_resized.shape[1]
 
 
 	def start(self):
