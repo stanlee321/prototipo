@@ -5,7 +5,8 @@ import cv2
 import datetime
 import bgsubcnt
 import time
-from semaforo import CreateSemaforo
+#from semaforo import CreateSemaforo
+from ownLibraries.semaforo import CreateSemaforo
 
 class FPS:
     def __init__(self):
@@ -42,7 +43,7 @@ class FPS:
 class WebcamVideoStream:
 	def __init__(self, src=0, resolution = (320,240), poligono=None, draw=False):
 
-		width, height= resolution[0], resolution[1]
+		width, height = resolution[0], resolution[1]
 		# initialize the video camera stream and read the first frame
 		# from the stream
 		self.stream = cv2.VideoCapture(src)
@@ -53,19 +54,21 @@ class WebcamVideoStream:
 		# be stopped
 		time.sleep(1)
 		self.stopped = False
+
+		# Draw rectangles and centroids in LR FRAME
 		self.draw = draw
 
-		print(self.frame)
+		#print(self.frame)
 		print('-----------------------------------------------')
-		print("FRAME ORIGIN SHaPe????????????", self.frame.shape)
+		print("FRAME ORIGIN SHAPE", self.frame.shape)
 		print('-----------------------------------------------')
-		# Resized artifact variable
-		#self.frame_resized = cv2.resize(self.frame, (320,240))	
+		# Resized normal frame
 		self.frame_resized =  cv2.resize(self.frame, (320,240))
+
 		print('FRAME:RESIZED', self.frame_resized.shape)
+		
 
-		# Semaforo part
-
+		##### Semaforo part
 		# find MAX, MIN values  in poligono
 		maxinX = max([x[0] for x in poligono])
 		maxinY = max([y[1] for y in poligono])
@@ -84,7 +87,8 @@ class WebcamVideoStream:
 
 		self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
 
-
+		#####  CREATE SEMAFORO
+		self.semaforo = CreateSemaforo(periodoSemaforo = 0)
 
 		##### BG part
 
@@ -92,6 +96,7 @@ class WebcamVideoStream:
 		# first parameter : Number of frames until the bg "rememver the differences"
 		# second parameter : Remember Frames until the end?
 		# thirth parameter : first parameter * FPS excpeted
+
 		print('INIT_PARAMS FOR BG')
 		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*10)
 		self.k = 31
@@ -101,15 +106,13 @@ class WebcamVideoStream:
 		self.min_contour_width=30
 		self.min_contour_height=30
 
+		# bounding box where is the moving object
 		self.matches = []
-		self.recortados = {}
+		# Cutted frame with the info from bouing boxes
+		self.listaderecortados = []
 
+		# Frame number Counter
 		self.frame_number = -1
-
-
-		# FOR SEMAFORO
-
-		self.semaforo = CreateSemaforo(periodoSemaforo = 0)
 
 
 		self.senalColor = None
@@ -117,13 +120,20 @@ class WebcamVideoStream:
 		self.flancoSemaforo  = None
 
 
-		# For CUT the HD IMAGE
+		##### For CUT the HD IMAGE
 
 		# values to upscale the LowRes image in x and y 
 
 		self.scale_inx = self.frame.shape[0] / self.frame_resized.shape[0]
 		self.scale_iny = self.frame.shape[1] / self.frame_resized.shape[1]
 
+		# information
+		self.information = {}
+
+		self.information['index'] = self.frame_number
+		self.information['frame'] = self.frame_resized
+		self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo]
+		self.information['recortados'] = self.listaderecortados
 
 	def start(self):
 		# start the thread to read frames from the video stream
@@ -135,6 +145,8 @@ class WebcamVideoStream:
 	def update(self):
 		# keep looping infinitely until the thread is stopped
 		while True:
+
+			#self.information = {}
 			# if the thread indicator variable is set, stop the thread
 			if self.stopped:
 				return
@@ -145,11 +157,13 @@ class WebcamVideoStream:
 			# Set new resolution for the consumers
 			self.frame_resized = cv2.resize(self.frame, (320,240))
 
+			# Cut imagen for the semaforo
 			self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
 
-
-			##  BackGroundSub part
+			##  BackGroundSub part, this is updating the self.listaderecortados
 			self.BgSubCNT(self.frame_resized)
+
+			# Update framenumber
 			self.frame_number += 1
 
 			# RETURNING VALUES FOR SEMAFORO
@@ -159,15 +173,20 @@ class WebcamVideoStream:
 			self.cutHDImage(self.frame)
 
 
+			self.information['index'] = self.frame_number
+			self.information['frame'] = self.frame_resized
+			self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo]
+			self.information['recortados'] = self.listaderecortados
+
 
 	def read(self):
 		# return the frame most recently read
-		return self.recortados, self.frame_resized, self.senalColor, self.colorLiteral, self.flancoSemaforo 
+		#return self.listaderecortados, self.frame_resized, self.senalColor, self.colorLiteral, self.flancoSemaforo 
+		return self.information
 
 	def stop(self):
 		# indicate that the thread should be stopped
 		self.stopped = True
-
 
 
 	def BgSubCNT(self,frame,frame_number = None):
@@ -194,7 +213,6 @@ class WebcamVideoStream:
 		# Find the contours 
 		im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
 		
-
 		# for all the contours, calculate his centroid and position in the current frame
 		for (i, contour) in enumerate(contours):
 			(x, y, w, h) = cv2.boundingRect(contour)
@@ -230,13 +248,10 @@ class WebcamVideoStream:
 		return dilation
 
 	def cutHDImage(self, HDframe):
-
-		print('ENTERING TO CUT HD IMAGE!!!!!!!!!!')
-		self.recortados = {}
+		
+		self.listaderecortados = []
 
 		if len(self.matches) > 0:
-
-			listaderecortados = []
 
 			for match in self.matches:
 
@@ -255,12 +270,11 @@ class WebcamVideoStream:
 				nx1, ny1 = self.scale_inx*x1, self.scale_iny*y1
 				nx2, ny2 = self.scale_inx*x2, self.scale_iny*y2
 
-
 				recortado = HDframe[int(ny1): int(ny2), int(nx1): int(nx2)]
-				
-				listaderecortados.append(recortado)
 
-			self.recortados[self.frame_number] = listaderecortados
+				self.listaderecortados.append(recortado)
+
+			#self.listaderecortados[self.frame_number] = listaderecortados
 		else:
 			pass
 

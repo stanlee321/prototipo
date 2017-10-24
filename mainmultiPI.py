@@ -47,11 +47,11 @@ def create_main(fnt):
 
 	ON = True
 
-	#height = 640
-	#width = 480
+	height = 640
+	width = 480
 
-	height = 3264
-	width = 2448
+	#height = 3264
+	#width = 2448
 
 
 	#bg = CreateBGCNT()
@@ -65,14 +65,18 @@ def create_main(fnt):
 	frame_number = -1
 	_frame_number = -1
 	#pipeline = PipelineRunner(pipeline=[CreateBGCNT(), Filtering(), FIFO(), Save_to_Disk()], log_level=logging.DEBUG)
-
+	counter = 0
 	while ON:
 
 		t5 = time.time()
 		# grab the frame from the threaded video stream and resize it
 		# in his core
 		t1 = time.time()
-		recortados, frame_resized, senalColor, colorLiteral, flancoSemaforo  = vs.read()
+
+		information = vs.read()
+
+		print('THE INFORMATION is', len(information), information)
+
 
 		t2 = time.time()
 		print('Producer took: ', t2-t1)
@@ -83,10 +87,10 @@ def create_main(fnt):
 		# Get signals from the semaforo
 		#senalColor, colorLiteral, flancoSemaforo  = semaforo.obtenerColorEnSemaforo(imagen_semaforo)
 
-		for key, value  in  recortados.items():
-			for i, frame in enumerate(value):
+		#for key, value  in  recortados.items():
+		#	for i, frame in enumerate(value):
 				#print(frame.shape)
-				cv2.imwrite('../frames/frame_{}_element_{}.jpg'.format(key,i), frame)
+		#		cv2.imwrite('../frames/frame_{}_element_{}.jpg'.format(key,i), frame)
 		#print(type(recortados))
 		#break
 		#print('RECORTADOSSSSSSSSSSSSSSSSSSs', recortados)
@@ -100,7 +104,7 @@ def create_main(fnt):
 		# frame number that wpyill be passed to pipline
 		# this needed to make video from cutted frames
 		frame_number += 1
-		print(colorLiteral)
+		#print(colorLiteral)
 		
 		"""
 		pipeline.load_data({
@@ -115,13 +119,19 @@ def create_main(fnt):
 		t6 = time.time()
 		print('alll the while took', t6-t5)
 
-		cv2.imshow('frame', frame_resized)
+
+		try:
+			counter += 1
+			cv2.imshow('frame', information['frame'])
+		except:
+			print(counter)
+			pass
 
 		#cv2.imshow('frame',cv2.resize(frame_resized,(640,480)))
 		#cv2.imwrite('../frames/frame_{}.jpg'.format(frame_number), cv2.resize(frame_resized,(640,480)))
 		#break
-		#if _frame_number == 1000:
-		#	break
+		if _frame_number == 1000:
+			break
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
@@ -129,6 +139,7 @@ def create_main(fnt):
 		fps.update()
 
 	# stop the timer and display FPS information
+
 	fps.stop()
 	print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
 	print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
