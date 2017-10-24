@@ -16,27 +16,41 @@ from mireporte import MiReporte
 from areaderesguardo import AreaDeResguardo
 
 class GeneradorEvidencia():
-	def __init__():
+	def __init__(self, carpetaReporte,mifps = 10):
+		self.carpetaDeReporteActual = carpetaReporte
+		self.framesPorSegundoEnVideo = mifps
+		self.ventana = 5
 
-	def generarReporteInfraccion(self,informacion,infraccion = False):
-		"""
-		Se crea un reporte para una infraccion comprendida entre indicesParaVideo[0] y indicesParaVideo[1] con gray scale en todos los frames que indique el indice para videos
-		"""
-		height, width, layers = self.reporteVideo[0].shape
+	def inicializarEnCarpeta(self,carpetaReporte):
+		self.carpetaDeReporteActual = carpetaReporte
+
+	def generarReporteInfraccion(self,informacionTotal,infraccion = True):
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
-		prueba = cv2.VideoWriter(self.carpetaDeReporteActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(width,height))
-		self.miReporte.info('Archivo guardado: '+self.carpetaDeReporteActual+'/'+nombreInfraccion+'.avi')
-		if indicesParaVideo[0]<0: inicio = 0
-		else: inicio = indicesParaVideo[0]
-		if indicesParaVideo[1]> len(self.reporteVideo): final = len(self.reporteVideo)
-		else: final = indicesParaVideo[1]
-		for index in range(inicio,final):
-			imagenAVideo=self.reporteVideo[index]
-			prueba.write(imagenAVideo)
-		prueba.release()
-	
-		self.miReporte.info('Reportado: '+self.fechaReporte+' len: '+str(indicesParaVideo[1]-indicesParaVideo[0]))
-
+		try:
+			frameInferior = infraccion['frameInicial'] - self.ventana
+			frameSuperior = infraccion['frameFinal']
+			height, width, layers = informacionTotal[0]['frame'].shape
+			prueba = cv2.VideoWriter(self.carpetaDeReporteActual+'/'+infraccion['name']+'.avi',fourcc, self.framesPorSegundoEnVideo,(width,height))
+			if frameInferior<0: inicio = 0
+			else: inicio = frameInferior
+			final = frameSuperior
+			print(inicio,final)
+			for index in range(inicio,final):
+				prueba.write(informacionTotal[index]['frame'])
+			prueba.release()
+			return 1
+		except:
+			if infraccion:
+				height, width, layers = informacionTotal[0]['frame'].shape
+				prueba = cv2.VideoWriter(self.carpetaDeReporteActual+'/'+infraccion['name']+'.avi',fourcc, self.framesPorSegundoEnVideo,(width,height))
+				inicio = 0
+				final = len(informacionTotal)
+				for index in range(inicio,final):
+					prueba.write(informacionTotal[index]['frame'])
+				prueba.release()
+			else:
+				return 0
+		return -1
 
 class AgenteReportero():
 	def __init__(self,imagenDeInicializacion,areaProtegida,areaDeConfirmacion,areaDeInteresPlacas=[[0,0],[2592,1944]],framesPorSegundo=10,nombreCarpetaAlmacenamiento = 'casosReportados',modoDebug = False):
@@ -72,7 +86,7 @@ class AgenteReportero():
 
 		if os.path.exists(self.nombreDirectorioUSB):
 			self.carpetaDeReporte = self.nombreDirectorioUSB +'/'+ nombreCarpetaAlmacenamiento
-			self.miReporte.info('Encontrada unidad USB, guardando informacion en el medio: '+self.carpetaDeReporte)
+			self.miReporte.info('Encontrada unidad USB, guardando informacionTotal en el medio: '+self.carpetaDeReporte)
 			self.carpetaDeReporteDebug = self.nombreDirectorioUSB +'/debug'
 		else:
 			self.carpetaDeReporte = self.nombreDirectorioLocal +'/'+ nombreCarpetaAlmacenamiento

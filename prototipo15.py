@@ -30,6 +30,7 @@ from desplazamientoimagen import DesplazamientoImagen
 from videostreamv5 import VideoStream
 from videostreamv5 import FPS
 from BackgroundsubCNT import CreateBGCNT
+from generadorevidencia import GeneradorEvidencia
 
 # Se crean las variables de constantes de trabajo del programa
 ## Parametros de input video
@@ -67,12 +68,10 @@ def __main_function__():
 	maximoInfraccionesPorFrame = 20
 	colores = np.random.randint(0,255,(maximoInfraccionesPorFrame,3))
 
-
 	# Cargando los parametros de instalacion:
 	# El archivo de video debe tener como minimo 5 caracteres para estar trnajando en modo simulado, de lo contrario estamos trabajando en modo real
 	if len(archivoDeVideo)>4: archivoParametrosACargar = archivoDeVideo[:-4]+'.npy'
 	else: archivoParametrosACargar = 'datos.npy'
-
 	parametrosInstalacion = np.load(folderDeInstalacion+'/'+archivoParametrosACargar)
 	poligonoSemaforo = parametrosInstalacion[0]
 	verticesPartida = parametrosInstalacion[1]
@@ -116,6 +115,7 @@ def __main_function__():
 	# Creación de objetos:
 	miPoliciaReportando = PoliciaInfractor(informacion['frame'],verticesPartida,verticesLlegada)
 	miRegistroDesplazado = DesplazamientoImagen(longitudRegistro)
+	miGrabadora = GeneradorEvidencia(directorioDeTrabajo,mifps)
 	#remocionFondo = matches # List like with arrays 
 
 	if mostrarImagen:
@@ -130,10 +130,11 @@ def __main_function__():
 	tiempoAuxiliar = time.time()
 	frameActual = 0	
 
-	print('ENTERING TO THE WHILE LOOP')
+	#print('ENTERING TO THE WHILE LOOP')
 
 	fps = FPS().start()
 	_frame_number_auxiliar = 0
+	informacionTotal = []
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
 
@@ -151,37 +152,40 @@ def __main_function__():
 		#	for i, frame in enumerate(value):
 		#		cv2.imwrite('../frames/frame_{}_element_{}.jpg'.format(key,i), frame)
 
-		#print('recortados dict  powered by BGSUBCNT ARE recordados[frame] = [----frames_i---] : ',  recortados)
+		##print('recortados dict  powered by BGSUBCNT ARE recordados[frame] = [----frames_i---] : ',  recortados)
 		# informacion = {'index':int,'informacion['frame']': np.array(320,240),'recortados':list(np.array(x,x)),'semaforo':[informacion['semaforo'][0],informacion['semaforo'][1],informacion['semaforo'][2]]}
 
 		frameActual = informacion['index']
-		#miRegistroDesplazado.introducirImagen(recortados)
+		informacionTotal.append(informacion)
+		#print(frameActual)
 
-		#print('Introducido ', sys.getsizeof(capturaAlta),' in ', capturaAlta.shape)
+		##print('Introducido ', sys.getsizeof(capturaAlta),' in ', capturaAlta.shape)
 		#informacion['semaforo'][0], informacion['semaforo'][1], informacion['semaforo'][2] = miSemaforo.obtenerColorEnSemaforo(semaforo)
-		print('Semaforo: ',time.time()-otroTiempo)
+		#print('Semaforo: ',time.time()-otroTiempo)
 
 		otroTiempo = time.time()
 		#remocionFondo.alimentar(informacion['frame'])
 		#remocionFondo.draw()
-		print('Remocion de fonde: ',time.time()-otroTiempo)
+		#print('Remocion de fonde: ',time.time()-otroTiempo)
 		
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1:					# Si estamos en rojo, realizamos una accion
 			if informacion['semaforo'][2] == 1:			# esto se inicial al principio de este estado
 				miPoliciaReportando.inicializarAgente()
 				miRegistroDesplazado.reestablecerDesplazamiento(longitudRegistro)
-				print('RED')
+				#print('RED')
 				#miReporte.info('<<<ROJO RED ROJO RED at: '+datetime.datetime.now().strftime('%H-%M-%S')+' ROJO RED ROJO RED>>>')
 				otroTiempo = time.time()
+				informacionTotal = []
 			miPoliciaReportando.evolucionarLineaVigilancia(frameActual,informacion['frame'])
-			print('Policia Reportando: ',time.time()-otroTiempo)
+			#print('Policia Reportando: ',time.time()-otroTiempo)
 
 		elif informacion['semaforo'][0] == 0:		# Si estamos en verde realizamos otra accion
 			if informacion['semaforo'][2] == -1: # esto se inicial al principio de este estado
-				print('GREEN')#miReporte.info('# Reportando')
-				#miReporte.info('<<<VERDE GREEN VERDE GREEN at: '+datetime.datetime.now().strftime('%H-%M-%S')+' VERDE GREEN VERDE GREEN>>>')
-				#>>reporte = miPoliciaReportando.guardarReportes()
+				#print('GREEN')#miReporte.info('# Reportando')
+				infraccionEnRevision = miPoliciaReportando.popInfraccion()
+				print(infraccionEnRevision)
+				miGrabadora.generarReporteInfraccion(informacionTotal,infraccionEnRevision)
 		indiceColor = 0
 		
 		otroTiempo = time.time()
@@ -212,13 +216,13 @@ def __main_function__():
 			visualLabel.establecerMagnitudBarra(magnitude = int(miPoliciaReportando.ultimaVelocidad))
 			visualizacion = visualLabel.aplicarMascaraActualAFrame(visualizacion)
 			cv2.imshow('Visual',visualLabel.aplicarTodo())
-		print('Visualizacion: ',time.time()-otroTiempo)
+		#print('Visualizacion: ',time.time()-otroTiempo)
 		# Visualizacion	
-		#print('Ciclo: ',str(time.time()-tiempoAuxiliar)[:7],' color: ',informacion['semaforo'][1])
+		##print('Ciclo: ',str(time.time()-tiempoAuxiliar)[:7],' color: ',informacion['semaforo'][1])
 		#sys.stdout.write("\033[F")
 		
 		tiempoEjecucion = time.time()-tiempoAuxiliar
-		print('Periodo: ',tiempoEjecucion)
+		#print('Periodo: ',tiempoEjecucion)
 		tiempoAuxiliar = time.time()
 		_frame_number_auxiliar +=1
 		#if tiempoEjecucion>periodoDeMuestreo:
@@ -237,8 +241,8 @@ def __main_function__():
 
 	# stop the timer and display FPS information
 	fps.stop()
-	print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-	print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+	#print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
+	#print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 # Se introducen los argumentos de control en el formato establecido
 if __name__ == '__main__':
 	# Tomamos los ingresos para controlar el video
