@@ -157,7 +157,7 @@ def __main_function__():
 		#		cv2.imwrite('../frames/frame_{}_element_{}.jpg'.format(key,i), frame)
 
 
-		print('MATCHES powered by BGSUBCNT ARE (BoundingBox, centroid): ',  matches)
+		print('recortados dict  powered by BGSUBCNT ARE recordados[frame] = [----frames_i---] : ',  recortados)
 
 		frameActual = miRegistroDesplazado.introducirImagen(capturaActual)
 
@@ -231,7 +231,7 @@ def __main_function__():
 		#while time.time()-tiempoAuxiliar<periodoDeMuestreo:
 		#	True
 
-		if _frame_number_auxiliar == 4000:
+		if _frame_number_auxiliar == 500:
 			break
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
