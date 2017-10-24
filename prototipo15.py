@@ -118,9 +118,9 @@ def __main_function__():
 	# Creación de objetos:
 	miPoliciaReportando = PoliciaInfractor(capturaInicial,verticesPartida,verticesLlegada)
 	miRegistroDesplazado = DesplazamientoImagen(longitudRegistro)
-	remocionFondo = matches # List like with arrays 
+	#remocionFondo = matches # List like with arrays 
 
-	print('MATCHES powered by BGSUBCNT ARE: ', remocionFondo)
+	print('recortados powered by BGSUBCNT ARE: ', recortados)
 	if mostrarImagen:
 		visualLabel = VisualLayer()
 		visualLabel.crearMascaraCompleta(size = (240,320))
