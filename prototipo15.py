@@ -150,14 +150,14 @@ def __main_function__():
 				recortados, capturaActual, senalColor, colorLiteral, flancoSemaforo = miCamara.read()
 
 		
-		# If you want to save to some folder ../frame/
+		# If you want to save the frames to some folder ../frame/
 
 		#for key, value  in  recortados.items():
 		#	for i, frame in enumerate(value):
 		#		cv2.imwrite('../frames/frame_{}_element_{}.jpg'.format(key,i), frame)
 
 
-		print('recortados dict  powered by BGSUBCNT ARE recordados[frame] = [----frames_i---] : ',  recortados)
+		#print('recortados dict  powered by BGSUBCNT ARE recordados[frame] = [----frames_i---] : ',  recortados)
 
 		frameActual = miRegistroDesplazado.introducirImagen(capturaActual)
 
