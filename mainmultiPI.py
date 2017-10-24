@@ -88,6 +88,7 @@ def create_main(fnt):
 				cv2.imwrite('../frames/frame_{}_element_{}.jpg'.format(key,i), frame)
 		#print(type(recortados))
 		#break
+		print(recortados)
 		t4 = time.time()
 
 		
