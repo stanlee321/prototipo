@@ -110,7 +110,7 @@ def __main_function__():
 			miCamara = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
 
 	# Se captura la imagen de flujo inicial y se trabaja con la misma
-	capturaAlta, capturaInicial, matches, senalColor, colorLiteral, flancoSemaforo = miCamara.read()
+	recortados, capturaInicial, senalColor, colorLiteral, flancoSemaforo = miCamara.read()
 
 	# Si estamos trabajando en la raspberry pi, no necesitamos simular la camara de 8Mp
 	miComputadora = os.uname()[1]
@@ -142,23 +142,35 @@ def __main_function__():
 
 		otroTiempo = time.time()
 		if archivoDeVideo=='':
-			capturaAlta, capturaActual, matches, senalColor, colorLiteral, flancoSemaforo  = miCamara.read()
+			recortados, capturaActual, senalColor, colorLiteral, flancoSemaforo = miCamara.read()
 		else:
 			# En caso de modo debug descartamos algunos frames para simular el periodo de muestreo
 			for inciceDescarte in range(videofps//mifps):
-				capturaAlta, capturaActual, matches, senalColor, colorLiteral, flancoSemaforo = miCamara.read()
-		cv2.imwrite('./imagenAlta_{}.jpg'.format(frameActual),capturaAlta)
+
+				recortados, capturaActual, senalColor, colorLiteral, flancoSemaforo = miCamara.read()
+
+		
+		# If you want to save to some folder ../frame/
+
+		#for key, value  in  recortados.items():
+		#	for i, frame in enumerate(value):
+		#		cv2.imwrite('../frames/frame_{}_element_{}.jpg'.format(key,i), frame)
+
 
 		print('MATCHES powered by BGSUBCNT ARE (BoundingBox, centroid): ',  matches)
+
 		frameActual = miRegistroDesplazado.introducirImagen(capturaActual)
-		print('Introducido ', sys.getsizeof(capturaAlta),' in ', capturaAlta.shape)
+
+		#print('Introducido ', sys.getsizeof(capturaAlta),' in ', capturaAlta.shape)
 		#senalColor, colorLiteral, flancoSemaforo = miSemaforo.obtenerColorEnSemaforo(semaforo)
 		print('Semaforo: ',time.time()-otroTiempo)
+
 		otroTiempo = time.time()
 		#remocionFondo.alimentar(capturaActual)
 		#remocionFondo.draw()
 		print('Remocion de fonde: ',time.time()-otroTiempo)
 		print(' senalColor, colorLiteral, flancoSemaforo ',  senalColor, colorLiteral, flancoSemaforo)
+		
 		# Si tengo infracciones pendientes las evoluciono
 		if senalColor >= 1:					# Si estamos en rojo, realizamos una accion
 			if flancoSemaforo == 1:			# esto se inicial al principio de este estado

@@ -5,7 +5,7 @@ import cv2
 import datetime
 import bgsubcnt
 import time
-from ownLibraries.semaforo import CreateSemaforo
+from semaforo import CreateSemaforo
 
 class FPS:
     def __init__(self):
@@ -119,12 +119,7 @@ class WebcamVideoStream:
 
 		# For CUT the HD IMAGE
 
-		# Get shape from HD frame and LR frame
-
-		#print('HD PIXELS',self.frame.shape, self.frame.shape[0] * self.frame.shape[1] )
-		#print('HD PIXELS',self.frame_resized.shape, self.frame_resized.shape[0] * self.frame_resized.shape[1] )
-
-		#print('SACLE', self.frame.shape[0] * self.frame.shape[1] / self.frame_resized.shape[0] * self.frame_resized.shape[1])
+		# values to upscale the LowRes image in x and y 
 
 		self.scale_inx = self.frame.shape[0] / self.frame_resized.shape[0]
 		self.scale_iny = self.frame.shape[1] / self.frame_resized.shape[1]
@@ -151,14 +146,10 @@ class WebcamVideoStream:
 			self.frame_resized = cv2.resize(self.frame, (320,240))
 
 			self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
-			#print('shape?',self.frame_resized.shape)
 
 
 			##  BackGroundSub part
-			print('ENTERING BG SUBBBBBBBBBBBBBBB')
 			self.BgSubCNT(self.frame_resized)
-			print('EXITING BG SUBBBBBBBBBBBBBBB')
-			#print('SCALE?=??',self.scale)
 			self.frame_number += 1
 
 			# RETURNING VALUES FOR SEMAFORO
@@ -167,9 +158,6 @@ class WebcamVideoStream:
 			# Cutting the HD image
 			self.cutHDImage(self.frame)
 
-			print('SCALEEEEEEEEEEEEEEEESSSSSSSSSXXXXXXXXXXXYYYYYYYYYYYYYYYYY')
-			print('SCALE IS: ', self.scale_iny)
-			print('SCALE IS: ', self.scale_inx)
 
 
 	def read(self):
@@ -263,15 +251,13 @@ class WebcamVideoStream:
 				x2, y2 = x + w - 1, y + h - 1
 
 
+				# Upscale
 				nx1, ny1 = self.scale_inx*x1, self.scale_iny*y1
 				nx2, ny2 = self.scale_inx*x2, self.scale_iny*y2
 
-				print('.......................................................')
-				print('ROIS 1', nx1, ny1 )
-				print('ROIS 2', nx2, ny2 )
-
 
 				recortado = HDframe[int(ny1): int(ny2), int(nx1): int(nx2)]
+				
 				listaderecortados.append(recortado)
 
 			self.recortados[self.frame_number] = listaderecortados
