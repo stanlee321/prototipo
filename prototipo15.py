@@ -114,11 +114,10 @@ def __main_function__():
 	miComputadora = os.uname()[1]
 	
 	# Creación de objetos:
-	miPoliciaReportando = PoliciaInfractor(capturaInicial,verticesPartida,verticesLlegada)
+	miPoliciaReportando = PoliciaInfractor(informacion['frame'],verticesPartida,verticesLlegada)
 	miRegistroDesplazado = DesplazamientoImagen(longitudRegistro)
 	#remocionFondo = matches # List like with arrays 
 
-	print('recortados powered by BGSUBCNT ARE: ', recortados)
 	if mostrarImagen:
 		visualLabel = VisualLayer()
 		visualLabel.crearMascaraCompleta(size = (240,320))
@@ -153,7 +152,7 @@ def __main_function__():
 		#		cv2.imwrite('../frames/frame_{}_element_{}.jpg'.format(key,i), frame)
 
 		#print('recortados dict  powered by BGSUBCNT ARE recordados[frame] = [----frames_i---] : ',  recortados)
-		# informacion = {'index':int,'frameVideo': np.array(320,240),'recortados':list(np.array(x,x)),'semaforo':[informacion['semaforo'][0],informacion['semaforo'][1],informacion['semaforo'][2]]}
+		# informacion = {'index':int,'informacion['frame']': np.array(320,240),'recortados':list(np.array(x,x)),'semaforo':[informacion['semaforo'][0],informacion['semaforo'][1],informacion['semaforo'][2]]}
 
 		frameActual = informacion['index']
 		#miRegistroDesplazado.introducirImagen(recortados)
@@ -163,7 +162,7 @@ def __main_function__():
 		print('Semaforo: ',time.time()-otroTiempo)
 
 		otroTiempo = time.time()
-		#remocionFondo.alimentar(frameVideo)
+		#remocionFondo.alimentar(informacion['frame'])
 		#remocionFondo.draw()
 		print('Remocion de fonde: ',time.time()-otroTiempo)
 		
@@ -175,7 +174,7 @@ def __main_function__():
 				print('RED')
 				#miReporte.info('<<<ROJO RED ROJO RED at: '+datetime.datetime.now().strftime('%H-%M-%S')+' ROJO RED ROJO RED>>>')
 				otroTiempo = time.time()
-			miPoliciaReportando.evolucionarLineaVigilancia(frameActual,frameVideo)
+			miPoliciaReportando.evolucionarLineaVigilancia(frameActual,informacion['frame'])
 			print('Policia Reportando: ',time.time()-otroTiempo)
 
 		elif informacion['semaforo'][0] == 0:		# Si estamos en verde realizamos otra accion
@@ -187,7 +186,7 @@ def __main_function__():
 		
 		otroTiempo = time.time()
 		if mostrarImagen:
-			visualizacion = frameVideo
+			visualizacion = informacion['frame']
 			for infraction in miPoliciaReportando.listaPorConfirmar:
 				for puntos in infraction['desplazamiento']:
 					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
