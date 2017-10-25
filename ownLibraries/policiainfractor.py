@@ -115,6 +115,7 @@ class PoliciaInfractor():
 						except:
 							print('Error al borrar ',infraccion,' con len ',len(self.listaPorConfirmar))
 						infraccion['estado']='Confirmado'
+						#print(infraccion)
 						infraccion['frameFinal']=numeroDeFrame
 						self.listaDeInfracciones.append(infraccion)
 						self.infraccionesConfirmadas = len(self.listaDeInfracciones)
