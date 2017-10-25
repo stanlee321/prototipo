@@ -41,7 +41,7 @@ class FPS:
 
 
 class WebcamVideoStream:
-	def __init__(self, src=0, resolution = (320,240), poligono = None, draw = False, debug = False, fps = 10):
+	def __init__(self, src=0, resolution = (320,240), poligono = None, debug = False, fps = 10):
 		# For debug video
 		self.debug = debug
 		self.fps = fps
@@ -62,7 +62,7 @@ class WebcamVideoStream:
 		self.stopped = False
 
 		# Draw rectangles and centroids in LR FRAME
-		self.draw = draw
+		#self.draw = draw
 
 		#print(self.frame)
 		print('-----------------------------------------------')
@@ -96,6 +96,10 @@ class WebcamVideoStream:
 		#####  CREATE SEMAFORO
 		self.semaforo = CreateSemaforo(periodoSemaforo = 0)
 
+		self.senalColor = -1
+		self.colorLiteral = None
+		self.flancoSemaforo  = 0
+
 		##### BG part
 
 		# (3, False, 3*15) are parameters to adjust the bgsub behavior
@@ -109,8 +113,8 @@ class WebcamVideoStream:
 		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 
 		# Adjust the minimum size of the blog matching contour
-		self.min_contour_width=30
-		self.min_contour_height=30
+		self.min_contour_width = 30
+		self.min_contour_height = 30
 
 		# bounding box where is the moving object
 		self.matches = []
@@ -121,11 +125,6 @@ class WebcamVideoStream:
 		#self.frame_number = -1
 
 
-		self.senalColor = -1
-		self.colorLiteral = None
-		self.flancoSemaforo  = 0
-
-
 		##### For CUT the HD IMAGE
 
 		# values to upscale the LowRes image in x and y 
@@ -133,20 +132,20 @@ class WebcamVideoStream:
 		self.scale_inx = self.frame.shape[0] / self.frame_resized.shape[0]
 		self.scale_iny = self.frame.shape[1] / self.frame_resized.shape[1]
 
-		# information
+		###### Information
 		self.information = {}
 
 		#self.information['index'] = self.frame_number
 		self.information['frame'] = self.frame_resized
 		self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo]
 		self.information['recortados'] = self.listaderecortados
+		self.information['rectangulos'] = self.matches
 
 
-		#self._frame_number = 0
 
 		if self.debug == True:
 
-			self.ratio = 30/ fps
+			self.ratio = 30 / fps
 
 
 	def start(self):
@@ -198,8 +197,7 @@ class WebcamVideoStream:
 			self.information['frame'] = self.frame_resized
 			self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo]
 			self.information['recortados'] = self.listaderecortados
-
-
+			self.information['rectangulos'] = self.matches
 			# Update framenumber
 			#self._frame_number  += 1
 
@@ -250,12 +248,14 @@ class WebcamVideoStream:
 
 			# apeend to the matches for output from current frame
 			self.matches.append(((x, y, w, h), centroid))
+
+
 			# Optional, draw rectangle and circle where you find "movement"
-			if self.draw == True:
-				cv2.rectangle(frame, (x,y),(x+w-1, y+h-1),(0,0,255),1)
-				cv2.circle(frame, centroid,2,(0,255,0),-1)
-			else:
-				pass
+			#if self.draw == True:
+			#self.r_and_c.appen	cv2.rectangle(frame, (x,y),(x+w-1, y+h-1),(0,0,255),1)
+			#	cv2.circle(frame, centroid,2,(0,255,0),-1)
+			#else:
+			#	pass
 
 	def filter_mask(self, img, a=None):
 		'''
@@ -324,7 +324,7 @@ class WebcamVideoStream:
 		return (cx, cy)
 
 class VideoStream:
-	def __init__(self, src=0, usePiCamera=False, resolution=(320, 240),	framerate=32, poligono = None, draw=False, debug = False, fps = 10):
+	def __init__(self, src=0, usePiCamera=False, resolution=(320, 240),	framerate=32, poligono = None,  debug = False, fps = 10):
 		self.debug = debug
 		self.fps = fps
 		# check to see if the picamera module should be used
@@ -343,7 +343,7 @@ class VideoStream:
 		# stream
 		else:
 
-			self.stream = WebcamVideoStream(src=src, resolution=resolution, poligono = poligono, draw=draw, debug = self.debug, fps = self.fps)
+			self.stream = WebcamVideoStream(src=src, resolution=resolution, poligono = poligono, debug = self.debug, fps = self.fps)
 
 	def start(self):
 		# start the threaded video stream

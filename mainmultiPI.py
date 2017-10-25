@@ -55,7 +55,7 @@ def create_main(fnt):
 
 
 	#bg = CreateBGCNT()
-	vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono, draw=False, debug = True, fps = 10).start() # 0.5 pmx
+	vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono, debug = True, fps = 10).start() # 0.5 pmx
 	#vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono, draw=True).start() # 0.5 pmx
 	#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()	# 2 mpx
 	#vs = WebcamVideoStream(src=src[1], height = 2560, width = 1920).start()	# 5 mpx
