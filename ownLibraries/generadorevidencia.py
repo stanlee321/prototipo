@@ -29,24 +29,35 @@ class GeneradorEvidencia():
 		try:
 			frameInferior = infraccion['frameInicial'] - self.ventana
 			frameSuperior = infraccion['frameFinal']
-			height, width, layers = informacionTotal[0]['frame'].shape
+			height, width, layers = 240,320,3#informacionTotal[0]['frame'].shape
 			prueba = cv2.VideoWriter(self.carpetaDeReporteActual+'/'+infraccion['name']+'.avi',fourcc, self.framesPorSegundoEnVideo,(width,height))
 			if frameInferior<0: inicio = 0
 			else: inicio = frameInferior
 			final = frameSuperior
-			print(inicio,final)
-			for index in range(inicio,final):
-				prueba.write(informacionTotal[index]['frame'])
+			print('Range: ',inicio,final,range(inicio,final))
+			for indice in range(inicio,final):
+				print(indice)
+				#try:
+				#	prueba.write(informacionTotal[indice]['frame'])
+				#	cv2.imwrite(self.carpetaDeReporteActual+'/grabando_'+str(indice)+'_{}.jpg'.format(informacionTotal[indice]['index']),informacionTotal[indice]['frame'])
+				#except:
+				#	print('Could not print')
+				#print(self.carpetaDeReporteActual+'/grabando_'+str(indice)+'_{}.jpg'.format(informacionTotal[indice]['index']))
 			prueba.release()
 			return 1
 		except:
 			if infraccion:
-				height, width, layers = informacionTotal[0]['frame'].shape
+				height, width, layers = 240,320,3# informacionTotal[0]['frame'].shape
 				prueba = cv2.VideoWriter(self.carpetaDeReporteActual+'/'+infraccion['name']+'.avi',fourcc, self.framesPorSegundoEnVideo,(width,height))
 				inicio = 0
 				final = len(informacionTotal)
-				for index in range(inicio,final):
-					prueba.write(informacionTotal[index]['frame'])
+				for indice in range(inicio,final):
+					try:
+						prueba.write(informacionTotal[indice]['frame'])
+						cv2.imwrite(self.carpetaDeReporteActual+'/grabando_'+str(indice)+'_{}.jpg'.format(informacionTotal[indice]['index']),informacionTotal[indice]['frame'])
+					except:
+						print('Could not print')
+					print(self.carpetaDeReporteActual+'/grabando_'+str(indice)+'_{}.jpg'.format(informacionTotal[indice]['index']))
 				prueba.release()
 			else:
 				return 0
@@ -261,8 +272,8 @@ class AgenteReportero():
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
 		prueba = cv2.VideoWriter(self.carpetaDeReporteActualDebug+'/'+self.fechaReporte+'-debug.avi',fourcc, self.framesPorSegundoEnVideo,(width,height))
 
-		for index in range(len(self.reporteVideo)):
-			prueba.write(self.reporteVideo[index])
+		for indice in range(len(self.reporteVideo)):
+			prueba.write(self.reporteVideo[indice])
 		prueba.release()
 	
 		self.miReporte.info('Reportado: '+self.fechaReporte+' len: '+str(len(self.reporteVideo)))
@@ -280,8 +291,8 @@ class AgenteReportero():
 		else: inicio = indicesParaVideo[0]
 		if indicesParaVideo[1]> len(self.reporteVideo): final = len(self.reporteVideo)
 		else: final = indicesParaVideo[1]
-		for index in range(inicio,final):
-			imagenAVideo=self.reporteVideo[index]
+		for indice in range(inicio,final):
+			imagenAVideo=self.reporteVideo[indice]
 			prueba.write(imagenAVideo)
 		prueba.release()
 	

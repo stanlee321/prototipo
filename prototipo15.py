@@ -134,7 +134,7 @@ def __main_function__():
 
 	fps = FPS().start()
 	_frame_number_auxiliar = 0
-	informacionTotal = []
+	informacionTotal = {}
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
 
@@ -156,7 +156,7 @@ def __main_function__():
 		# informacion = {'index':int,'informacion['frame']': np.array(320,240),'recortados':list(np.array(x,x)),'semaforo':[informacion['semaforo'][0],informacion['semaforo'][1],informacion['semaforo'][2]]}
 
 		frameActual = informacion['index']
-		informacionTotal.append(informacion)
+		informacionTotal[frameActual] = informacion
 		#print(frameActual)
 
 		##print('Introducido ', sys.getsizeof(capturaAlta),' in ', capturaAlta.shape)
@@ -176,7 +176,8 @@ def __main_function__():
 				#print('RED')
 				#miReporte.info('<<<ROJO RED ROJO RED at: '+datetime.datetime.now().strftime('%H-%M-%S')+' ROJO RED ROJO RED>>>')
 				otroTiempo = time.time()
-				informacionTotal = []
+				del informacionTotal
+				informacionTotal = {}
 			miPoliciaReportando.evolucionarLineaVigilancia(frameActual,informacion['frame'])
 			#print('Policia Reportando: ',time.time()-otroTiempo)
 
