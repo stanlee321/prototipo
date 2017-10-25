@@ -41,7 +41,7 @@ entradaReal = 'en tiempo real '		# Complementario
 periodoDeSemaforo = 0
 semaforoSimuladoTexto = 'real '
 ## Otros
-mifps = 8
+mifps = 30
 generarArchivosDebug = True
 mostrarImagen = False
 longitudRegistro = 360
@@ -128,7 +128,7 @@ def __main_function__():
 
 	#miSemaforo = CreateSemaforo(periodoDeSemaforo)
 	tiempoAuxiliar = time.time()
-	frameActual = 0	
+	frame_number = 0	
 
 	#print('ENTERING TO THE WHILE LOOP')
 
@@ -148,8 +148,7 @@ def __main_function__():
 			for inciceDescarte in range(videofps//mifps):
 				informacion = miCamara.read()
 		
-
-		information['index'] = frame_number
+		informacion['index'] = frame_number
 		# If you want to save the frames to some folder ../frame/
 
 		#for key, value  in  recortados.items():
@@ -159,9 +158,9 @@ def __main_function__():
 		##print('recortados dict  powered by BGSUBCNT ARE recordados[frame] = [----frames_i---] : ',  recortados)
 		# informacion = {'index':int,'informacion['frame']': np.array(320,240),'recortados':list(np.array(x,x)),'semaforo':[informacion['semaforo'][0],informacion['semaforo'][1],informacion['semaforo'][2]]}
 
-		frameActual = informacion['index']
-		informacionTotal[frameActual] = informacion
-		#print(frameActual)
+		print('Outside number: ',frame_number)
+		informacionTotal.append(informacion)
+		#print(frame_number)
 
 		##print('Introducido ', sys.getsizeof(capturaAlta),' in ', capturaAlta.shape)
 		#informacion['semaforo'][0], informacion['semaforo'][1], informacion['semaforo'][2] = miSemaforo.obtenerColorEnSemaforo(semaforo)
@@ -180,17 +179,22 @@ def __main_function__():
 				#print('RED')
 				#miReporte.info('<<<ROJO RED ROJO RED at: '+datetime.datetime.now().strftime('%H-%M-%S')+' ROJO RED ROJO RED>>>')
 				otroTiempo = time.time()
-				del informacionTotal
-				informacionTotal = {}
-			miPoliciaReportando.evolucionarLineaVigilancia(frameActual,informacion['frame'])
+				
+			miPoliciaReportando.evolucionarLineaVigilancia(frame_number,informacion['frame'])
 			#print('Policia Reportando: ',time.time()-otroTiempo)
 
-		elif informacion['semaforo'][0] == 0:		# Si estamos en verde realizamos otra accion
-			if informacion['semaforo'][2] == -1: # esto se inicial al principio de este estado
+		if informacion['semaforo'][0] == 0:		# Si estamos en verde realizamos otra accion
+			try:
 				#print('GREEN')#miReporte.info('# Reportando')
 				infraccionEnRevision = miPoliciaReportando.popInfraccion()
 				print(infraccionEnRevision)
 				miGrabadora.generarReporteInfraccion(informacionTotal,infraccionEnRevision)
+				del informacionTotal
+				informacionTotal = []
+				frame_number = 0
+			except:
+				pass
+
 		indiceColor = 0
 		
 		otroTiempo = time.time()
@@ -210,7 +214,7 @@ def __main_function__():
 						cv2.circle(visualizacion, tuple(punto), 1, (0,0,255), -1)
 			cv2.polylines(visualizacion, np.array([poligonoSemaforo])//2, True, (200,200,200))
 			visualLabel.agregarTextoEn(informacion['semaforo'][1], 0)
-			visualLabel.agregarTextoEn("F{}".format(frameActual), 1)
+			visualLabel.agregarTextoEn("F{}".format(frame_number), 1)
 			visualLabel.agregarTextoEn("I{}".format(miPoliciaReportando.infraccionesConfirmadas), 2)
 			#>visualLabel.agregarTextoEn(str(miPoliciaReportando.reporteInfracciones()[0])+'/'+str(miPoliciaReportando.reporteInfracciones()[1]), 3)
 			#>visualLabel.agregarTextoEn('G'+str(miPoliciaReportando.reporteInfracciones()[-1]), 4)
@@ -236,13 +240,11 @@ def __main_function__():
 		#	True
 
 		frame_number += 1
-		if _frame_number_auxiliar == 2000:
+		if _frame_number_auxiliar == 4000:
 			break
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
 			break
-		if ch == ord('r'):
-			print('----------------------------------------> ',len(miRegistroDesplazado.lista))
 		fps.update()
 
 	# stop the timer and display FPS information

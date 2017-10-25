@@ -29,35 +29,27 @@ class GeneradorEvidencia():
 		try:
 			frameInferior = infraccion['frameInicial'] - self.ventana
 			frameSuperior = infraccion['frameFinal']
-			height, width, layers = 240,320,3#informacionTotal[0]['frame'].shape
+			height, width, layers = informacionTotal[0]['frame'].shape
 			prueba = cv2.VideoWriter(self.carpetaDeReporteActual+'/'+infraccion['name']+'.avi',fourcc, self.framesPorSegundoEnVideo,(width,height))
+			print('Frame inf: ',frameInferior)
 			if frameInferior<0: inicio = 0
 			else: inicio = frameInferior
 			final = frameSuperior
 			print('Range: ',inicio,final,range(inicio,final))
-			for indice in range(inicio,final):
-				print(indice)
-				#try:
-				#	prueba.write(informacionTotal[indice]['frame'])
-				#	cv2.imwrite(self.carpetaDeReporteActual+'/grabando_'+str(indice)+'_{}.jpg'.format(informacionTotal[indice]['index']),informacionTotal[indice]['frame'])
-				#except:
-				#	print('Could not print')
-				#print(self.carpetaDeReporteActual+'/grabando_'+str(indice)+'_{}.jpg'.format(informacionTotal[indice]['index']))
+			print('Longitud de lista: ',len(informacionTotal))
+			for supercalifragilistico in range(inicio,final):
+				cv2.imwrite(self.carpetaDeReporteActual+'/grabando_'+str(supercalifragilistico)+'_{}.jpg'.format(informacionTotal[supercalifragilistico]['index']),informacionTotal[supercalifragilistico]['frame'])
 			prueba.release()
 			return 1
-		except:
+		except Exception as e:
+			print('Ocurred: ',e)
 			if infraccion:
-				height, width, layers = 240,320,3# informacionTotal[0]['frame'].shape
+				height, width, layers = informacionTotal[0]['frame'].shape
 				prueba = cv2.VideoWriter(self.carpetaDeReporteActual+'/'+infraccion['name']+'.avi',fourcc, self.framesPorSegundoEnVideo,(width,height))
 				inicio = 0
 				final = len(informacionTotal)
-				for indice in range(inicio,final):
-					try:
-						prueba.write(informacionTotal[indice]['frame'])
-						cv2.imwrite(self.carpetaDeReporteActual+'/grabando_'+str(indice)+'_{}.jpg'.format(informacionTotal[indice]['index']),informacionTotal[indice]['frame'])
-					except:
-						print('Could not print')
-					print(self.carpetaDeReporteActual+'/grabando_'+str(indice)+'_{}.jpg'.format(informacionTotal[indice]['index']))
+				for supercalifragilistico in range(inicio,final):
+					prueba.write(informacionTotal[supercalifragilistico]['frame'])
 				prueba.release()
 			else:
 				return 0
@@ -167,12 +159,12 @@ class AgenteReportero():
 		
 		numeroDeFrameActual = len(self.reporteVideo)
 
-		vectorRuidoso, self.ultimaVelocidad,indiceFrameActual = self.areaDeResguardo.encontrarObjetosYCalcularFlujoYPaso(frameActualFlujo,self.misInfracciones)
+		vectorRuidoso, self.ultimaVelocidad,supercalifragilisticoFrameActual = self.areaDeResguardo.encontrarObjetosYCalcularFlujoYPaso(frameActualFlujo,self.misInfracciones)
 		self.formaOndaDebug.append([vectorRuidoso,self.ultimaVelocidad])
 
 		
 			
-		if indiceFrameActual == -1:
+		if supercalifragilisticoFrameActual == -1:
 			dateStamp = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S.%f')
 			if self.miComputadora == 'raspberrypi':					
 				self.miCamara.encenderCamaraEnSubDirectorio(self.fechaReporte,dateStamp)
@@ -183,7 +175,7 @@ class AgenteReportero():
 			
 			if len(caracteristicasASeguir.shape) > 1:
 				self.miReporte.debug('GATILLADO DETECTADO')
-				nuevaInfraccion = {'name':dateStamp,'momentum':indiceFrameActual,'frameInicial':numeroDeFrameActual,'frameFinal':0,'desplazamiento':np.array(caracteristicasASeguir),'estado':'Candidato','foto':False}
+				nuevaInfraccion = {'name':dateStamp,'momentum':supercalifragilisticoFrameActual,'frameInicial':numeroDeFrameActual,'frameFinal':0,'desplazamiento':np.array(caracteristicasASeguir),'estado':'Candidato','foto':False}
 				self.miReporte.debug('Guardando Imagen en: '+self.carpetaDeReporteActual+'/'+datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S.%f')+'.jpg')
 				cv2.imwrite(self.carpetaDeReporteActual+'/'+dateStamp+'.jpg',frameActualFlujo)
 				self.misInfracciones.append(nuevaInfraccion)
@@ -191,7 +183,7 @@ class AgenteReportero():
 				self.miReporte.warning('No pude encontrar puntos de interes en el objeto >>>>>>>>>>>>>>>>>>>>>>')
 
 		for infraction in self.misInfracciones:
-			if (indiceFrameActual == -10) & (self.miComputadora == 'raspberrypi') & (infraction['foto']==False):
+			if (supercalifragilisticoFrameActual == -10) & (self.miComputadora == 'raspberrypi') & (infraction['foto']==False):
 				self.miCamara.encenderCamara()
 				tomeFoto = {'foto':True}
 				infraction.update(tomeFoto)
@@ -272,28 +264,28 @@ class AgenteReportero():
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
 		prueba = cv2.VideoWriter(self.carpetaDeReporteActualDebug+'/'+self.fechaReporte+'-debug.avi',fourcc, self.framesPorSegundoEnVideo,(width,height))
 
-		for indice in range(len(self.reporteVideo)):
-			prueba.write(self.reporteVideo[indice])
+		for supercalifragilistico in range(len(self.reporteVideo)):
+			prueba.write(self.reporteVideo[supercalifragilistico])
 		prueba.release()
 	
 		self.miReporte.info('Reportado: '+self.fechaReporte+' len: '+str(len(self.reporteVideo)))
 		return True
 
-	def generarReporteInfraccion(self,nombreInfraccion,indicesParaVideo):
+	def generarReporteInfraccion(self,nombreInfraccion,supercalifragilisticosParaVideo):
 		"""
-		Se crea un reporte para una infraccion comprendida entre indicesParaVideo[0] y indicesParaVideo[1] con gray scale en todos los frames que indique el indice para videos
+		Se crea un reporte para una infraccion comprendida entre supercalifragilisticosParaVideo[0] y supercalifragilisticosParaVideo[1] con gray scale en todos los frames que indique el supercalifragilistico para videos
 		"""
 		height, width, layers = self.reporteVideo[0].shape
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
 		prueba = cv2.VideoWriter(self.carpetaDeReporteActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(width,height))
 		self.miReporte.info('Archivo guardado: '+self.carpetaDeReporteActual+'/'+nombreInfraccion+'.avi')
-		if indicesParaVideo[0]<0: inicio = 0
-		else: inicio = indicesParaVideo[0]
-		if indicesParaVideo[1]> len(self.reporteVideo): final = len(self.reporteVideo)
-		else: final = indicesParaVideo[1]
-		for indice in range(inicio,final):
-			imagenAVideo=self.reporteVideo[indice]
+		if supercalifragilisticosParaVideo[0]<0: inicio = 0
+		else: inicio = supercalifragilisticosParaVideo[0]
+		if supercalifragilisticosParaVideo[1]> len(self.reporteVideo): final = len(self.reporteVideo)
+		else: final = supercalifragilisticosParaVideo[1]
+		for supercalifragilistico in range(inicio,final):
+			imagenAVideo=self.reporteVideo[supercalifragilistico]
 			prueba.write(imagenAVideo)
 		prueba.release()
 	
-		self.miReporte.info('Reportado: '+self.fechaReporte+' len: '+str(indicesParaVideo[1]-indicesParaVideo[0]))
+		self.miReporte.info('Reportado: '+self.fechaReporte+' len: '+str(supercalifragilisticosParaVideo[1]-supercalifragilisticosParaVideo[0]))
