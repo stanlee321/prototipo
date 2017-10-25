@@ -41,7 +41,7 @@ entradaReal = 'en tiempo real '		# Complementario
 periodoDeSemaforo = 0
 semaforoSimuladoTexto = 'real '
 ## Otros
-mifps = 30
+mifps = 10
 generarArchivosDebug = True
 mostrarImagen = False
 longitudRegistro = 360
@@ -89,17 +89,17 @@ def __main_function__():
 	# Arrancando camara
 	if len(archivoDeVideo)==0:	# modo real
 		if os.uname()[1] == 'alvarohurtado-305V4A':
-			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, draw = mostrarImagen).start()
+			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, draw = mostrarImagen,debug = True,fps = mifps).start()
 			time.sleep(1)
 		else:
-			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, draw = mostrarImagen).start()
+			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, draw = mostrarImagen,debug = True,fps = mifps).start()
 			time.sleep(1)
 			#miCamara.set(3,3296)
 			#miCamara.set(4,2512)
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		try:
-			miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = (640,480),poligono = poligonoSemaforo, draw = mostrarImagen).start()
+			miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = (640,480),poligono = poligonoSemaforo, draw = mostrarImagen,debug = True,fps = mifps).start()
 			time.sleep(1)
 			miReporte.info('Archivo de video cargado exitosamente: '+directorioDeVideos+'/'+archivoDeVideo)
 		except Exception as currentException:
@@ -145,8 +145,8 @@ def __main_function__():
 			informacion = miCamara.read()
 		else:
 			# En caso de modo debug descartamos algunos frames para simular el periodo de muestreo
-			for inciceDescarte in range(videofps//mifps):
-				informacion = miCamara.read()
+			#for inciceDescarte in range(videofps//mifps):
+			informacion = miCamara.read()
 		
 		informacion['index'] = frame_number
 		# If you want to save the frames to some folder ../frame/
@@ -230,14 +230,16 @@ def __main_function__():
 		##print('Ciclo: ',str(time.time()-tiempoAuxiliar)[:7],' color: ',informacion['semaforo'][1])
 		#sys.stdout.write("\033[F")
 		
-		tiempoEjecucion = time.time()-tiempoAuxiliar
-		#print('Periodo: ',tiempoEjecucion)
-		tiempoAuxiliar = time.time()
+		
 		_frame_number_auxiliar +=1
 		#if tiempoEjecucion>periodoDeMuestreo:
 		#	miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
-		#while time.time()-tiempoAuxiliar<periodoDeMuestreo:
-		#	True
+		while time.time()-tiempoAuxiliar<periodoDeMuestreo:
+			True
+
+		tiempoEjecucion = time.time()-tiempoAuxiliar
+		#print('Periodo: ',tiempoEjecucion)
+		tiempoAuxiliar = time.time()
 
 		frame_number += 1
 		if _frame_number_auxiliar == 4000:
@@ -246,6 +248,7 @@ def __main_function__():
 		if ch == ord('q'):
 			break
 		fps.update()
+
 
 	# stop the timer and display FPS information
 	fps.stop()

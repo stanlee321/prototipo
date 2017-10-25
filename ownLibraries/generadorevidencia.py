@@ -38,7 +38,7 @@ class GeneradorEvidencia():
 			print('Range: ',inicio,final,range(inicio,final))
 			print('Longitud de lista: ',len(informacionTotal))
 			for supercalifragilistico in range(inicio,final):
-				cv2.imwrite(self.carpetaDeReporteActual+'/grabando_'+str(supercalifragilistico)+'_{}.jpg'.format(informacionTotal[supercalifragilistico]['index']),informacionTotal[supercalifragilistico]['frame'])
+				prueba.write(informacionTotal[supercalifragilistico]['frame'])
 			prueba.release()
 			return 1
 		except Exception as e:
