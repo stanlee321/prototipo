@@ -95,7 +95,7 @@ def create_main(fnt):
 		#		cv2.imwrite('../frames/frame_{}_element_{}.jpg'.format(key,i), frame)
 
 		#print(information['frame'].shape)
-		cv2.imwrite('../images/frame_{}_{}.jpg'.format(information['index'], counter), information['frame'])
+		#cv2.imwrite('../images/frame_{}_{}.jpg'.format(information['index'], counter), information['frame'])
 		#print(type(recortados))
 		#break
 		#print('RECORTADOSSSSSSSSSSSSSSSSSSs', recortados)

@@ -44,6 +44,9 @@ class WebcamVideoStream:
 	def __init__(self, src=0, resolution = (320,240), poligono = None, draw = False, debug = False, fps = 10):
 		# For debug video
 		self.debug = debug
+		self.fps = fps
+
+
 
 		width, height = resolution[0], resolution[1]
 		# initialize the video camera stream and read the first frame
@@ -101,7 +104,7 @@ class WebcamVideoStream:
 		# thirth parameter : first parameter * FPS excpeted
 
 		print('INIT_PARAMS FOR BG')
-		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*fps)
+		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*self.fps)
 		self.k = 31
 		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 
@@ -141,9 +144,9 @@ class WebcamVideoStream:
 
 		#self._frame_number = 0
 
-		if debug == True:
+		if self.debug == True:
 
-			self.ratio = 30 / fps
+			self.ratio = 30/ fps
 
 
 	def start(self):
@@ -164,8 +167,9 @@ class WebcamVideoStream:
 
 			# otherwise, read the next frame from the stream
 
+			#print(self.debug)
 			if self.debug == True:
-				for f in range(self.ratio):
+				for f in range(int(self.ratio)):
 					(self.grabbed, self.frame) = self.stream.read()
 
 			else:
@@ -321,6 +325,8 @@ class WebcamVideoStream:
 
 class VideoStream:
 	def __init__(self, src=0, usePiCamera=False, resolution=(320, 240),	framerate=32, poligono = None, draw=False, debug = False, fps = 10):
+		self.debug = debug
+		self.fps = fps
 		# check to see if the picamera module should be used
 		if usePiCamera:
 			# only import the picamera packages unless we are
@@ -337,8 +343,7 @@ class VideoStream:
 		# stream
 		else:
 
-			self.counter = -1
-			self.stream = WebcamVideoStream(src=src, resolution=resolution, poligono = poligono, draw=draw, debug = False, fps = 10)
+			self.stream = WebcamVideoStream(src=src, resolution=resolution, poligono = poligono, draw=draw, debug = self.debug, fps = self.fps)
 
 	def start(self):
 		# start the threaded video stream
