@@ -134,12 +134,9 @@ def __main_function__():
 
 	fps = FPS().start()
 	_frame_number_auxiliar = 0
-<<<<<<< HEAD
 	informacionTotal = []
 	frame_number  = -1
-=======
-	informacionTotal = {}
->>>>>>> ca15d982ab41c798eb81aefb483326c7cf31107c
+
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
 
