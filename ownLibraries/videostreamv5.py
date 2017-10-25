@@ -213,7 +213,7 @@ class WebcamVideoStream:
 		# just thresholding values
 		self.fgmask[self.fgmask < 240] = 0
 		
-		self.fgmask = self.filter_mask(self.fgmask, self.frame_number)
+		self.fgmask = self.filter_mask(self.fgmask)
 
 
 		# Find the contours 
