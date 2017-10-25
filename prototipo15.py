@@ -179,7 +179,9 @@ def __main_function__():
 				#print('RED')
 				#miReporte.info('<<<ROJO RED ROJO RED at: '+datetime.datetime.now().strftime('%H-%M-%S')+' ROJO RED ROJO RED>>>')
 				otroTiempo = time.time()
-				
+				del informacionTotal
+				informacionTotal = []
+				frame_number = 0
 			miPoliciaReportando.evolucionarLineaVigilancia(frame_number,informacion['frame'])
 			#print('Policia Reportando: ',time.time()-otroTiempo)
 
@@ -189,11 +191,8 @@ def __main_function__():
 				infraccionEnRevision = miPoliciaReportando.popInfraccion()
 				print(infraccionEnRevision)
 				miGrabadora.generarReporteInfraccion(informacionTotal,infraccionEnRevision)
-				del informacionTotal
-				informacionTotal = []
-				frame_number = 0
-			except:
-				pass
+			except Exception as e:
+				print(e)
 
 		indiceColor = 0
 		
@@ -234,8 +233,8 @@ def __main_function__():
 		_frame_number_auxiliar +=1
 		#if tiempoEjecucion>periodoDeMuestreo:
 		#	miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
-		while time.time()-tiempoAuxiliar<periodoDeMuestreo:
-			True
+		#while time.time()-tiempoAuxiliar<periodoDeMuestreo:
+		#	True
 
 		tiempoEjecucion = time.time()-tiempoAuxiliar
 		#print('Periodo: ',tiempoEjecucion)

@@ -132,6 +132,7 @@ class PoliciaInfractor():
 			if len(self.listaDeInfracciones) == 0:
 				"Si la lista de confirmados fue vaciada automáticamente se borrara la de candidatos"
 				del self.listaPorConfirmar
+				self.listaPorConfirmar = []
 		return variableARetornar
 
 	def reporteActual(self):
