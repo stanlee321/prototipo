@@ -113,7 +113,7 @@ class WebcamVideoStream:
 		self.listaderecortados = []
 
 		# Frame number Counter
-		self.frame_number = -1
+		#self.frame_number = -1
 
 
 		self.senalColor = None
@@ -131,7 +131,7 @@ class WebcamVideoStream:
 		# information
 		self.information = {}
 
-		self.information['index'] = self.frame_number
+		#self.information['index'] = self.frame_number
 		self.information['frame'] = self.frame_resized
 		self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo]
 		self.information['recortados'] = self.listaderecortados
@@ -174,7 +174,7 @@ class WebcamVideoStream:
 
 
 
-			self.information['index'] = self.frame_number
+			#self.information['index'] = self.frame_number
 			self.information['frame'] = self.frame_resized
 			self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo]
 			self.information['recortados'] = self.listaderecortados
@@ -183,7 +183,7 @@ class WebcamVideoStream:
 			#self.frame_number  += 1
 
 
-			print('FRAME :NUMBER', self.frame_number)
+			#print('FRAME :NUMBER', self.frame_number)
 			#self.information = {}
 	def read(self):
 		# return the frame most recently read
