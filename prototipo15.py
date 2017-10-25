@@ -233,8 +233,8 @@ def __main_function__():
 		_frame_number_auxiliar +=1
 		#if tiempoEjecucion>periodoDeMuestreo:
 		#	miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
-		#while time.time()-tiempoAuxiliar<periodoDeMuestreo:
-		#	True
+		while time.time()-tiempoAuxiliar<periodoDeMuestreo:
+			True
 
 		tiempoEjecucion = time.time()-tiempoAuxiliar
 		#print('Periodo: ',tiempoEjecucion)
