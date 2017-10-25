@@ -41,7 +41,9 @@ class FPS:
 
 
 class WebcamVideoStream:
-	def __init__(self, src=0, resolution = (320,240), poligono=None, draw=False):
+	def __init__(self, src=0, resolution = (320,240), poligono = None, draw = False, debug = False, fps = 10):
+		# For debug video
+		self.debug = debug
 
 		width, height = resolution[0], resolution[1]
 		# initialize the video camera stream and read the first frame
@@ -99,7 +101,7 @@ class WebcamVideoStream:
 		# thirth parameter : first parameter * FPS excpeted
 
 		print('INIT_PARAMS FOR BG')
-		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*10)
+		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*fps)
 		self.k = 31
 		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 
@@ -137,6 +139,12 @@ class WebcamVideoStream:
 		self.information['recortados'] = self.listaderecortados
 
 
+		#self._frame_number = 0
+
+		if debug == True:
+
+			self.ratio = 30 / fps
+
 
 	def start(self):
 		# start the thread to read frames from the video stream
@@ -148,14 +156,22 @@ class WebcamVideoStream:
 	def update(self):
 		# keep looping infinitely until the thread is stopped
 		while True:
-			time.sleep(0.0050)
-			#self.information = {}
+			#time.sleep(0.0010)
+
 			# if the thread indicator variable is set, stop the thread
 			if self.stopped:
 				return
 
 			# otherwise, read the next frame from the stream
-			(self.grabbed, self.frame) = self.stream.read()
+
+			if self.debug = True:
+				for f in range(self.ratio):
+					(self.grabbed, self.frame) = self.stream.read()
+
+			else:
+				(self.grabbed, self.frame) = self.stream.read()
+
+
 
 			# Set new resolution for the consumers
 			self.frame_resized = cv2.resize(self.frame, (320,240))
@@ -179,8 +195,9 @@ class WebcamVideoStream:
 			self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo]
 			self.information['recortados'] = self.listaderecortados
 
+
 			# Update framenumber
-			#self.frame_number  += 1
+			#self._frame_number  += 1
 
 
 			#print('FRAME :NUMBER', self.frame_number)
