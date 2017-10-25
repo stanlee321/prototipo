@@ -320,7 +320,7 @@ class WebcamVideoStream:
 		return (cx, cy)
 
 class VideoStream:
-	def __init__(self, src=0, usePiCamera=False, resolution=(320, 240),	framerate=32, poligono = None, draw=False):
+	def __init__(self, src=0, usePiCamera=False, resolution=(320, 240),	framerate=32, poligono = None, draw=False, debug = False, fps = 10):
 		# check to see if the picamera module should be used
 		if usePiCamera:
 			# only import the picamera packages unless we are
@@ -338,7 +338,7 @@ class VideoStream:
 		else:
 
 			self.counter = -1
-			self.stream = WebcamVideoStream(src=src, resolution=resolution, poligono = poligono, draw=draw)
+			self.stream = WebcamVideoStream(src=src, resolution=resolution, poligono = poligono, draw=draw, debug = False, fps = 10)
 
 	def start(self):
 		# start the threaded video stream
