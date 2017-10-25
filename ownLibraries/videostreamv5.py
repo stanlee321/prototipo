@@ -180,7 +180,7 @@ class WebcamVideoStream:
 			self.information['recortados'] = self.listaderecortados
 
 			# Update framenumber
-			self.frame_number  += 1
+			#self.frame_number  += 1
 
 
 			print('FRAME :NUMBER', self.frame_number)
