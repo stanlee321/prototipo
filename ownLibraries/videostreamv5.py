@@ -47,6 +47,7 @@ class WebcamVideoStream:
 		# initialize the video camera stream and read the first frame
 		# from the stream
 		self.stream = cv2.VideoCapture(src)
+
 		self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, width)
 		self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 		(self.grabbed, self.frame) = self.stream.read()
@@ -135,6 +136,8 @@ class WebcamVideoStream:
 		self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo]
 		self.information['recortados'] = self.listaderecortados
 
+
+
 	def start(self):
 		# start the thread to read frames from the video stream
 		t = Thread(target=self.update, args=())
@@ -145,7 +148,7 @@ class WebcamVideoStream:
 	def update(self):
 		# keep looping infinitely until the thread is stopped
 		while True:
-
+			time.sleep(0.0050)
 			#self.information = {}
 			# if the thread indicator variable is set, stop the thread
 			if self.stopped:
@@ -163,9 +166,6 @@ class WebcamVideoStream:
 			##  BackGroundSub part, this is updating the self.listaderecortados
 			self.BgSubCNT(self.frame_resized)
 
-			# Update framenumber
-			self.frame_number += 1
-
 			# RETURNING VALUES FOR SEMAFORO
 			self.senalColor, self.colorLiteral, self.flancoSemaforo  = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)
 
@@ -173,12 +173,18 @@ class WebcamVideoStream:
 			self.cutHDImage(self.frame)
 
 
+
 			self.information['index'] = self.frame_number
 			self.information['frame'] = self.frame_resized
 			self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo]
 			self.information['recortados'] = self.listaderecortados
 
+			# Update framenumber
+			self.frame_number  += 1
 
+
+			print('FRAME :NUMBER', self.frame_number)
+			#self.information = {}
 	def read(self):
 		# return the frame most recently read
 		#return self.listaderecortados, self.frame_resized, self.senalColor, self.colorLiteral, self.flancoSemaforo 
@@ -229,6 +235,7 @@ class WebcamVideoStream:
 				cv2.circle(frame, centroid,2,(0,255,0),-1)
 			else:
 				pass
+
 	def filter_mask(self, img, a=None):
 		'''
 		This filters are hand-picked just based on visual tests
@@ -249,6 +256,7 @@ class WebcamVideoStream:
 
 	def cutHDImage(self, HDframe):
 		
+		#self.information = {}
 		self.listaderecortados = []
 
 		if len(self.matches) > 0:
@@ -311,6 +319,8 @@ class VideoStream:
 		# otherwise, we are using OpenCV so initialize the webcam
 		# stream
 		else:
+
+			self.counter = -1
 			self.stream = WebcamVideoStream(src=src, resolution=resolution, poligono = poligono, draw=draw)
 
 	def start(self):

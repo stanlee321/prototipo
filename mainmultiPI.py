@@ -55,7 +55,7 @@ def create_main(fnt):
 
 
 	#bg = CreateBGCNT()
-	vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono, draw=True).start() # 0.5 pmx
+	vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono, draw=False).start() # 0.5 pmx
 	#vs = VideoStream(src = fuente[fnt], resolution = (height, width), poligono = poligono, draw=True).start() # 0.5 pmx
 	#vs = WebcamVideoStream(src=src[1], height = 2048, width = 1536).start()	# 2 mpx
 	#vs = WebcamVideoStream(src=src[1], height = 2560, width = 1920).start()	# 5 mpx
@@ -74,8 +74,10 @@ def create_main(fnt):
 		t1 = time.time()
 
 		information = vs.read()
+		information['index'] = frame_number
 
-		print('THE INFORMATION is', len(information), information)
+
+		print('THE INFORMATION is', len(information), information['index'])
 
 
 		t2 = time.time()
@@ -91,19 +93,21 @@ def create_main(fnt):
 		#	for i, frame in enumerate(value):
 				#print(frame.shape)
 		#		cv2.imwrite('../frames/frame_{}_element_{}.jpg'.format(key,i), frame)
+
+		#print(information['frame'].shape)
+		cv2.imwrite('../images/frame_{}_{}.jpg'.format(information['index'], counter), information['frame'])
 		#print(type(recortados))
 		#break
 		#print('RECORTADOSSSSSSSSSSSSSSSSSSs', recortados)
 		t4 = time.time()
-
+		counter += 1
 		
 		print('sEMAForo took', t4-t3)
 		# skip every 2nd frame to speed up processing
-		if _frame_number % 2 != 0:
-			continue
+		#if _frame_number % 2 != 0:
+		#	continue
 		# frame number that wpyill be passed to pipline
 		# this needed to make video from cutted frames
-		frame_number += 1
 		#print(colorLiteral)
 		
 		"""
@@ -120,16 +124,12 @@ def create_main(fnt):
 		print('alll the while took', t6-t5)
 
 
-		try:
-			counter += 1
-			cv2.imshow('frame', information['frame'])
-		except:
-			print(counter)
-			pass
+		cv2.imshow('frame', information['frame'])
+		frame_number += 1
 
+		print('INDEX IS ', information['index'])
 		#cv2.imshow('frame',cv2.resize(frame_resized,(640,480)))
 		#cv2.imwrite('../frames/frame_{}.jpg'.format(frame_number), cv2.resize(frame_resized,(640,480)))
-		#break
 		if _frame_number == 1000:
 			break
 
