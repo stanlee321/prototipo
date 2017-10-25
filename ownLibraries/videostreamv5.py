@@ -116,9 +116,9 @@ class WebcamVideoStream:
 		#self.frame_number = -1
 
 
-		self.senalColor = None
+		self.senalColor = -1
 		self.colorLiteral = None
-		self.flancoSemaforo  = None
+		self.flancoSemaforo  = 0
 
 
 		##### For CUT the HD IMAGE
