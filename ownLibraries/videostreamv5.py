@@ -164,7 +164,7 @@ class WebcamVideoStream:
 
 			# otherwise, read the next frame from the stream
 
-			if self.debug = True:
+			if self.debug == True:
 				for f in range(self.ratio):
 					(self.grabbed, self.frame) = self.stream.read()
 
