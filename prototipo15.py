@@ -135,6 +135,7 @@ def __main_function__():
 	fps = FPS().start()
 	_frame_number_auxiliar = 0
 	informacionTotal = []
+	frame_number  = -1
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
 
@@ -146,6 +147,8 @@ def __main_function__():
 			for inciceDescarte in range(videofps//mifps):
 				informacion = miCamara.read()
 		
+
+		information['index'] = frame_number
 		# If you want to save the frames to some folder ../frame/
 
 		#for key, value  in  recortados.items():
@@ -230,6 +233,7 @@ def __main_function__():
 		#while time.time()-tiempoAuxiliar<periodoDeMuestreo:
 		#	True
 
+		frame_number += 1
 		if _frame_number_auxiliar == 2000:
 			break
 		ch = 0xFF & cv2.waitKey(5)
