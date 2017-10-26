@@ -51,6 +51,7 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 anocheciendo =  21*60+30														# Tiempo 17:30 am + 4 GMT
 amaneciendo = 11*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
+maximoMemoria = 150
 
 # Función principal
 def __main_function__():
@@ -146,6 +147,12 @@ def __main_function__():
 		# Asign number rfame to the information from miCamara.read()		
 		informacion['index'] = frame_number
 		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
+		if frame_number> maximoMemoria:
+			try:
+				informacionTotal[frame_number - maximoMemoria]['recortados'] = []
+				print('Released memory')
+			except Exception as e:
+				print('No pude liberar por ', e)
 
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
