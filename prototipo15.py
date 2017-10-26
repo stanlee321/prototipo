@@ -36,6 +36,7 @@ from irswitch import IRSwitch
 ## Parametros de input video
 archivoDeVideo = ''
 videofps = 30
+saltarFrames = False
 entradaReal = 'en tiempo real '		# Complementario
 ## Parametros semaforo
 periodoDeSemaforo = 0
@@ -100,16 +101,16 @@ def __main_function__():
 	# Arrancando camara
 	if len(archivoDeVideo)==0:	# modo real
 		if os.uname()[1] == 'alvarohurtado-305V4A':
-			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, debug = True,fps = mifps).start()
+			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps).start()
 			time.sleep(1)
 		else:
-			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = True,fps = mifps).start()
+			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps).start()
 			time.sleep(1)
 
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		try:
-			miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = (640,480),poligono = poligonoSemaforo,debug = True,fps = mifps).start()
+			miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = (640,480),poligono = poligonoSemaforo,debug = saltarFrames,fps = mifps).start()
 			time.sleep(1)
 			miReporte.info('Archivo de video cargado exitosamente: '+directorioDeVideos+'/'+archivoDeVideo)
 		except Exception as currentException:
@@ -246,6 +247,7 @@ if __name__ == '__main__':
 		if ('.mp4' in input)|('.avi' in input):
 			archivoDeVideo = input
 			entradaReal = ''
+			saltarFrames = True
 		if '.seg' in input:
 			periodoDeSemaforo = int(input[:-4])
 			semaforoSimuladoTexto = 'simulado a '
