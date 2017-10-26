@@ -142,6 +142,10 @@ def __main_function__():
 		# Asign number rfame to the information from miCamara.read()		
 		informacion['index'] = frame_number
 
+
+
+		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
+
 		print('Outside number: ',frame_number)
 		sys.stdout.write("\033[F")
 
@@ -154,13 +158,13 @@ def __main_function__():
 				print('contadorsemaforo ', contadorsemaforo)
 
 				# filter the rebotes from the semaforo
-				if contadorsemaforo < 10:
-					del informacionTotal
-					informacionTotal = {}
-					frame_number = 0
-					contadorsemaforo = 0
-				else:
-					pass
+				#if contadorsemaforo > 100:
+				del informacionTotal
+				informacionTotal = {}
+				frame_number = 0
+				contadorsemaforo = 0
+				#else:
+				#	pass
 			miPoliciaReportando.evolucionarLineaVigilancia(frame_number,informacion['frame'])
 
 		if informacion['semaforo'][0] == 0:							# Si estamos en verde realizamos otra accion
@@ -173,7 +177,8 @@ def __main_function__():
 
 		if mostrarImagen:
 			indiceColor = 0
-			informacion['frame'] = cv2.putText(informacion['frame'], str(frame_number), (30,30), font, 0.4,(255,255,255),1,cv2.LINE_AA)
+			# Draw frame number into image on top
+			cv2.putText(informacion['frame'], str(frame_number), (30,30), font, 0.4,(255,255,255),1,cv2.LINE_AA)
 			visualizacion = informacion['frame']
 			for infraction in miPoliciaReportando.listaDeInfracciones:
 				for puntos in infraction['desplazamiento']:
@@ -206,7 +211,7 @@ def __main_function__():
 			visualizacion = visualLabel.aplicarMascaraActualAFrame(visualizacion)
 			cv2.imshow('Visual',visualLabel.aplicarTodo())		
 
-		informacionTotal[frame_number] = informacion
+		#informacionTotal[frame_number] = informacion
 
 		#print('Visualizacion: ',time.time()-otroTiempo)
 		# Visualizacion	

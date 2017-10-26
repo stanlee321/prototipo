@@ -16,6 +16,7 @@ from mireporte import MiReporte
 from areaderesguardo import AreaDeResguardo
 
 from collections import defaultdict
+font = cv2.FONT_HERSHEY_SIMPLEX
 
 class GeneradorEvidencia():
 	def __init__(self, carpetaReporte,mifps = 10):
@@ -29,7 +30,7 @@ class GeneradorEvidencia():
 	def inicializarEnCarpeta(self,carpetaReporte):
 		self.carpetaDeReporteActual = carpetaReporte
 
-	def generarReporteInfraccion(self,informacionTotal, infraccion = True):
+	def generarReporteInfraccion(self, informacionTotal, infraccion = True):
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
 		try:
 			#print(informacionTotal)
@@ -54,6 +55,8 @@ class GeneradorEvidencia():
 			for indiceVideo in range(inicio, final):
 
 				time.sleep(0.01)
+				cv2.putText(informacionTotal[indiceVideo]['frame'], str(indiceVideo), (30,30), font, 0.4,(255,255,255),1,cv2.LINE_AA)
+
 				prueba.write(informacionTotal[indiceVideo]['frame'])
 				#cv2.imwrite(self.carpetaDeReporteActual+'/'+infraccion['name']+'_{}.jpg'.format(indiceVideo),informacionTotal[indiceVideo]['frame'])
 				#cv2.imwrite('frame_{}_{}.jpg'.format(indiceVideo,final), informacionTotal[indiceVideo]['frame'])
