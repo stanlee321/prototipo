@@ -98,7 +98,7 @@ class PoliciaInfractor():
 		ondaFiltrada, flanco = self.miFiltro.obtenerOndaFiltrada(flujoTotal)
 		if flanco == 1:
 			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
-			nuevaInfraccion = {'name':datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'),'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
+			nuevaInfraccion = {'name':datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f'),'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
 			self.listaPorConfirmar.append(nuevaInfraccion)
 			
 		for infraccion in self.listaPorConfirmar:
@@ -113,14 +113,13 @@ class PoliciaInfractor():
 						try:
 							self.listaPorConfirmar.pop(self.listaPorConfirmar.index(infraccion))
 						except:
-							print('Error al borrar ',infraccion,' con len ',len(self.listaPorConfirmar))
+							print('Error al borrar ',infraccion['name'],' con len ',len(self.listaPorConfirmar))
 						infraccion['estado']='Confirmado'
-						#print(infraccion)
 						infraccion['frameFinal']=numeroDeFrame
+						print('Nueva Infraccion Confirmada:',infraccion['name'],'de',infraccion['frameInicial'],'a',infraccion['frameFinal'],'es',infraccion['estado'],sep=' ')
 						self.listaDeInfracciones.append(infraccion)
 						self.infraccionesConfirmadas = len(self.listaDeInfracciones)
-						break
-		#self.lineaDeResguardoDelantera = nuevoArrayAActualizar
+
 		self.imagenAuxiliar = imagenActualEnGris
 		return ondaFiltrada,flanco,flujoTotal
 
