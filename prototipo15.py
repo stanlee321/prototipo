@@ -154,7 +154,7 @@ def __main_function__():
 				informacionTotal[frame_number - maximoMemoria]['recortados'] = []
 				#print('Released memory')
 			except Exception as e:
-				#print('No pude liberar por ', e)
+				print('No pude liberar por ', e)
 
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
