@@ -45,6 +45,7 @@ mifps = 10
 generarArchivosDebug = True
 mostrarImagen = False
 longitudRegistro = 360
+font = cv2.FONT_HERSHEY_SIMPLEX
 
 # Función principal
 def __main_function__():
@@ -144,10 +145,6 @@ def __main_function__():
 		print('Outside number: ',frame_number)
 		sys.stdout.write("\033[F")
 
-
-		informacionTotal[frame_number] = informacion
-
-
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
 			if informacion['semaforo'][2] == 1:						# esto se inicia al principio de este estado
@@ -167,16 +164,18 @@ def __main_function__():
 			miPoliciaReportando.evolucionarLineaVigilancia(frame_number,informacion['frame'])
 
 		if informacion['semaforo'][0] == 0:							# Si estamos en verde realizamos otra accion
-			if miPoliciaReportando.infraccionesConfirmadas > 0:
+			if informacion['semaforo'][2] == -1:
+				print('Infracciones: ',miPoliciaReportando.infraccionesConfirmadas)
+			if miPoliciaReportando.numeroInfraccionesConfirmadas() > 0:
 				infraccionEnRevision = miPoliciaReportando.popInfraccion()
 				miGrabadora.generarReporteInfraccion(informacionTotal, infraccionEnRevision)
 			pass
 
-		indiceColor = 0
-		
 		if mostrarImagen:
+			indiceColor = 0
+			informacion['frame'] = cv2.putText(informacion['frame'], str(frame_number), (30,30), font, 0.4,(255,255,255),1,cv2.LINE_AA)
 			visualizacion = informacion['frame']
-			for infraction in miPoliciaReportando.listaPorConfirmar:
+			for infraction in miPoliciaReportando.listaDeInfracciones:
 				for puntos in infraction['desplazamiento']:
 					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
 					for punto in puntosExtraidos:
@@ -190,8 +189,6 @@ def __main_function__():
 						cv2.circle(visualizacion, tuple(punto), 1, (0,0,255), -1)
 			cv2.polylines(visualizacion, np.array([poligonoSemaforo])//2, True, (200,200,200))
 			
-
-
 			# Configs and displays for the MASK according to the semaforo
 			visualLabel.agregarTextoEn(informacion['semaforo'][1], 0)
 			visualLabel.agregarTextoEn("F{}".format(frame_number), 1)
@@ -207,8 +204,9 @@ def __main_function__():
 				visualLabel.establecerColorFondoDe(backgroudColour = (0,0,0), numeroDeCaja = 0)
 			visualLabel.establecerMagnitudBarra(magnitude = int(miPoliciaReportando.ultimaVelocidad))
 			visualizacion = visualLabel.aplicarMascaraActualAFrame(visualizacion)
-			cv2.imshow('Visual',visualLabel.aplicarTodo())
-		
+			cv2.imshow('Visual',visualLabel.aplicarTodo())		
+
+		informacionTotal[frame_number] = informacion
 
 		#print('Visualizacion: ',time.time()-otroTiempo)
 		# Visualizacion	

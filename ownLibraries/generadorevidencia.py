@@ -44,14 +44,12 @@ class GeneradorEvidencia():
 			else:
 				inicio = frameInferior
 
-
 			if frameInferior > len(informacionTotal):
 				final = len(informacionTotal)
 			else:
 				final = frameSuperior
 
-
-			print('Generada infr de: ',inicio,final,' len: ',final-inicio,' total lista: ',len(informacionTotal))
+			print('Generada infr de: ',inicio,' a ',final,' len: ',final-inicio,' fecha: ',infraccion['name'])
 			
 			for indiceVideo in range(inicio, final):
 

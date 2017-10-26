@@ -53,8 +53,6 @@ class PoliciaInfractor():
 		self.lineaEmpuje = np.zeros((self.numeroDePuntos+1,1,2))
 		self.infraccionesConfirmadas = 0
 		self.restablecerLineaLK()
-		self.listaPorConfirmar = []
-		self.listaDeDescartadas = []
 		self.listaDeInfracciones = []
 		self.maximoNumeroFramesParaDescarte = 150
 		self.ultimaVelocidad = 0
@@ -65,11 +63,7 @@ class PoliciaInfractor():
 		"""
 		self.infraccionesConfirmadas = 0
 		self.restablecerLineaLK()
-		del self.listaPorConfirmar
-		del self.listaDeDescartadas
 		del self.listaDeInfracciones
-		self.listaPorConfirmar = []
-		self.listaDeDescartadas = []
 		self.listaDeInfracciones = []
 		self.ultimaVelocidad = 0
 
@@ -99,44 +93,48 @@ class PoliciaInfractor():
 		if flanco == 1:
 			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
 			nuevaInfraccion = {'name':datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f'),'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
-			self.listaPorConfirmar.append(nuevaInfraccion)
+			self.listaDeInfracciones.append(nuevaInfraccion)
 			
-		for infraccion in self.listaPorConfirmar:
+		for infraccion in self.listaDeInfracciones:
+			# Si es candidato evoluciona:
 			if infraccion['estado'] == 'Candidato':
 				nuevoArrayAActualizar, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
-				infraccion['desplazamiento']=nuevoArrayAActualizar
+				infraccion['desplazamiento'] = nuevoArrayAActualizar
+				# Si es candidato y duro demasiado se descarta
 				if (numeroDeFrame - infraccion['frameInicial'])>self.maximoNumeroFramesParaDescarte:
 					infraccion['estado']='Descartado'
+				# Si es candidato y algun punto llego al final se confirma
 				for vector in nuevoArrayAActualizar:
 					xTest, yTest = vector[0][0], vector[0][1]
 					if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:
-						try:
-							self.listaPorConfirmar.pop(self.listaPorConfirmar.index(infraccion))
-						except:
-							print('Error al borrar ',infraccion['name'],' con len ',len(self.listaPorConfirmar))
 						infraccion['estado']='Confirmado'
 						infraccion['frameFinal']=numeroDeFrame
 						print('Nueva Infraccion Confirmada:',infraccion['name'],'de',infraccion['frameInicial'],'a',infraccion['frameFinal'],'es',infraccion['estado'],sep=' ')
-						self.listaDeInfracciones.append(infraccion)
-						self.infraccionesConfirmadas = len(self.listaDeInfracciones)
-
+						break
+		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
 		self.imagenAuxiliar = imagenActualEnGris
 		return ondaFiltrada,flanco,flujoTotal
 
+	def numeroInfraccionesConfirmadas(self):
+		contadorInfraccionesConfirmadas = 0
+		for infraccion in self.listaDeInfracciones:
+			if infraccion['estado'] == 'Confirmado':
+				contadorInfraccionesConfirmadas += 1
+		return contadorInfraccionesConfirmadas
+
 	def popInfraccion(self):
-		variableARetornar = {}
-		if self.infraccionesConfirmadas != 0:
+		if self.numeroInfraccionesConfirmadas() != 0:
 			variableARetornar = self.listaDeInfracciones.pop()
-			self.infraccionesConfirmadas-=1
-			if len(self.listaDeInfracciones) == 0:
-				"Si la lista de confirmados fue vaciada automáticamente se borrara la de candidatos"
-				del self.listaPorConfirmar
-				self.listaPorConfirmar = []
+			while variableARetornar['estado'] != 'Confirmado':
+				variableARetornar = self.listaDeInfracciones.pop()
+			return variableARetornar
+		else:
+			return {}
 		return variableARetornar
 
 	def reporteActual(self):
 		print('Infracciones Sospechosas:')
-		for infraccion in self.listaPorConfirmar:
+		for infraccion in self.listaDeInfracciones:
 			print(infraccion['frameInicial'],' a ',infraccion['frameFinal'],' con estado: ',infraccion['estado'])
 		print('Infracciones Confirmadas:')
 		for infraccion in self.listaDeInfracciones:
@@ -147,7 +145,7 @@ class PoliciaInfractor():
 		Returns the starting line in tuple format, ready to read or plot with opencv
 		"""
 		aDevolver = []
-		for infraccion in self.listaPorConfirmar:
+		for infraccion in self.listaDeInfracciones:
 			if infraccion['estado']=='Candidato':
 				for punto in infraccion['desplazamiento']:
 					aDevolver.append(tuple(punto[0]))
