@@ -24,25 +24,47 @@ class GeneradorEvidencia():
 	def inicializarEnCarpeta(self,carpetaReporte):
 		self.carpetaDeReporteActual = carpetaReporte
 
-	def generarReporteInfraccion(self,informacionTotal,infraccion = True):
+	def generarReporteInfraccion(self,informacionTotal, infraccion = True):
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
 		try:
 			frameInferior = infraccion['frameInicial'] - self.ventana
 			frameSuperior = infraccion['frameFinal'] + self.ventana
 			height, width, layers = informacionTotal[0]['frame'].shape
 			prueba = cv2.VideoWriter(self.carpetaDeReporteActual+'/'+infraccion['name']+'.avi',fourcc, self.framesPorSegundoEnVideo,(width,height))
-			if frameInferior<0: inicio = 0
-			else: inicio = frameInferior
-			if frameInferior>len(informacionTotal): final = len(informacionTotal)
-			else: final = frameSuperior
+			
+			# Check valid frame 
+			if frameInferior < 0:
+				inicio = 0
+			else:
+				inicio = frameInferior
+
+
+			if frameInferior > len(informacionTotal):
+				final = len(informacionTotal)
+			else:
+				final = frameSuperior
+
+
 			print('Generada infr de: ',inicio,final,' len: ',final-inicio,' total lista: ',len(informacionTotal))
 			for indiceVideo in range(inicio,final):
-				prueba.write(informacionTotal[indiceVideo]['frame'])
+				
+				#prueba.write(informacionTotal[indiceVideo]['frame'])
 				#cv2.imwrite(self.carpetaDeReporteActual+'/'+infraccion['name']+'_{}.jpg'.format(indiceVideo),informacionTotal[indiceVideo]['frame'])
+				cv2.imwrite('frame_{}_{}.jpg'.format(indiceVideo,final), informacionTotal[indiceVideo]['frame'])
+
 			prueba.release()
 			return 1
+		
+		#try:
+		#
+		#	for i, inf in enumerate(informacionTotal):
+		#		#print(i, len(inf))
+		#		cv2.imwrite('frame_{}_{}.jpg'.format(i,len(informacionTotal)), inf['frame'])
+
+
+
 		except Exception as e:
-			print('Ocurred: ',e)
+			print('[...Ocurred this error:.... --->]: ',e)
 			if infraccion:
 				height, width, layers = informacionTotal[0]['frame'].shape
 				prueba = cv2.VideoWriter(self.carpetaDeReporteActual+'/'+infraccion['name']+'.avi',fourcc, self.framesPorSegundoEnVideo,(width,height))

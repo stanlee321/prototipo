@@ -21,6 +21,7 @@ myReportingDirectory = directorioDeTrabajo+'/'+nombreCarpetaDeReporte
 folderDeInstalacion = directorioDeTrabajo+'/installationFiles'
 # Se introduce las librerias propias
 sys.path.insert(0, directorioDeLibreriasPropias)
+
 from mask import VisualLayer
 from mireporte import MiReporte
 #from semaforo import CreateSemaforo
@@ -30,6 +31,8 @@ from videostreamv5 import FPS
 from BackgroundsubCNT import CreateBGCNT
 from generadorevidencia import GeneradorEvidencia
 
+
+import Queue
 # Se crean las variables de constantes de trabajo del programa
 ## Parametros de input video
 archivoDeVideo = ''
@@ -132,16 +135,19 @@ def __main_function__():
 
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
-		informacion = miCamara.read()		
+		informacion = miCamara.read()
+
+		# Asign number rfame to the information from miCamara.read()		
 		informacion['index'] = frame_number
 
 		print('Outside number: ',frame_number)
 		sys.stdout.write("\033[F")
+
 		informacionTotal.append(informacion)
 
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
-			if informacion['semaforo'][2] == 1:						# esto se inicial al principio de este estado
+			if informacion['semaforo'][2] == 1:						# esto se inicia al principio de este estado
 				miPoliciaReportando.inicializarAgente()
 				otroTiempo = time.time()
 				del informacionTotal
@@ -150,9 +156,9 @@ def __main_function__():
 			miPoliciaReportando.evolucionarLineaVigilancia(frame_number,informacion['frame'])
 
 		if informacion['semaforo'][0] == 0:							# Si estamos en verde realizamos otra accion
-			if miPoliciaReportando.infraccionesConfirmadas>0:
+			if miPoliciaReportando.infraccionesConfirmadas > 0:
 				infraccionEnRevision = miPoliciaReportando.popInfraccion()
-				miGrabadora.generarReporteInfraccion(informacionTotal,infraccionEnRevision)
+				miGrabadora.generarReporteInfraccion(informacionTotal, infraccionEnRevision)
 			pass
 
 		indiceColor = 0
@@ -172,16 +178,27 @@ def __main_function__():
 					for punto in puntosExtraidos:
 						cv2.circle(visualizacion, tuple(punto), 1, (0,0,255), -1)
 			cv2.polylines(visualizacion, np.array([poligonoSemaforo])//2, True, (200,200,200))
+			
+
+
+			# Configs and displays for the MASK according to the semaforo
 			visualLabel.agregarTextoEn(informacion['semaforo'][1], 0)
 			visualLabel.agregarTextoEn("F{}".format(frame_number), 1)
 			visualLabel.agregarTextoEn("I{}".format(miPoliciaReportando.infraccionesConfirmadas), 2)
-			if informacion['semaforo'][0] == 1: visualLabel.establecerColorFondoDe(backgroudColour = (0,0,255), numeroDeCaja = 0)
-			elif informacion['semaforo'][0] == 0: visualLabel.establecerColorFondoDe(backgroudColour = (0,255,0), numeroDeCaja = 0)
-			elif informacion['semaforo'][0] == 2: visualLabel.establecerColorFondoDe(backgroudColour = (0,255,255), numeroDeCaja = 0)
-			else: visualLabel.establecerColorFondoDe(backgroudColour = (0,0,0), numeroDeCaja = 0)
+			
+			if informacion['semaforo'][0] == 1:
+				visualLabel.establecerColorFondoDe(backgroudColour = (0,0,255), numeroDeCaja = 0)
+			elif informacion['semaforo'][0] == 0:
+				visualLabel.establecerColorFondoDe(backgroudColour = (0,255,0), numeroDeCaja = 0)
+			elif informacion['semaforo'][0] == 2:
+				visualLabel.establecerColorFondoDe(backgroudColour = (0,255,255), numeroDeCaja = 0)
+			else:
+				visualLabel.establecerColorFondoDe(backgroudColour = (0,0,0), numeroDeCaja = 0)
 			visualLabel.establecerMagnitudBarra(magnitude = int(miPoliciaReportando.ultimaVelocidad))
 			visualizacion = visualLabel.aplicarMascaraActualAFrame(visualizacion)
 			cv2.imshow('Visual',visualLabel.aplicarTodo())
+		
+
 		#print('Visualizacion: ',time.time()-otroTiempo)
 		# Visualizacion	
 		##print('Ciclo: ',str(time.time()-tiempoAuxiliar)[:7],' color: ',informacion['semaforo'][1])
