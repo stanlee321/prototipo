@@ -101,14 +101,14 @@ class PoliciaInfractor():
 				nuevoArrayAActualizar, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
 				infraccion['desplazamiento'] = nuevoArrayAActualizar
 				# Si es candidato y duro demasiado se descarta
-				if (numeroDeFrame - infraccion['frameInicial'])>self.maximoNumeroFramesParaDescarte:
+				if (numeroDeFrame - infraccion['frameInicial']) > self.maximoNumeroFramesParaDescarte:
 					infraccion['estado']='Descartado'
 				# Si es candidato y algun punto llego al final se confirma
 				for vector in nuevoArrayAActualizar:
 					xTest, yTest = vector[0][0], vector[0][1]
 					if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:
-						infraccion['estado']='Confirmado'
-						infraccion['frameFinal']=numeroDeFrame
+						infraccion['estado'] = 'Confirmado'
+						infraccion['frameFinal'] = numeroDeFrame
 						print('Conf:',infraccion['name'],'de',infraccion['frameInicial'],'a',infraccion['frameFinal'],'es',infraccion['estado'],sep=' ')
 						break
 		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
