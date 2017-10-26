@@ -67,7 +67,7 @@ def __main_function__():
 	periodoDeMuestreo = 1.0/mifps # 0.1666667		# 1/mifps
 	numeroDeFrame = 0
 	maximoInfraccionesPorFrame = 20
-	colores = np.random.randint(0,255,(maximoInfraccionesPorFrame,3))
+	colores = np.random.randint(0,100,(maximoInfraccionesPorFrame,3))
 
 	# Cargando los parametros de instalacion:
 	# El archivo de video debe tener como minimo 5 caracteres para estar trnajando en modo simulado, de lo contrario estamos trabajando en modo real
@@ -133,34 +133,25 @@ def __main_function__():
 	informacionTotal = {}
 	frame_number  = 0
 
-
-	contadorsemaforo = 0
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
 		informacion = miCamara.read()
 
 		# Asign number rfame to the information from miCamara.read()		
 		informacion['index'] = frame_number
+		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
 
-		print('Outside number: ',frame_number)
+		print('Frame: ',frame_number)
 		sys.stdout.write("\033[F")
 
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
 			if informacion['semaforo'][2] == 1:						# esto se inicia al principio de este estado
 				miPoliciaReportando.inicializarAgente()
-				otroTiempo = time.time()
-				contadorsemaforo += 1
-				print('contadorsemaforo ', contadorsemaforo)
+				frame_number = 0
+				del informacionTotal
+				informacionTotal = {}
 
-				# filter the rebotes from the semaforo
-				if contadorsemaforo < 10:
-					del informacionTotal
-					informacionTotal = {}
-					frame_number = 0
-					contadorsemaforo = 0
-				else:
-					pass
 			miPoliciaReportando.evolucionarLineaVigilancia(frame_number,informacion['frame'])
 
 		if informacion['semaforo'][0] == 0:							# Si estamos en verde realizamos otra accion
@@ -173,7 +164,6 @@ def __main_function__():
 
 		if mostrarImagen:
 			indiceColor = 0
-			informacion['frame'] = cv2.putText(informacion['frame'], str(frame_number), (30,30), font, 0.4,(255,255,255),1,cv2.LINE_AA)
 			visualizacion = informacion['frame']
 			for infraction in miPoliciaReportando.listaDeInfracciones:
 				for puntos in infraction['desplazamiento']:
@@ -205,8 +195,6 @@ def __main_function__():
 			visualLabel.establecerMagnitudBarra(magnitude = int(miPoliciaReportando.ultimaVelocidad))
 			visualizacion = visualLabel.aplicarMascaraActualAFrame(visualizacion)
 			cv2.imshow('Visual',visualLabel.aplicarTodo())		
-
-		informacionTotal[frame_number] = informacion
 
 		#print('Visualizacion: ',time.time()-otroTiempo)
 		# Visualizacion	
