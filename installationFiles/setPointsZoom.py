@@ -27,7 +27,7 @@ reAdjust='reAdjust.npy'
 
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/'
 directorioDeVideos = directorioDeTrabajo+'trialVideos/'
-fileToWrite = directorioDeTrabajo+'prototipo11/installationFiles/datos.npy'
+fileToWrite = directorioDeTrabajo+'prototipo/installationFiles/datos.npy'
 ##########################################
 def get_PointsSemaforZona(event,x,y,flags,param):
 	global frame
@@ -91,7 +91,7 @@ if __name__ == '__main__':
 		nameSourceVideo = sys.argv[1]
 		fileToWrite = fileToWrite[:-9]+nameSourceVideo[:-3]+'npy'
 	except:
-		nameSourceVideo = 1
+		nameSourceVideo = 0
 		print('Accediendo a camara ',nameSourceVideo)
   ###Semaforo zona:
 
@@ -104,7 +104,7 @@ if __name__ == '__main__':
 		frame2=frame.copy() 
 	except:
 		print('Error Al cargar la camara de flujo')
-		cap=cv2.VideoCapture(1)
+		cap=cv2.VideoCapture(0)
 		for i in range(100):
 			ret, frame=cap.read()
 		frame=cv2.resize(frame,(640,480))
@@ -213,30 +213,31 @@ if __name__ == '__main__':
 			lista.append([alpha])
 			print('Press -q- to save')
 		if keyPress&0xFF==ord('q'):
-			#np.save(fileToWrite,lista)
+			print ('lista:  ---' +str(lista))
+			np.save(fileToWrite,lista)
 			## file2.write("\n".listFinal)         
 			print('saved!!')
-			#data=np.load(fileToWrite)
-			#print (data)
+			data=np.load(fileToWrite)
+			print (data)
 			break
 	cv2.destroyAllWindows()
 	##Capture of High Resolution
-	try:
-		cap=cv2.VideoCapture(0)
-		cap.set(3,2592)
-		cap.set(4,1944)
-		ret, frame1=cap.read()
-		frame=cv2.resize(frame1,(640,480))
-	except:
-		print('Error Al cargar la camara de placas')
-	cv2.namedWindow('FrameDeSltaResolucion')
-	cv2.setMouseCallback('FrameDeSltaResolucion', get_BigRectangle)
-	while(len(listaAux2)<3):
-		cv2.imshow('FrameDeSltaResolucion',frame)
-		keyPress = cv2.waitKey()
-		if keyPress&0xFF==ord('q'):
-			print('Full Resolution saved!!')
-			data2=np.load(fileToWrite)
-			print (data2)
-			break
-cv2.destroyAllWindows()	
+	#try:
+	#	cap=cv2.VideoCapture(0)
+	#	cap.set(3,2592)
+	#	cap.set(4,1944)
+	#	ret, frame1=cap.read()
+	#	frame=cv2.resize(frame1,(640,480))
+	#except:
+	#	print('Error Al cargar la camara de placas')
+	#cv2.namedWindow('FrameDeSltaResolucion')
+	#cv2.setMouseCallback('FrameDeSltaResolucion', get_BigRectangle)
+	#while(len(listaAux2)<3):
+	#	cv2.imshow('FrameDeSltaResolucion',frame)
+	#	keyPress = cv2.waitKey()
+	#	if keyPress&0xFF==ord('q'):
+	#		print('Full Resolution saved!!')
+	#		data2=np.load(fileToWrite)
+	#		print (data2)
+	#		break
+#cv2.destroyAllWindows()	

@@ -91,7 +91,7 @@ if __name__ == '__main__':
 		nameSourceVideo = sys.argv[1]
 		fileToWrite = fileToWrite[:-9]+nameSourceVideo[:-3]+'npy'
 	except:
-		nameSourceVideo = 1
+		nameSourceVideo = 0
 		print('Accediendo a camara ',nameSourceVideo)
   ###Semaforo zona:
 
@@ -104,7 +104,7 @@ if __name__ == '__main__':
 		frame2=frame.copy() 
 	except:
 		print('Error Al cargar la camara de flujo')
-		cap=cv2.VideoCapture(1)
+		cap=cv2.VideoCapture(0)
 		for i in range(100):
 			ret, frame=cap.read()
 		frame=cv2.resize(frame,(640,480))
