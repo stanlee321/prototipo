@@ -141,24 +141,17 @@ def __main_function__():
 		informacion['index'] = frame_number
 		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
 
-		print('Outside number: ',frame_number)
-		print('Frame: ',frame_number)
-		sys.stdout.write("\033[F")
-
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
 			if informacion['semaforo'][2] == 1:						# esto se inicia al principio de este estado
 				miPoliciaReportando.inicializarAgente()
-				otroTiempo = time.time()
-				contadorsemaforo += 1
-				print('contadorsemaforo ', contadorsemaforo)
 
 				# filter the rebotes from the semaforo
 				#if contadorsemaforo > 100:
 				del informacionTotal
 				informacionTotal = {}
 				frame_number = 0
-				contadorsemaforo = 0
+
 				#else:
 				#	pass
 			miPoliciaReportando.evolucionarLineaVigilancia(frame_number,informacion['frame'])
@@ -216,6 +209,8 @@ def __main_function__():
 		_frame_number_auxiliar +=1
 		#if tiempoEjecucion>periodoDeMuestreo:
 		#	miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
+		print('<Ejec: ',time.time() - tiempoAuxiliar,' de ', periodoDeMuestreo,' en ',frame_number,'F>')
+		sys.stdout.write("\033[F")
 		while time.time() - tiempoAuxiliar < periodoDeMuestreo:
 			True
 
