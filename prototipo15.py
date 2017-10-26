@@ -16,8 +16,8 @@ import matplotlib.pyplot as plt
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
 directorioDeLibreriasPropias = directorioDeTrabajo +'/ownLibraries'
-nombreCarpetaDeReporte = 'casosReportados'
-myReportingDirectory = directorioDeTrabajo+'/'+nombreCarpetaDeReporte
+nombreCarpetaDeReporte = '/casosReportados'
+directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpetaDeReporte
 folderDeInstalacion = directorioDeTrabajo+'/installationFiles'
 # Se introduce las librerias propias
 sys.path.insert(0, directorioDeLibreriasPropias)
@@ -31,7 +31,6 @@ from videostreamv5 import FPS
 from BackgroundsubCNT import CreateBGCNT
 from generadorevidencia import GeneradorEvidencia
 
-
 # Se crean las variables de constantes de trabajo del programa
 ## Parametros de input video
 archivoDeVideo = ''
@@ -39,6 +38,7 @@ videofps = 30
 entradaReal = 'en tiempo real '		# Complementario
 ## Parametros semaforo
 periodoDeSemaforo = 0
+topeEjecucion = 0
 semaforoSimuladoTexto = 'real '
 ## Otros
 mifps = 10
@@ -55,6 +55,9 @@ def __main_function__():
 	# Creamos el reporte inicial
 	miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)			# Se crea por defecto con nombre de la fecha y hora actual
 	miReporte.info('Programa iniciado exitosamente con ingreso de senal video '+archivoDeVideo+entradaReal+' con semaforo '+semaforoSimuladoTexto+str(periodoDeSemaforo) +', corriendo a '+str(mifps)+' Frames por Segundo')
+	# Si no existe el directorio de reporte lo creo
+	if not os.path.exists(directorioDeReporte):
+		os.makedirs(directorioDeReporte) 
 	
 	# Is statements
 	if generarArchivosDebug: miReporte.info('Generando Archivos de Debug')
@@ -67,7 +70,7 @@ def __main_function__():
 	periodoDeMuestreo = 1.0/mifps # 0.1666667		# 1/mifps
 	numeroDeFrame = 0
 	maximoInfraccionesPorFrame = 20
-	colores = np.random.randint(0,100,(maximoInfraccionesPorFrame,3))
+	#colores = np.random.randint(0,100,(maximoInfraccionesPorFrame,3))
 
 	# Cargando los parametros de instalacion:
 	# El archivo de video debe tener como minimo 5 caracteres para estar trnajando en modo simulado, de lo contrario estamos trabajando en modo real
@@ -108,13 +111,10 @@ def __main_function__():
 
 	# Se captura la imagen de flujo inicial y se trabaja con la misma
 	informacion = miCamara.read()
-
-	# Si estamos trabajando en la raspberry pi, no necesitamos simular la camara de 8Mp
-	miComputadora = os.uname()[1]
 	
 	# Creación de objetos:
 	miPoliciaReportando = PoliciaInfractor(informacion['frame'],verticesPartida,verticesLlegada)
-	miGrabadora = GeneradorEvidencia(directorioDeTrabajo,mifps)
+	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps)
 
 	#remocionFondo = matches # List like with arrays 
 	if mostrarImagen:
@@ -124,14 +124,14 @@ def __main_function__():
 		visualLabel.crearBarraDeProgreso()
 		visualLabel.ponerPoligono(np.array(verticesPartida))
 
-	otroTiempo = time.time()
-	tiempoAuxiliar = time.time()
+	
 	frame_number = 0	
 
 	fps = FPS().start()
-	_frame_number_auxiliar = 0
+	demoKillAutomatico = 0
 	informacionTotal = {}
 	frame_number  = 0
+	tiempoAuxiliar = time.time()
 
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
@@ -145,27 +145,21 @@ def __main_function__():
 		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
 			if informacion['semaforo'][2] == 1:						# esto se inicia al principio de este estado
 				miPoliciaReportando.inicializarAgente()
-
-				# filter the rebotes from the semaforo
-				#if contadorsemaforo > 100:
 				del informacionTotal
 				informacionTotal = {}
 				frame_number = 0
 
-				#else:
-				#	pass
 			miPoliciaReportando.evolucionarLineaVigilancia(frame_number,informacion['frame'])
 
 		if informacion['semaforo'][0] == 0:							# Si estamos en verde realizamos otra accion
-			if informacion['semaforo'][2] == -1:
-				print('Infracciones: ',miPoliciaReportando.infraccionesConfirmadas)
+			if informacion['semaforo'][2] == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
+				print('Infracciones: ',miPoliciaReportando.numeroInfraccionesConfirmadas())
 			if miPoliciaReportando.numeroInfraccionesConfirmadas() > 0:
 				infraccionEnRevision = miPoliciaReportando.popInfraccion()
 				miGrabadora.generarReporteInfraccion(informacionTotal, infraccionEnRevision)
 			pass
 
 		if mostrarImagen:
-			indiceColor = 0
 			# Draw frame number into image on top
 			cv2.putText(informacion['frame'], str(frame_number), (30,30), font, 0.4,(255,255,255),1,cv2.LINE_AA)
 
@@ -174,14 +168,11 @@ def __main_function__():
 				for puntos in infraction['desplazamiento']:
 					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
 					for punto in puntosExtraidos:
-						cv2.circle(visualizacion, tuple(punto), 1, colores[indiceColor].tolist(), -1)
-				indiceColor +=1
+						if infraction['estado'] == 'Confirmado':
+							cv2.circle(visualizacion, tuple(punto), 1, (0,0,255), -1)
+						else:
+							cv2.circle(visualizacion, tuple(punto), 1, (255,0,0), -1)
 
-			for infraction in miPoliciaReportando.listaDeInfracciones:
-				for puntos in infraction['desplazamiento']:
-					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
-					for punto in puntosExtraidos:
-						cv2.circle(visualizacion, tuple(punto), 1, (0,0,255), -1)
 			cv2.polylines(visualizacion, np.array([poligonoSemaforo])//2, True, (200,200,200))
 			
 			# Configs and displays for the MASK according to the semaforo
@@ -201,15 +192,14 @@ def __main_function__():
 			visualizacion = visualLabel.aplicarMascaraActualAFrame(visualizacion)
 			cv2.imshow('Visual',visualLabel.aplicarTodo())		
 
-		#print('Visualizacion: ',time.time()-otroTiempo)
 		# Visualizacion	
 		##print('Ciclo: ',str(time.time()-tiempoAuxiliar)[:7],' color: ',informacion['semaforo'][1])
 		#sys.stdout.write("\033[F")
 		
-		_frame_number_auxiliar +=1
+		demoKillAutomatico +=1
 		#if tiempoEjecucion>periodoDeMuestreo:
 		#	miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
-		print('<Ejec: ',time.time() - tiempoAuxiliar,' de ', periodoDeMuestreo,' en ',frame_number,'F>')
+		print('<Ejec: {0:3f}'.format(time.time() - tiempoAuxiliar),' de ', periodoDeMuestreo,' en ',frame_number,'F>')
 		sys.stdout.write("\033[F")
 		while time.time() - tiempoAuxiliar < periodoDeMuestreo:
 			True
@@ -219,7 +209,7 @@ def __main_function__():
 		tiempoAuxiliar = time.time()
 
 		frame_number += 1
-		if _frame_number_auxiliar == 4000:
+		if (demoKillAutomatico == topeEjecucion) &(topeEjecucion!=0):
 			break
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
@@ -246,4 +236,7 @@ if __name__ == '__main__':
 			mostrarImagen = True
 		if '.fps' in input:
 			mifps = int(input[:-4])
+		if '.d' in input:
+			topeEjecucion = int(input[:-2])
+
 	__main_function__()

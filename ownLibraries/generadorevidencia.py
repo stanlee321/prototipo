@@ -23,6 +23,7 @@ class GeneradorEvidencia():
 		self.carpetaDeReporteActual = carpetaReporte
 		self.framesPorSegundoEnVideo = mifps
 		self.ventana = 5
+		self.height, self.width = 240, 320
 
 		self.dicts_by_name = defaultdict(list)
 
@@ -32,13 +33,15 @@ class GeneradorEvidencia():
 
 	def generarReporteInfraccion(self, informacionTotal, infraccion = True):
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
-
 		try:
 			#print(informacionTotal)
 			frameInferior = infraccion['frameInicial'] - self.ventana
 			frameSuperior = infraccion['frameFinal'] + self.ventana
-			height, width, layers = informacionTotal[1]['frame'].shape
-			prueba = cv2.VideoWriter(self.carpetaDeReporteActual+'/'+infraccion['name']+'.avi',fourcc, self.framesPorSegundoEnVideo,(width,height))
+			directorioActual = self.carpetaDeReporteActual + '/'+infraccion['name'][:-7]
+			if not os.path.exists(directorioActual):
+				print('Creado: '+directorioActual)
+				os.makedirs(directorioActual) 
+			prueba = cv2.VideoWriter(directorioActual+'/'+infraccion['name']+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
 			
 			# Check valid frame 
 			if frameInferior < 0:
@@ -54,18 +57,18 @@ class GeneradorEvidencia():
 			print('Generada infr de: ',inicio,' a ',final,' len: ',final-inicio,' fecha: ',infraccion['name'])
 			
 			for indiceVideo in range(inicio, final):
-				time.sleep(0.01)
-				cv2.putText(informacionTotal[indiceVideo]['frame'], str(indiceVideo), (30,30), font, 0.4,(255,255,255),1,cv2.LINE_AA)
 				prueba.write(informacionTotal[indiceVideo]['frame'])
-
+				contadorDeRecortados = 0
+				for imagen in informacionTotal[indiceVideo]['recortados']:
+					cv2.imwrite(directorioActual+'/photo_{}_{}.jpg'.format(contadorDeRecortados,indiceVideo),imagen)
+					contadorDeRecortados+=1
 			prueba.release()
 			return 1
 		
 		except Exception as e:
 			print('>>>>>>>>>>>>>>>>>>>Migrando a modo debug: ',e)
 			if infraccion:
-				height, width, layers = informacionTotal[0]['frame'].shape
-				prueba = cv2.VideoWriter(self.carpetaDeReporteActual+'/'+infraccion['name']+'.avi',fourcc, self.framesPorSegundoEnVideo,(width,height))
+				prueba = cv2.VideoWriter(self.carpetaDeReporteActual+'/'+infraccion['name']+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
 				inicio = 0
 				final = len(informacionTotal)
 				print('Generada debug de: ',inicio,final,' len: ',final-inicio,' total lista: ',len(informacionTotal))
