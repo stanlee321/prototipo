@@ -24,6 +24,7 @@ class IRSwitch():
 		self.forwardPin = 3
 		self.backwardPin = 4
 		self.enable = 2
+		self.ultimoEstado = 'On debug'
 		if os.uname()[1] == 'raspberrypi':
 			GPIO.setmode(GPIO.BCM)
 			GPIO.setwarnings(False)
@@ -47,7 +48,7 @@ class IRSwitch():
 		time.sleep(self.tiempoParaPulso)
 		if os.uname()[1] == 'raspberrypi':
 			GPIO.output(self.enable,GPIO.LOW)
-		self.ultimoEstado = 'Filtro Activo'
+		self.ultimoEstado = 'Filtro Activado'
 
 	def quitarFiltroIR(self):
 		"""

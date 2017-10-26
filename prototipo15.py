@@ -30,6 +30,7 @@ from videostreamv5 import VideoStream
 from videostreamv5 import FPS
 from BackgroundsubCNT import CreateBGCNT
 from generadorevidencia import GeneradorEvidencia
+from irswitch import IRSwitch
 
 # Se crean las variables de constantes de trabajo del programa
 ## Parametros de input video
@@ -46,6 +47,10 @@ generarArchivosDebug = True
 mostrarImagen = False
 longitudRegistro = 360
 font = cv2.FONT_HERSHEY_SIMPLEX
+
+anocheciendo =  21*60+30														# Tiempo 17:30 am + 4 GMT
+amaneciendo = 11*60																# Tiempo  7:00 am + 4 GMT
+tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
 
 # Función principal
 def __main_function__():
@@ -111,6 +116,7 @@ def __main_function__():
 
 	# Se captura la imagen de flujo inicial y se trabaja con la misma
 	informacion = miCamara.read()
+	miFiltro = IRSwitch()
 	
 	# Creación de objetos:
 	miPoliciaReportando = PoliciaInfractor(informacion['frame'],verticesPartida,verticesLlegada)
@@ -157,11 +163,18 @@ def __main_function__():
 			if miPoliciaReportando.numeroInfraccionesConfirmadas() > 0:
 				infraccionEnRevision = miPoliciaReportando.popInfraccion()
 				miGrabadora.generarReporteInfraccion(informacionTotal, infraccionEnRevision)
+			else:
+				#Si no hay infracciones a reportar me fijo el estado del filtro:
+				tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
+				if (tiempoAhora > amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Activado'):
+					miFiltro.colocarFiltroIR()
+				if (tiempoAhora > anocheciendo) & (miFiltro.ultimoEstado != 'Filtro Desactivado'):
+					miFiltro.quitarFiltroIR()
 			pass
 
 		if mostrarImagen:
 			# Draw frame number into image on top
-			cv2.putText(informacion['frame'], str(frame_number), (30,30), font, 0.4,(255,255,255),1,cv2.LINE_AA)
+			cv2.putText(informacion['frame'], datetime.datetime.now().strftime('%A %d %B %Y %I:%M:%S%p'), (10,230), font, 0.4,(255,255,255),1,cv2.LINE_AA)
 
 			visualizacion = informacion['frame']
 			for infraction in miPoliciaReportando.listaDeInfracciones:
@@ -191,10 +204,6 @@ def __main_function__():
 			visualLabel.establecerMagnitudBarra(magnitude = int(miPoliciaReportando.ultimaVelocidad))
 			visualizacion = visualLabel.aplicarMascaraActualAFrame(visualizacion)
 			cv2.imshow('Visual',visualLabel.aplicarTodo())		
-
-		# Visualizacion	
-		##print('Ciclo: ',str(time.time()-tiempoAuxiliar)[:7],' color: ',informacion['semaforo'][1])
-		#sys.stdout.write("\033[F")
 		
 		demoKillAutomatico +=1
 		#if tiempoEjecucion>periodoDeMuestreo:

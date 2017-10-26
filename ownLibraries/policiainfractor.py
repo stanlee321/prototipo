@@ -109,7 +109,7 @@ class PoliciaInfractor():
 					if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:
 						infraccion['estado']='Confirmado'
 						infraccion['frameFinal']=numeroDeFrame
-						print('Nueva Infraccion Confirmada:',infraccion['name'],'de',infraccion['frameInicial'],'a',infraccion['frameFinal'],'es',infraccion['estado'],sep=' ')
+						print('Conf:',infraccion['name'],'de',infraccion['frameInicial'],'a',infraccion['frameFinal'],'es',infraccion['estado'],sep=' ')
 						break
 		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
 		self.imagenAuxiliar = imagenActualEnGris

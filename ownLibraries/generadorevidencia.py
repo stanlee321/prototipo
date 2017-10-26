@@ -52,8 +52,8 @@ class GeneradorEvidencia():
 			prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
 			
 			# Check valid frame 
-			if frameInferior < 0:
-				inicio = 0
+			if frameInferior < 1:
+				inicio = 1
 			else:
 				inicio = frameInferior
 
