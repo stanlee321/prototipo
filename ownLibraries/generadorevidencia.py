@@ -15,11 +15,16 @@ from shooter import Shooter
 from mireporte import MiReporte
 from areaderesguardo import AreaDeResguardo
 
+from collections import defaultdict
+
 class GeneradorEvidencia():
 	def __init__(self, carpetaReporte,mifps = 10):
 		self.carpetaDeReporteActual = carpetaReporte
 		self.framesPorSegundoEnVideo = mifps
 		self.ventana = 5
+
+		self.dicts_by_name = defaultdict(list)
+
 
 	def inicializarEnCarpeta(self,carpetaReporte):
 		self.carpetaDeReporteActual = carpetaReporte
@@ -27,9 +32,10 @@ class GeneradorEvidencia():
 	def generarReporteInfraccion(self,informacionTotal, infraccion = True):
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
 		try:
+			#print(informacionTotal)
 			frameInferior = infraccion['frameInicial'] - self.ventana
 			frameSuperior = infraccion['frameFinal'] + self.ventana
-			height, width, layers = informacionTotal[0]['frame'].shape
+			height, width, layers = informacionTotal[1]['frame'].shape
 			prueba = cv2.VideoWriter(self.carpetaDeReporteActual+'/'+infraccion['name']+'.avi',fourcc, self.framesPorSegundoEnVideo,(width,height))
 			
 			# Check valid frame 
@@ -46,23 +52,18 @@ class GeneradorEvidencia():
 
 
 			print('Generada infr de: ',inicio,final,' len: ',final-inicio,' total lista: ',len(informacionTotal))
-			for indiceVideo in range(inicio,final):
-				
-				#prueba.write(informacionTotal[indiceVideo]['frame'])
+			
+			for indiceVideo in range(inicio, final):
+
+				time.sleep(0.01)
+				prueba.write(informacionTotal[indiceVideo]['frame'])
 				#cv2.imwrite(self.carpetaDeReporteActual+'/'+infraccion['name']+'_{}.jpg'.format(indiceVideo),informacionTotal[indiceVideo]['frame'])
-				cv2.imwrite('frame_{}_{}.jpg'.format(indiceVideo,final), informacionTotal[indiceVideo]['frame'])
+				#cv2.imwrite('frame_{}_{}.jpg'.format(indiceVideo,final), informacionTotal[indiceVideo]['frame'])
 
 			prueba.release()
 			return 1
 		
-		#try:
-		#
-		#	for i, inf in enumerate(informacionTotal):
-		#		#print(i, len(inf))
-		#		cv2.imwrite('frame_{}_{}.jpg'.format(i,len(informacionTotal)), inf['frame'])
-
-
-
+		
 		except Exception as e:
 			print('[...Ocurred this error:.... --->]: ',e)
 			if infraccion:

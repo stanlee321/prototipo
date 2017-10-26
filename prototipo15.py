@@ -32,7 +32,6 @@ from BackgroundsubCNT import CreateBGCNT
 from generadorevidencia import GeneradorEvidencia
 
 
-import Queue
 # Se crean las variables de constantes de trabajo del programa
 ## Parametros de input video
 archivoDeVideo = ''
@@ -130,9 +129,11 @@ def __main_function__():
 
 	fps = FPS().start()
 	_frame_number_auxiliar = 0
-	informacionTotal = []
-	frame_number  = -1
+	informacionTotal = {}
+	frame_number  = 0
 
+
+	contadorsemaforo = 0
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
 		informacion = miCamara.read()
@@ -143,16 +144,26 @@ def __main_function__():
 		print('Outside number: ',frame_number)
 		sys.stdout.write("\033[F")
 
-		informacionTotal.append(informacion)
+
+		informacionTotal[frame_number] = informacion
+
 
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
 			if informacion['semaforo'][2] == 1:						# esto se inicia al principio de este estado
 				miPoliciaReportando.inicializarAgente()
 				otroTiempo = time.time()
-				del informacionTotal
-				informacionTotal = []
-				frame_number = 0
+				contadorsemaforo += 1
+				print('contadorsemaforo ', contadorsemaforo)
+
+				# filter the rebotes from the semaforo
+				if contadorsemaforo < 10:
+					del informacionTotal
+					informacionTotal = {}
+					frame_number = 0
+					contadorsemaforo = 0
+				else:
+					pass
 			miPoliciaReportando.evolucionarLineaVigilancia(frame_number,informacion['frame'])
 
 		if informacion['semaforo'][0] == 0:							# Si estamos en verde realizamos otra accion
@@ -207,7 +218,7 @@ def __main_function__():
 		_frame_number_auxiliar +=1
 		#if tiempoEjecucion>periodoDeMuestreo:
 		#	miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
-		while time.time()-tiempoAuxiliar<periodoDeMuestreo:
+		while time.time() - tiempoAuxiliar < periodoDeMuestreo:
 			True
 
 		tiempoEjecucion = time.time()-tiempoAuxiliar
