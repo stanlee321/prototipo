@@ -69,11 +69,13 @@ class WebcamVideoStream:
 		print("FRAME ORIGIN SHAPE", self.frame.shape)
 		print('-----------------------------------------------')
 		# Resized normal frame
-		self.frame_resized =  cv2.resize(self.frame, (320,240))
-
+		self.frame_medium = cv2.resize(self.frame, (640,480))
+		# Set new resolution for the consumers
+		self.frame_resized = cv2.resize(self.frame_medium, (320,240))
+		
 		print('FRAME:RESIZED', self.frame_resized.shape)
 		
-
+		print('FRAME MEDIUM', self.frame_medium.shape)
 		##### Semaforo part
 		# find MAX, MIN values  in poligono
 		maxinX = max([x[0] for x in poligono])
@@ -85,11 +87,12 @@ class WebcamVideoStream:
 		# Values to cut the self.frame_resized for the 
 		# semaforo input
 
-		self.x0 = mininX//2
-		self.x1 = maxinX//2
 
-		self.y0 = mininY//2
-		self.y1 = maxinY//2
+		self.x0 = mininX
+		self.x1 = maxinX
+
+		self.y0 = mininY
+		self.y1 = maxinY
 
 		self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
 
@@ -176,11 +179,13 @@ class WebcamVideoStream:
 
 
 
+			self.frame_medium = cv2.resize(self.frame, (640,480))
 			# Set new resolution for the consumers
-			self.frame_resized = cv2.resize(self.frame, (320,240))
+
+			self.frame_resized = cv2.resize(self.frame_medium, (320,240))
 
 			# Cut imagen for the semaforo
-			self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
+			self.imagen_semaforo = self.frame_medium[self.y0:self.y1,self.x0:self.x1]
 
 			##  BackGroundSub part, this is updating the self.listaderecortados
 			self.BgSubCNT(self.frame_resized)
