@@ -217,7 +217,7 @@ def __main_function__():
 		demoKillAutomatico +=1
 		#if tiempoEjecucion>periodoDeMuestreo:
 		#	miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
-		print('<Ejec: {0:3f}'.format(time.time() - tiempoAuxiliar),' en ',frame_number,' color ',informacion['semaforo'][0],'F>')
+		print('<Ejec: {0:3f}'.format(time.time() - tiempoAuxiliar),' en ',frame_number,' color ',informacion['semaforo'][1],'F>')
 		sys.stdout.write("\033[F")
 		while time.time() - tiempoAuxiliar < periodoDeMuestreo:
 			True
