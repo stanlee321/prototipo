@@ -19,7 +19,6 @@ directorioDeLibreriasPropias = directorioDeTrabajo +'/ownLibraries'
 nombreCarpetaDeReporte = 'casosReportados'
 myReportingDirectory = directorioDeTrabajo+'/'+nombreCarpetaDeReporte
 folderDeInstalacion = directorioDeTrabajo+'/installationFiles'
-
 # Se introduce las librerias propias
 sys.path.insert(0, directorioDeLibreriasPropias)
 from mask import VisualLayer
