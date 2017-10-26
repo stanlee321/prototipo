@@ -33,15 +33,23 @@ class GeneradorEvidencia():
 
 	def generarReporteInfraccion(self, informacionTotal, infraccion = True):
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
+		generandoDebug = False
 		try:
+			nombreInfraccion = infraccion['name'][:-7]
+			generandoDebug = False
+		except:
+			nombreInfraccion = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+			generandoDebug = True
+
+		if generandoDebug==False:
 			#print(informacionTotal)
 			frameInferior = infraccion['frameInicial'] - self.ventana
 			frameSuperior = infraccion['frameFinal'] + self.ventana
-			directorioActual = self.carpetaDeReporteActual + '/'+infraccion['name'][:-7]
+			directorioActual = self.carpetaDeReporteActual + '/'+nombreInfraccion
 			if not os.path.exists(directorioActual):
 				print('Creado: '+directorioActual)
 				os.makedirs(directorioActual) 
-			prueba = cv2.VideoWriter(directorioActual+'/'+infraccion['name']+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
+			prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
 			
 			# Check valid frame 
 			if frameInferior < 0:
@@ -53,8 +61,7 @@ class GeneradorEvidencia():
 				final = len(informacionTotal)
 			else:
 				final = frameSuperior
-
-			print('Generada infr de: ',inicio,' a ',final,' len: ',final-inicio,' fecha: ',infraccion['name'])
+			print('Generada infr de: ',inicio,' a ',final,' len: ',final-inicio,' fecha: ',nombreInfraccion)
 			
 			for indiceVideo in range(inicio, final):
 				prueba.write(informacionTotal[indiceVideo]['frame'])
@@ -65,10 +72,9 @@ class GeneradorEvidencia():
 			prueba.release()
 			return 1
 		
-		except Exception as e:
-			print('>>>>>>>>>>>>>>>>>>>Migrando a modo debug: ',e)
+		else:
 			if infraccion:
-				prueba = cv2.VideoWriter(self.carpetaDeReporteActual+'/'+infraccion['name']+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
+				prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
 				inicio = 0
 				final = len(informacionTotal)
 				print('Generada debug de: ',inicio,final,' len: ',final-inicio,' total lista: ',len(informacionTotal))
