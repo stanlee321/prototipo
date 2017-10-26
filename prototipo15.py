@@ -83,6 +83,7 @@ def __main_function__():
 	if len(archivoDeVideo)>4: archivoParametrosACargar = archivoDeVideo[:-4]+'.npy'
 	else: archivoParametrosACargar = 'datos.npy'
 	parametrosInstalacion = np.load(folderDeInstalacion+'/'+archivoParametrosACargar)
+	print('Datos de Instalacion de: ',folderDeInstalacion+'/'+archivoParametrosACargar)
 	poligonoSemaforo = parametrosInstalacion[0]
 	verticesPartida = parametrosInstalacion[1]
 	verticesLlegada = parametrosInstalacion[2]
@@ -175,7 +176,7 @@ def __main_function__():
 				tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
 				if (tiempoAhora > amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Activado'):
 					miFiltro.colocarFiltroIR()
-				if (tiempoAhora > anocheciendo) & (miFiltro.ultimoEstado != 'Filtro Desactivado'):
+				if (tiempoAhora < amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Desactivado'):
 					miFiltro.quitarFiltroIR()
 			pass
 
