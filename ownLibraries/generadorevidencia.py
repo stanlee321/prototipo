@@ -42,15 +42,16 @@ class GeneradorEvidencia():
 		except:
 			nombreInfraccion = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 			generandoDebug = True
+		directorioActual = self.carpetaDeReporteActual + '/'+nombreInfraccion
+		if not os.path.exists(directorioActual):
+			print('Creado: '+directorioActual)
+			os.makedirs(directorioActual) 
 
 		if generandoDebug==False:
 			#print(informacionTotal)
 			frameInferior = infraccion['frameInicial'] - self.ventana
 			frameSuperior = infraccion['frameFinal'] + self.ventana
-			directorioActual = self.carpetaDeReporteActual + '/'+nombreInfraccion
-			if not os.path.exists(directorioActual):
-				print('Creado: '+directorioActual)
-				os.makedirs(directorioActual) 
+			
 			prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
 			
 			# Check valid frame 
@@ -77,7 +78,7 @@ class GeneradorEvidencia():
 						contadorDeRecortados+=1
 
 					file_list = glob.glob( directorioActual+'/*.jpg')
-					print('JPG FILES ARE:',file_list)
+					
 					if len(file_list):
 						with zipfile.ZipFile(directorioActual+'/{}.zip'.format(nombreInfraccion), 'w') as zip:
 							for file_name in file_list:
@@ -91,14 +92,15 @@ class GeneradorEvidencia():
 			return 1
 		
 		else:
-			if infraccion:
-				prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
-				inicio = 0
-				final = len(informacionTotal)
-				print('Generada debug de: ',inicio,final,' len: ',final-inicio,' total lista: ',len(informacionTotal))
-				for indiceVideo in range(inicio,final):
+			
+			prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
+			inicio = 0
+			final = len(informacionTotal)
+			print('Generada debug de: ',inicio,final,' len: ',final-inicio,' total lista: ',len(informacionTotal))
+			for indiceVideo in range(inicio,final):
+				try:
 					prueba.write(informacionTotal[indiceVideo]['frame'])
-				prueba.release()
-			else:
-				return 0
-		return -1
+				except:
+					print('No pude guardar frame: ',indiceVideo)
+			prueba.release()
+			return 0
