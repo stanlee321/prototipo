@@ -175,6 +175,8 @@ def __main_function__():
 		if informacion['semaforo'][0] == 0:							# Si estamos en verde realizamos otra accion
 			if informacion['semaforo'][2] == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
 				print('Infracciones: ',miPoliciaReportando.numeroInfraccionesConfirmadas())
+				if generarArchivosDebug:
+					miGrabadora.generarReporteInfraccion(informacionTotal, False)
 			if miPoliciaReportando.numeroInfraccionesConfirmadas() > 0:
 				infraccionEnRevision = miPoliciaReportando.popInfraccion()
 				miGrabadora.generarReporteInfraccion(informacionTotal, infraccionEnRevision)
