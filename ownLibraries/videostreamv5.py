@@ -222,7 +222,6 @@ class WebcamVideoStream:
 				self.information['rectangulos'] = self.matches
 			
 			else:
-
 				##  BackGroundSub part, this is updating the self.listaderecortados
 				self.BgSubCNT(self.frame_resized)
 				self.cutHDImage(self.frame)

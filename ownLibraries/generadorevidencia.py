@@ -11,7 +11,8 @@ import logging
 import zipfile
 import datetime
 import numpy as np
-
+import glob
+from os.path import basename
 from shooter import Shooter
 from mireporte import MiReporte
 from areaderesguardo import AreaDeResguardo
@@ -63,7 +64,7 @@ class GeneradorEvidencia():
 			else:
 				final = frameSuperior
 			print('Generada infr de: ',inicio,' a ',final,' len: ',final-inicio,' fecha: ',nombreInfraccion)
-			
+			file_list = []
 			for indiceVideo in range(inicio, final):
 				prueba.write(informacionTotal[indiceVideo]['frame'])
 				if self.guardoRecortados:
@@ -73,10 +74,19 @@ class GeneradorEvidencia():
 					for imagen in informacionTotal[indiceVideo]['recortados']:
 						nombreRecorte = directorioActual+'/photo_{}_{}.jpg'.format(contadorDeRecortados,indiceVideo)
 						cv2.imwrite(nombreRecorte,imagen)
-						myZip.write(nombreRecorte)
-						os.remove(nombreRecorte)
 						contadorDeRecortados+=1
-					myZip.close()
+
+					file_list = glob.glob( directorioActual+'/*.jpg')
+					print('JPG FILES ARE:',file_list)
+					if len(file_list):
+						with zipfile.ZipFile(directorioActual+'/{}.zip'.format(nombreInfraccion), 'w') as zip:
+							for file_name in file_list:
+								zip.write(file_name, basename(file_name)) 
+								#myZip.write(nombreRecorte)
+						myZip.close()
+			for f in file_list:
+				os.remove(f)
+
 			prueba.release()
 			return 1
 		
