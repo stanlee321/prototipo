@@ -176,7 +176,7 @@ def __main_function__():
 			if informacion['semaforo'][2] == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
 				print('Infracciones: ',miPoliciaReportando.numeroInfraccionesConfirmadas())
 				if generarArchivosDebug:
-					miGrabadora.generarReporteInfraccion(informacionTotal, False)
+					miGrabadora.generarReporteInfraccion(informacionTotal, False,miPoliciaReportando.numeroInfraccionesConfirmadas())
 			if miPoliciaReportando.numeroInfraccionesConfirmadas() > 0:
 				infraccionEnRevision = miPoliciaReportando.popInfraccion()
 				miGrabadora.generarReporteInfraccion(informacionTotal, infraccionEnRevision)
@@ -236,8 +236,8 @@ def __main_function__():
 		#	miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
 		print('F_',frame_number,'_{0:2f}'.format(time.time() - tiempoAuxiliar),' [ms] Sema: ',informacion['semaforo'][1],' I: ',miPoliciaReportando.numeroInfraccionesConfirmadas(),'/',miPoliciaReportando.numeroInfraccionesTotales())
 		sys.stdout.write("\033[F")
-		#while time.time() - tiempoAuxiliar < periodoDeMuestreo:
-		#	True
+		while time.time() - tiempoAuxiliar < periodoDeMuestreo:
+			True
 
 		tiempoEjecucion = time.time()-tiempoAuxiliar
 		#print('Periodo: ',tiempoEjecucion)

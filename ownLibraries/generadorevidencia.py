@@ -33,14 +33,14 @@ class GeneradorEvidencia():
 	def inicializarEnCarpeta(self,carpetaReporte):
 		self.carpetaDeReporteActual = carpetaReporte
 
-	def generarReporteInfraccion(self, informacionTotal, infraccion = True):
+	def generarReporteInfraccion(self, informacionTotal, infraccion = True,numero = 0):
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
 		generandoDebug = False
 		try:
 			nombreInfraccion = infraccion['name'][:-7]
 			generandoDebug = False
 		except:
-			nombreInfraccion = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+			nombreInfraccion = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')+'_{}i'.format(numero)
 			generandoDebug = True
 		directorioActual = self.carpetaDeReporteActual + '/'+nombreInfraccion
 		if not os.path.exists(directorioActual):
