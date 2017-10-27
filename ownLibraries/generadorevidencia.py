@@ -8,6 +8,7 @@ import time
 import glob
 import pickle
 import logging
+import zipfile
 import datetime
 import numpy as np
 
@@ -66,11 +67,16 @@ class GeneradorEvidencia():
 			for indiceVideo in range(inicio, final):
 				prueba.write(informacionTotal[indiceVideo]['frame'])
 				if self.guardoRecortados:
+					nombreArchivoZip = directorioActual+"/"+nombreInfraccion+".zip"
+					myZip = zipfile.ZipFile (nombreArchivoZip, "w", zipfile.ZIP_DEFLATED)
 					contadorDeRecortados = 0
 					for imagen in informacionTotal[indiceVideo]['recortados']:
-						cv2.imwrite(directorioActual+'/photo_{}_{}.jpg'.format(contadorDeRecortados,indiceVideo),imagen)
+						nombreRecorte = directorioActual+'/photo_{}_{}.jpg'.format(contadorDeRecortados,indiceVideo)
+						cv2.imwrite(nombreRecorte,imagen)
+						myZip.write(nombreRecorte)
+						os.remove(nombreRecorte)
 						contadorDeRecortados+=1
-					pass
+					myZip.close()
 			prueba.release()
 			return 1
 		
