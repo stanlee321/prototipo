@@ -19,12 +19,12 @@ from collections import defaultdict
 font = cv2.FONT_HERSHEY_SIMPLEX
 
 class GeneradorEvidencia():
-	def __init__(self, carpetaReporte,mifps = 10):
+	def __init__(self, carpetaReporte,mifps = 10,guardoRecortados = True):
 		self.carpetaDeReporteActual = carpetaReporte
 		self.framesPorSegundoEnVideo = mifps
 		self.ventana = 5
 		self.height, self.width = 240, 320
-
+		self.guardoRecortados = guardoRecortados
 		self.dicts_by_name = defaultdict(list)
 
 
@@ -65,10 +65,12 @@ class GeneradorEvidencia():
 			
 			for indiceVideo in range(inicio, final):
 				prueba.write(informacionTotal[indiceVideo]['frame'])
-				contadorDeRecortados = 0
-				for imagen in informacionTotal[indiceVideo]['recortados']:
-					cv2.imwrite(directorioActual+'/photo_{}_{}.jpg'.format(contadorDeRecortados,indiceVideo),imagen)
-					contadorDeRecortados+=1
+				if self.guardoRecortados:
+					contadorDeRecortados = 0
+					for imagen in informacionTotal[indiceVideo]['recortados']:
+						cv2.imwrite(directorioActual+'/photo_{}_{}.jpg'.format(contadorDeRecortados,indiceVideo),imagen)
+						contadorDeRecortados+=1
+					pass
 			prueba.release()
 			return 1
 		

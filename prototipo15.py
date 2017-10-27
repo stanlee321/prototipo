@@ -38,6 +38,7 @@ archivoDeVideo = ''
 videofps = 30
 saltarFrames = False
 entradaReal = 'en tiempo real '		# Complementario
+guardarRecortados = True
 ## Parametros semaforo
 periodoDeSemaforo = 0
 topeEjecucion = 0
@@ -52,7 +53,7 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 anocheciendo =  21*60+30														# Tiempo 17:30 am + 4 GMT
 amaneciendo = 11*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
-maximoMemoria = 150
+maximoMemoria = 300
 
 # Función principal
 def __main_function__():
@@ -123,7 +124,7 @@ def __main_function__():
 	
 	# Creación de objetos:
 	miPoliciaReportando = PoliciaInfractor(informacion['frame'],verticesPartida,verticesLlegada)
-	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps)
+	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,guardarRecortados)
 
 	#remocionFondo = matches # List like with arrays 
 	if mostrarImagen:
@@ -149,6 +150,11 @@ def __main_function__():
 		# Asign number rfame to the information from miCamara.read()		
 		informacion['index'] = frame_number
 		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
+		# Si forzamos por entrada o si estamos en verde botamos la información de los rectangulos:
+		if (guardarRecortados == False) | (informacionTotal[frame_number]['semaforo'][0]==0):
+			del informacionTotal[frame_number]['recortados']
+			informacionTotal[frame_number]['recortados'] = {}
+
 		if frame_number> maximoMemoria:
 			try:
 				informacionTotal[frame_number - maximoMemoria]['recortados'] = []
@@ -226,7 +232,7 @@ def __main_function__():
 		demoKillAutomatico +=1
 		#if tiempoEjecucion>periodoDeMuestreo:
 		#	miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
-		print('<Ejec: {0:3f}'.format(time.time() - tiempoAuxiliar),' en ',frame_number,' color ',informacion['semaforo'][1],'F>')
+		print('F_',frame_number,'_{0:2f}'.format(time.time() - tiempoAuxiliar),' [ms] Sema: ',informacion['semaforo'][1],' I: ',miPoliciaReportando.numeroInfraccionesConfirmadas(),'/',miPoliciaReportando.numeroInfraccionesTotales())
 		sys.stdout.write("\033[F")
 		while time.time() - tiempoAuxiliar < periodoDeMuestreo:
 			True
@@ -266,5 +272,7 @@ if __name__ == '__main__':
 			mifps = int(input[:-4])
 		if '.d' in input:
 			topeEjecucion = int(input[:-2])
+		if 'noRec' in input:
+			guardarRecortados = False
 
 	__main_function__()

@@ -122,6 +122,12 @@ class PoliciaInfractor():
 				contadorInfraccionesConfirmadas += 1
 		return contadorInfraccionesConfirmadas
 
+	def numeroInfraccionesTotales(self):
+		contadorInfracciones = 0
+		for infraccion in self.listaDeInfracciones:
+			contadorInfracciones += 1
+		return contadorInfracciones
+
 	def popInfraccion(self):
 		if self.numeroInfraccionesConfirmadas() != 0:
 			variableARetornar = self.listaDeInfracciones.pop()
