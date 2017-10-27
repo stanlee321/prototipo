@@ -215,7 +215,6 @@ class WebcamVideoStream:
 			self.senalColor, self.colorLiteral, self.flancoSemaforo  = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)
 
 			if self.colorLiteral == 'verde':
-				print('WITHOUT BG')
 				self.cutHDImage(self.frame)
 				self.information['frame'] = self.frame_resized
 				self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo]
@@ -223,8 +222,6 @@ class WebcamVideoStream:
 				self.information['rectangulos'] = self.matches
 			
 			else:
-
-				print('ALL WORKING')
 
 				##  BackGroundSub part, this is updating the self.listaderecortados
 				self.BgSubCNT(self.frame_resized)

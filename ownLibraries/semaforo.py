@@ -31,7 +31,6 @@ class Semaforo(object):
 
 
 	def __init__(self):
-		print('HELLO FROM SEMAFORO PARENT')
 		self.flanco = 0
 		self.state = 'verde'
 		self.previous_state = 'rojo'
@@ -138,7 +137,7 @@ class Simulado(Semaforo):
 	"""
 
 	def __init__(self, periodoSemaforo = 10 ):
-		print( 'STARTING .... SEMAFORO SIMULADO')
+		print( '[[[....STARTING .... SEMAFORO SIMULADO]]]')
 		self.periodoSemaforo = periodoSemaforo
 		self.sleeptime = 1
 
@@ -179,7 +178,7 @@ class Real(Semaforo):
 	def __init__(self):
 
 		# LOAD THE TRAINED SVM MODEL ... INTO THE MEMORY????
-		print( 'WILLKOMEN TO  REAL REAL REAL SEMAFORO')
+		print( '>>>>>>WILLKOMEN TO  REAL REAL REAL SEMAFORO<<<<<<')
 		print( 'checking for model....')
 		if os.path.isfile("./model/svm_model.pkl"):
 			print("Model Found!!!!")
