@@ -17,7 +17,7 @@ directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
 directorioDeLibreriasPropias = directorioDeTrabajo +'/ownLibraries'
 nombreCarpetaDeReporte = '/casosReportados'
-directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpetaDeReporte
+directorioDeReporte = os.getenv('HOME')+nombreCarpetaDeReporte
 folderDeInstalacion = directorioDeTrabajo+'/installationFiles'
 # Se introduce las librerias propias
 sys.path.insert(0, directorioDeLibreriasPropias)
@@ -101,16 +101,16 @@ def __main_function__():
 	# Arrancando camara
 	if len(archivoDeVideo)==0:	# modo real
 		if os.uname()[1] == 'alvarohurtado-305V4A':
-			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = 5).start()
+			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo).start()
 			time.sleep(1)
 		else:
-			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = 5).start()
+			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo).start()
 			time.sleep(1)
 
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		try:
-			miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = (640,480),poligono = poligonoSemaforo,debug = saltarFrames,fps = mifps, periodo = 5).start()
+			miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = (640,480),poligono = poligonoSemaforo,debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo).start()
 			time.sleep(1)
 			miReporte.info('Archivo de video cargado exitosamente: '+directorioDeVideos+'/'+archivoDeVideo)
 		except Exception as currentException:
@@ -183,7 +183,7 @@ def __main_function__():
 
 		if mostrarImagen:
 			# Draw frame number into image on top
-			cv2.putText(informacion['frame'], datetime.datetime.now().strftime('%A %d %B %Y %I:%M:%S%p'), (10,230), font, 0.4,(255,255,255),1,cv2.LINE_AA)
+			cv2.putText(informacion['frame'], datetime.datetime.now().strftime('%A %d %B %Y %I:%M:%S%p'), (2,230), font, 0.4,(255,255,255),1,cv2.LINE_AA)
 
 			# Draw Rectangles into the debug mask
 			for rect  in informacion['rectangulos'] :
