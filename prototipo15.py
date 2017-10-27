@@ -36,6 +36,7 @@ from irswitch import IRSwitch
 ## Parametros de input video
 archivoDeVideo = ''
 videofps = 30
+saltarFrames = False
 entradaReal = 'en tiempo real '		# Complementario
 ## Parametros semaforo
 periodoDeSemaforo = 0
@@ -83,6 +84,7 @@ def __main_function__():
 	if len(archivoDeVideo)>4: archivoParametrosACargar = archivoDeVideo[:-4]+'.npy'
 	else: archivoParametrosACargar = 'datos.npy'
 	parametrosInstalacion = np.load(folderDeInstalacion+'/'+archivoParametrosACargar)
+	print('Datos de Instalacion de: ',folderDeInstalacion+'/'+archivoParametrosACargar)
 	poligonoSemaforo = parametrosInstalacion[0]
 	verticesPartida = parametrosInstalacion[1]
 	verticesLlegada = parametrosInstalacion[2]
@@ -99,16 +101,16 @@ def __main_function__():
 	# Arrancando camara
 	if len(archivoDeVideo)==0:	# modo real
 		if os.uname()[1] == 'alvarohurtado-305V4A':
-			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, debug = True,fps = mifps).start()
+			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps).start()
 			time.sleep(1)
 		else:
-			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = True,fps = mifps).start()
+			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps).start()
 			time.sleep(1)
 
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		try:
-			miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = (640,480),poligono = poligonoSemaforo,debug = True,fps = mifps).start()
+			miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = (640,480),poligono = poligonoSemaforo,debug = saltarFrames,fps = mifps).start()
 			time.sleep(1)
 			miReporte.info('Archivo de video cargado exitosamente: '+directorioDeVideos+'/'+archivoDeVideo)
 		except Exception as currentException:
@@ -150,7 +152,7 @@ def __main_function__():
 		if frame_number> maximoMemoria:
 			try:
 				informacionTotal[frame_number - maximoMemoria]['recortados'] = []
-				print('Released memory')
+				#print('Released memory')
 			except Exception as e:
 				print('No pude liberar por ', e)
 
@@ -175,7 +177,7 @@ def __main_function__():
 				tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
 				if (tiempoAhora > amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Activado'):
 					miFiltro.colocarFiltroIR()
-				if (tiempoAhora > anocheciendo) & (miFiltro.ultimoEstado != 'Filtro Desactivado'):
+				if (tiempoAhora < amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Desactivado'):
 					miFiltro.quitarFiltroIR()
 			pass
 
@@ -215,7 +217,7 @@ def __main_function__():
 		demoKillAutomatico +=1
 		#if tiempoEjecucion>periodoDeMuestreo:
 		#	miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
-		print('<Ejec: {0:3f}'.format(time.time() - tiempoAuxiliar),' de ', periodoDeMuestreo,' en ',frame_number,'F>')
+		print('<Ejec: {0:3f}'.format(time.time() - tiempoAuxiliar),' en ',frame_number,' color ',informacion['semaforo'][1],'F>')
 		sys.stdout.write("\033[F")
 		while time.time() - tiempoAuxiliar < periodoDeMuestreo:
 			True
@@ -245,6 +247,7 @@ if __name__ == '__main__':
 		if ('.mp4' in input)|('.avi' in input):
 			archivoDeVideo = input
 			entradaReal = ''
+			saltarFrames = True
 		if '.seg' in input:
 			periodoDeSemaforo = int(input[:-4])
 			semaforoSimuladoTexto = 'simulado a '
