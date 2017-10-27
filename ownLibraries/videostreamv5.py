@@ -41,12 +41,11 @@ class FPS:
 
 
 class WebcamVideoStream:
-	def __init__(self, src=0, resolution = (320,240), poligono = None, debug = False, fps = 10):
+	def __init__(self, src=0, resolution = (320,240), poligono = None, debug = False, fps = 10, periodo = 0):
 		# For debug video
 		self.debug = debug
+		print('selfDDEBUG', self.debug)
 		self.fps = fps
-
-
 
 		width, height = resolution[0], resolution[1]
 		# initialize the video camera stream and read the first frame
@@ -61,43 +60,68 @@ class WebcamVideoStream:
 		time.sleep(1)
 		self.stopped = False
 
-		# Draw rectangles and centroids in LR FRAME
-		#self.draw = draw
 
-		#print(self.frame)
 		print('-----------------------------------------------')
 		print("FRAME ORIGIN SHAPE", self.frame.shape)
 		print('-----------------------------------------------')
-		# Resized normal frame
-		self.frame_medium = cv2.resize(self.frame, (640,480))
-		# Set new resolution for the consumers
-		self.frame_resized = cv2.resize(self.frame_medium, (320,240))
-		
-		print('FRAME:RESIZED', self.frame_resized.shape)
-		
-		print('FRAME MEDIUM', self.frame_medium.shape)
-		##### Semaforo part
-		# find MAX, MIN values  in poligono
-		maxinX = max([x[0] for x in poligono])
-		maxinY = max([y[1] for y in poligono])
 
-		mininX = min([x[0] for x in poligono])
-		mininY = min([y[1] for y in poligono])
+		# If is debug mode
+		if self.debug == True:
+			print('::::::::BIENBENIDOS AL MODO DEBUG::::::::::')
 
-		# Values to cut the self.frame_resized for the 
-		# semaforo input
+			self.frame_resized = cv2.resize(self.frame, (320,240))
+			print('FRAME:RESIZED', self.frame_resized.shape)
+			print('FRAME', self.frame.shape)
+
+			##### Semaforo part
+			# find MAX, MIN values  in poligono
+			maxinX = max([x[0] for x in poligono])
+			maxinY = max([y[1] for y in poligono])
+
+			mininX = min([x[0] for x in poligono])
+			mininY = min([y[1] for y in poligono])
+			# Values to cut the self.frame_resized for the 
+			# semaforo input
+
+			self.x0 = mininX //2 
+			self.x1 = maxinX //2
+
+			self.y0 = mininY //2
+			self.y1 = maxinY //2
+
+		else:
+			print('>>>>>>>>>Willkommen zu THE REAL WORLD<<<<<<<<<<<<<<')
+			# Resized normal frame
+			self.frame_medium = cv2.resize(self.frame, (640,480))
+			
+			# Set new resolution for the consumers
+			self.frame_resized = cv2.resize(self.frame_medium, (320,240))
+			print('FRAME:RESIZED', self.frame_resized.shape)
+			print('FRAME MEDIUM', self.frame_medium.shape)
 
 
-		self.x0 = mininX
-		self.x1 = maxinX
+			##### Semaforo part
+			# find MAX, MIN values  in poligono
+			maxinX = max([x[0] for x in poligono])
+			maxinY = max([y[1] for y in poligono])
 
-		self.y0 = mininY
-		self.y1 = maxinY
+			mininX = min([x[0] for x in poligono])
+			mininY = min([y[1] for y in poligono])
+			# Values to cut the self.frame_resized for the 
+			# semaforo input
+
+			self.x0 = mininX
+			self.x1 = maxinX
+
+			self.y0 = mininY
+			self.y1 = maxinY
+			
+
 
 		self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
 
 		#####  CREATE SEMAFORO
-		self.semaforo = CreateSemaforo(periodoSemaforo = 0)
+		self.semaforo = CreateSemaforo(periodoSemaforo = periodo)
 
 		self.senalColor = -1
 		self.colorLiteral = None
@@ -110,7 +134,6 @@ class WebcamVideoStream:
 		# second parameter : Remember Frames until the end?
 		# thirth parameter : first parameter * FPS excpeted
 
-		print('INIT_PARAMS FOR BG')
 		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*self.fps)
 		self.k = 31
 		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
@@ -123,10 +146,6 @@ class WebcamVideoStream:
 		self.matches = []
 		# Cutted frame with the info from bouing boxes
 		self.listaderecortados = []
-
-		# Frame number Counter
-		#self.frame_number = -1
-
 
 		##### For CUT the HD IMAGE
 
@@ -174,41 +193,49 @@ class WebcamVideoStream:
 				for f in range(int(self.ratio)):
 					(self.grabbed, self.frame) = self.stream.read()
 
+				# Set new resolution for the consumers
+				self.frame_resized = cv2.resize(self.frame, (320,240))
+
+				# Cut imagen for the semaforo
+				self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
+					
+
+
 			else:
 				(self.grabbed, self.frame) = self.stream.read()
 
+				self.frame_medium = cv2.resize(self.frame, (640,480))
+				# Set new resolution for the consumers
+				self.frame_resized = cv2.resize(self.frame_medium, (320,240))
+				# Cut imagen for the semaforo
+				self.imagen_semaforo = self.frame_medium[self.y0:self.y1,self.x0:self.x1]
 
-
-			self.frame_medium = cv2.resize(self.frame, (640,480))
-			# Set new resolution for the consumers
-
-			self.frame_resized = cv2.resize(self.frame_medium, (320,240))
-
-			# Cut imagen for the semaforo
-			self.imagen_semaforo = self.frame_medium[self.y0:self.y1,self.x0:self.x1]
-
-			##  BackGroundSub part, this is updating the self.listaderecortados
-			self.BgSubCNT(self.frame_resized)
 
 			# RETURNING VALUES FOR SEMAFORO
 			self.senalColor, self.colorLiteral, self.flancoSemaforo  = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)
 
-			# Cutting the HD image
-			self.cutHDImage(self.frame)
+			if self.colorLiteral == 'verde':
+				print('WITHOUT BG')
+				self.cutHDImage(self.frame)
+				self.information['frame'] = self.frame_resized
+				self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo]
+				self.information['recortados'] = self.listaderecortados
+				self.information['rectangulos'] = self.matches
+			
+			else:
 
+				print('ALL WORKING')
 
+				##  BackGroundSub part, this is updating the self.listaderecortados
+				self.BgSubCNT(self.frame_resized)
+				self.cutHDImage(self.frame)
+				self.information['frame'] = self.frame_resized
+				self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo]
+				self.information['recortados'] = self.listaderecortados
+				self.information['rectangulos'] = self.matches
+			
 
-			#self.information['index'] = self.frame_number
-			self.information['frame'] = self.frame_resized
-			self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo]
-			self.information['recortados'] = self.listaderecortados
-			self.information['rectangulos'] = self.matches
-			# Update framenumber
-			#self._frame_number  += 1
-
-
-			#print('FRAME :NUMBER', self.frame_number)
-			#self.information = {}
+			
 	def read(self):
 		# return the frame most recently read
 		#return self.listaderecortados, self.frame_resized, self.senalColor, self.colorLiteral, self.flancoSemaforo 
@@ -329,9 +356,10 @@ class WebcamVideoStream:
 		return (cx, cy)
 
 class VideoStream:
-	def __init__(self, src=0, usePiCamera=False, resolution=(320, 240),	framerate=32, poligono = None,  debug = False, fps = 10):
+	def __init__(self, src=0, usePiCamera=False, resolution=(320, 240),	framerate=32, poligono = None,  debug = False, fps = 10, periodo = 0):
 		self.debug = debug
 		self.fps = fps
+		self.periodo = periodo
 		# check to see if the picamera module should be used
 		if usePiCamera:
 			# only import the picamera packages unless we are
@@ -348,7 +376,7 @@ class VideoStream:
 		# stream
 		else:
 
-			self.stream = WebcamVideoStream(src=src, resolution=resolution, poligono = poligono, debug = self.debug, fps = self.fps)
+			self.stream = WebcamVideoStream(src=src, resolution=resolution, poligono = poligono, debug = self.debug, fps = self.fps, periodo = self.periodo)
 
 	def start(self):
 		# start the threaded video stream
