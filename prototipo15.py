@@ -185,6 +185,13 @@ def __main_function__():
 			# Draw frame number into image on top
 			cv2.putText(informacion['frame'], datetime.datetime.now().strftime('%A %d %B %Y %I:%M:%S%p'), (10,230), font, 0.4,(255,255,255),1,cv2.LINE_AA)
 
+			# Draw Rectangles into the debug mask
+			for rect  in informacion['rectangulos'] :
+				x,y,w,h = rect[0]
+				centroid  = rect[1]
+				cv2.rectangle(informacion['frame'], (x,y),(x+w-1, y+h-1),(0,0,255),1)
+				cv2.circle(informacion['frame'], centroid,2,(0,255,0),-1)
+
 			visualizacion = informacion['frame']
 			for infraction in miPoliciaReportando.listaDeInfracciones:
 				for puntos in infraction['desplazamiento']:
@@ -212,6 +219,8 @@ def __main_function__():
 				visualLabel.establecerColorFondoDe(backgroudColour = (0,0,0), numeroDeCaja = 0)
 			visualLabel.establecerMagnitudBarra(magnitude = int(miPoliciaReportando.ultimaVelocidad))
 			visualizacion = visualLabel.aplicarMascaraActualAFrame(visualizacion)
+			
+			# Show Everything
 			cv2.imshow('Visual',visualLabel.aplicarTodo())		
 		
 		demoKillAutomatico +=1
