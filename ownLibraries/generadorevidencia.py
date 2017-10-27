@@ -65,29 +65,23 @@ class GeneradorEvidencia():
 			else:
 				final = frameSuperior
 			print('Generada infr de: ',inicio,' a ',final,' len: ',final-inicio,' fecha: ',nombreInfraccion)
-			file_list = []
+
+			directorioRecorte = directorioActual+'/recorte'
 			for indiceVideo in range(inicio, final):
 				prueba.write(informacionTotal[indiceVideo]['frame'])
 				if self.guardoRecortados:
-					nombreArchivoZip = directorioActual+"/"+nombreInfraccion+".zip"
-					myZip = zipfile.ZipFile (nombreArchivoZip, "w", zipfile.ZIP_DEFLATED)
 					contadorDeRecortados = 0
+					
+					if not os.path.exists(directorioRecorte):
+						os.makedirs(directorioRecorte) 
 					for imagen in informacionTotal[indiceVideo]['recortados']:
-						nombreRecorte = directorioActual+'/photo_{}_{}.jpg'.format(contadorDeRecortados,indiceVideo)
+						nombreRecorte = directorioRecorte+'/photo_{}_{}.jpg'.format(contadorDeRecortados,indiceVideo)
 						cv2.imwrite(nombreRecorte,imagen)
 						contadorDeRecortados+=1
 
-					file_list = glob.glob( directorioActual+'/*.jpg')
-					
-					if len(file_list):
-						with zipfile.ZipFile(directorioActual+'/{}.zip'.format(nombreInfraccion), 'w') as zip:
-							for file_name in file_list:
-								zip.write(file_name, basename(file_name)) 
-								#myZip.write(nombreRecorte)
-						myZip.close()
-			for f in file_list:
-				os.remove(f)
-
+			os.system('tar -cf '+directorioActual+'/placa.tar '+directorioRecorte+'/*')
+			#os.system('tar '+directorioActual+'/placa.tar -C '+directorioRecorte+' .')
+			os.system('rm -rf '+directorioRecorte)
 			prueba.release()
 			return 1
 		
