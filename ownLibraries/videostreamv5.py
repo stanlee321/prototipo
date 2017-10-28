@@ -38,8 +38,6 @@ class FPS:
     def fps(self):
         # compute the (approximate) frames per second
         return self._numFrames / self.elapsed()
-
-
 class WebcamVideoStream:
 	def __init__(self, src=0, resolution = (320,240), poligono = None, debug = False, fps = 10, periodo = 0):
 		# For debug video

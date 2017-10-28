@@ -257,6 +257,7 @@ class VisualLayer():
 
 
 	def aplicarPolis(self,image):
+		# Drw the bottom boxes
 		for poli in self.list_of_polis:
 			mask = poli.draw(image = image)
 		return mask
@@ -269,6 +270,15 @@ class VisualLayer():
 			mask = self.puntos[index].draw()
 		return mask
 
+	def aplicarRectangulos(self, image, boxes):
+		# Draw Rectangles into the debug mask
+		for rect in boxes :
+			x,y,w,h = rect[0]
+			centroid  = rect[1]
+			cv2.rectangle(image, (x,y),(x+w-1, y+h-1),(0,0,255),1)
+			cv2.circle(image, centroid,2,(0,255,0),-1)
+
+
 
 	def aplicarTodo(self):
 		# Return all the draw() aviable methos from every 
@@ -280,6 +290,7 @@ class VisualLayer():
 		#mask = self.poligono.draw(image = self.imageInput)
 		mask = self.aplicarPolis(image = self.imageInput)
 		
+		#mask = self.aplicarRectangulos(self.imageInput, self.boxes)
 
 		# CREATE POINTS
 		#if self.puntosAdibujar != None:
