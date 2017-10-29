@@ -68,10 +68,16 @@ def __main_function__():
 		os.makedirs(directorioDeReporte) 
 	
 	# Is statements
-	if generarArchivosDebug: miReporte.info('Generando Archivos de Debug')
-	else: miReporte.info('Generando infracciones unicamente (No debug video)')
-	if mostrarImagen: miReporte.info('Pantalla de muestra de funcionamiento en tiempo real encendida')
-	else: miReporte.info('Pantalla de muestra de funcionamiento en tiempo real apagada')
+	if generarArchivosDebug:
+		miReporte.info('Generando Archivos de Debug')
+	else:
+		miReporte.info('Generando infracciones unicamente (No debug video)')
+	
+	# If mostrar Imagenes
+	if mostrarImagen:
+		miReporte.info('Pantalla de muestra de funcionamiento en tiempo real encendida')
+	else:
+		miReporte.info('Pantalla de muestra de funcionamiento en tiempo real apagada')
 
 	# El directorio de reporte debe crearse al inicio del programa
 	# Variables de control:
@@ -82,8 +88,11 @@ def __main_function__():
 
 	# Cargando los parametros de instalacion:
 	# El archivo de video debe tener como minimo 5 caracteres para estar trnajando en modo simulado, de lo contrario estamos trabajando en modo real
-	if len(archivoDeVideo)>4: archivoParametrosACargar = archivoDeVideo[:-4]+'.npy'
-	else: archivoParametrosACargar = 'datos.npy'
+	if len(archivoDeVideo) > 4:
+		archivoParametrosACargar = archivoDeVideo[:-4]+'.npy'
+	else:
+		archivoParametrosACargar = 'datos.npy'
+	
 	parametrosInstalacion = np.load(folderDeInstalacion+'/'+archivoParametrosACargar)
 	print('Datos de Instalacion de: ',folderDeInstalacion+'/'+archivoParametrosACargar)
 	poligonoSemaforo = parametrosInstalacion[0]
@@ -146,10 +155,24 @@ def __main_function__():
 
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
-		informacion = miCamara.read()
+		
+		# Ways to access to the information 
+
+		# information['frame'] ; numpy array containing the low res frame 
+		# information['semaforo'] ; list like [self.senalColor, self.colorLiteral, self.flancoSemaforo]
+		# information['recortados'] ; list like of tuples  representing listaderecortados from hd frame [(_numpy arrays_)n+1]
+		# information['rectangulos'] ; list like of tuples  representing listaderectangulos and centroids in frame [((x,y,h,w),(p1,p2))n+1]
+		# n+1 ; represent the 1 by 1 correspndencia de los rectangulos encontrados y imagenes recortadas
+		
+		informacion = miCamara.read() # Ways to access
+
+		# assing index information to the above infomation
 
 		# Asign number rfame to the information from miCamara.read()		
 		informacion['index'] = frame_number
+
+		for f in information['frame']
+
 		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
 		# Si forzamos por entrada o si estamos en verde botamos la información de los rectangulos:
 		if (guardarRecortados == False) | (informacionTotal[frame_number]['semaforo'][0]==0):

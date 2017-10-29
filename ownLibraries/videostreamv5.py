@@ -146,9 +146,9 @@ class WebcamVideoStream:
 		self.min_contour_width = 30
 		self.min_contour_height = 30
 
-		# bounding box where is the moving object
+		# list like to append bounding box where is the moving object
 		self.matches = []
-		# Cutted frame with the info from bouing boxes
+		# list like to append Cutted frame with the info from bouing boxes
 		self.listaderecortados = []
 
 		##### For CUT the HD IMAGE
@@ -249,7 +249,7 @@ class WebcamVideoStream:
 			# Despachando los valores al mundo exterior.
 			self.information['frame'] = self.frame_resized
 			self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo]
-			self.information['recortados'] = self.listaderecortados
+			self.information['recortados'] = self.listaderecortados 			
 			self.information['rectangulos'] = self.matches
 			
 
