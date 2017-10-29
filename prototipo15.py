@@ -221,7 +221,7 @@ def __main_function__():
 
 			# Draw the rectangles
 
-			visualLabel.aplicarRectangulos(informacion['frame'], informacion['rectangulos'])
+			visualLabel.updateRecangulos(informacion['rectangulos'])
 
 
 			visualLabel.establecerMagnitudBarra(magnitude = int(miPoliciaReportando.ultimaVelocidad))

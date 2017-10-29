@@ -156,6 +156,7 @@ class VisualLayer():
 
 		self.list_of_polis = []
 
+		self.rectangulos = None
 	def crearMascaraCompleta(self, size = (240,320)):
 		self.height, self.width = size[0], size[1]
 		self.imageInput = VisualLayer.crearMascara(size=(self.height, self.width))
@@ -270,6 +271,10 @@ class VisualLayer():
 			mask = self.puntos[index].draw()
 		return mask
 
+	def updateRecangulos(self, boxes):
+		self.rectangulos = boxes
+
+
 	def aplicarRectangulos(self, image, boxes):
 		# Draw Rectangles into the debug mask
 		for rect in boxes :
@@ -288,6 +293,7 @@ class VisualLayer():
 		mask = self.aplicarBarraDeEstados(image = self.imageInput)
 		mask = self.bar.draw(image = self.imageInput)
 		#mask = self.poligono.draw(image = self.imageInput)
+		mask = self.aplicarRectangulos(self.imageInput, self.rectangulos)
 		mask = self.aplicarPolis(image = self.imageInput)
 		
 		#mask = self.aplicarRectangulos(self.imageInput, self.boxes)
