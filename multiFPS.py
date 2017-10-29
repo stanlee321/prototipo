@@ -14,7 +14,7 @@ import time
 import imutils
 import datetime
 import argparse
-
+import numpy as np
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeLibreriasPropias = directorioDeTrabajo +'/ownLibraries'
 saveDirectory = directorioDeTrabajo+'/VideoCapture/'
@@ -51,12 +51,25 @@ fps = FPS().start()
 #while fps._numFrames < args["num_frames"]:
 counter = 0
 tiempoAuxiliar = time.time()
+
+
+def adjust_gamma(image, gamma=1.0):
+	# build a lookup table mapping the pixel values [0, 255] to
+	# their adjusted gamma values
+	invGamma = gamma#1.0 / gamma
+	table = np.array([((i / 255.0) ** invGamma) * 255
+		for i in np.arange(0, 256)]).astype("uint8")
+ 
+	# apply gamma correction using the lookup table
+	return cv2.LUT(image, table)
+
+
 while True:
 	# grab the frame from the threaded video stream and resize it
 	# to have a maximum width of 400 pixels
 	frame = vs.read()
 	print(frame.shape)
-	#frame = imutils.resize(frame)#, width=1000)
+	frame = imutils.resize(frame, width=320)
 
 	# check to see if the frame should be displayed to our screen
 	#if args["display"] > 0:
@@ -68,7 +81,20 @@ while True:
 	#	cv2.imwrite(saveDirectory+'frame_{}_{}.jpg'.format(counter, date_string), frame[yMin:yMax,xMin:xMax])
 	#	print(counter)
 		# update the FPS counter
-	#cv2.imshow('frame',frame)
+		# loop over various values of gamma
+	for gamma in np.arange(0.0, 3.5, 0.5):
+		# ignore when gamma is 1 (there will be no change to the image)
+		if gamma == 1:
+			continue
+	 
+		# apply gamma correction and show the images
+		gamma = gamma if gamma > 0 else 0.1
+		adjusted = adjust_gamma(frame, gamma=gamma)
+		cv2.putText(adjusted, "g={}".format(gamma), (10, 30),
+			cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 3)
+		cv2.imshow("Images", np.hstack([frame, adjusted]))
+
+		cv2.imshow('frame', frame)
 	counter +=1
 	fps.update()
 	print(time.time()-tiempoAuxiliar)

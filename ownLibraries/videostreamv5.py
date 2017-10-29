@@ -7,6 +7,7 @@ import bgsubcnt
 import time
 #from semaforo import CreateSemaforo
 from ownLibraries.semaforo import CreateSemaforo
+import numpy as np
 
 class FPS:
     def __init__(self):
@@ -39,9 +40,10 @@ class FPS:
         # compute the (approximate) frames per second
         return self._numFrames / self.elapsed()
 class WebcamVideoStream:
-	def __init__(self, src=0, resolution = (320,240), poligono = None, debug = False, fps = 10, periodo = 0):
+	def __init__(self, src=0, resolution = (320,240), poligono = None, debug = False, fps = 10, periodo = 0, gamma = 1.0):
 		# For debug video
 		self.debug = debug
+		self.gamma = gamma
 		print('selfDDEBUG', self.debug)
 		self.fps = fps
 
@@ -50,6 +52,9 @@ class WebcamVideoStream:
 		# from the stream
 		self.stream = cv2.VideoCapture(src)
 
+
+
+
 		self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, width)
 		self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 		(self.grabbed, self.frame) = self.stream.read()
@@ -57,6 +62,7 @@ class WebcamVideoStream:
 		# be stopped
 		time.sleep(1)
 		self.stopped = False
+
 
 
 		print('-----------------------------------------------')
@@ -168,6 +174,19 @@ class WebcamVideoStream:
 			self.ratio = 30 / fps
 
 
+
+	def adjust_gamma(self, image, gamma=1.0):
+
+		# build a lookup table mapping the pixel values [0, 255] to
+		# their adjusted gamma values
+		invGamma = gamma #1.0 / gamma
+		table = np.array([((i / 255.0) ** invGamma) * 255
+			for i in np.arange(0, 256)]).astype("uint8")
+	 
+		# apply gamma correction using the lookup table
+		return cv2.LUT(image, table)
+
+
 	def start(self):
 		# start the thread to read frames from the video stream
 		t = Thread(target=self.update, args=())
@@ -191,8 +210,10 @@ class WebcamVideoStream:
 				for f in range(int(self.ratio)):
 					(self.grabbed, self.frame) = self.stream.read()
 
+				adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
+
 				# Set new resolution for the consumers
-				self.frame_resized = cv2.resize(self.frame, (320,240))
+				self.frame_resized = cv2.resize(adjusted, (320,240))
 
 				# Cut imagen for the semaforo
 				self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
@@ -202,7 +223,9 @@ class WebcamVideoStream:
 			else:
 				(self.grabbed, self.frame) = self.stream.read()
 
-				self.frame_medium = cv2.resize(self.frame, (640,480))
+				adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
+
+				self.frame_medium = cv2.resize(adjusted, (640,480))
 				# Set new resolution for the consumers
 				self.frame_resized = cv2.resize(self.frame_medium, (320,240))
 				# Cut imagen for the semaforo
@@ -350,10 +373,11 @@ class WebcamVideoStream:
 		return (cx, cy)
 
 class VideoStream:
-	def __init__(self, src=0, usePiCamera=False, resolution=(320, 240),	framerate=32, poligono = None,  debug = False, fps = 10, periodo = 0):
+	def __init__(self, src=0, usePiCamera=False, resolution=(320, 240),	framerate=32, poligono = None,  debug = False, fps = 10, periodo = 0, gamma = 1.0):
 		self.debug = debug
 		self.fps = fps
 		self.periodo = periodo
+		self.gamma = gamma
 		# check to see if the picamera module should be used
 		if usePiCamera:
 			# only import the picamera packages unless we are
@@ -370,7 +394,7 @@ class VideoStream:
 		# stream
 		else:
 
-			self.stream = WebcamVideoStream(src=src, resolution=resolution, poligono = poligono, debug = self.debug, fps = self.fps, periodo = self.periodo)
+			self.stream = WebcamVideoStream(src=src, resolution=resolution, poligono = poligono, debug = self.debug, fps = self.fps, periodo = self.periodo, gamma = self.gamma)
 
 	def start(self):
 		# start the threaded video stream
