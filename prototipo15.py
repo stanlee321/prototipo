@@ -55,6 +55,7 @@ amaneciendo = 11*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
 maximoMemoria = 300
 
+gamma = 1.0
 # Función principal
 def __main_function__():
 	# Import some global varialbes
@@ -111,16 +112,16 @@ def __main_function__():
 	# Arrancando camara
 	if len(archivoDeVideo)==0:	# modo real
 		if os.uname()[1] == 'alvarohurtado-305V4A':
-			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = 1.0 ).start()
+			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma ).start()
 			time.sleep(1)
 		else:
-			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = 1.0).start()
+			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
 			time.sleep(1)
 
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		try:
-			miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = (640,480),poligono = poligonoSemaforo,debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = 1.0).start()
+			miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = (640,480),poligono = poligonoSemaforo,debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
 			time.sleep(1)
 			miReporte.info('Archivo de video cargado exitosamente: '+directorioDeVideos+'/'+archivoDeVideo)
 		except Exception as currentException:
@@ -171,7 +172,6 @@ def __main_function__():
 		# Asign number rfame to the information from miCamara.read()		
 		informacion['index'] = frame_number
 
-		for f in information['frame']
 
 		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
 		# Si forzamos por entrada o si estamos en verde botamos la información de los rectangulos:
@@ -301,5 +301,7 @@ if __name__ == '__main__':
 			topeEjecucion = int(input[:-2])
 		if 'noRec' in input:
 			guardarRecortados = False
+		if 'gamma' in input:
+			gamma = int(input[:-5])
 
 	__main_function__()
