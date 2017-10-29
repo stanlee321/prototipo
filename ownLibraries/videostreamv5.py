@@ -217,7 +217,11 @@ class WebcamVideoStream:
 
 				# Cut imagen for the semaforo
 				self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
-					
+				
+				# Compensation timefor using the simulation, since there is not ML Process
+				time.sleep(0.033)
+				# RETURNING VALUES FOR SEMAFORO
+				self.senalColor, self.colorLiteral, self.flancoSemaforo  = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)	
 
 
 			else:
@@ -232,9 +236,11 @@ class WebcamVideoStream:
 				self.imagen_semaforo = self.frame_medium[self.y0:self.y1,self.x0:self.x1]
 
 
-			# RETURNING VALUES FOR SEMAFORO
-			self.senalColor, self.colorLiteral, self.flancoSemaforo  = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)
+				# RETURNING VALUES FOR SEMAFORO
+				self.senalColor, self.colorLiteral, self.flancoSemaforo  = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)
 
+
+			# Despachando los valores al mundo exterior.
 			if self.colorLiteral == 'verde':
 				self.cutHDImage(self.frame)
 				self.information['frame'] = self.frame_resized
