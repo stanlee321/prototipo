@@ -133,6 +133,7 @@ def __main_function__():
 		visualLabel.crearBarraInformacion(height = 240)
 		visualLabel.crearBarraDeProgreso()
 		visualLabel.ponerPoligono(np.array(verticesPartida))
+		visualLabel.colorRectangulos = (255,0,255,) # Input tupple like (0,0,255)
 
 	
 	frame_number = 0	

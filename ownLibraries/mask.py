@@ -157,6 +157,7 @@ class VisualLayer():
 		self.list_of_polis = []
 
 		self.rectangulos = None
+		self.colorRectangulos = (0,0,255)
 	def crearMascaraCompleta(self, size = (240,320)):
 		self.height, self.width = size[0], size[1]
 		self.imageInput = VisualLayer.crearMascara(size=(self.height, self.width))
@@ -280,7 +281,7 @@ class VisualLayer():
 		for rect in boxes :
 			x,y,w,h = rect[0]
 			centroid  = rect[1]
-			cv2.rectangle(image, (x,y),(x+w-1, y+h-1),(0,0,255),1)
+			cv2.rectangle(image, (x,y),(x+w-1, y+h-1),self.colorRectangulos,1)
 			cv2.circle(image, centroid,2,(0,255,0),-1)
 
 
