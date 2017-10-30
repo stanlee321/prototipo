@@ -6,7 +6,7 @@ import math
 import logging
 import datetime
 import numpy as np
-from analisisonda import AnalisisOnda
+from ownLibraries.analisisonda import AnalisisOnda
 
 import matplotlib.pyplot as graficaActual
 from ownLibraries.mireporte import MiReporte

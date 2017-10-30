@@ -1,7 +1,6 @@
 """
 This new prototipe includes huge improvements in flow detection and image capture for the raspberry pi 
 """
-
 import os
 import sys
 import cv2
@@ -9,8 +8,17 @@ import time
 import logging
 import datetime
 import numpy as np
-import multiprocessing
-import matplotlib.pyplot as plt 
+
+
+
+from ownLibraries.mask import VisualLayer
+from ownLibraries.mireporte import MiReporte
+#from semaforo import CreateSemaforo
+from ownLibraries.policiainfractor import PoliciaInfractor
+from ownLibraries.videostreamv5 import VideoStream
+from ownLibraries.videostreamv5 import FPS
+from ownLibraries.generadorevidencia import GeneradorEvidencia
+from ownLibraries.irswitch import IRSwitch
 
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
@@ -21,16 +29,6 @@ directorioDeReporte = os.getenv('HOME')+nombreCarpetaDeReporte
 folderDeInstalacion = directorioDeTrabajo+'/installationFiles'
 # Se introduce las librerias propias
 sys.path.insert(0, directorioDeLibreriasPropias)
-
-from mask import VisualLayer
-from mireporte import MiReporte
-#from semaforo import CreateSemaforo
-from policiainfractor import PoliciaInfractor
-from videostreamv5 import VideoStream
-from videostreamv5 import FPS
-from BackgroundsubCNT import CreateBGCNT
-from generadorevidencia import GeneradorEvidencia
-from irswitch import IRSwitch
 
 # Se crean las variables de constantes de trabajo del programa
 ## Parametros de input video

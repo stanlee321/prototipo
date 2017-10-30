@@ -11,11 +11,6 @@ import logging
 import zipfile
 import datetime
 import numpy as np
-import glob
-from os.path import basename
-from shooter import Shooter
-from mireporte import MiReporte
-from areaderesguardo import AreaDeResguardo
 
 from collections import defaultdict
 from ownLibraries.mireporte import MiReporte
