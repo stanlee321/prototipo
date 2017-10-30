@@ -53,7 +53,7 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 anocheciendo =  21*60+30														# Tiempo 17:30 am + 4 GMT
 amaneciendo = 11*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
-maximoMemoria = 400
+maximoMemoria = 200
 
 
 
@@ -122,7 +122,8 @@ def __main_function__():
 			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma ).start()
 			time.sleep(1)
 		else:
-			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
+			#miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
+			miCamara = VideoStream(src = 0, resolution = (1648,1256),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
 			time.sleep(1)
 
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
