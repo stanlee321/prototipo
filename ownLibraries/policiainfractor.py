@@ -274,6 +274,8 @@ class PoliciaInfractor():
 				if len(linea)>maximaLongitud:
 					maximaLongitud = len(linea)
 					lineaRespuesta = linea
+			extremoInferior = lineaRespuesta[0]
+			extremoSuperior = extremoInferior
 			if len(lineaRespuesta)>2:
 				extremoInferior = lineaRespuesta.pop(0)
 				extremoSuperior = lineaRespuesta.pop()
