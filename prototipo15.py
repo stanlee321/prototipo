@@ -177,7 +177,6 @@ def __main_function__():
 		# Asign number rfame to the information from miCamara.read()		
 		informacion['index'] = frame_number
 
-		t1 = time.time()
 		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
 		# Si forzamos por entrada o si estamos en verde botamos la información de los rectangulos:
 		if (guardarRecortados == False) | (informacionTotal[frame_number]['semaforo'][0]==0):
@@ -191,14 +190,11 @@ def __main_function__():
 			except Exception as e:
 				miReporte.error('No pude liberar por '+ str(e))
 
-		t2 = time.time()
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
 			if informacion['semaforo'][2] == 1:						# esto se inicia al principio de este estado
-				print('<<<<<<<<FRME::TEST ...>>', frame_number)
-				print('TIME THAT TOOK ALL AVOBE', t2-t1)
+				print('Here was something---')
 				#miReporte.info('SEMAFORO EN ROJO')
-				print('SEMAFORO EN ROJO')
 				miPoliciaReportando.inicializarAgente()
 				del informacionTotal
 				informacionTotal = {}
