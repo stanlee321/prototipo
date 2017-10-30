@@ -9,8 +9,6 @@ import logging
 import datetime
 import numpy as np
 
-
-
 from ownLibraries.mask import VisualLayer
 from ownLibraries.mireporte import MiReporte
 #from semaforo import CreateSemaforo
@@ -28,7 +26,6 @@ nombreCarpetaDeReporte = '/casosReportados'
 directorioDeReporte = os.getenv('HOME')+nombreCarpetaDeReporte
 folderDeInstalacion = directorioDeTrabajo+'/installationFiles'
 # Se introduce las librerias propias
-sys.path.insert(0, directorioDeLibreriasPropias)
 
 # Se crean las variables de constantes de trabajo del programa
 ## Parametros de input video
