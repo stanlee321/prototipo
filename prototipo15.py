@@ -197,7 +197,8 @@ def __main_function__():
 			if informacion['semaforo'][2] == 1:						# esto se inicia al principio de este estado
 				print('<<<<<<<<FRME::TEST ...>>', frame_number)
 				print('TIME THAT TOOK ALL AVOBE', t2-t1)
-				miReporte.info('SEMAFORO EN ROJO')
+				#miReporte.info('SEMAFORO EN ROJO')
+				print('SEMAFORO EN ROJO')
 				miPoliciaReportando.inicializarAgente()
 				del informacionTotal
 				informacionTotal = {}
