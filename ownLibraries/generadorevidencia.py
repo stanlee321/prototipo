@@ -29,7 +29,6 @@ class GeneradorEvidencia():
 		self.guardoRecortados = guardoRecortados
 		self.dicts_by_name = defaultdict(list)
 
-
 	def inicializarEnCarpeta(self,carpetaReporte):
 		self.carpetaDeReporteActual = carpetaReporte
 
@@ -98,7 +97,6 @@ class GeneradorEvidencia():
 			if indicesMejorFoto[0] != -1:
 				imagen = informacionTotal[indicesMejorFoto[0]]['recortados'][indicesMejorFoto[1]]
 				nombreEvidencia = directorioActual+'/evidencia_{}_{}.jpg'.format(indicesMejorFoto[1],indicesMejorFoto[0])
-				print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',nombreEvidencia)
 				cv2.imwrite(nombreEvidencia,imagen)
 			return 1
 		else:
