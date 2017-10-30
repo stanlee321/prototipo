@@ -66,7 +66,7 @@ class GeneradorEvidencia():
 				final = len(informacionTotal)
 			else:
 				final = frameSuperior
-			self.miReporte.info('Generada infr de: '+str(inicio)+' a '+str(final)+' len: '+str(final-inicio)+' fecha: ' + nombreInfraccion)
+			self.miReporte.info('Generada infr de: '+nombreInfraccion+' de '+str(inicio)+' a '+str(final)+' fecha: ' + nombreInfraccion)
 			if self.guardoRecortados:
 				directorioRecorte = directorioActual+'/recorte'
 				if not os.path.exists(directorioRecorte):
@@ -81,8 +81,9 @@ class GeneradorEvidencia():
 							estado = 'Saved'
 						else:
 							estado = 'Erased'
-						nombreRecorte = directorioRecorte+'/photo_{}_{}_'.format(contadorDeRecortados,indiceVideo)+estado+'.jpg'
-						cv2.imwrite(nombreRecorte,imagen)
+						if True:#informacionTotal[indiceVideo]['recortados'][indiceImagen] != np.array((0)):
+							nombreRecorte = directorioRecorte+'/photo_{}_{}_'.format(contadorDeRecortados,indiceVideo)+estado+'.jpg'
+							cv2.imwrite(nombreRecorte,imagen)
 						contadorDeRecortados+=1
 			prueba.release()
 			# Vuelvo a iterar por la imagen mas grande:
@@ -106,7 +107,7 @@ class GeneradorEvidencia():
 			prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
 			inicio = 0
 			final = len(informacionTotal)
-			self.miReporte.info('Generada debug de: '+str(inicio)+' '+str(final)+' len: '+str(final-inicio)+' total lista: '+str(len(informacionTotal)))
+			self.miReporte.info('Generado DEBUG de: '+nombreInfraccion+' de '+str(inicio)+' '+str(final)+' total lista: '+str(len(informacionTotal)))
 			for indiceVideo in range(inicio,final):
 				try:
 					prueba.write(informacionTotal[indiceVideo]['frame'])

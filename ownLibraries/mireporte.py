@@ -27,7 +27,7 @@ class MiReporte():
 		self.logger.addHandler(self.stream_handler)
 		
 		self.file_handler_actual = logging.FileHandler(self.directorioDeTrabajo+'/LOG_'+nombreDeArchivoSinExtension+'.log')
-		self.file_handler_actual.setFormatter(self.formatter)
+		#self.file_handler_actual.setFormatter(self.formatter)#DOBLE???
 
 	def moverRegistroACarpeta(self,nombreDeCarpeta = datetime.datetime.now().strftime('%m-%d_%H:%M')):
 		self.logger.removeHandler(self.file_handler_global)

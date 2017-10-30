@@ -53,7 +53,9 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 anocheciendo =  21*60+30														# Tiempo 17:30 am + 4 GMT
 amaneciendo = 11*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
-maximoMemoria = 300
+maximoMemoria = 400
+
+
 
 gamma = 1.0
 # Función principal
@@ -61,6 +63,10 @@ def __main_function__():
 	# Import some global varialbes
 	miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)			# Se crea por defecto con nombre de la fecha y hora actual
 	global archivoDeVideo
+	global cambiosImportantes
+	cambiosImportantes = False
+	global numeroDeObjetos
+	numeroDeObjetos = 0
 
 	# Creamos el reporte inicial
 	miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)			# Se crea por defecto con nombre de la fecha y hora actual
@@ -193,7 +199,7 @@ def __main_function__():
 				informacionTotal = {}
 				frame_number = 0
 
-			miPoliciaReportando.seguirObjeto(frame_number,informacion)
+			cambiosImportantes = miPoliciaReportando.seguirObjeto(frame_number,informacion)
 
 		if informacion['semaforo'][0] == 0:							# Si estamos en verde realizamos otra accion
 			if informacion['semaforo'][2] == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
@@ -216,6 +222,7 @@ def __main_function__():
 		if mostrarImagen:
 			# Draw frame number into image on top
 			cv2.putText(informacion['frame'], datetime.datetime.now().strftime('%A %d %B %Y %I:%M:%S%p'), (4,236), font, 0.4,(255,255,255),1,cv2.LINE_AA)
+			cv2.putText(informacion['frame'], str(frame_number),(20,20), font, 0.4,(255,255,255),1,cv2.LINE_AA)
 			visualizacion = informacion['frame']
 
 			for infraction in miPoliciaReportando.listaDeInfracciones:
@@ -262,8 +269,10 @@ def __main_function__():
 		#sys.stdout.write("\033[F")
 		while time.time() - tiempoAuxiliar < periodoDeMuestreo:
 			True
-		miReporte.info('Sema: '+informacion['semaforo'][1]+' I: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas())+'/'+str(miPoliciaReportando.numeroInfraccionesTotales())+' Objetos: {}'.format(len(informacion['rectangulos'])))
 
+		if (cambiosImportantes)|(numeroDeObjetos != len(informacion['rectangulos'])):
+			miReporte.info('F{} Sema: '.format(frame_number)+informacion['semaforo'][1]+' I: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas())+'/'+str(miPoliciaReportando.numeroInfraccionesTotales())+' Objetos: {}'.format(len(informacion['rectangulos'])))
+		numeroDeObjetos = len(informacion['rectangulos'])
 		tiempoAuxiliar = time.time()
 
 		frame_number += 1

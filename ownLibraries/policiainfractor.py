@@ -95,6 +95,7 @@ class PoliciaInfractor():
 		if flanco == 1:
 			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
 			nuevaInfraccion = {'name':datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f'),'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
+			cambiosImportantes = True
 			self.listaDeInfracciones.append(nuevaInfraccion)
 			
 		for infraccion in self.listaDeInfracciones:
@@ -110,6 +111,7 @@ class PoliciaInfractor():
 					xTest, yTest = vector[0][0], vector[0][1]
 					if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:
 						infraccion['estado'] = 'Confirmado'
+						cambiosImportantes = True
 						infraccion['frameFinal'] = numeroDeFrame
 						self.miReporte.info('Conf: '+infraccion['name']+' de '+str(infraccion['frameInicial'])+' a '+str(infraccion['frameFinal'])+' es '+infraccion['estado'])
 						break
@@ -124,10 +126,10 @@ class PoliciaInfractor():
 				for punto in infraccion['desplazamiento']:
 					if self.puntoEstaEnPoligono((punto[0][0],punto[0][1]),(x,y,w,h)):
 						estado = 0
-						cambiosImportantes = True
 						break
 					else:
 						estado = 1
+						informacion['recortados'][informacion['rectangulos'].index(rectangulo)] = np.array((0))
 			rectangulo[2] = estado
 		self.imagenAuxiliar = imagenActualEnGris
 		return cambiosImportantes
