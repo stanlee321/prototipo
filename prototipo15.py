@@ -10,53 +10,47 @@ import datetime
 import numpy as np
 
 from ownLibraries.mask import VisualLayer
-from ownLibraries.mireporte import MiReporte
-#from semaforo import CreateSemaforo
-from ownLibraries.policiainfractor import PoliciaInfractor
-from ownLibraries.videostreamv5 import VideoStream
-from ownLibraries.videostreamv5 import FPS
-from ownLibraries.generadorevidencia import GeneradorEvidencia
 from ownLibraries.irswitch import IRSwitch
+from ownLibraries.videostreamv5 import FPS
+from ownLibraries.mireporte import MiReporte
+from ownLibraries.videostreamv5 import VideoStream
+from ownLibraries.policiainfractor import PoliciaInfractor
+from ownLibraries.generadorevidencia import GeneradorEvidencia
 
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
-directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
-directorioDeLibreriasPropias = directorioDeTrabajo +'/ownLibraries'
-nombreCarpetaDeReporte = '/casosReportados'
-directorioDeReporte = os.getenv('HOME')+nombreCarpetaDeReporte
+directorioDeVideos  = os.getenv('HOME')+'/trafficFlow/trialVideos'
+directorioDeReporte = os.getenv('HOME')+'/casosReportados'
 folderDeInstalacion = directorioDeTrabajo+'/installationFiles'
-# Se introduce las librerias propias
 
-# Se crean las variables de constantes de trabajo del programa
-## Parametros de input video
+### PARAMETROS DE CONTROL DE EJECUCIÓN DE PROGRAMA
 archivoDeVideo = ''
 videofps = 30
+mifps = 10
 saltarFrames = False
-entradaReal = 'en tiempo real '		# Complementario
+entradaReal = 'en tiempo real '													# Complementario
 guardarRecortados = True
 ## Parametros semaforo
 periodoDeSemaforo = 0
 topeEjecucion = 0
 semaforoSimuladoTexto = 'real '
-## Otros
-mifps = 10
+
 generarArchivosDebug = True
 mostrarImagen = False
 longitudRegistro = 360
 font = cv2.FONT_HERSHEY_SIMPLEX
 
+# Temporizaciones
 anocheciendo =  21*60+30														# Tiempo 17:30 am + 4 GMT
 amaneciendo = 11*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
 maximoMemoria = 200
 
-
-
 gamma = 1.0
+
 # Función principal
 def __main_function__():
 	# Import some global varialbes
-	miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)			# Se crea por defecto con nombre de la fecha y hora actual
 	global archivoDeVideo
 	global cambiosImportantes
 	cambiosImportantes = False
@@ -84,7 +78,7 @@ def __main_function__():
 
 	# El directorio de reporte debe crearse al inicio del programa
 	# Variables de control:
-	periodoDeMuestreo = 1.0/mifps # 0.1666667		# 1/mifps
+	
 	numeroDeFrame = 0
 	maximoInfraccionesPorFrame = 20
 	#colores = np.random.randint(0,100,(maximoInfraccionesPorFrame,3))
@@ -103,16 +97,10 @@ def __main_function__():
 	verticesLlegada = parametrosInstalacion[2]
 	angulo = parametrosInstalacion[3]
 
-	try:
-		misVerticesExtremos = parametrosInstalacion[4]
-	except:
-		misVerticesExtremos = [[0,0],[2592,1944]]
-		miReporte.error('NO PUDE cargar la configuracion de la camara de placas, tomando la por defecto')
-
 	miReporte.info('Cargado exitosamente parametros de instalacion: '+str(parametrosInstalacion))
 
 	# Arrancando camara
-	if len(archivoDeVideo)==0:	# modo real
+	if len(archivoDeVideo) == 0:												# modo real
 		if os.uname()[1] == 'alvarohurtado-305V4A':
 			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma ).start()
 			time.sleep(1)
@@ -154,6 +142,7 @@ def __main_function__():
 	informacionTotal = {}
 	frame_number  = 0
 	tiempoAuxiliar = time.time()
+	periodoDeMuestreo = 1.0/mifps
 
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO

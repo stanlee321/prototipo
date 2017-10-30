@@ -6,18 +6,13 @@ import math
 import logging
 import datetime
 import numpy as np
-from ownLibraries.analisisonda import AnalisisOnda
 
 import matplotlib.pyplot as graficaActual
 from ownLibraries.mireporte import MiReporte
+from ownLibraries.analisisonda import AnalisisOnda
 
-directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo11'
+directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
-directorioDeLibreriasPropias = directorioDeTrabajo +'/ownLibraries'
-nombreCarpetaDeReporte = 'casosReportados'
-myReportingDirectory = directorioDeTrabajo+'/'+nombreCarpetaDeReporte
-folderDeInstalacion = directorioDeTrabajo+'/installationFiles'
-
 
 class PoliciaInfractor():
 	"""
