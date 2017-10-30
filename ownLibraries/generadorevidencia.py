@@ -65,24 +65,43 @@ class GeneradorEvidencia():
 			else:
 				final = frameSuperior
 			print('Generada infr de: ',inicio,' a ',final,' len: ',final-inicio,' fecha: ',nombreInfraccion)
-
-			directorioRecorte = directorioActual+'/recorte'
+			if self.guardoRecortados:
+				directorioRecorte = directorioActual+'/recorte'
+				if not os.path.exists(directorioRecorte):
+					os.makedirs(directorioRecorte) 
 			for indiceVideo in range(inicio, final):
 				prueba.write(informacionTotal[indiceVideo]['frame'])
 				if self.guardoRecortados:
 					contadorDeRecortados = 0
-					
-					if not os.path.exists(directorioRecorte):
-						os.makedirs(directorioRecorte) 
-					for imagen in informacionTotal[indiceVideo]['recortados']:
-						nombreRecorte = directorioRecorte+'/photo_{}_{}.jpg'.format(contadorDeRecortados,indiceVideo)
+					for indiceImagen in range(len(informacionTotal[indiceVideo]['recortados'])):
+						imagen = informacionTotal[indiceVideo]['recortados'][indiceImagen]
+						if informacionTotal[indiceVideo]['rectangulos'][indiceImagen][2] == 0:
+							estado = 'Saved'
+						else:
+							estado = 'Erased'
+						nombreRecorte = directorioRecorte+'/photo_{}_{}_'.format(contadorDeRecortados,indiceVideo)+estado+'.jpg'
 						cv2.imwrite(nombreRecorte,imagen)
 						contadorDeRecortados+=1
 			prueba.release()
+			# Vuelvo a iterar por la imagen mas grande:
+			ultimoValorMayor = 0
+			indicesMejorFoto = (-1,0)
+			for indiceVideo in range(inicio, final):
+				for indiceImagen in range(len(informacionTotal[indiceVideo]['recortados'])):
+					ancho = informacionTotal[indiceVideo]['rectangulos'][indiceImagen][0][2]
+					alto = informacionTotal[indiceVideo]['rectangulos'][indiceImagen][0][3]
+					valorActual = ancho*alto
+					if valorActual>ultimoValorMayor:
+						ultimoValorMayor = valorActual
+						indicesMejorFoto = (indiceVideo,indiceImagen)
+
+			if indicesMejorFoto[0] != -1:
+				imagen = informacionTotal[indicesMejorFoto[0]]['recortados'][indicesMejorFoto[1]]
+				nombreEvidencia = directorioActual+'/evidencia_{}_{}.jpg'.format(indicesMejorFoto[1],indicesMejorFoto[0])
+				print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',nombreEvidencia)
+				cv2.imwrite(nombreEvidencia,imagen)
 			return 1
-		
 		else:
-			
 			prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
 			inicio = 0
 			final = len(informacionTotal)

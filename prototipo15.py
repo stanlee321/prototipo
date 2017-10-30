@@ -212,7 +212,7 @@ def __main_function__():
 
 		if mostrarImagen:
 			# Draw frame number into image on top
-			cv2.putText(informacion['frame'], datetime.datetime.now().strftime('%A %d %B %Y %I:%M:%S%p'), (5,238), font, 0.4,(255,255,255),1,cv2.LINE_AA)
+			cv2.putText(informacion['frame'], datetime.datetime.now().strftime('%A %d %B %Y %I:%M:%S%p'), (4,236), font, 0.4,(255,255,255),1,cv2.LINE_AA)
 			visualizacion = informacion['frame']
 
 			for infraction in miPoliciaReportando.listaDeInfracciones:
