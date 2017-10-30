@@ -57,7 +57,7 @@ class PoliciaInfractor():
 		self.infraccionesConfirmadas = 0
 		self.restablecerLineaLK()
 		self.listaDeInfracciones = []
-		self.maximoNumeroFramesParaDescarte = 150
+		self.maximoNumeroFramesParaDescarte = 100
 		self.ultimaVelocidad = 0
 
 	def inicializarAgente(self,):
