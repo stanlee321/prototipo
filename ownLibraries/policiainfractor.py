@@ -270,8 +270,12 @@ class PoliciaInfractor():
 				if len(linea)>maximaLongitud:
 					maximaLongitud = len(linea)
 					lineaRespuesta = linea
-			extremoInferior = lineaRespuesta.pop(0)
-			extremoSuperior = lineaRespuesta.pop()
+			if len(lineaRespuesta)>2:
+				extremoInferior = lineaRespuesta.pop(0)
+				extremoSuperior = lineaRespuesta.pop()
+			if len(lineaRespuesta)>2:
+				extremoInferior = lineaRespuesta.pop(0)
+				extremoSuperior = lineaRespuesta.pop()
 			extremoMedio = (np.array(extremoInferior)+np.array(extremoSuperior))//2
 			extremoMedio = extremoMedio.tolist()
 			print('>>>>>>>>>>><',[[np.array(extremoInferior,dtype = np.float32)],[np.array(extremoMedio,dtype = np.float32)],[np.array(extremoSuperior,dtype = np.float32)]])
