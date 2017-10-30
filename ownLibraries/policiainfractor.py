@@ -274,7 +274,11 @@ class PoliciaInfractor():
 				if len(linea)>maximaLongitud:
 					maximaLongitud = len(linea)
 					lineaRespuesta = linea
-			extremoInferior = lineaRespuesta[0]
+			try:
+				extremoInferior = lineaRespuesta[0]
+			except:
+				extremoInferior = lineaInterna[self.numeroDePuntos//2]
+				self.miReporte.error('No pude detectar puntos a seguir en el rectangulo')
 			extremoSuperior = extremoInferior
 			if len(lineaRespuesta)>2:
 				extremoInferior = lineaRespuesta.pop(0)
