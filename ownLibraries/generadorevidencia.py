@@ -18,10 +18,12 @@ from mireporte import MiReporte
 from areaderesguardo import AreaDeResguardo
 
 from collections import defaultdict
+from ownLibraries.mireporte import MiReporte
 font = cv2.FONT_HERSHEY_SIMPLEX
 
 class GeneradorEvidencia():
 	def __init__(self, carpetaReporte,mifps = 10,guardoRecortados = True):
+		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)
 		self.carpetaDeReporteActual = carpetaReporte
 		self.framesPorSegundoEnVideo = mifps
 		self.ventana = 5
@@ -32,7 +34,7 @@ class GeneradorEvidencia():
 	def inicializarEnCarpeta(self,carpetaReporte):
 		self.carpetaDeReporteActual = carpetaReporte
 
-	def generarReporteInfraccion(self, informacionTotal, infraccion = True,numero = 0):
+	def generarReporteInfraccion(self, informacionTotal, infraccion = True, numero = 0):
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
 		generandoDebug = False
 		try:
@@ -40,14 +42,15 @@ class GeneradorEvidencia():
 			generandoDebug = False
 		except:
 			nombreInfraccion = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')+'_{}i'.format(numero)
+			if (numero == 0)&(len(informacionTotal)<20):
+				return 0
 			generandoDebug = True
 		directorioActual = self.carpetaDeReporteActual + '/'+nombreInfraccion
 		if not os.path.exists(directorioActual):
-			print('Creado: '+directorioActual)
+			self.miReporte.info('Creado: '+directorioActual)
 			os.makedirs(directorioActual) 
 
 		if generandoDebug==False:
-			#print(informacionTotal)
 			frameInferior = infraccion['frameInicial'] - self.ventana
 			frameSuperior = infraccion['frameFinal'] + self.ventana
 			
@@ -63,7 +66,7 @@ class GeneradorEvidencia():
 				final = len(informacionTotal)
 			else:
 				final = frameSuperior
-			print('Generada infr de: ',inicio,' a ',final,' len: ',final-inicio,' fecha: ',nombreInfraccion)
+			self.miReporte.info('Generada infr de: '+str(inicio)+' a '+str(final)+' len: '+str(final-inicio)+' fecha: ' + nombreInfraccion)
 			if self.guardoRecortados:
 				directorioRecorte = directorioActual+'/recorte'
 				if not os.path.exists(directorioRecorte):
@@ -103,11 +106,11 @@ class GeneradorEvidencia():
 			prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
 			inicio = 0
 			final = len(informacionTotal)
-			print('Generada debug de: ',inicio,final,' len: ',final-inicio,' total lista: ',len(informacionTotal))
+			self.miReporte.info('Generada debug de: '+str(inicio)+' '+str(final)+' len: '+str(final-inicio)+' total lista: '+str(len(informacionTotal)))
 			for indiceVideo in range(inicio,final):
 				try:
 					prueba.write(informacionTotal[indiceVideo]['frame'])
 				except:
-					print('No pude guardar frame: ',indiceVideo)
+					self.miReporte.error('No pude guardar frame: '+str(indiceVideo))
 			prueba.release()
 			return 0

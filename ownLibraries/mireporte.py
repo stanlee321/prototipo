@@ -2,13 +2,16 @@ import os
 import logging
 import datetime
 
+nombreCarpetaDeReporte = '/casosReportados'
+directorioDeReporte = os.getenv('HOME')+nombreCarpetaDeReporte
+
 class MiReporte():
 	"""
 	Crea un archivo de logging de nombre especificado con por defecto con un nivel de logging.
 	Al cambiar el reporte este se traspasa a una carpeta dentro del directorio de trabajo con el mismo nombre del directorio
 	"""
 	def __init__(self, levelLogging=logging.INFO, nombre = __name__, nombreDeArchivoSinExtension = datetime.datetime.now().strftime('%m-%d_%H:%M')):
-		self.directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo11/casosDebug'
+		self.directorioDeTrabajo = directorioDeReporte
 		if not os.path.exists(self.directorioDeTrabajo):
 			os.makedirs(self.directorioDeTrabajo)
 		self.logger = logging.getLogger(nombre)
@@ -36,6 +39,9 @@ class MiReporte():
 	def retornarACarpetaPrincipal(self):
 		self.logger.removeHandler(self.file_handler_actual)
 		self.logger.addHandler(self.file_handler_global)
+
+	def trace(self,mensaje):
+		self.logger.trace(mensaje)
 
 	def debug(self,mensaje):
 		self.logger.debug(mensaje)

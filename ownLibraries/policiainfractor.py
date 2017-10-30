@@ -1,13 +1,15 @@
 import os
-import cv2
 import sys
+import cv2
 import time
 import math
-import numpy as np
+import logging
 import datetime
+import numpy as np
 from analisisonda import AnalisisOnda
 
 import matplotlib.pyplot as graficaActual
+from ownLibraries.mireporte import MiReporte
 
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo11'
 directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
@@ -23,11 +25,12 @@ class PoliciaInfractor():
 	"""
 	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada):
 		# Tomo la imagen de inicialización y obtengo algunas caracteristicas de la misma
+		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)
 		self.imagenAuxiliar = cv2.cvtColor(imagenParaInicializar, cv2.COLOR_BGR2GRAY)
 		try:
 			height,width = self.imagenAuxiliar.shape
 		except:
-			print('No pude obtener data, es una imagen el objeto de inicializacion?')
+			self.miReporte.error('No pude obtener data, es una imagen el objeto de inicializacion?')
 		
 		self.areaDeResguardo = np.array(poligonoPartida)
 		self.areaDeConfirmacion = np.array(poligonoLlegada)
@@ -108,7 +111,7 @@ class PoliciaInfractor():
 					if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:
 						infraccion['estado'] = 'Confirmado'
 						infraccion['frameFinal'] = numeroDeFrame
-						print('Conf:',infraccion['name'],'de',infraccion['frameInicial'],'a',infraccion['frameFinal'],'es',infraccion['estado'],sep=' ')
+						self.miReporte.info('Conf: '+infraccion['name']+' de '+str(infraccion['frameInicial'])+' a '+str(infraccion['frameFinal'])+' es '+infraccion['estado'])
 						break
 		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
 		# para cada rectangulo en la información revisamos si corresponde a alguna infraccion:
@@ -171,7 +174,7 @@ class PoliciaInfractor():
 					if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:
 						infraccion['estado'] = 'Confirmado'
 						infraccion['frameFinal'] = numeroDeFrame
-						print('Conf:',infraccion['name'],'de',infraccion['frameInicial'],'a',infraccion['frameFinal'],'es',infraccion['estado'],sep=' ')
+						self.miReporte.info('Conf: '+infraccion['name']+' de '+str(infraccion['frameInicial'])+' a '+str(infraccion['frameFinal'])+' es '+infraccion['estado'])
 						break
 		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
 		self.imagenAuxiliar = imagenActualEnGris
@@ -201,12 +204,12 @@ class PoliciaInfractor():
 		return variableARetornar
 
 	def reporteActual(self):
-		print('Infracciones Sospechosas:')
+		self.miReporte.info('Infracciones Sospechosas:')
 		for infraccion in self.listaDeInfracciones:
-			print(infraccion['frameInicial'],' a ',infraccion['frameFinal'],' con estado: ',infraccion['estado'])
-		print('Infracciones Confirmadas:')
+			self.miReporte.info(infraccion['frameInicial']+' a '+str(infraccion['frameFinal'])+' con estado: '+infraccion['estado'])
+		self.miReporte.info('Infracciones Confirmadas:')
 		for infraccion in self.listaDeInfracciones:
-			print(infraccion['name'],' de ',infraccion['frameInicial'],' a ',infraccion['frameFinal'],' con estado: ',infraccion['estado'])
+			self.miReporte.info(infraccion['name']+' de '+str(infraccion['frameInicial'])+' a '+str(infraccion['frameFinal'])+' con estado: '+infraccion['estado'])
 
 	def obtenerLinea(self):
 		"""

@@ -59,6 +59,7 @@ gamma = 1.0
 # Función principal
 def __main_function__():
 	# Import some global varialbes
+	miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)			# Se crea por defecto con nombre de la fecha y hora actual
 	global archivoDeVideo
 
 	# Creamos el reporte inicial
@@ -95,7 +96,7 @@ def __main_function__():
 		archivoParametrosACargar = 'datos.npy'
 	
 	parametrosInstalacion = np.load(folderDeInstalacion+'/'+archivoParametrosACargar)
-	print('Datos de Instalacion de: ',folderDeInstalacion+'/'+archivoParametrosACargar)
+	miReporte.info('Datos de Instalacion de: '+folderDeInstalacion+'/'+archivoParametrosACargar)
 	poligonoSemaforo = parametrosInstalacion[0]
 	verticesPartida = parametrosInstalacion[1]
 	verticesLlegada = parametrosInstalacion[2]
@@ -179,13 +180,14 @@ def __main_function__():
 		if frame_number> maximoMemoria:
 			try:
 				informacionTotal[frame_number - maximoMemoria]['recortados'] = []
-				#print('Released memory')
+				#miReporte.debug('Released memory')
 			except Exception as e:
-				print('No pude liberar por ', e)
+				miReporte.error('No pude liberar por '+ str(e))
 
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
 			if informacion['semaforo'][2] == 1:						# esto se inicia al principio de este estado
+				miReporte.info('SEMAFORO EN ROJO')
 				miPoliciaReportando.inicializarAgente()
 				del informacionTotal
 				informacionTotal = {}
@@ -195,7 +197,8 @@ def __main_function__():
 
 		if informacion['semaforo'][0] == 0:							# Si estamos en verde realizamos otra accion
 			if informacion['semaforo'][2] == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
-				print('Infracciones: ',miPoliciaReportando.numeroInfraccionesConfirmadas())
+				miReporte.info('SEMAFORO EN VERDE')
+				miReporte.info('Infracciones: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas()))
 				if generarArchivosDebug:
 					miGrabadora.generarReporteInfraccion(informacionTotal, False,miPoliciaReportando.numeroInfraccionesConfirmadas())
 			if miPoliciaReportando.numeroInfraccionesConfirmadas() > 0:
@@ -241,7 +244,6 @@ def __main_function__():
 				visualLabel.establecerColorFondoDe(backgroudColour = (0,0,0), numeroDeCaja = 0)
 
 			# Draw the rectangles
-
 			for rectangulo in informacion['rectangulos']:
 				visualLabel.agregarRecangulo((rectangulo[0],rectangulo[1]),rectangulo[2])
 				
@@ -253,15 +255,15 @@ def __main_function__():
 			cv2.imshow('Visual',visualLabel.aplicarTodo())		
 		
 		demoKillAutomatico +=1
-		#if tiempoEjecucion>periodoDeMuestreo:
-		#	miReporte.warning('Se sobrepaso el periodo de muestreo a: '+str(tiempoEjecucion))
-		print('F_',frame_number,'_{0:2f}'.format(time.time() - tiempoAuxiliar),' [ms] Sema: ',informacion['semaforo'][1],' I: ',miPoliciaReportando.numeroInfraccionesConfirmadas(),'/',miPoliciaReportando.numeroInfraccionesTotales())
-		sys.stdout.write("\033[F")
+		tiempoEjecucion = time.time() - tiempoAuxiliar
+		if tiempoEjecucion>periodoDeMuestreo:
+			miReporte.warning('Se sobrepaso el periodo de muestreo a {0:2f}'.format(tiempoEjecucion)+ '[s] en frame {}'.format(frame_number))
+
+		#sys.stdout.write("\033[F")
 		while time.time() - tiempoAuxiliar < periodoDeMuestreo:
 			True
+		miReporte.info('Sema: '+informacion['semaforo'][1]+' I: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas())+'/'+str(miPoliciaReportando.numeroInfraccionesTotales())+' Objetos: {}'.format(len(informacion['rectangulos'])))
 
-		tiempoEjecucion = time.time()-tiempoAuxiliar
-		#print('Periodo: ',tiempoEjecucion)
 		tiempoAuxiliar = time.time()
 
 		frame_number += 1
@@ -274,8 +276,6 @@ def __main_function__():
 
 	# stop the timer and display FPS information
 	fps.stop()
-	#print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-	#print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
 if __name__ == '__main__':
 	# Tomamos los ingresos para controlar el video
