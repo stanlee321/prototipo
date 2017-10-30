@@ -256,7 +256,7 @@ class PoliciaInfractor():
 			lineaInterna = []
 			for punto in self.lineaFijaDelantera:
 				lineaInterna.append(punto[0].tolist())
-			print('linea interna: ',lineaInterna)
+			
 			contadorDeRectangulos = 0
 			lineaParaRectangulo = {}
 			for rectangulo in misRectangulos:
@@ -267,7 +267,7 @@ class PoliciaInfractor():
 				lineaParaRectangulo[contadorDeRectangulos].pop()
 				lineaParaRectangulo[contadorDeRectangulos].pop(0)
 				contadorDeRectangulos+=1
-			print('linea Para Rec: ',lineaParaRectangulo)
+			
 			maximaLongitud = 0
 			lineaRespuesta = []
 			for index,linea in lineaParaRectangulo.items():
@@ -284,7 +284,7 @@ class PoliciaInfractor():
 				extremoSuperior = lineaRespuesta.pop()
 			extremoMedio = (np.array(extremoInferior)+np.array(extremoSuperior))//2
 			extremoMedio = extremoMedio.tolist()
-			print('>>>>>>>>>>><',[[np.array(extremoInferior,dtype = np.float32)],[np.array(extremoMedio,dtype = np.float32)],[np.array(extremoSuperior,dtype = np.float32)]])
+			
 			return np.array([[np.array(extremoInferior,dtype = np.float32)],[np.array(extremoMedio,dtype = np.float32)],[np.array(extremoSuperior,dtype = np.float32)]])
 		else:
 			dif2 = []
@@ -303,7 +303,7 @@ class PoliciaInfractor():
 			indice = dif2.index(max(dif2))
 			indiceDeMayores.append(indice)
 			dif2.pop(indice)
-			print('>>>>>>>>>>><',[[nuevoVector[indiceDeMayores[0]][0]],[nuevoVector[indiceDeMayores[1]][0]],[nuevoVector[indiceDeMayores[2]][0]]])
+			
 			return np.array([[nuevoVector[indiceDeMayores[0]][0]],[nuevoVector[indiceDeMayores[1]][0]],[nuevoVector[indiceDeMayores[2]][0]]])
 			
 
