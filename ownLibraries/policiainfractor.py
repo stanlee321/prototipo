@@ -238,27 +238,62 @@ class PoliciaInfractor():
 		y = 10*y/(self.numeroDePuntos+1)
 		return (x,y)
 
-	def obtenerPuntosMoviles(self,vectorAntiguo, nuevoVector):
+	def obtenerPuntosMoviles(self,vectorAntiguo, nuevoVector,informacion = False):
 		"""
 		Gets center of movement as a tuple of three vectors
 		"""
-		dif2 = []
-		for numeroDePunto in range(1,self.numeroDePuntos+1):
-			x = nuevoVector[numeroDePunto][0][0] - vectorAntiguo[numeroDePunto][0][0]
-			y = nuevoVector[numeroDePunto][0][1] - vectorAntiguo[numeroDePunto][0][1]
-			dif2.append(x**2+y**2)
-		indiceDeMayores = []
-		
-		indice = dif2.index(max(dif2))
-		indiceDeMayores.append(indice)
-		dif2.pop(indice)
-		indice = dif2.index(max(dif2))
-		indiceDeMayores.append(indice)
-		dif2.pop(indice)
-		indice = dif2.index(max(dif2))
-		indiceDeMayores.append(indice)
-		dif2.pop(indice)
-		return np.array([[nuevoVector[indiceDeMayores[0]][0]],[nuevoVector[indiceDeMayores[1]][0]],[nuevoVector[indiceDeMayores[2]][0]]])
+		puntosOptimizados = False
+		try:
+			misRectangulos = informacion['rectangulos']
+			puntosOptimizados = True
+		except:
+			puntosOptimizados = False
+		if puntosOptimizados:
+			lineaInterna = []
+			for punto in self.lineaFijaDelantera:
+				lineaInterna.append(self.lineaFijaDelantera[0][0].tolist())
+			contadorDeRectangulos = 0
+			lineaParaRectangulo = {}
+			for rectangulo in misRectangulos:
+				lineaParaRectangulo[contadorDeRectangulos] = lineaInterna.copy()
+				for punto in lineaParaRectangulo[contadorDeRectangulos]:
+					if (punto[0]<rectangulo[0][0])|(punto[0]>rectangulo[0][0]+rectangulo[0][1])|(punto[1]<rectangulo[0][1])|(punto[1]>rectangulo[0][1]+rectangulo[0][2]):
+						lineaParaRectangulo[contadorDeRectangulos].pop(lineaParaRectangulo[contadorDeRectangulos].index(punto))
+				lineaParaRectangulo[contadorDeRectangulos].pop()
+				lineaParaRectangulo[contadorDeRectangulos].pop(0)
+				contadorDeRectangulos+=1
+			maximaLongitud = 0
+			lineaRespuesta = []
+			for index,linea in lineaParaRectangulo.items():
+				if len(linea)>maximaLongitud:
+					maximaLongitud = len(linea)
+					lineaRespuesta = linea
+			extremoInferior = lineaRespuesta.pop(0)
+			extremoSuperior = lineaRespuesta.pop()
+			extremoMedio = (np.array(extremoInferior)+np.array(extremoSuperior))//2
+			extremoMedio = extremoMedio.tolist()
+			print('>>>>>>>>>>><',[[np.array(extremoInferior,dtype = np.float32)],[np.array(extremoMedio,dtype = np.float32)],[np.array(extremoSuperior,dtype = np.float32)]])
+			return np.array([[np.array(extremoInferior,dtype = np.float32)],[np.array(extremoMedio,dtype = np.float32)],[np.array(extremoSuperior,dtype = np.float32)]])
+		else:
+			dif2 = []
+			for numeroDePunto in range(1,self.numeroDePuntos+1):
+				x = nuevoVector[numeroDePunto][0][0] - vectorAntiguo[numeroDePunto][0][0]
+				y = nuevoVector[numeroDePunto][0][1] - vectorAntiguo[numeroDePunto][0][1]
+				dif2.append(x**2+y**2)
+			indiceDeMayores = []
+			
+			indice = dif2.index(max(dif2))
+			indiceDeMayores.append(indice)
+			dif2.pop(indice)
+			indice = dif2.index(max(dif2))
+			indiceDeMayores.append(indice)
+			dif2.pop(indice)
+			indice = dif2.index(max(dif2))
+			indiceDeMayores.append(indice)
+			dif2.pop(indice)
+			print('>>>>>>>>>>><',[[nuevoVector[indiceDeMayores[0]][0]],[nuevoVector[indiceDeMayores[1]][0]],[nuevoVector[indiceDeMayores[2]][0]]])
+			return np.array([[nuevoVector[indiceDeMayores[0]][0]],[nuevoVector[indiceDeMayores[1]][0]],[nuevoVector[indiceDeMayores[2]][0]]])
+			
 
 	def obtenerMagnitudMovimiento(self,vectorAntiguo, nuevoVector):
 		"""
