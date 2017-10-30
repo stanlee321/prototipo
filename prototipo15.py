@@ -143,8 +143,6 @@ def __main_function__():
 		visualLabel.crearBarraInformacion(height = 240)
 		visualLabel.crearBarraDeProgreso()
 		visualLabel.ponerPoligono(np.array(verticesPartida))
-		visualLabel.colorRectangulos = (255,0,255,) # Input tupple like (0,0,255)
-
 	
 	frame_number = 0	
 
@@ -193,7 +191,7 @@ def __main_function__():
 				informacionTotal = {}
 				frame_number = 0
 
-			miPoliciaReportando.evolucionarLineaVigilancia(frame_number,informacion['frame'])
+			miPoliciaReportando.seguirObjeto(frame_number,informacion)
 
 		if informacion['semaforo'][0] == 0:							# Si estamos en verde realizamos otra accion
 			if informacion['semaforo'][2] == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
@@ -214,7 +212,7 @@ def __main_function__():
 
 		if mostrarImagen:
 			# Draw frame number into image on top
-			cv2.putText(informacion['frame'], datetime.datetime.now().strftime('%A %d %B %Y %I:%M:%S%p'), (2,230), font, 0.4,(255,255,255),1,cv2.LINE_AA)
+			cv2.putText(informacion['frame'], datetime.datetime.now().strftime('%A %d %B %Y %I:%M:%S%p'), (5,238), font, 0.4,(255,255,255),1,cv2.LINE_AA)
 			visualizacion = informacion['frame']
 
 			for infraction in miPoliciaReportando.listaDeInfracciones:
@@ -244,11 +242,10 @@ def __main_function__():
 
 			# Draw the rectangles
 
-			visualLabel.updateRecangulos(informacion['rectangulos'])
-
-
+			for rectangulo in informacion['rectangulos']:
+				visualLabel.agregarRecangulo((rectangulo[0],rectangulo[1]),rectangulo[2])
+				
 			visualLabel.establecerMagnitudBarra(magnitude = int(miPoliciaReportando.ultimaVelocidad))
-
 
 			visualizacion = visualLabel.aplicarMascaraActualAFrame(visualizacion)
 			
@@ -289,15 +286,15 @@ if __name__ == '__main__':
 			archivoDeVideo = input
 			entradaReal = ''
 			saltarFrames = True
-		if '.seg' in input:
-			periodoDeSemaforo = int(input[:-4])
+		if 'seg' in input:
+			periodoDeSemaforo = int(input[:-3])
 			semaforoSimuladoTexto = 'simulado a '
 		if input == 'Show':
 			mostrarImagen = True
-		if '.fps' in input:
-			mifps = int(input[:-4])
-		if '.d' in input:
-			topeEjecucion = int(input[:-2])
+		if 'fps' in input:
+			mifps = int(input[:-3])
+		if 'd' in input:
+			topeEjecucion = int(input[:-1])
 		if 'noRec' in input:
 			guardarRecortados = False
 		if 'gamma' in input:

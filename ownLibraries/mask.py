@@ -156,8 +156,12 @@ class VisualLayer():
 
 		self.list_of_polis = []
 
-		self.rectangulos = None
-		self.colorRectangulos = (0,0,255)
+		self.rectangulos = []
+		self.colorRectanguloMaximo = (0,0,255)
+		self.colorRectanguloMedio = (100,100,255)
+		self.colorRectanguloIrrelevante = (100,100,100)
+		self.colorRectanguloConError = (255,255,255)
+		self.colorRectanguloPaz = (0,255,0)
 	def crearMascaraCompleta(self, size = (240,320)):
 		self.height, self.width = size[0], size[1]
 		self.imageInput = VisualLayer.crearMascara(size=(self.height, self.width))
@@ -272,19 +276,27 @@ class VisualLayer():
 			mask = self.puntos[index].draw()
 		return mask
 
-	def updateRecangulos(self, boxes):
-		self.rectangulos = boxes
+	def agregarRecangulo(self, boxes,prioridad):
+		self.rectangulos.append([boxes,prioridad])
 
-
-	def aplicarRectangulos(self, image, boxes):
+	def aplicarRectangulos(self, image, boxes): #[[((R),(C)),1],[],[]]
 		# Draw Rectangles into the debug mask
-		for rect in boxes :
-			x,y,w,h = rect[0]
-			centroid  = rect[1]
-			cv2.rectangle(image, (x,y),(x+w-1, y+h-1),self.colorRectangulos,1)
+		for rect in boxes:
+			x,y,w,h = rect[0][0]
+			centroid  = rect[0][1]
+			prioridad = rect[1]
+			if prioridad == 0:
+				cv2.rectangle(image, (x,y),(x+w-1, y+h-1),self.colorRectanguloMaximo,1)
+			elif prioridad == 1:
+				cv2.rectangle(image, (x,y),(x+w-1, y+h-1),self.colorRectanguloMedio,1)
+			elif prioridad == 2:
+				cv2.rectangle(image, (x,y),(x+w-1, y+h-1),self.colorRectanguloIrrelevante,1)
+			elif prioridad == 3:
+				cv2.rectangle(image, (x,y),(x+w-1, y+h-1),self.colorRectanguloPaz,1)
+			else:
+				cv2.rectangle(image, (x,y),(x+w-1, y+h-1),self.colorRectanguloConError,1)
+
 			cv2.circle(image, centroid,2,(0,255,0),-1)
-
-
 
 	def aplicarTodo(self):
 		# Return all the draw() aviable methos from every 
@@ -295,6 +307,7 @@ class VisualLayer():
 		mask = self.bar.draw(image = self.imageInput)
 		#mask = self.poligono.draw(image = self.imageInput)
 		mask = self.aplicarRectangulos(self.imageInput, self.rectangulos)
+		self.rectangulos = []
 		mask = self.aplicarPolis(image = self.imageInput)
 		
 		#mask = self.aplicarRectangulos(self.imageInput, self.boxes)

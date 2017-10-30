@@ -73,6 +73,68 @@ class PoliciaInfractor():
 			self.lineaDeResguardoDelantera = np.append(self.lineaDeResguardoDelantera,[[self.lineaDePintadoLK[0]+numeroDePunto*np.array([self.stepX,self.stepY])]],axis=0)
 		self.lineaFijaDelantera = self.lineaDeResguardoDelantera
 
+	def seguirObjeto(self,numeroDeFrame,informacion):
+		"""
+		Se organiza la información acorde al algoritmo de seguimiento
+		"""
+		# la imagen introducida esta en RGB, 240,320,3
+		cambiosImportantes = False
+		imagenActualEnGris = cv2.cvtColor(informacion['frame'], cv2.COLOR_BGR2GRAY)
+		
+		self.lineaDeResguardoDelantera = np.array(self.lineaDeResguardoDelantera,dtype = np.float32)	# This solved the problem although the array seemed to ve  in float32, adding this specification to this line solved the problem
+		self.lineaFijaDelantera = np.array(self.lineaFijaDelantera,dtype = np.float32)
+		# Se compara las lineas anterior y nueva para obtener el flujo en dirección deseada
+		
+		arrayAuxiliarParaVelocidad, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaFijaDelantera, None, **self.lk_params)
+		self.lineaEmpuje = arrayAuxiliarParaVelocidad
+		flujoTotal = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
+		ondaFiltrada, flanco = self.miFiltro.obtenerOndaFiltrada(flujoTotal)
+		if flanco == 1:
+			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
+			nuevaInfraccion = {'name':datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f'),'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
+			self.listaDeInfracciones.append(nuevaInfraccion)
+			
+		for infraccion in self.listaDeInfracciones:
+			# Si es candidato evoluciona:
+			if infraccion['estado'] == 'Candidato':
+				nuevoArrayAActualizar, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
+				infraccion['desplazamiento'] = nuevoArrayAActualizar
+				# Si es candidato y duro demasiado se descarta
+				if (numeroDeFrame - infraccion['frameInicial']) > self.maximoNumeroFramesParaDescarte:
+					infraccion['estado']='Descartado'
+				# Si es candidato y algun punto llego al final se confirma
+				for vector in nuevoArrayAActualizar:
+					xTest, yTest = vector[0][0], vector[0][1]
+					if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:
+						infraccion['estado'] = 'Confirmado'
+						infraccion['frameFinal'] = numeroDeFrame
+						print('Conf:',infraccion['name'],'de',infraccion['frameInicial'],'a',infraccion['frameFinal'],'es',infraccion['estado'],sep=' ')
+						break
+		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
+		# para cada rectangulo en la información revisamos si corresponde a alguna infraccion:
+
+		for rectangulo in informacion['rectangulos']:			# Para todos los rectangulos
+			estado = 2
+			x,y,w,h = rectangulo[0]
+			centroid  = rectangulo[1]
+			for infraccion in self.listaDeInfracciones:
+				for punto in infraccion['desplazamiento']:
+					if self.puntoEstaEnPoligono((punto[0][0],punto[0][1]),(x,y,w,h)):
+						estado = 0
+						cambiosImportantes = True
+						break
+					else:
+						estado = 1
+			rectangulo[2] = estado
+		self.imagenAuxiliar = imagenActualEnGris
+		return cambiosImportantes
+
+	def puntoEstaEnPoligono(self,punto,rectangulo):
+		estadoARetornar = False
+		if (punto[0]>rectangulo[0])&(punto[0]<rectangulo[0]+rectangulo[2])&(punto[1]>rectangulo[1])&(punto[1]<rectangulo[1]+rectangulo[3]):
+			estadoARetornar = True
+		return estadoARetornar
+
 	def evolucionarLineaVigilancia(self,numeroDeFrame,imagenActual):
 		"""
 		Get into the new frame, updates the flow and follows the item as required

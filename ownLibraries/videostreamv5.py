@@ -297,7 +297,7 @@ class WebcamVideoStream:
 			centroid =  WebcamVideoStream.get_centroid(x, y, w, h)
 
 			# apeend to the matches for output from current frame
-			self.matches.append(((x, y, w, h), centroid))
+			self.matches.append([(x, y, w, h), centroid,4])
 
 
 			# Optional, draw rectangle and circle where you find "movement"

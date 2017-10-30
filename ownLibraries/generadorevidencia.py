@@ -79,11 +79,6 @@ class GeneradorEvidencia():
 						cv2.imwrite(nombreRecorte,imagen)
 						contadorDeRecortados+=1
 			prueba.release()
-			#os.chdir(directorioActual)
-			#os.system('tar -cf '+directorioActual+'/placa.tar '+directorioRecorte+'/*')
-			#os.system('tar -czf '+directorioActual+'/placa.tar -C '+directorioRecorte +' .')
-			#os.system('rm -rf '+directorioRecorte)
-			
 			return 1
 		
 		else:
