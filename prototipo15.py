@@ -105,8 +105,7 @@ def __main_function__():
 			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma ).start()
 			time.sleep(1)
 		else:
-			#miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
-			miCamara = VideoStream(src = 0, resolution = (1648,1256),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
+			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
 			time.sleep(1)
 
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
@@ -116,16 +115,15 @@ def __main_function__():
 			time.sleep(1)
 			miReporte.info('Archivo de video cargado exitosamente: '+directorioDeVideos+'/'+archivoDeVideo)
 		except Exception as currentException:
-			archivoDeVideo = input('No se pudo cargar el video, ingresar otro nombre:\n')
-			miCamara = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
+			miReporte.error('No se pudo cargar el video por '+str(currentException))
 
 	# Se captura la imagen de flujo inicial y se trabaja con la misma
 	informacion = miCamara.read()
-	miFiltro = IRSwitch()
 	
 	# Creación de objetos:
 	miPoliciaReportando = PoliciaInfractor(informacion['frame'],verticesPartida,verticesLlegada)
 	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,guardarRecortados)
+	miFiltro = IRSwitch()
 
 	#remocionFondo = matches # List like with arrays 
 	if mostrarImagen:
@@ -138,7 +136,6 @@ def __main_function__():
 	frame_number = 0	
 
 	fps = FPS().start()
-	demoKillAutomatico = 0
 	informacionTotal = {}
 	frame_number  = 0
 	tiempoAuxiliar = time.time()
@@ -247,7 +244,6 @@ def __main_function__():
 			# Show Everything
 			cv2.imshow('Visual',visualLabel.aplicarTodo())		
 		
-		demoKillAutomatico +=1
 		tiempoEjecucion = time.time() - tiempoAuxiliar
 		if tiempoEjecucion>periodoDeMuestreo:
 			miReporte.warning('Se sobrepaso el periodo de muestreo a {0:2f}'.format(tiempoEjecucion)+ '[s] en frame {}'.format(frame_number))
@@ -262,11 +258,13 @@ def __main_function__():
 		tiempoAuxiliar = time.time()
 
 		frame_number += 1
-		if (demoKillAutomatico == topeEjecucion) &(topeEjecucion!=0):
+		if (frame_number >= topeEjecucion) &(topeEjecucion!=0):
 			break
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
 			break
+		if ch == ord('s'):
+			cv2.imwrite(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')+'.jpg',informacion['frame'])
 		fps.update()
 
 	# stop the timer and display FPS information

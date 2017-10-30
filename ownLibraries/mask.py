@@ -1,7 +1,7 @@
-import numpy as np
 import cv2
 import time
 import random
+import numpy as np
 # Draw a diagonal blue line with thickness of 5 px
 from abc import ABCMeta, abstractmethod
 
@@ -10,9 +10,7 @@ class Box():
 	Create a Box where you can put information from text to color.
 	Use draw() method for get an array or draw the boxes and text to the exterior world.
 	"""
-
 	__metaclass__ = ABCMeta
-
 
 	def __init__(self, text, p1 = None, p2= None):
 		self.text = text
