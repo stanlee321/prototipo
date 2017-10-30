@@ -93,7 +93,7 @@ class PoliciaInfractor():
 		flujoTotal = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
 		ondaFiltrada, flanco = self.miFiltro.obtenerOndaFiltrada(flujoTotal)
 		if flanco == 1:
-			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
+			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad,informacion)
 			nuevaInfraccion = {'name':datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f'),'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
 			cambiosImportantes = True
 			self.listaDeInfracciones.append(nuevaInfraccion)
@@ -251,7 +251,8 @@ class PoliciaInfractor():
 		if puntosOptimizados:
 			lineaInterna = []
 			for punto in self.lineaFijaDelantera:
-				lineaInterna.append(self.lineaFijaDelantera[0][0].tolist())
+				lineaInterna.append(punto[0].tolist())
+			print('linea interna: ',lineaInterna)
 			contadorDeRectangulos = 0
 			lineaParaRectangulo = {}
 			for rectangulo in misRectangulos:
@@ -262,6 +263,7 @@ class PoliciaInfractor():
 				lineaParaRectangulo[contadorDeRectangulos].pop()
 				lineaParaRectangulo[contadorDeRectangulos].pop(0)
 				contadorDeRectangulos+=1
+			print('linea Para Rec: ',lineaParaRectangulo)
 			maximaLongitud = 0
 			lineaRespuesta = []
 			for index,linea in lineaParaRectangulo.items():
