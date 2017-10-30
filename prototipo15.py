@@ -172,7 +172,6 @@ def __main_function__():
 		# Asign number rfame to the information from miCamara.read()		
 		informacion['index'] = frame_number
 
-
 		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
 		# Si forzamos por entrada o si estamos en verde botamos la información de los rectangulos:
 		if (guardarRecortados == False) | (informacionTotal[frame_number]['semaforo'][0]==0):
@@ -302,6 +301,6 @@ if __name__ == '__main__':
 		if 'noRec' in input:
 			guardarRecortados = False
 		if 'gamma' in input:
-			gamma = int(input[:-5])
+			gamma = float(input[:-5])
 
 	__main_function__()
