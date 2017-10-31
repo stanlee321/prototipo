@@ -45,7 +45,7 @@ class PiVideoStream:
             # preparation for the next frame
             self.frame = f.array
             self.frame_resized = cv2.resize(self.frame, (320,240))
-
+            print(self.frame_resized.shape)
             self.rawCapture.truncate(0)
  
             # if the thread indicator variable is set, stop the thread
