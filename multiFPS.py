@@ -38,8 +38,12 @@ args = vars(ap.parse_args())
 # created a *threaded* video stream, allow the camera sensor to warmup,
 # and start the FPS counter
 print("[INFO] sampling THREADED frames from webcam...")
-width = 3280
-height = 2464
+#width = 3280
+#height = 2464
+
+width = 640
+height = 480
+
 xMin = int(1/5*width)
 xMax = int(4/5*width)
 yMin = int(1/5*height)

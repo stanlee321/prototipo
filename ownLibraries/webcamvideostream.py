@@ -12,6 +12,8 @@ class WebcamVideoStream:
 		self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, width)
 		self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
+		#self.stream.set(cv2.CAP_PROP_EXPOSURE, -1)
+
 		(self.grabbed, self.frame) = self.stream.read()
 
 		# initialize the variable used to indicate if the thread should
