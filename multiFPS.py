@@ -51,12 +51,12 @@ print("[INFO] sampling THREADED frames from webcam...")
 #height=1944
 # 4mp
 
-#width = 2240
-#height = 1680
+width = 2240
+height = 1680
 
 # 3mp
-width = 2048
-height = 1536
+#width = 2048
+#height = 1536
 
 # 2mp
 #width =1600
@@ -81,8 +81,8 @@ xMax = int(4/5*width)
 yMin = int(1/5*height)
 yMax = int(4/5*height)
 #vs = WebcamVideoStream(src=0,width=2592, height=1944).start()
-
-vs = VideoStream(usePiCamera=args["picamera"] > 0, resolution=(width,height)).start()
+framerate = 5
+vs = VideoStream(usePiCamera=args["picamera"] > 0, resolution=(width,height), framerate=framerate).start()
 #vs = WebcamVideoStream(src=0, resolution=(width,height)).start()
 fps = FPS().start()
  
