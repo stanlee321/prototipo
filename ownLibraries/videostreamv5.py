@@ -212,7 +212,7 @@ class WebcamVideoStream:
 				for f in range(int(self.ratio)):
 					(self.grabbed, self.frame) = self.stream.read()
 
-				self.stream.set(cv2.CAP_PROP_EXPOSURE, 1+self.i%30)
+				self.stream.set(cv2.CAP_PROP_EXPOSURE, 1+self.i%10)
 
 				adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
 
@@ -230,7 +230,7 @@ class WebcamVideoStream:
 
 			else:
 				(self.grabbed, self.frame) = self.stream.read()
-				self.stream.set(cv2.CAP_PROP_EXPOSURE, 1+self.i%30)
+				self.stream.set(cv2.CAP_PROP_EXPOSURE, 1+self.i%10)
 
 				adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
 
