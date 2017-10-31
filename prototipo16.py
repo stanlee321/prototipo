@@ -5,6 +5,7 @@ import os
 import sys
 import cv2
 import time
+import psutil
 import logging
 import datetime
 import numpy as np
@@ -31,7 +32,6 @@ videofps = 30
 mifps = 10
 saltarFrames = False
 entradaReal = 'en tiempo real '													# Complementario
-guardarRecortados = True
 ## Parametros semaforo
 periodoDeSemaforo = 0
 topeEjecucion = 0
@@ -60,7 +60,7 @@ def __main_function__():
 	numeroDeObjetos = 0
 
 	# Creamos el reporte inicial
-	miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)			# Se crea por defecto con nombre de la fecha y hora actual
+	miReporte = MiReporte(levelLogging=logging.INFO,nombre=__name__)			# Se crea por defecto con nombre de la fecha y hora actual
 	miReporte.info('Programa iniciado exitosamente con ingreso de senal video '+archivoDeVideo+entradaReal+' con semaforo '+semaforoSimuladoTexto+str(periodoDeSemaforo) +', corriendo a '+str(mifps)+' Frames por Segundo')
 	# Si no existe el directorio de reporte lo creo
 	if not os.path.exists(directorioDeReporte):
@@ -127,7 +127,7 @@ def __main_function__():
 	
 	# Creación de objetos:
 	miPoliciaReportando = PoliciaInfractor(informacion['frame'],verticesPartida,verticesLlegada)
-	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,guardarRecortados)
+	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps)
 	miFiltro = IRSwitch()
 	miAcetatoInformativo = Acetato()
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
@@ -155,25 +155,19 @@ def __main_function__():
 		
 		informacion = miCamara.read() # Ways to access
 
-		# assing index information to the above infomation
-
-		
 		# Asign number rfame to the information from miCamara.read()		
 		informacion['index'] = frame_number
 
 		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
 
 		# Si forzamos por entrada o si estamos en verde botamos la información de los rectangulos:
-		if (guardarRecortados == False) | (informacionTotal[frame_number]['semaforo'][0]==0):
-			del informacionTotal[frame_number]['recortados']
-			informacionTotal[frame_number]['recortados'] = {}
-
-		if frame_number> maximoMemoria:
-			try:
-				informacionTotal[frame_number - maximoMemoria]['recortados'] = []
-				#miReporte.debug('Released memory')
-			except Exception as e:
-				miReporte.error('No pude liberar por '+ str(e))
+		porcentajeDeMemoria = psutil.virtual_memory()[2]
+		miReporte.debug('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
+		if porcentajeDeMemoria>92:
+			frameAOptimizar = min(informacionTotal)
+			miReporte.warning('Alcanzado 92/100 de memoria, borrando frame: '+str(frameAOptimizar))
+			del informacionTotal[frameAOptimizar]['recortados']
+			informacionTotal[frameAOptimizar]['recortados'] = {}
 
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
@@ -271,8 +265,6 @@ if __name__ == '__main__':
 			mifps = int(input[:-3])
 		if 'd' in input:
 			topeEjecucion = int(input[:-1])
-		if 'noRec' in input:
-			guardarRecortados = False
 		if 'gamma' in input:
 			gamma = float(input[:-5])
 
