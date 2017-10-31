@@ -103,7 +103,7 @@ while True:
 	#print('BEFORE', frame_low.shape)
 	#frame = imutils.resize(frame, width=320)
 	#print('AFTER', frame.shape)
-	#frame_low = cv2.resize(frame, (320,240))
+	frame_low = cv2.resize(frame, (320,240))
 
 	# check to see if the frame should be displayed to our screen
 	#if args["display"] > 0:
