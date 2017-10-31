@@ -21,7 +21,7 @@ saveDirectory = directorioDeTrabajo+'/VideoCapture/'
 
 sys.path.insert(0, directorioDeLibreriasPropias)
 
-from ownLibraries.videoStreamTest import WebcamVideoStream
+from ownLibraries.videoStreamTest import VideoStream
 from ownLibraries.videostreamv5 import FPS
 
 if not os.path.exists(saveDirectory):
