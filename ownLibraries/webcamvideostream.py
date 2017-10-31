@@ -7,12 +7,12 @@ class WebcamVideoStream:
 		# initialize the video camera stream and read the first frame
 		# from the stream
 		self.stream = cv2.VideoCapture(src)
+		self.stream.set(cv2.CAP_PROP_EXPOSURE, 30)
 
 		width, height = resolution[0], resolution[1]
 		self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, width)
 		self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
-		#self.stream.set(cv2.CAP_PROP_EXPOSURE, -1)
 
 		(self.grabbed, self.frame) = self.stream.read()
 
@@ -34,7 +34,7 @@ class WebcamVideoStream:
 			if self.stopped:
 				return
 
-			self.stream.set(cv2.CAP_PROP_EXPOSURE, -1)
+			self.stream.set(cv2.CAP_PROP_EXPOSURE, 30)
 
 			# otherwise, read the next frame from the stream
 			(self.grabbed, self.frame) = self.stream.read()
