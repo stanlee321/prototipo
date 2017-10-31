@@ -175,6 +175,7 @@ class WebcamVideoStream:
 
 			self.ratio = 30 / fps
 
+
 		self.i = 0
 
 	def adjust_gamma(self, image, gamma=1.0):
@@ -212,7 +213,7 @@ class WebcamVideoStream:
 				for f in range(int(self.ratio)):
 					(self.grabbed, self.frame) = self.stream.read()
 
-				self.stream.set(cv2.CAP_PROP_EXPOSURE, 1+self.i%10)
+				self.stream.set(cv2.CAP_PROP_EXPOSURE, 1+self.i%30)
 
 				adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
 
@@ -230,8 +231,7 @@ class WebcamVideoStream:
 
 			else:
 				(self.grabbed, self.frame) = self.stream.read()
-				self.stream.set(cv2.CAP_PROP_EXPOSURE, 1+self.i%10)
-
+				self.stream.set(cv2.CAP_PROP_EXPOSURE, 1+self.i%30)
 				adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
 
 				self.frame_medium = cv2.resize(adjusted, (640,480))
@@ -244,7 +244,7 @@ class WebcamVideoStream:
 				# RETURNING VALUES FOR SEMAFORO
 				self.senalColor, self.colorLiteral, self.flancoSemaforo  = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)
 
-
+			self.i += 1
 			# HACER BGSUBCNT
 			self.BgSubCNT(self.frame_resized)
 
