@@ -33,6 +33,8 @@ date_string = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M')
 ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--picamera", type=int, default=-1,
 	help="whether or not the Raspberry Pi camera should be used")
+ap.add_argument("-g", "--gamma", type=int, default=1,
+	help="whether or not the Raspberry Pi camera should be used")
 args = vars(ap.parse_args())
 
 # created a *threaded* video stream, allow the camera sensor to warmup,
@@ -71,6 +73,7 @@ height = 1536
 # 0.3
 #width = 640
 #height = 480
+
 
 
 xMin = int(1/5*width)
@@ -120,19 +123,20 @@ while True:
 	#	print(counter)
 		# update the FPS counter
 		# loop over various values of gamma
-	for gamma in np.arange(0.0, 3.5, 0.5):
-		# ignore when gamma is 1 (there will be no change to the image)
-		if gamma == 1:
-			continue
-	 
-		# apply gamma correction and show the images
-		gamma = gamma if gamma > 0 else 0.1
-		adjusted = adjust_gamma(frame_low, gamma=gamma)
-		cv2.putText(adjusted, "g={}".format(gamma), (10, 30),
-			cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 3)
-		cv2.imshow("Images", np.hstack([frame_low, adjusted]))
+	#for gamma in np.arange(0.0, 3.5, 0.5):
+	# ignore when gamma is 1 (there will be no change to the image)
+	#if gamma == 1:
+	#	continue
+ 
+	# apply gamma correction and show the images
+	gamma = args["gamma"]
 
-		#cv2.imshow('frame', frame)
+	adjusted = adjust_gamma(frame_low, gamma=gamma)
+	cv2.putText(adjusted, "g={}".format(gamma), (10, 30),
+		cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 3)
+	cv2.imshow("Images", np.hstack([frame_low, adjusted]))
+
+	#cv2.imshow('frame', frame)
 	counter +=1
 	fps.update()
 	print(time.time()-tiempoAuxiliar)
