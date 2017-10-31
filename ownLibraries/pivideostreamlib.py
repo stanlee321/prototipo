@@ -33,8 +33,8 @@ class PiVideoStream:
         self.stopped = False
 
 
-        self.frame_resized =  cv2.resize(self.frame, (320,240))
-
+        #self.frame_resized =  cv2.resize(self.frame, (320,240))
+        self.frame_resized = None
         
     def start(self):
         # start the thread to read frames from the video stream
