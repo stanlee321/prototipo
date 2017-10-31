@@ -1,7 +1,7 @@
 # import the necessary packages
 from threading import Thread
 import cv2
-
+import numpy as np
 class WebcamVideoStream:
 	def __init__(self, src=0, resolution = (320,240)):
 		print('JALLO AUS VideoCapture!!')
