@@ -15,7 +15,9 @@ class WebcamVideoStream:
 		self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
 
-		(self.grabbed, self.frame) = self.stream.read()
+		#(self.grabbed, self.frame) = self.stream.read()
+		self.frame = np.zeros(resolution, np.int8)
+		self.frame_resized = np.zeros((320,240), np.int8)
 
 		# initialize the variable used to indicate if the thread should
 		# be stopped
@@ -39,10 +41,12 @@ class WebcamVideoStream:
 
 			# otherwise, read the next frame from the stream
 			(self.grabbed, self.frame) = self.stream.read()
+            self.frame_resized = cv2.resize(self.frame, (320,240))
+
 
 	def read(self):
 		# return the frame most recently read
-		return self.frame
+		return self.frame, self.frame_resized
 
 	def stop(self):
 		# indicate that the thread should be stopped
