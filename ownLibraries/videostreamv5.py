@@ -175,7 +175,7 @@ class WebcamVideoStream:
 
 			self.ratio = 30 / fps
 
-
+		self.i = 0
 
 	def adjust_gamma(self, image, gamma=1.0):
 
@@ -212,6 +212,8 @@ class WebcamVideoStream:
 				for f in range(int(self.ratio)):
 					(self.grabbed, self.frame) = self.stream.read()
 
+				self.stream.set(cv2.CAP_PROP_EXPOSURE, 1+self.i%30)
+
 				adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
 
 				# Set new resolution for the consumers
@@ -228,6 +230,7 @@ class WebcamVideoStream:
 
 			else:
 				(self.grabbed, self.frame) = self.stream.read()
+				self.stream.set(cv2.CAP_PROP_EXPOSURE, 1+self.i%30)
 
 				adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
 
