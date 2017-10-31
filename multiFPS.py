@@ -97,7 +97,7 @@ while True:
 			cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 3)
 		cv2.imshow("Images", np.hstack([frame, adjusted]))
 
-		cv2.imshow('frame', frame)
+		#cv2.imshow('frame', frame)
 	counter +=1
 	fps.update()
 	print(time.time()-tiempoAuxiliar)
