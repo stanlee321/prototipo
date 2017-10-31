@@ -20,7 +20,8 @@ directorioDeLibreriasPropias = directorioDeTrabajo +'/ownLibraries'
 saveDirectory = directorioDeTrabajo+'/VideoCapture/'
 
 sys.path.insert(0, directorioDeLibreriasPropias)
-from ownLibraries.webcamvideostream import WebcamVideoStream, FPS
+from ownLibraries.webcamvideostream import WebcamVideoStream
+from ownLibraries.videostreamv5 import FPS
 
 if not os.path.exists(saveDirectory):
 	os.makedirs(saveDirectory)
