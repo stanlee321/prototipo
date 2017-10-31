@@ -20,7 +20,8 @@ class PiVideoStream:
         self.camera.framerate = framerate
         self.camera.vflip = vf
         self.camera.hflip = hf
-
+        
+        print('FRAMRATE',framerate)
 
         self.rawCapture = PiRGBArray(self.camera, size=resolution)
         self.stream = self.camera.capture_continuous(self.rawCapture,
