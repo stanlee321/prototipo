@@ -4,6 +4,7 @@ import cv2
 
 class WebcamVideoStream:
 	def __init__(self, src=0, resolution = (320,240)):
+		print('JALLO AUS VideoCapture!!')
 		# initialize the video camera stream and read the first frame
 		# from the stream
 		self.stream = cv2.VideoCapture(src)

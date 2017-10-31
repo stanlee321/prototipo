@@ -100,9 +100,9 @@ while True:
 	# grab the frame from the threaded video stream and resize it
 	# to have a maximum width of 400 pixels
 	frame = vs.read()
-	print('BEFORE', frame.shape)
+	#print('BEFORE', frame.shape)
 	frame = imutils.resize(frame, width=320)
-	print('AFTER', frame.shape)
+	#print('AFTER', frame.shape)
 
 
 	# check to see if the frame should be displayed to our screen
