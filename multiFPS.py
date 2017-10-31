@@ -101,7 +101,7 @@ while True:
 	# to have a maximum width of 400 pixels
 	frame, frame_low = vs.read()
 	#print('BEFORE', frame_low.shape)
-	frame = imutils.resize(frame, width=320)
+	#frame = imutils.resize(frame, width=320)
 	#print('AFTER', frame.shape)
 
 
