@@ -103,7 +103,7 @@ while True:
 	#print('BEFORE', frame_low.shape)
 	#frame = imutils.resize(frame, width=320)
 	#print('AFTER', frame.shape)
-
+	#frame_low = cv2.resize(frame, (320,240))
 
 	# check to see if the frame should be displayed to our screen
 	#if args["display"] > 0:
@@ -123,10 +123,10 @@ while True:
 	 
 		# apply gamma correction and show the images
 		gamma = gamma if gamma > 0 else 0.1
-		adjusted = adjust_gamma(frame, gamma=gamma)
+		adjusted = adjust_gamma(frame_low, gamma=gamma)
 		cv2.putText(adjusted, "g={}".format(gamma), (10, 30),
 			cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 3)
-		cv2.imshow("Images", np.hstack([frame, adjusted]))
+		cv2.imshow("Images", np.hstack([frame_low, adjusted]))
 
 		#cv2.imshow('frame', frame)
 	counter +=1
