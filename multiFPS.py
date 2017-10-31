@@ -20,36 +20,63 @@ directorioDeLibreriasPropias = directorioDeTrabajo +'/ownLibraries'
 saveDirectory = directorioDeTrabajo+'/VideoCapture/'
 
 sys.path.insert(0, directorioDeLibreriasPropias)
-from ownLibraries.webcamvideostream import WebcamVideoStream
+
+from ownLibraries.videoStreamTest import VideoStream
 from ownLibraries.videostreamv5 import FPS
 
 if not os.path.exists(saveDirectory):
 	os.makedirs(saveDirectory)
 
 date_string = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M')
+
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-n", "--num-frames", type=int, default=100,
-    help="# of frames to loop over for FPS test")
-ap.add_argument("-d", "--display", type=int, default=1,
-    help="Whether or not frames should be displayed")
+ap.add_argument("-p", "--picamera", type=int, default=-1,
+	help="whether or not the Raspberry Pi camera should be used")
 args = vars(ap.parse_args())
 
 # created a *threaded* video stream, allow the camera sensor to warmup,
 # and start the FPS counter
 print("[INFO] sampling THREADED frames from webcam...")
+# 8
 #width = 3280
 #height = 2464
 
-width = 640
-height = 480
+
+
+# 5mp
+width=2592
+height=1944
+
+# 3mp
+#width = 2048
+#height = 1536
+
+# 2mp
+#width =1600
+#height = 1200 
+
+# 1mp
+#width = 1280
+#height = 960 
+
+
+# 0.5 mp
+#width = 800
+#height = 600
+# 0.3
+#width = 640
+#height = 480
+
 
 xMin = int(1/5*width)
 xMax = int(4/5*width)
 yMin = int(1/5*height)
 yMax = int(4/5*height)
 #vs = WebcamVideoStream(src=0,width=2592, height=1944).start()
-vs = WebcamVideoStream(src=0, resolution=(width,height)).start()
+
+vs = VideoStream(usePiCamera=args["picamera"] > 0, resolution=(width,height)).start()
+#vs = WebcamVideoStream(src=0, resolution=(width,height)).start()
 fps = FPS().start()
  
 # loop over some frames...this time using the threaded stream
@@ -72,11 +99,11 @@ def adjust_gamma(image, gamma=1.0):
 while True:
 	# grab the frame from the threaded video stream and resize it
 	# to have a maximum width of 400 pixels
-	frame = vs.read()
-	print('BEFORE', frame.shape)
-	frame = imutils.resize(frame, width=320)
-	print('AFTER', frame.shape)
-
+	frame, frame_low = vs.read()
+	#print('BEFORE', frame_low.shape)
+	#frame = imutils.resize(frame, width=320)
+	#print('AFTER', frame.shape)
+	#frame_low = cv2.resize(frame, (320,240))
 
 	# check to see if the frame should be displayed to our screen
 	#if args["display"] > 0:
@@ -96,10 +123,10 @@ while True:
 	 
 		# apply gamma correction and show the images
 		gamma = gamma if gamma > 0 else 0.1
-		adjusted = adjust_gamma(frame, gamma=gamma)
+		adjusted = adjust_gamma(frame_low, gamma=gamma)
 		cv2.putText(adjusted, "g={}".format(gamma), (10, 30),
 			cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 3)
-		cv2.imshow("Images", np.hstack([frame, adjusted]))
+		cv2.imshow("Images", np.hstack([frame_low, adjusted]))
 
 		#cv2.imshow('frame', frame)
 	counter +=1
