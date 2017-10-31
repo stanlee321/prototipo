@@ -13,9 +13,11 @@ from ownLibraries.mask import VisualLayer
 from ownLibraries.irswitch import IRSwitch
 from ownLibraries.videostreamv5 import FPS
 from ownLibraries.mireporte import MiReporte
+from ownLibraries.herramientas import total_size
 from ownLibraries.videostreamv5 import VideoStream
 from ownLibraries.policiainfractor import PoliciaInfractor
 from ownLibraries.generadorevidencia import GeneradorEvidencia
+
 
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
@@ -160,6 +162,7 @@ def __main_function__():
 		informacion['index'] = frame_number
 
 		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
+		print('Tamanio buffer: ',total_size(informacionTotal),' en ',len(informacionTotal))
 		# Si forzamos por entrada o si estamos en verde botamos la información de los rectangulos:
 		if (guardarRecortados == False) | (informacionTotal[frame_number]['semaforo'][0]==0):
 			del informacionTotal[frame_number]['recortados']
