@@ -108,7 +108,8 @@ def __main_function__():
 			time.sleep(1)
 		else:
 			#miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
-			miCamara = VideoStream(src = 0, resolution = (1920,1080),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
+			#miCamara = VideoStream(src = 0, resolution = (1920,1080),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
+			miCamara = VideoStream(src = 0, resolution = (1280,960),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
 
 			time.sleep(1)
 
