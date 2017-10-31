@@ -80,7 +80,7 @@ xMax = int(4/5*width)
 yMin = int(1/5*height)
 yMax = int(4/5*height)
 #vs = WebcamVideoStream(src=0,width=2592, height=1944).start()
-framerate = 60
+framerate = 4
 vs = VideoStream(usePiCamera=args["picamera"] > 0, resolution=(width,height), framerate=framerate).start()
 #vs = WebcamVideoStream(src=0, resolution=(width,height)).start()
 fps = FPS().start()
