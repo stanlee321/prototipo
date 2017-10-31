@@ -161,6 +161,7 @@ def __main_function__():
 
 		# assing index information to the above infomation
 
+		
 		# Asign number rfame to the information from miCamara.read()		
 		informacion['index'] = frame_number
 
