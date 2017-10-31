@@ -101,7 +101,7 @@ while True:
 	# to have a maximum width of 400 pixels
 	frame, frame_low = vs.read()
 	#print('BEFORE', frame_low.shape)
-	#frame = imutils.resize(frame, width=320)
+	frame = imutils.resize(frame, width=320)
 	#print('AFTER', frame.shape)
 
 
@@ -123,7 +123,7 @@ while True:
 	 
 		# apply gamma correction and show the images
 		gamma = gamma if gamma > 0 else 0.1
-		adjusted = adjust_gamma(frame_low, gamma=gamma)
+		adjusted = adjust_gamma(frame, gamma=gamma)
 		cv2.putText(adjusted, "g={}".format(gamma), (10, 30),
 			cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 3)
 		cv2.imshow("Images", np.hstack([frame, adjusted]))
