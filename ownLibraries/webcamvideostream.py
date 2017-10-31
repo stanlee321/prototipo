@@ -8,6 +8,7 @@ class WebcamVideoStream:
 		# initialize the video camera stream and read the first frame
 		# from the stream
 		self.stream = cv2.VideoCapture(src)
+		time.sleep(5)
 		#self.stream.set(cv2.CAP_PROP_EXPOSURE, 100)
 
 		width, height = resolution[0], resolution[1]
