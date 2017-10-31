@@ -41,8 +41,11 @@ print("[INFO] sampling THREADED frames from webcam...")
 #width = 3280
 #height = 2464
 
-width = 640
-height = 480
+#width = 640
+#height = 480
+
+width=2592
+height=1944
 
 xMin = int(1/5*width)
 xMax = int(4/5*width)
