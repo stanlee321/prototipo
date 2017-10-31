@@ -45,7 +45,7 @@ xMax = int(4/5*width)
 yMin = int(1/5*height)
 yMax = int(4/5*height)
 #vs = WebcamVideoStream(src=0,width=2592, height=1944).start()
-vs = WebcamVideoStream(src=0, resolution=(width,height).start()
+vs = WebcamVideoStream(src=0, resolution=(width,height)).start()
 fps = FPS().start()
  
 # loop over some frames...this time using the threaded stream
