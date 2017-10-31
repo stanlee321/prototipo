@@ -15,8 +15,8 @@ if not os.path.exists(directorioDeTrabajo+'/VideoCapture/'):
 	os.makedirs(directorioDeTrabajo+'/VideoCapture/')
 
 for argumento in sys.argv:
-	if m in argumento:
-		resolucion = int(argumento[-1])
+	if 'mpx' in argumento:
+		resolucion = int(argumento[:-3])
 		print(str(resolucion)+'MP seleccionado')
 
 factorDeInteres = 5
@@ -35,7 +35,7 @@ if resolucion == 0:
 	height = 240
 
 
-cam=cv2.VideoCapture(camaraAUsar)
+cam=cv2.VideoCapture(0)
 cam.set(3,width)
 cam.set(4,height)
 miLista = []
@@ -44,7 +44,7 @@ while (1):
 	ret0, image0=cam.read()
 	miLista.append(image0)
 	porcentajeDeMemoria = psutil.virtual_memory()[2]
-	print(porcentajeDeMemoria+'\%')
+	print(str(porcentajeDeMemoria)+'/100')
 	if porcentajeDeMemoria>90:
 		miLista.pop(0)
 		print('Alcanzado 90/100 de memoria con '+str(len(miLista))+' frames de '+str(resolucion)+'MP')
