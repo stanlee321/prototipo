@@ -34,6 +34,8 @@ class WebcamVideoStream:
 			if self.stopped:
 				return
 
+			self.stream.set(cv2.CAP_PROP_EXPOSURE, -1)
+
 			# otherwise, read the next frame from the stream
 			(self.grabbed, self.frame) = self.stream.read()
 
