@@ -245,7 +245,7 @@ def __main_function__():
 			visualizacion = visualLabel.aplicarMascaraActualAFrame(visualizacion)
 			
 			# Show Everything
-			cv2.imshow('Visual',visualLabel.aplicarTodo())		
+			cv2.imshow('Visual', cv2.resize(visualLabel.aplicarTodo(),(620,480))		
 		
 		tiempoEjecucion = time.time() - tiempoAuxiliar
 		if tiempoEjecucion>periodoDeMuestreo:
