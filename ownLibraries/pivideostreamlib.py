@@ -29,6 +29,7 @@ class PiVideoStream:
         # initialize the frame and the variable used to indicate
         # if the thread should be stopped
         self.frame = np.zeros(resolution, np.int8)
+        print('RES', self.frame.shape)
         self.stopped = False
 
 
