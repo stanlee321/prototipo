@@ -14,7 +14,7 @@ date_string = datetime.datetime.now().strftime('%Y_%m_%d')
 if not os.path.exists(directorioDeTrabajo+'/VideoCapture/'):
 	os.makedirs(directorioDeTrabajo+'/VideoCapture/')
 
-for argumento in sys.arg:
+for argumento in sys.argv:
 	if m in argumento:
 		resolucion = int(argumento[-1])
 		print(str(resolucion)+'MP seleccionado')
