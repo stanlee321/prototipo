@@ -51,8 +51,12 @@ print("[INFO] sampling THREADED frames from webcam...")
 #height=1944
 
 # 3mp
-width = 2048
-height = 1536
+#width = 2048
+#height = 1536
+
+# 2mp
+width =1600
+height = 1200 
 
 
 xMin = int(1/5*width)
