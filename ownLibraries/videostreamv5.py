@@ -176,8 +176,6 @@ class WebcamVideoStream:
 			self.ratio = 30 / fps
 
 
-		self.i = 0
-
 	def adjust_gamma(self, image, gamma=1.0):
 
 		# build a lookup table mapping the pixel values [0, 255] to
@@ -213,8 +211,6 @@ class WebcamVideoStream:
 				for f in range(int(self.ratio)):
 					(self.grabbed, self.frame) = self.stream.read()
 
-				self.stream.set(cv2.CAP_PROP_EXPOSURE, -1)
-
 				adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
 
 				# Set new resolution for the consumers
@@ -231,7 +227,6 @@ class WebcamVideoStream:
 
 			else:
 				(self.grabbed, self.frame) = self.stream.read()
-				self.stream.set(cv2.CAP_PROP_EXPOSURE, -1)
 				adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
 
 				self.frame_medium = cv2.resize(adjusted, (640,480))
@@ -244,7 +239,6 @@ class WebcamVideoStream:
 				# RETURNING VALUES FOR SEMAFORO
 				self.senalColor, self.colorLiteral, self.flancoSemaforo  = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)
 
-			self.i += 1
 			# HACER BGSUBCNT
 			self.BgSubCNT(self.frame_resized)
 
