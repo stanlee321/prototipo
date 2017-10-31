@@ -14,17 +14,10 @@ date_string = datetime.datetime.now().strftime('%Y_%m_%d')
 if not os.path.exists(directorioDeTrabajo+'/VideoCapture/'):
 	os.makedirs(directorioDeTrabajo+'/VideoCapture/')
 
-try:
-	camaraAUsar = int(sys.arg[2])
-except:
-	print('No se introdujo cambio de camara, usando la primera, 0, por defecto')
-	camaraAUsar = 0
-
-try:
-	resolucion = int(sys.arg[1])
-except:
-	print('No se introdujo resolucion, usando la maxima, 8Mp, por defecto')
-	resolucion = 8
+for argumento in sys.arg:
+	if m in argumento:
+		resolucion = int(argumento[-1])
+		print(str(resolucion)+'MP seleccionado')
 
 factorDeInteres = 5
 
@@ -51,9 +44,10 @@ while (1):
 	ret0, image0=cam.read()
 	miLista.append(image0)
 	porcentajeDeMemoria = psutil.virtual_memory()[2]
+	print(porcentajeDeMemoria+'\%')
 	if porcentajeDeMemoria>90:
 		miLista.pop(0)
-		print('Alcanzado 90/100 de memoria con '+str(len(miLista))+' frames de '+str(len(resolucion))+'MP')
+		print('Alcanzado 90/100 de memoria con '+str(len(miLista))+' frames de '+str(resolucion)+'MP')
 
 	ch = 0xFF & cv2.waitKey(5)
 		#is_red = findColor()
