@@ -19,7 +19,6 @@ from ownLibraries.videostreamv5 import VideoStream
 from ownLibraries.policiainfractor import PoliciaInfractor
 from ownLibraries.generadorevidencia import GeneradorEvidencia
 
-
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos  = os.getenv('HOME')+'/trafficFlow/trialVideos'
@@ -47,7 +46,7 @@ anocheciendo =  21*60+30														# Tiempo 17:30 am + 4 GMT
 amaneciendo = 11*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
 maximoMemoria = 200
-guardarRecortados = False
+guardarRecortados = True
 
 gamma = 1.0
 
@@ -128,7 +127,7 @@ def __main_function__():
 	
 	# Creación de objetos:
 	miPoliciaReportando = PoliciaInfractor(informacion['frame'],verticesPartida,verticesLlegada)
-	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps)
+	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,guardarRecortados)
 	miFiltro = IRSwitch()
 	miAcetatoInformativo = Acetato()
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
@@ -277,7 +276,7 @@ if __name__ == '__main__':
 			topeEjecucion = int(input[:-1])
 		if 'gamma' in input:
 			gamma = float(input[:-5])
-		if 'noRec' in input:
+		if 'norec' in input:
 			guardarRecortados = False
 
 	__main_function__()

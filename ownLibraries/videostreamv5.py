@@ -96,7 +96,6 @@ class WebcamVideoStream:
 			self.y1 = maxinY //2
 
 		else:
-			print('>>>>>>>>>Willkommen zu THE REAL WORLD<<<<<<<<<<<<<<')
 			# Resized normal frame
 			self.frame_medium = cv2.resize(self.frame, (640,480))
 			
