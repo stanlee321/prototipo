@@ -132,9 +132,7 @@ def __main_function__():
 	miAcetatoInformativo = Acetato()
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
 	miAcetatoInformativo.colocarPoligono(np.array(verticesPartida))
-	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))
-	
-	frame_number = 0	
+	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))	
 
 	fps = FPS().start()
 	informacionTotal = {}
@@ -168,6 +166,12 @@ def __main_function__():
 			miReporte.warning('Alcanzado 92/100 de memoria, borrando frame: '+str(frameAOptimizar))
 			del informacionTotal[frameAOptimizar]['recortados']
 			informacionTotal[frameAOptimizar]['recortados'] = {}
+
+		if porcentajeDeMemoria>96:
+			frameAOptimizar = min(informacionTotal)
+			miReporte.warning('Alcanzado 96/100 de memoria, borrando todo e inicializando')
+			del informacionTotal
+			frame_number = 0
 
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
