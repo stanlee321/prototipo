@@ -41,8 +41,8 @@ args = vars(ap.parse_args())
 # and start the FPS counter
 print("[INFO] sampling THREADED frames from webcam...")
 # 8
-#width = 3280
-#height = 2464
+width = 3280
+height = 2464
 
 
 #5mp
@@ -54,8 +54,8 @@ print("[INFO] sampling THREADED frames from webcam...")
 #height = 1680
 
 # 3mp
-width = 2048
-height = 1536
+#width = 2048
+#height = 1536
 
 # 2mp
 #width =1600
