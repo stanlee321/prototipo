@@ -49,6 +49,7 @@ maximoMemoria = 200
 guardarRecortados = True
 
 gamma = 1.0
+noDraw = False
 
 # Función principal
 def __main_function__():
@@ -280,5 +281,7 @@ if __name__ == '__main__':
 			gamma = float(input[:-5])
 		if 'norec' in input:
 			guardarRecortados = False
+		if 'noDraw' in input:
+			noDraw = True
 
 	__main_function__()
