@@ -124,12 +124,12 @@ class PoliciaInfractor():
 						break
 					else:
 						estado = 1
-			#if estado != 0:
-				#try:
-				#	informacion['recortados'][informacion['rectangulos'].index(rectangulo)] = np.array((0))
-				#except:
-				#	#self.miReporte.error('No pude eliminar imagen en frame'+str(informacion['rectangulos']))
-				#	pass
+			if estado != 0:
+				try:
+					informacion['recortados'][informacion['rectangulos'].index(rectangulo)] = np.zeros((0))
+				except:
+					#self.miReporte.error('No pude eliminar imagen en frame'+str(informacion['rectangulos']))
+					pass
 			rectangulo[2] = estado
 		self.imagenAuxiliar = imagenActualEnGris
 		return cambiosImportantes

@@ -78,7 +78,7 @@ class GeneradorEvidencia():
 						else:
 							estado = 'Erased'
 						# Si la imagen es suficientemente grande la guardo
-						if (imagen.shape[0]+imagen.shape[1]) >100:
+						if len(imagen) != 0:
 							nombreRecorte = directorioRecorte+'/photo_{}_{}_'.format(contadorDeRecortados,indiceVideo)+estado+'.jpg'
 							cv2.imwrite(nombreRecorte,imagen)
 						contadorDeRecortados+=1
