@@ -47,6 +47,7 @@ anocheciendo =  21*60+30														# Tiempo 17:30 am + 4 GMT
 amaneciendo = 11*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
 maximoMemoria = 200
+guardarRecortados = False
 
 gamma = 1.0
 
@@ -174,6 +175,10 @@ def __main_function__():
 			del informacionTotal
 			frame_number = 0
 
+		if (guardarRecortados == False) | (informacionTotal[frame_number]['semaforo'][0]==0):
+			del informacionTotal[frame_number]['recortados']
+			informacionTotal[frame_number]['recortados'] = {}
+
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
 			if informacion['semaforo'][2] == 1:						# esto se inicia al principio de este estado
@@ -272,5 +277,7 @@ if __name__ == '__main__':
 			topeEjecucion = int(input[:-1])
 		if 'gamma' in input:
 			gamma = float(input[:-5])
+		if 'noRec' in input:
+			guardarRecortados = False
 
 	__main_function__()
