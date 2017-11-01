@@ -107,9 +107,9 @@ def __main_function__():
 			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma ).start()
 			time.sleep(1)
 		else:
-			#miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
+			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
 			#miCamara = VideoStream(src = 0, resolution = (1920,1080),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
-			miCamara = VideoStream(src = 0, resolution = (1280,960),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
+			#miCamara = VideoStream(src = 0, resolution = (1280,960),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
 
 			time.sleep(1)
 
@@ -159,20 +159,6 @@ def __main_function__():
 		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
 
 		# Si forzamos por entrada o si estamos en verde botamos la información de los rectangulos:
-		porcentajeDeMemoria = psutil.virtual_memory()[2]
-		
-		if porcentajeDeMemoria>80:
-			miReporte.info('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
-		if porcentajeDeMemoria>92:
-			frameAOptimizar = min(informacionTotal)
-			miReporte.warning('Alcanzado 92/100 de memoria, borrando frame: '+str(frameAOptimizar))
-			del informacionTotal[frameAOptimizar]['recortados']
-			informacionTotal[frameAOptimizar]['recortados'] = {}
-
-		if porcentajeDeMemoria>96:
-			miReporte.warning('Alcanzado 96/100 de memoria, borrando todo e inicializando')
-			del informacionTotal
-			frame_number = 0
 
 		if (guardarRecortados == False) | (informacionTotal[frame_number]['semaforo'][0]==0):
 			del informacionTotal[frame_number]['recortados']
@@ -242,6 +228,22 @@ def __main_function__():
 			miReporte.info('F{} Sema: '.format(frame_number)+informacion['semaforo'][1]+' I: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas())+'/'+str(miPoliciaReportando.numeroInfraccionesTotales())+' Objetos: {}'.format(len(informacion['rectangulos'])))
 		numeroDeObjetos = len(informacion['rectangulos'])
 		tiempoAuxiliar = time.time()
+
+		porcentajeDeMemoria = psutil.virtual_memory()[2]
+		
+		if porcentajeDeMemoria>80:
+			miReporte.info('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
+		if porcentajeDeMemoria>92:
+			frameAOptimizar = min(informacionTotal)
+			miReporte.warning('Alcanzado 92/100 de memoria, borrando frame: '+str(frameAOptimizar))
+			del informacionTotal[frameAOptimizar]['recortados']
+			informacionTotal[frameAOptimizar]['recortados'] = {}
+
+		if porcentajeDeMemoria>96:
+			miReporte.warning('Alcanzado 96/100 de memoria, borrando todo e inicializando')
+			del informacionTotal
+			informacionTotal = {}
+			frame_number = 0
 
 		frame_number += 1
 		if (frame_number >= topeEjecucion) &(topeEjecucion!=0):
