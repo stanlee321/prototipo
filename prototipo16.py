@@ -160,7 +160,9 @@ def __main_function__():
 
 		# Si forzamos por entrada o si estamos en verde botamos la información de los rectangulos:
 		porcentajeDeMemoria = psutil.virtual_memory()[2]
-		miReporte.debug('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
+		
+		if porcentajeDeMemoria>80:
+			miReporte.info('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
 		if porcentajeDeMemoria>92:
 			frameAOptimizar = min(informacionTotal)
 			miReporte.warning('Alcanzado 92/100 de memoria, borrando frame: '+str(frameAOptimizar))
@@ -168,7 +170,6 @@ def __main_function__():
 			informacionTotal[frameAOptimizar]['recortados'] = {}
 
 		if porcentajeDeMemoria>96:
-			frameAOptimizar = min(informacionTotal)
 			miReporte.warning('Alcanzado 96/100 de memoria, borrando todo e inicializando')
 			del informacionTotal
 			frame_number = 0
