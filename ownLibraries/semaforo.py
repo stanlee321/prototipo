@@ -248,7 +248,7 @@ class Real(Semaforo):
 
 
 
-		cv2.imshow('res', cv2.resize(res,(res.shape[1]*5,res.shape[0]*5)))
+		#cv2.imshow('res', cv2.resize(res,(res.shape[1]*5,res.shape[0]*5)))
 		###########################
 		# SVM PART (CLASSIFICATION) ML PROCESS
 		###########################
