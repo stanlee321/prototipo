@@ -70,13 +70,15 @@ class GeneradorEvidencia():
 				prueba.write(informacionTotal[indiceVideo]['frame'])
 				if self.guardoRecortados:
 					contadorDeRecortados = 0
+					# Si tengo rectangulos, los guardo
 					for indiceImagen in range(len(informacionTotal[indiceVideo]['recortados'])):
 						imagen = informacionTotal[indiceVideo]['recortados'][indiceImagen]
 						if informacionTotal[indiceVideo]['rectangulos'][indiceImagen][2] == 0:
 							estado = 'Saved'
 						else:
 							estado = 'Erased'
-						if True:#informacionTotal[indiceVideo]['recortados'][indiceImagen] != np.array((0)):
+						# Si la imagen es suficientemente grande la guardo
+						if len(imagen) != 0:
 							nombreRecorte = directorioRecorte+'/photo_{}_{}_'.format(contadorDeRecortados,indiceVideo)+estado+'.jpg'
 							cv2.imwrite(nombreRecorte,imagen)
 						contadorDeRecortados+=1

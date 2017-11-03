@@ -39,7 +39,6 @@ class Acetato(object):
 		for puntoInformacion in self.misPuntos:
 			punto = puntoInformacion[0]
 			color = puntoInformacion[1]
-			print('>>> ',punto)
 			frameNP = cv2.circle(frameNP, punto, 1, (100*color,100*color,255), -1)
 		for target in self.targets:
 			x,y,w,h = target[0]

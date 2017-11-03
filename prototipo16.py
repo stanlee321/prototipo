@@ -19,7 +19,6 @@ from ownLibraries.videostreamv5 import VideoStream
 from ownLibraries.policiainfractor import PoliciaInfractor
 from ownLibraries.generadorevidencia import GeneradorEvidencia
 
-
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos  = os.getenv('HOME')+'/trafficFlow/trialVideos'
@@ -47,8 +46,10 @@ anocheciendo =  21*60+30														# Tiempo 17:30 am + 4 GMT
 amaneciendo = 11*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
 maximoMemoria = 200
+guardarRecortados = True
 
 gamma = 1.0
+noDraw = False
 
 # Función principal
 def __main_function__():
@@ -107,9 +108,9 @@ def __main_function__():
 			miCamara = VideoStream(src = 1, resolution = (640,480),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma ).start()
 			time.sleep(1)
 		else:
-			#miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
+			miCamara = VideoStream(src = 0, resolution = (3296,2512),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
 			#miCamara = VideoStream(src = 0, resolution = (1920,1080),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
-			miCamara = VideoStream(src = 0, resolution = (1280,960),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
+			#miCamara = VideoStream(src = 0, resolution = (1280,960),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
 
 			time.sleep(1)
 
@@ -127,14 +128,12 @@ def __main_function__():
 	
 	# Creación de objetos:
 	miPoliciaReportando = PoliciaInfractor(informacion['frame'],verticesPartida,verticesLlegada)
-	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps)
+	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,guardarRecortados)
 	miFiltro = IRSwitch()
 	miAcetatoInformativo = Acetato()
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
 	miAcetatoInformativo.colocarPoligono(np.array(verticesPartida))
-	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))
-	
-	frame_number = 0	
+	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))	
 
 	fps = FPS().start()
 	informacionTotal = {}
@@ -161,17 +160,17 @@ def __main_function__():
 		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
 
 		# Si forzamos por entrada o si estamos en verde botamos la información de los rectangulos:
-		porcentajeDeMemoria = psutil.virtual_memory()[2]
-		miReporte.debug('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
-		if porcentajeDeMemoria>92:
-			frameAOptimizar = min(informacionTotal)
-			miReporte.warning('Alcanzado 92/100 de memoria, borrando frame: '+str(frameAOptimizar))
-			del informacionTotal[frameAOptimizar]['recortados']
-			informacionTotal[frameAOptimizar]['recortados'] = {}
 
+		if (guardarRecortados == False) | (informacionTotal[frame_number]['semaforo'][0]==0):
+			del informacionTotal[frame_number]['recortados']
+			informacionTotal[frame_number]['recortados'] = {}
+		# Se reporta el periodo del semaforo si es necesario:
+		if informacion['semaforo'][3] != 0:
+			miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(informacion['semaforo'][3]))
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
 			if informacion['semaforo'][2] == 1:						# esto se inicia al principio de este estado
+				miReporte.info('SEMAFORO EN ROJO')
 				miPoliciaReportando.inicializarAgente()
 				del informacionTotal
 				informacionTotal = {}
@@ -181,7 +180,6 @@ def __main_function__():
 
 		if informacion['semaforo'][0] == 0:							# Si estamos en verde realizamos otra accion
 			if informacion['semaforo'][2] == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
-				miReporte.info('SEMAFORO EN VERDE')
 				miReporte.info('Infracciones: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas()))
 				if generarArchivosDebug:
 					miGrabadora.generarReporteInfraccion(informacionTotal, False,miPoliciaReportando.numeroInfraccionesConfirmadas())
@@ -234,8 +232,27 @@ def __main_function__():
 		numeroDeObjetos = len(informacion['rectangulos'])
 		tiempoAuxiliar = time.time()
 
+		porcentajeDeMemoria = psutil.virtual_memory()[2]
+		
+		if porcentajeDeMemoria>80:
+			miReporte.info('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
+		if porcentajeDeMemoria>92:
+			frameAOptimizar = min(informacionTotal)
+			miReporte.warning('Alcanzado 92/100 de memoria, borrando frame: '+str(frameAOptimizar))
+			del informacionTotal[frameAOptimizar]['recortados']
+			informacionTotal[frameAOptimizar]['recortados'] = {}
+
+		if porcentajeDeMemoria>96:
+			miReporte.warning('Alcanzado 96/100 de memoria, borrando todo e inicializando')
+			del informacionTotal
+			informacionTotal = {}
+			frame_number = 0
+
 		frame_number += 1
 		if (frame_number >= topeEjecucion) &(topeEjecucion!=0):
+			break
+		if informacion['semaforo'][0] == -2:
+			miReporte.critical('El semaforo ya no obtuvo señal, necesito recalibrar, abandonando la ejecución del programa')
 			break
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
@@ -267,5 +284,9 @@ if __name__ == '__main__':
 			topeEjecucion = int(input[:-1])
 		if 'gamma' in input:
 			gamma = float(input[:-5])
+		if 'norec' in input:
+			guardarRecortados = False
+		if 'noDraw' in input:
+			noDraw = True
 
 	__main_function__()

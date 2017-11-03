@@ -36,7 +36,9 @@ class Semaforo(object):
 		self.previous_state = 'rojo'
 		self.numericValue = -1
 		self.counter = 0
-
+		self.tiempoParaPeriodo = time.time()
+		self.ultimoPeriodo = time.time() - self.tiempoParaPeriodo
+		self.maximoTiempoPeriodo = 150			# 2 minutos y medio sera el timeout para determinar que no se esta viendo semaforo
 	
 	def correrCronometro(self, periodoSemaforo, sleeptime):
 		# Run chronometer and reset self.flanco to 0 once that the
@@ -197,7 +199,7 @@ class Real(Semaforo):
 		self.upper_yellow = np.array([27,255,255], dtype=np.uint8)
 
 		# RED range
-		self.lower_red = np.array([140,0,0], dtype=np.uint8) #_,100,_
+		self.lower_red = np.array([140,100,0], dtype=np.uint8) #_,100,_
 		self.upper_red = np.array([180,255,255], dtype=np.uint8)
 
 		# GREEN range
@@ -384,6 +386,7 @@ class CreateSemaforo(Semaforo):
 	
 	def obtenerColorEnSemaforo(self, img):
 		numerico, literal, flancoErrado = self.blueprint_semaforo.encontrarSemaforoObtenerColor(imagen = img )
+		periodoAMostrar = 0
 		if self.periodoSemaforo == 0 :
 			self.littleFilter[4] = self.littleFilter[3]
 			self.littleFilter[3] = self.littleFilter[2]
@@ -402,7 +405,6 @@ class CreateSemaforo(Semaforo):
 			if numeroDeVerdes>=3:
 				numerico = 0
 
-
 		flancoCorrecto = 0
 		# Si llegue a un valor valido entonces es posible generar flanco
 		if (numerico==0)|(numerico==1)|(numerico==2):
@@ -417,7 +419,20 @@ class CreateSemaforo(Semaforo):
 				self.numericoAuxiliar = numerico
 		else: # Si no llego a un valor valido repito
 			numerico = self.numericoAuxiliar
-		return numerico, literal, flancoCorrecto
+
+		# Si el flanco es correcto entonces genero los valores de periodo
+		if flancoCorrecto == -1:
+			periodoAMostrar = self.blueprint_semaforo.ultimoPeriodo
+			self.blueprint_semaforo.tiempoParaPeriodo = time.time()
+
+		self.blueprint_semaforo.ultimoPeriodo = time.time() - self.blueprint_semaforo.tiempoParaPeriodo
+		# Si el periodo excede los 1 minutos (normalmente 2, 1 para debug) entonces señalo que no hay semaforo
+		if self.blueprint_semaforo.ultimoPeriodo >self.maximoTiempoPeriodo:
+			flancoCorrecto = 1				# Flanco verde para guardar la información que se tenga
+			numerico = -2
+		
+
+		return numerico, literal, flancoCorrecto, periodoAMostrar
 
 
 if __name__ == '__main__':

@@ -124,12 +124,12 @@ class PoliciaInfractor():
 						break
 					else:
 						estado = 1
-			#if estado != 0:
-				#try:
-				#	informacion['recortados'][informacion['rectangulos'].index(rectangulo)] = np.array((0))
-				#except:
-				#	#self.miReporte.error('No pude eliminar imagen en frame'+str(informacion['rectangulos']))
-				#	pass
+			if estado != 0:
+				try:
+					informacion['recortados'][informacion['rectangulos'].index(rectangulo)] = np.zeros((0))
+				except:
+					#self.miReporte.error('No pude eliminar imagen en frame'+str(informacion['rectangulos']))
+					pass
 			rectangulo[2] = estado
 		self.imagenAuxiliar = imagenActualEnGris
 		return cambiosImportantes
@@ -313,7 +313,7 @@ class PoliciaInfractor():
 		(x,y) = self.obtenerVectorMovimiento(vectorAntiguo, nuevoVector)
 		moduloPerpendicular = self.vectorPerpendicularUnitario[0]*x+self.vectorPerpendicularUnitario[1]*y
 		return moduloPerpendicular
-
+"""
 if __name__ == '__main__':
 	"""
 	This small trial is a proff of work for the current class
@@ -385,3 +385,4 @@ if __name__ == '__main__':
 			True
 		frame += 1
 		tiempoAuxiliar = time.time()
+"""
