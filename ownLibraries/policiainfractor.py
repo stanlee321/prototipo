@@ -315,9 +315,9 @@ class PoliciaInfractor():
 		return moduloPerpendicular
 """
 if __name__ == '__main__':
-	"""
+
 	This small trial is a proff of work for the current class
-	"""
+
 	try:
 		nombreDeVideo = directorioDeVideos+'/{}.mp4'.format(sys.argv[1])
 		camaraParaFlujo = cv2.VideoCapture(nombreDeVideo)
