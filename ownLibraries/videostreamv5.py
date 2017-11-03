@@ -131,6 +131,7 @@ class WebcamVideoStream:
 		self.senalColor = -1
 		self.colorLiteral = None
 		self.flancoSemaforo  = 0
+		self.periodoSemaforo = 0
 
 		##### BG part
 
@@ -164,7 +165,7 @@ class WebcamVideoStream:
 
 		#self.information['index'] = self.frame_number
 		self.information['frame'] = self.frame_resized
-		self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo]
+		self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo]
 		self.information['recortados'] = self.listaderecortados
 		self.information['rectangulos'] = self.matches
 
@@ -221,7 +222,7 @@ class WebcamVideoStream:
 				# Compensation timefor using the simulation, since there is not ML Process
 				time.sleep(0.033)
 				# RETURNING VALUES FOR SEMAFORO
-				self.senalColor, self.colorLiteral, self.flancoSemaforo  = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)	
+				self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)	
 
 
 			else:
@@ -236,7 +237,7 @@ class WebcamVideoStream:
 
 
 				# RETURNING VALUES FOR SEMAFORO
-				self.senalColor, self.colorLiteral, self.flancoSemaforo  = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)
+				self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)
 
 			# HACER BGSUBCNT
 			self.BgSubCNT(self.frame_resized)
@@ -246,7 +247,7 @@ class WebcamVideoStream:
 
 			# Despachando los valores al mundo exterior.
 			self.information['frame'] = self.frame_resized
-			self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo]
+			self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo]
 			self.information['recortados'] = self.listaderecortados 			
 			self.information['rectangulos'] = self.matches
 			
