@@ -16,6 +16,8 @@ class WebcamVideoStream:
 		self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
 
+		#self.stream.set(cv2.CAP_PROP_GAIN, 0.1)
+
 		#(self.grabbed, self.frame) = self.stream.read()
 		self.frame = np.zeros(resolution, np.int8)
 		self.frame_resized = np.zeros((320,240), np.int8)

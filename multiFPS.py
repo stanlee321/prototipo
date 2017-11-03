@@ -33,7 +33,7 @@ date_string = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M')
 ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--picamera", type=int, default=-1,
 	help="whether or not the Raspberry Pi camera should be used")
-ap.add_argument("-g", "--gamma", type=int, default=1,
+ap.add_argument("-g", "--gamma", type=float, default=1,
 	help="whether or not the Raspberry Pi camera should be used")
 args = vars(ap.parse_args())
 
@@ -54,8 +54,8 @@ print("[INFO] sampling THREADED frames from webcam...")
 #height = 1680
 
 # 3mp
-width = 2048
-height = 1536
+#width = 2048
+#height = 1536
 
 # 2mp
 #width =1600
@@ -70,8 +70,8 @@ height = 1536
 #width = 800
 #height = 600
 # 0.3
-#width = 640
-#height = 480
+width = 640
+height = 480
 
 
 
@@ -94,7 +94,7 @@ tiempoAuxiliar = time.time()
 def adjust_gamma(image, gamma=1.0):
 	# build a lookup table mapping the pixel values [0, 255] to
 	# their adjusted gamma values
-	invGamma = gamma#1.0 / gamma
+	invGamma = 1.0 / gamma
 	table = np.array([((i / 255.0) ** invGamma) * 255
 		for i in np.arange(0, 256)]).astype("uint8")
  
