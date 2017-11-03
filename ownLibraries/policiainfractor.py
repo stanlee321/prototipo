@@ -313,7 +313,8 @@ class PoliciaInfractor():
 		(x,y) = self.obtenerVectorMovimiento(vectorAntiguo, nuevoVector)
 		moduloPerpendicular = self.vectorPerpendicularUnitario[0]*x+self.vectorPerpendicularUnitario[1]*y
 		return moduloPerpendicular
-"""
+
+
 if __name__ == '__main__':
 	"""
 	This small trial is a proff of work for the current class
@@ -385,4 +386,3 @@ if __name__ == '__main__':
 			True
 		frame += 1
 		tiempoAuxiliar = time.time()
-"""

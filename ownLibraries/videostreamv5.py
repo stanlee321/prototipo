@@ -52,9 +52,6 @@ class WebcamVideoStream:
 		# from the stream
 		self.stream = cv2.VideoCapture(src)
 
-
-
-
 		self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, width)
 		self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 		#self.stream.set(cv2.CAP_PROP_EXPOSURE, -1)
@@ -175,7 +172,8 @@ class WebcamVideoStream:
 
 			self.ratio = 30 / fps
 
-
+		self.frame_auxiliar_counter = -1
+		self.frame_append_auxiliar = []
 	def adjust_gamma(self, image, gamma=1.0):
 
 		# build a lookup table mapping the pixel values [0, 255] to
@@ -198,12 +196,11 @@ class WebcamVideoStream:
 	def update(self):
 		# keep looping infinitely until the thread is stopped
 		while True:
-			time.sleep(0.0010)
+			#time.sleep(0.0010)
 
 			# if the thread indicator variable is set, stop the thread
 			if self.stopped:
 				return
-
 			# otherwise, read the next frame from the stream
 
 			#print(self.debug)
@@ -215,15 +212,10 @@ class WebcamVideoStream:
 
 				# Set new resolution for the consumers
 				self.frame_resized = cv2.resize(adjusted, (320,240))
-
 				# Cut imagen for the semaforo
 				self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
-				
 				# Compensation timefor using the simulation, since there is not ML Process
 				time.sleep(0.033)
-				# RETURNING VALUES FOR SEMAFORO
-				self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)	
-
 
 			else:
 				(self.grabbed, self.frame) = self.stream.read()
@@ -236,8 +228,8 @@ class WebcamVideoStream:
 				self.imagen_semaforo = self.frame_medium[self.y0:self.y1,self.x0:self.x1]
 
 
-				# RETURNING VALUES FOR SEMAFORO
-				self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)
+			# RETURNING VALUES FOR SEMAFORO
+			self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)	
 
 			# HACER BGSUBCNT
 			self.BgSubCNT(self.frame_resized)
@@ -250,8 +242,18 @@ class WebcamVideoStream:
 			self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo]
 			self.information['recortados'] = self.listaderecortados 			
 			self.information['rectangulos'] = self.matches
-			
+			self.information['auxiliar'] = 	self.frame_auxiliar_counter
 
+			self.frame_auxiliar_counter += 1
+			self.frame_append_auxiliar.append(self.frame_auxiliar_counter)
+			#if len(self.frame_append_auxiliar) > 2:
+			#	print('self.frame_append_auxiliar[-1]', self.frame_append_auxiliar[-1])
+			#	print('self.frame_append_auxiliar[-2]', self.frame_append_auxiliar[-2])
+
+			#	if self.frame_append_auxiliar[-1] == self.frame_append_auxiliar[-2]:
+			#		print('este se bugeo:::::::::::::>>>>><<', self.frame_auxiliar_counter)
+			#else:
+			#	pass
 			
 	def read(self):
 		# return the frame most recently read
@@ -297,8 +299,6 @@ class WebcamVideoStream:
 
 			# apeend to the matches for output from current frame
 			self.matches.append([(x, y, w, h), centroid,4])
-
-
 			# Optional, draw rectangle and circle where you find "movement"
 			#if self.draw == True:
 			#self.r_and_c.appen	cv2.rectangle(frame, (x,y),(x+w-1, y+h-1),(0,0,255),1)

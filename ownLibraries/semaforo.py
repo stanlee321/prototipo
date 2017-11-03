@@ -43,7 +43,7 @@ class Semaforo(object):
 	def correrCronometro(self, periodoSemaforo, sleeptime):
 		# Run chronometer and reset self.flanco to 0 once that the
 		# pulse has been send.
-		print('Returning pulse ..flanco:', self.flanco)
+		#print('Returning pulse ..flanco:', self.flanco)
 		#
 		# After pulse has been send, self.flanco set to 0 again
 		#
