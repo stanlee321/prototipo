@@ -214,9 +214,8 @@ def __main_function__():
 		for rectangulo in informacion['rectangulos']:
 			miAcetatoInformativo.colocarObjetivo(rectangulo[0],rectangulo[2])
 
-
 		if mostrarImagen:
-			cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(informacion['frame']))
+			cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(informacion['frame'])[120:239,60:360])
 		miAcetatoInformativo.inicializar()
 		
 		tiempoEjecucion = time.time() - tiempoAuxiliar
@@ -250,12 +249,14 @@ def __main_function__():
 
 		frame_number += 1
 		if (frame_number >= topeEjecucion) &(topeEjecucion!=0):
+			miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por indice de auto acabado predeterminado')
 			break
 		if informacion['semaforo'][0] == -2:
-			miReporte.critical('El semaforo ya no obtuvo señal, necesito recalibrar, abandonando la ejecución del programa')
+			miReporte.critical('ABANDONANDO LA EJECUCION DE PROGRAMA El semaforo ya no obtuvo señal, necesito recalibrar, abandonando la ejecución del programa')
 			break
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
+			miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por salida manual')
 			break
 		if ch == ord('s'):
 			cv2.imwrite(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')+'.jpg',informacion['frame'])
@@ -280,13 +281,13 @@ if __name__ == '__main__':
 			mostrarImagen = True
 		if 'fps' in input:
 			mifps = int(input[:-3])
-		if 'd' in input:
+		if input =='Kill':
 			topeEjecucion = int(input[:-1])
 		if 'gamma' in input:
 			gamma = float(input[:-5])
-		if 'norec' in input:
+		if input == 'noRec':
 			guardarRecortados = False
-		if 'noDraw' in input:
+		if input == 'noDraw':
 			noDraw = True
 
 	__main_function__()
