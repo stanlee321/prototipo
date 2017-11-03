@@ -279,13 +279,13 @@ if __name__ == '__main__':
 			mostrarImagen = True
 		if 'fps' in input:
 			mifps = int(input[:-3])
-		if 'd' in input:
+		if input =='Kill':
 			topeEjecucion = int(input[:-1])
 		if 'gamma' in input:
 			gamma = float(input[:-5])
-		if 'norec' in input:
+		if input == 'noRec':
 			guardarRecortados = False
-		if 'noDraw' in input:
+		if input == 'noDraw':
 			noDraw = True
 
 	__main_function__()
