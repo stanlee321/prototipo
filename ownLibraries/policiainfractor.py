@@ -317,7 +317,7 @@ class PoliciaInfractor():
 
 if __name__ == '__main__':
 
-	This small trial is a proff of work for the current class
+	#This small trial is a proff of work for the current class
 
 	try:
 		nombreDeVideo = directorioDeVideos+'/{}.mp4'.format(sys.argv[1])
