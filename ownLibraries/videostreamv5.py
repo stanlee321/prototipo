@@ -246,14 +246,17 @@ class WebcamVideoStream:
 
 			self.frame_auxiliar_counter += 1
 			self.frame_append_auxiliar.append(self.frame_auxiliar_counter)
-			#if len(self.frame_append_auxiliar) > 2:
-			#	print('self.frame_append_auxiliar[-1]', self.frame_append_auxiliar[-1])
-			#	print('self.frame_append_auxiliar[-2]', self.frame_append_auxiliar[-2])
-
-			#	if self.frame_append_auxiliar[-1] == self.frame_append_auxiliar[-2]:
-			#		print('este se bugeo:::::::::::::>>>>><<', self.frame_auxiliar_counter)
-			#else:
-			#	pass
+			"""
+			Debug tests
+			"""
+			if len(self.frame_append_auxiliar) > 2:
+				#print('self.frame_append_auxiliar[-1]', self.frame_append_auxiliar[-1])
+				#print('self.frame_append_auxiliar[-2]', self.frame_append_auxiliar[-2])
+				if self.frame_append_auxiliar[-1] == self.frame_append_auxiliar[-2]:
+					print('este se bugeo:::::::::::::>>>>><<', self.frame_auxiliar_counter)
+					
+			else:
+				pass
 			
 	def read(self):
 		# return the frame most recently read
