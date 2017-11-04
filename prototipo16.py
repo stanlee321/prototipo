@@ -215,7 +215,8 @@ def __main_function__():
 			miAcetatoInformativo.colocarObjetivo(rectangulo[0],rectangulo[2])
 
 		if mostrarImagen:
-			cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(informacion['frame'])[120:239,60:360])
+			#cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(informacion['frame'])[120:239,60:360])
+			cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(informacion['frame']))
 		miAcetatoInformativo.inicializar()
 		
 		tiempoEjecucion = time.time() - tiempoAuxiliar
