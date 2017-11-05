@@ -156,6 +156,7 @@ def __main_function__():
 
 		# Asign number rfame to the information from miCamara.read()		
 		informacion['index'] = frame_number	
+
 		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
 
 		# Si forzamos por entrada o si estamos en verde botamos la información de los rectangulos:
@@ -172,7 +173,8 @@ def __main_function__():
 			miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(informacion['semaforo'][3]))
 		
 		else:
-			print('[passs]', informacion['semaforo'][3])
+			pass
+			#print('[passs]', informacion['semaforo'][3])
 		# Si tengo infracciones pendientes las evoluciono
 
 
