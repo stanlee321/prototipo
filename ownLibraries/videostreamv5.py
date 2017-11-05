@@ -241,7 +241,7 @@ class WebcamVideoStream:
 			self.information['recortados'] = self.listaderecortados 			
 			self.information['rectangulos'] = self.matches
 			print('WTF self.information[semaforo][0] ', self.information['semaforo'][0])
-
+			print(' WTFFFF 2222222 informacion[semaforo][2]', self.information['semaforo'][2])	
 			
 			
 	def read(self):
