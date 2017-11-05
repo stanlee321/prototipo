@@ -184,10 +184,12 @@ def __main_function__():
 				informacionTotal = {}
 				frame_number = 0
 
+			else:
+				print('ENlugar de informacion[semaforo][2] == 1 fue... ', informacion['semaforo'][2])
 			cambiosImportantes = miPoliciaReportando.seguirObjeto(frame_number,informacion)
 
 		else:
-			pass
+			print('Instead  of informacion[semaforo][0]==1 was ...', informacion['semaforo'][0])
 		if informacion['semaforo'][0] == 0:							# Si estamos en verde realizamos otra accion
 			if informacion['semaforo'][2] == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
 				miReporte.info('Infracciones: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas()))
