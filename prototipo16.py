@@ -154,6 +154,7 @@ def __main_function__():
 		
 		informacion = miCamara.read() # Ways to access
 
+		print('OUTSIDE IS...', informacion['semaforo'][2])
 		# Asign number rfame to the information from miCamara.read()		
 		#informacion['index'] = frame_number	
 
