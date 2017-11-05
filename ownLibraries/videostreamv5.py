@@ -158,21 +158,13 @@ class WebcamVideoStream:
 		self.scale_iny = self.frame.shape[1] / self.frame_resized.shape[1]
 
 		###### Information
-		self.information = {}
-
-		#self.information['index'] = self.frame_number
-		self.information['frame'] = self.frame_resized
-		self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo]
-		self.information['recortados'] = self.listaderecortados
-		self.information['rectangulos'] = self.matches
-
-
+		self.information = {'frame': self.frame_resized, 'semaforo': [self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo],\
+							'recortados': self.listaderecortados, 'rectangulos': self.matches }
 
 		if self.debug == True:
 
 			self.ratio = 30 / fps
 
-		self.grupo = []
 	def adjust_gamma(self, image, gamma=1.0):
 
 		# build a lookup table mapping the pixel values [0, 255] to
