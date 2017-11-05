@@ -241,9 +241,11 @@ class WebcamVideoStream:
 			self.information['recortados'] = self.listaderecortados 			
 			self.information['rectangulos'] = self.matches
 			print('WTF self.information[semaforo][0] ', self.information['semaforo'][0])
-			print(' WTFFFF 2222222 informacion[semaforo][2]', self.information['semaforo'][2])	
+			if self.information['semaforo'][2]  == 1:
+				print(' WTFFFF 2222222 informacion[semaforo][2]', self.information['semaforo'][2])	
 			
-			
+			else:
+				pass
 	def read(self):
 		# return the frame most recently read
 		#return self.listaderecortados, self.frame_resized, self.senalColor, self.colorLiteral, self.flancoSemaforo 
