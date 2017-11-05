@@ -155,10 +155,7 @@ def __main_function__():
 		informacion = miCamara.read() # Ways to access
 
 		# Asign number rfame to the information from miCamara.read()		
-		informacion['index'] = frame_number
-
-		print('[[[[[[[[flanco SUPER AFTERPASSS is ]]]]]]]?', informacion['semaforo'][2])
-		
+		informacion['index'] = frame_number	
 		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
 
 		# Si forzamos por entrada o si estamos en verde botamos la información de los rectangulos:
@@ -171,11 +168,7 @@ def __main_function__():
 			#print('flanco en verde?', informacion['semaforo'][2])
 			miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(informacion['semaforo'][3]))
 		# Si tengo infracciones pendientes las evoluciono
-		print('flanco BEFORE TO PASSS is >>>>>>>?', informacion['semaforo'][2])
-
 		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
-			print('flanco en rojo?', informacion['semaforo'][2])
-			print('>>>>>>>>>flanco AFTER TO PASSS is >>>>>>>?', informacion['semaforo'][2])
 			if informacion['semaforo'][2] == 1:						# esto se inicia al principio de este estado
 				miReporte.info('SEMAFORO EN ROJO')
 				miPoliciaReportando.inicializarAgente()
