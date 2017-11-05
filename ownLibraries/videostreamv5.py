@@ -172,7 +172,6 @@ class WebcamVideoStream:
 
 			self.ratio = 30 / fps
 
-		self.grupo = []
 	def adjust_gamma(self, image, gamma=1.0):
 
 		# build a lookup table mapping the pixel values [0, 255] to
@@ -230,11 +229,8 @@ class WebcamVideoStream:
 			# RETURNING VALUES FOR SEMAFORO
 			self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)	
 
-			"""
-			PARCHE PARA EL BUG DE REPETICION DEL COLOR ROJO
-			"""
 			if self.flancoSemaforo == 1:
-				#print(' WTFFFF 2222222 informacion[semaforo][2]', self.flancoSemaforo)	
+				print(' WTFFFF 2222222 informacion[semaforo][2]', self.flancoSemaforo)	
 				self.grupo.append(self.flancoSemaforo)
 				try:
 					if self.grupo[-1] == self.grupo[-2]:
@@ -243,15 +239,7 @@ class WebcamVideoStream:
 						pass
 				except:
 					pass
-			else:
-				pass
-			print('grupo', self.grupo)
-			
-			#if len(self.grupo) > 5:
-			#	del self.grupo
-			#	self.grupo = []
-			#else:
-			#	pass
+
 
 			# HACER BGSUBCNT
 			self.BgSubCNT(self.frame_resized)
