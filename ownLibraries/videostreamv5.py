@@ -172,8 +172,6 @@ class WebcamVideoStream:
 
 			self.ratio = 30 / fps
 
-		self.frame_auxiliar_counter = -1
-		self.frame_append_auxiliar = []
 	def adjust_gamma(self, image, gamma=1.0):
 
 		# build a lookup table mapping the pixel values [0, 255] to
@@ -240,23 +238,10 @@ class WebcamVideoStream:
 			# Despachando los valores al mundo exterior.
 			self.information['frame'] = self.frame_resized
 			self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo]
-			self.information['recortados'] = self.listaderecortados 			
-			self.information['rectangulos'] = self.matches
-			self.information['auxiliar'] = 	self.frame_auxiliar_counter
+			#self.information['recortados'] = self.listaderecortados 			
+			#self.information['rectangulos'] = self.matches
 
-			self.frame_auxiliar_counter += 1
-			self.frame_append_auxiliar.append(self.frame_auxiliar_counter)
-			"""
-			Debug tests
-			"""
-			if len(self.frame_append_auxiliar) > 2:
-				print('self.frame_append_auxiliar[-1]', self.frame_append_auxiliar[-1])
-				print('self.frame_append_auxiliar[-2]', self.frame_append_auxiliar[-2])
-				if self.frame_append_auxiliar[-1] == self.frame_append_auxiliar[-2]:
-					print('este se bugeo:::::::::::::>>>>><<', self.frame_auxiliar_counter)
-					
-			else:
-				pass
+
 			
 			
 	def read(self):
