@@ -246,11 +246,12 @@ class WebcamVideoStream:
 			else:
 				pass
 			print('grupo', self.grupo)
-			if len(self.grupo) > 5:
-				del self.grupo
-				self.grupo = []
-			else:
-				pass
+			
+			#if len(self.grupo) > 5:
+			#	del self.grupo
+			#	self.grupo = []
+			#else:
+			#	pass
 
 			# HACER BGSUBCNT
 			self.BgSubCNT(self.frame_resized)
