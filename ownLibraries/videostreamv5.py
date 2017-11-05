@@ -230,17 +230,22 @@ class WebcamVideoStream:
 			# RETURNING VALUES FOR SEMAFORO
 			self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)	
 
+			"""
+			PARCHE PARA EL BUG DE REPETICION DEL COLOR ROJO
+			"""
 			if self.flancoSemaforo == 1:
-				print(' WTFFFF 2222222 informacion[semaforo][2]', self.flancoSemaforo)	
+				#print(' WTFFFF 2222222 informacion[semaforo][2]', self.flancoSemaforo)	
 				self.grupo.append(self.flancoSemaforo)
 				try:
 					if self.grupo[-1] == self.grupo[-2]:
 						self.flancoSemaforo == 0
 					else:
 						pass
+					if len(self.grupo) > 5:
+						del self.grupo
+						self.grupo = []
 				except:
 					pass
-
 
 			# HACER BGSUBCNT
 			self.BgSubCNT(self.frame_resized)

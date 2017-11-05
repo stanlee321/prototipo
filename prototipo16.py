@@ -147,7 +147,7 @@ def __main_function__():
 		# Ways to access to the information 
 
 		# information['frame'] ; numpy array containing the low res frame 
-		# information['semaforo'] ; list like [self.senalColor, self.colorLiteral, self.flancoSemaforo]
+		# information['semaforo'] ; list like [self.senalColor, self.colorLiteral, self.flancoSemaforo, self.totalperiodo]
 		# information['recortados'] ; list like of tuples  representing listaderecortados from hd frame [(_numpy arrays_)n+1]
 		# information['rectangulos'] ; list like of tuples  representing listaderectangulos and centroids in frame [((x,y,h,w),(p1,p2))n+1]
 		# n+1 ; represent the 1 by 1 correspndencia de los rectangulos encontrados y imagenes recortadas
@@ -168,16 +168,12 @@ def __main_function__():
 
 
 		if informacion['semaforo'][3] != 0:
-			print('{{{{{{AQUI}}}}}', informacion['semaforo'][3])
-			#print('flanco en verde?', informacion['semaforo'][2])
 			miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(informacion['semaforo'][3]))
-		
 		else:
 			pass
 		
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1 :							# Si estamos en rojo, realizamos una accion
-			#print('estoy dentro, pero... informacion[semaforo][2]', informacion['semaforo'][2], 'no es == 1')
 			if informacion['semaforo'][2] == 1:							# esto se inicia al principio de este estado
 				print('Entonces Fue...', informacion['semaforo'][2])
 				miReporte.info('SEMAFORO EN ROJO')
@@ -185,13 +181,13 @@ def __main_function__():
 				del informacionTotal
 				informacionTotal = {}
 				frame_number = 0
-
 			else:
 				pass
 			cambiosImportantes = miPoliciaReportando.seguirObjeto(frame_number,informacion)
-
 		else:
 			pass
+
+
 		if informacion['semaforo'][0] == 0:							# Si estamos en verde realizamos otra accion
 			if informacion['semaforo'][2] == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
 				miReporte.info('Infracciones: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas()))
