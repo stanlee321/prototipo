@@ -152,11 +152,10 @@ def __main_function__():
 		# information['rectangulos'] ; list like of tuples  representing listaderectangulos and centroids in frame [((x,y,h,w),(p1,p2))n+1]
 		# n+1 ; represent the 1 by 1 correspndencia de los rectangulos encontrados y imagenes recortadas
 		
-		informacion, flanco = miCamara.read() # Ways to access
+		informacion = miCamara.read() # Ways to access
 
 		print('OUTSIDE IS...', informacion['semaforo'][2])
 
-		print('FLanco', flanco)
 		# Asign number rfame to the information from miCamara.read()		
 		#informacion['index'] = frame_number	
 
@@ -174,7 +173,6 @@ def __main_function__():
 			miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(informacion['semaforo'][3]))
 		else:
 			pass
-		
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1 :							# Si estamos en rojo, realizamos una accion
 			if informacion['semaforo'][2] == 1:							# esto se inicia al principio de este estado

@@ -235,6 +235,7 @@ class VideoStream:
 				#	pass
 
 
+
 			# HACER BGSUBCNT
 			self.BgSubCNT(self.frame_resized)
 
@@ -247,11 +248,12 @@ class VideoStream:
 			self.information['recortados'] = self.listaderecortados 			
 			self.information['rectangulos'] = self.matches
 
+			if self.information['semaforo'][2] == 1:
+				print('ABER', self.information['semaforo'][2])
 	def read(self):
 		# return the frame most recently read
 		#return self.listaderecortados, self.frame_resized, self.senalColor, self.colorLiteral, self.flancoSemaforo 
-		return self.information, self.flancoSemaforo
-
+		return self.information
 	def stop(self):
 		# indicate that the thread should be stopped
 		self.stopped = True
