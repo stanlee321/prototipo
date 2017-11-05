@@ -236,6 +236,7 @@ class WebcamVideoStream:
 			if self.flancoSemaforo == 1:
 				#print(' WTFFFF 2222222 informacion[semaforo][2]', self.flancoSemaforo)	
 				self.grupo.append(self.flancoSemaforo)
+				print('grupo', self.grupo)
 				try:
 					if self.grupo[-1] == self.grupo[-2]:
 						self.flancoSemaforo == 0
