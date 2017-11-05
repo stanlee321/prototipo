@@ -50,7 +50,7 @@ class Semaforo(object):
 		self.flanco = 0
 		if self.state == 'amarillo':
 			# Default peridoSemaforo for amarillo set to 3 seconds.
-			periodoSemaforo = 3
+			periodoSemaforo = 1
 		else:
 			pass
 		for number in range(periodoSemaforo):
