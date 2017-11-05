@@ -249,7 +249,7 @@ class WebcamVideoStream:
 			"""
 			Debug tests
 			"""
-			"""if len(self.frame_append_auxiliar) > 2:
+			if len(self.frame_append_auxiliar) > 2:
 				#print('self.frame_append_auxiliar[-1]', self.frame_append_auxiliar[-1])
 				#print('self.frame_append_auxiliar[-2]', self.frame_append_auxiliar[-2])
 				if self.frame_append_auxiliar[-1] == self.frame_append_auxiliar[-2]:
@@ -257,7 +257,7 @@ class WebcamVideoStream:
 					
 			else:
 				pass
-			"""
+			
 			
 	def read(self):
 		# return the frame most recently read
