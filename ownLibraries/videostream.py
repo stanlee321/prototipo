@@ -180,7 +180,7 @@ class VideoStream:
 	def start(self):
 		# start the thread to read frames from the video stream
 		t = Thread(target=self.update, args=())
-		t.daemon = False
+		t.daemon = True
 		t.start()
 		return self
 
@@ -223,7 +223,6 @@ class VideoStream:
 			# RETURNING VALUES FOR SEMAFORO
 			self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)	
 
-			print('flanco', self.flancoSemaforo)
 			if self.flancoSemaforo == 1:
 				print(' WTFFFF 2222222 informacion[semaforo][2]', self.flancoSemaforo)	
 				
@@ -234,9 +233,6 @@ class VideoStream:
 				#	self.flancoSemaforo == 0
 				#else:
 				#	pass
-
-
-
 			# HACER BGSUBCNT
 			self.BgSubCNT(self.frame_resized)
 
