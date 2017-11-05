@@ -152,11 +152,11 @@ def __main_function__():
 		# information['rectangulos'] ; list like of tuples  representing listaderectangulos and centroids in frame [((x,y,h,w),(p1,p2))n+1]
 		# n+1 ; represent the 1 by 1 correspndencia de los rectangulos encontrados y imagenes recortadas
 		
-		informacion = miCamara.read() # Ways to access
+		informacion, flanco = miCamara.read() # Ways to access
 
 		print('OUTSIDE IS...', informacion['semaforo'][2])
 
-		print('len info is...', len(informacion))
+		print('FLanco', flanco)
 		# Asign number rfame to the information from miCamara.read()		
 		#informacion['index'] = frame_number	
 
