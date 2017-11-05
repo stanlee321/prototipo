@@ -242,6 +242,7 @@ class WebcamVideoStream:
 			self.information['rectangulos'] = self.matches
 			if self.information['semaforo'][2]  == 1:
 				print(' WTFFFF 2222222 informacion[semaforo][2]', self.information['semaforo'][2])	
+				self.information['semaforo'][2] = 0
 			else:
 				pass
 	def read(self):
