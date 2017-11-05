@@ -287,7 +287,7 @@ class VideoStream:
 			contour_valid = (w >= self.min_contour_width) and (h >= self.min_contour_height)
 			if not contour_valid:
 				continue
-			centroid =  WebcamVideoStream.get_centroid(x, y, w, h)
+			centroid = VideoStream.get_centroid(x, y, w, h)
 
 			# apeend to the matches for output from current frame
 			self.matches.append([(x, y, w, h), centroid,4])
