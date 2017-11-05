@@ -208,10 +208,10 @@ class WebcamVideoStream:
 				for f in range(int(self.ratio)):
 					(self.grabbed, self.frame) = self.stream.read()
 
-				adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
+				#adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
 
 				# Set new resolution for the consumers
-				self.frame_resized = cv2.resize(adjusted, (320,240))
+				self.frame_resized = cv2.resize(self.frame, (320,240))
 				# Cut imagen for the semaforo
 				self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
 				# Compensation timefor using the simulation, since there is not ML Process
@@ -219,9 +219,9 @@ class WebcamVideoStream:
 
 			else:
 				(self.grabbed, self.frame) = self.stream.read()
-				adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
+				#adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
 
-				self.frame_medium = cv2.resize(adjusted, (640,480))
+				self.frame_medium = cv2.resize(self.frame, (640,480))
 				# Set new resolution for the consumers
 				self.frame_resized = cv2.resize(self.frame_medium, (320,240))
 				# Cut imagen for the semaforo
@@ -249,7 +249,7 @@ class WebcamVideoStream:
 			"""
 			Debug tests
 			"""
-			if len(self.frame_append_auxiliar) > 2:
+			"""if len(self.frame_append_auxiliar) > 2:
 				#print('self.frame_append_auxiliar[-1]', self.frame_append_auxiliar[-1])
 				#print('self.frame_append_auxiliar[-2]', self.frame_append_auxiliar[-2])
 				if self.frame_append_auxiliar[-1] == self.frame_append_auxiliar[-2]:
@@ -257,6 +257,7 @@ class WebcamVideoStream:
 					
 			else:
 				pass
+			"""
 			
 	def read(self):
 		# return the frame most recently read

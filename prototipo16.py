@@ -166,11 +166,11 @@ def __main_function__():
 			informacionTotal[frame_number]['recortados'] = {}
 		# Se reporta el periodo del semaforo si es necesario:
 		if informacion['semaforo'][3] != 0:
-			print('flanco en verde?', informacion['semaforo'][2])
+			#print('flanco en verde?', informacion['semaforo'][2])
 			miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(informacion['semaforo'][3]))
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
-			print('flanco en rojo?', informacion['semaforo'][2])
+			#print('flanco en rojo?', informacion['semaforo'][2])
 			if informacion['semaforo'][2] == 1:						# esto se inicia al principio de este estado
 				miReporte.info('SEMAFORO EN ROJO')
 				miPoliciaReportando.inicializarAgente()
