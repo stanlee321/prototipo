@@ -229,6 +229,18 @@ class WebcamVideoStream:
 			# RETURNING VALUES FOR SEMAFORO
 			self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)	
 
+			if self.flancoSemaforo == 1:
+				print(' WTFFFF 2222222 informacion[semaforo][2]', self.flancoSemaforo)	
+				self.grupo.append(self.flancoSemaforo)
+				try:
+					if self.grupo[-1] == self.grupo[-2]:
+						self.flancoSemaforo == 0
+					else:
+						pass
+				except:
+					pass
+
+
 			# HACER BGSUBCNT
 			self.BgSubCNT(self.frame_resized)
 
@@ -240,11 +252,7 @@ class WebcamVideoStream:
 			self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo]
 			self.information['recortados'] = self.listaderecortados 			
 			self.information['rectangulos'] = self.matches
-			if self.information['semaforo'][2]  == 1:
-				print(' WTFFFF 2222222 informacion[semaforo][2]', self.information['semaforo'][2])	
-				self.information['semaforo'][2] = 0
-			else:
-				pass
+
 	def read(self):
 		# return the frame most recently read
 		#return self.listaderecortados, self.frame_resized, self.senalColor, self.colorLiteral, self.flancoSemaforo 
