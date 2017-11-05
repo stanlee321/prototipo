@@ -155,7 +155,7 @@ def __main_function__():
 		informacion = miCamara.read() # Ways to access
 
 		# Asign number rfame to the information from miCamara.read()		
-		informacion['index'] = frame_number	
+		#informacion['index'] = frame_number	
 
 		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
 
