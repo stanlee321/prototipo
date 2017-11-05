@@ -172,6 +172,7 @@ class WebcamVideoStream:
 
 			self.ratio = 30 / fps
 
+		self.grupo = []
 	def adjust_gamma(self, image, gamma=1.0):
 
 		# build a lookup table mapping the pixel values [0, 255] to
