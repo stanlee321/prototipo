@@ -178,7 +178,7 @@ def __main_function__():
 		# Si tengo infracciones pendientes las evoluciono
 
 
-		if informacion['semaforo'][0] >= 1:							# Si estamos en rojo, realizamos una accion
+		if informacion['semaforo'][0] == 1:							# Si estamos en rojo, realizamos una accion
 			if informacion['semaforo'][2] == 1:						# esto se inicia al principio de este estado
 				miReporte.info('SEMAFORO EN ROJO')
 				miPoliciaReportando.inicializarAgente()
@@ -244,15 +244,15 @@ def __main_function__():
 
 		porcentajeDeMemoria = psutil.virtual_memory()[2]
 		
-		if porcentajeDeMemoria>80:
+		if porcentajeDeMemoria > 80:
 			miReporte.info('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
-		if porcentajeDeMemoria>92:
+		if porcentajeDeMemoria > 92:
 			frameAOptimizar = min(informacionTotal)
 			miReporte.warning('Alcanzado 92/100 de memoria, borrando frame: '+str(frameAOptimizar))
 			del informacionTotal[frameAOptimizar]['recortados']
 			informacionTotal[frameAOptimizar]['recortados'] = {}
 
-		if porcentajeDeMemoria>96:
+		if porcentajeDeMemoria > 96:
 			miReporte.warning('Alcanzado 96/100 de memoria, borrando todo e inicializando')
 			del informacionTotal
 			informacionTotal = {}
