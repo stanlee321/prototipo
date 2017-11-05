@@ -236,17 +236,21 @@ class WebcamVideoStream:
 			if self.flancoSemaforo == 1:
 				#print(' WTFFFF 2222222 informacion[semaforo][2]', self.flancoSemaforo)	
 				self.grupo.append(self.flancoSemaforo)
-				print('grupo', self.grupo)
 				try:
 					if self.grupo[-1] == self.grupo[-2]:
 						self.flancoSemaforo == 0
 					else:
 						pass
-					if len(self.grupo) > 5:
-						del self.grupo
-						self.grupo = []
 				except:
 					pass
+			else:
+				pass
+			print('grupo', self.grupo)
+			if len(self.grupo) > 5:
+				del self.grupo
+				self.grupo = []
+			else:
+				pass
 
 			# HACER BGSUBCNT
 			self.BgSubCNT(self.frame_resized)
