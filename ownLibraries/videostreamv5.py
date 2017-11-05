@@ -238,9 +238,9 @@ class WebcamVideoStream:
 			# Despachando los valores al mundo exterior.
 			self.information['frame'] = self.frame_resized
 			self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo]
-			#self.information['recortados'] = self.listaderecortados 			
-			#self.information['rectangulos'] = self.matches
-
+			self.information['recortados'] = self.listaderecortados 			
+			self.information['rectangulos'] = self.matches
+			print('WTF self.information[semaforo][0] ', self.information['semaforo'][0])
 
 			
 			
