@@ -255,6 +255,7 @@ class WebcamVideoStream:
 			self.information['recortados'] = self.listaderecortados 			
 			self.information['rectangulos'] = self.matches
 
+			print('inside.. len is...', len(self.information))
 	def read(self):
 		# return the frame most recently read
 		#return self.listaderecortados, self.frame_resized, self.senalColor, self.colorLiteral, self.flancoSemaforo 
