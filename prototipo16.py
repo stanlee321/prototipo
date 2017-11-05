@@ -11,11 +11,11 @@ import datetime
 import numpy as np
 
 from ownLibraries.irswitch import IRSwitch
-from ownLibraries.videostreamv5 import FPS
+from ownLibraries.videostream import FPS
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.visualizacion import Acetato
 from ownLibraries.herramientas import total_size
-from ownLibraries.videostreamv5 import VideoStream
+from ownLibraries.videostream import VideoStream
 from ownLibraries.policiainfractor import PoliciaInfractor
 from ownLibraries.generadorevidencia import GeneradorEvidencia
 
