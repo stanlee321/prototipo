@@ -240,10 +240,8 @@ class WebcamVideoStream:
 			self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo]
 			self.information['recortados'] = self.listaderecortados 			
 			self.information['rectangulos'] = self.matches
-			print('WTF self.information[semaforo][0] ', self.information['semaforo'][0])
 			if self.information['semaforo'][2]  == 1:
 				print(' WTFFFF 2222222 informacion[semaforo][2]', self.information['semaforo'][2])	
-			
 			else:
 				pass
 	def read(self):

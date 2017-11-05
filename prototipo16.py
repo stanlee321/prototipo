@@ -177,6 +177,7 @@ def __main_function__():
 		
 		# Si tengo infracciones pendientes las evoluciono
 		if informacion['semaforo'][0] == 1 :							# Si estamos en rojo, realizamos una accion
+			print('estoy dentro')
 			if informacion['semaforo'][2] == 1:							# esto se inicia al principio de este estado
 				print('Entonces Fue...', informacion['semaforo'][2])
 				miReporte.info('SEMAFORO EN ROJO')
