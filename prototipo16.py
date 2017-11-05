@@ -151,7 +151,7 @@ def __main_function__():
 		# information['recortados'] ; list like of tuples  representing listaderecortados from hd frame [(_numpy arrays_)n+1]
 		# information['rectangulos'] ; list like of tuples  representing listaderectangulos and centroids in frame [((x,y,h,w),(p1,p2))n+1]
 		# n+1 ; represent the 1 by 1 correspndencia de los rectangulos encontrados y imagenes recortadas
-		time.sleep(0.001)
+		
 		informacion = miCamara.read() # Ways to access
 
 		print('OUTSIDE IS...', informacion['semaforo'][2])

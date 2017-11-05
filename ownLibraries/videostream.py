@@ -180,14 +180,14 @@ class VideoStream:
 	def start(self):
 		# start the thread to read frames from the video stream
 		t = Thread(target=self.update, args=())
-		t.daemon = True
+		t.daemon = False
 		t.start()
 		return self
 
 	def update(self):
 		# keep looping infinitely until the thread is stopped
 		while True:
-			
+
 			#time.sleep(0.0010)
 
 			# if the thread indicator variable is set, stop the thread
@@ -249,8 +249,6 @@ class VideoStream:
 			self.information['recortados'] = self.listaderecortados 			
 			self.information['rectangulos'] = self.matches
 
-			if self.information['semaforo'][2] == 1:
-				print('ABER', self.information['semaforo'][2])
 	def read(self):
 		# return the frame most recently read
 		#return self.listaderecortados, self.frame_resized, self.senalColor, self.colorLiteral, self.flancoSemaforo 
