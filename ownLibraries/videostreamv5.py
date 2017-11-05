@@ -172,7 +172,7 @@ class WebcamVideoStream:
 
 			self.ratio = 30 / fps
 
-		self.grupo = [0]
+		self.grupo = []
 	def adjust_gamma(self, image, gamma=1.0):
 
 		# build a lookup table mapping the pixel values [0, 255] to
@@ -230,17 +230,17 @@ class WebcamVideoStream:
 			# RETURNING VALUES FOR SEMAFORO
 			self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)	
 
-			self.grupo.append(self.flancoSemaforo)
 			
 			if self.flancoSemaforo == 1:
 				print(' WTFFFF 2222222 informacion[semaforo][2]', self.flancoSemaforo)	
 				
+				self.grupo.append(self.flancoSemaforo)
 				print('GRUPO',self.grupo)
 
-				if self.grupo[-1] == self.grupo[-2]:
-					self.flancoSemaforo == 0
-				else:
-					pass
+				#if self.grupo[-1] == self.grupo[-2]:
+				#	self.flancoSemaforo == 0
+				#else:
+				#	pass
 
 
 			# HACER BGSUBCNT
