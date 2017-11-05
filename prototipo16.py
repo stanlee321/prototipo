@@ -124,10 +124,10 @@ def __main_function__():
 			miReporte.error('No se pudo cargar el video por '+str(currentException))
 
 	# Se captura la imagen de flujo inicial y se trabaja con la misma
-	informacion_b,_ = miCamara.read()
+	informacion = miCamara.read()
 	
 	# Creación de objetos:
-	miPoliciaReportando = PoliciaInfractor(informacion_b['frame'],verticesPartida,verticesLlegada)
+	miPoliciaReportando = PoliciaInfractor(informacion['frame'],verticesPartida,verticesLlegada)
 	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,guardarRecortados)
 	miFiltro = IRSwitch()
 	miAcetatoInformativo = Acetato()
