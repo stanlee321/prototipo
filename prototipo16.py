@@ -157,6 +157,8 @@ def __main_function__():
 		# Asign number rfame to the information from miCamara.read()		
 		informacion['index'] = frame_number
 
+		print('[[[[[[[[flanco SUPER AFTERPASSS is ]]]]]]]?', informacion['semaforo'][2])
+		
 		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
 
 		# Si forzamos por entrada o si estamos en verde botamos la información de los rectangulos:
