@@ -176,7 +176,7 @@ def __main_function__():
 			pass
 		
 		# Si tengo infracciones pendientes las evoluciono
-		if informacion['semaforo'][0] == 1:							# Si estamos en rojo, realizamos una accion
+		if informacion['semaforo'][0] >= 1 :							# Si estamos en rojo, realizamos una accion
 			if informacion['semaforo'][2] == 1:						# esto se inicia al principio de este estado
 				miReporte.info('SEMAFORO EN ROJO')
 				miPoliciaReportando.inicializarAgente()
@@ -189,7 +189,7 @@ def __main_function__():
 			cambiosImportantes = miPoliciaReportando.seguirObjeto(frame_number,informacion)
 
 		else:
-			print('Instead  of informacion[semaforo][0]==1 was ...', informacion['semaforo'][0])
+			print('Instead  of informacion[semaforo][0]>=1 was ...', informacion['semaforo'][0])
 		if informacion['semaforo'][0] == 0:							# Si estamos en verde realizamos otra accion
 			if informacion['semaforo'][2] == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
 				miReporte.info('Infracciones: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas()))
