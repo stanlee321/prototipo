@@ -140,7 +140,7 @@ def __main_function__():
 	frame_number  = 0
 	tiempoAuxiliar = time.time()
 	periodoDeMuestreo = 1.0/mifps
-
+	grupo = [0]
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
 		
@@ -153,8 +153,27 @@ def __main_function__():
 		# n+1 ; represent the 1 by 1 correspndencia de los rectangulos encontrados y imagenes recortadas
 		
 		informacion = miCamara.read() # Ways to access
+		
+		"""
+		Correction for the repeting frames in the begining
+		"""
+		# append the last feeds to a gropo list
+		grupo.append(informacion['semaforo'][-2])
+		# check if the last two matchs if so, correct
+		if grupo[-1] == grupo[-2]:
+			informacion['semaforo'][-2] == 0
 
+		# Else the first "1" pass and the rest are "0s"
+		else:
+			pass
 
+		# clean the auxiliary gropo list
+		# keep track of the last Five
+		if len(grupo) > 5:
+			del grupo
+			grupo = [0]
+		else:
+			pass
 		# Asign number rfame to the information from miCamara.read()		
 		#informacion['index'] = frame_number	
 
