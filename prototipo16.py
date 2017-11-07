@@ -160,6 +160,7 @@ def __main_function__():
 		# append the last feeds to a gropo list
 		grupo.append(informacion['semaforo'][-2])
 		# check if the last two matchs if so, correct
+		print(grupo)
 		if grupo[-1] == grupo[-2]:
 			informacion['semaforo'][-2] == 0
 
