@@ -205,7 +205,6 @@ def __main_function__():
 		else:
 			pass
 
-
 		if informacion['semaforo'][0] == 0:							# Si estamos en verde realizamos otra accion
 			if informacion['semaforo'][2] == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
 				miReporte.info('Infracciones: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas()))

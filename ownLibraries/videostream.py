@@ -222,9 +222,9 @@ class VideoStream:
 
 			# RETURNING VALUES FOR SEMAFORO
 			self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)	
-
-			#if self.flancoSemaforo == 1:
-			#	print(' WTFFFF 2222222 informacion[semaforo][2]', self.flancoSemaforo)	
+			print('flanco ', self.senalColor, self.flancoSemaforo)
+			if self.flancoSemaforo == 1:
+				print(' WTFFFF 2222222 informacion[semaforo][2]', self.flancoSemaforo)	
 				
 				#self.grupo.append(self.flancoSemaforo)
 				#print('GRUPO',self.grupo)
