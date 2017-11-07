@@ -154,31 +154,11 @@ def __main_function__():
 		
 		informacion = miCamara.read() # Ways to access
 		
-		"""
-		Correction for the repeting frames in the begining
-		"""
-		# append the last feeds to a gropo list
-		grupo.append(informacion['semaforo'][-2])
-		# check if the last two matchs if so, correct
-		if grupo[-1] == grupo[-2]:
-			informacion['semaforo'][-2] == 0
-
-		# Else the first "1" pass and the rest are "0s"
-		else:
-			pass
-
-		# clean the auxiliary gropo list
-		# keep track of the last Five
-		if len(grupo) > 5:
-			del grupo
-			grupo = [0]
-		else:
-			pass
 		# Asign number rfame to the information from miCamara.read()		
 		#informacion['index'] = frame_number	
 
 		informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
-
+		print('Out: ', informacion['semaforo'][2])
 		# Si forzamos por entrada o si estamos en verde botamos la información de los rectangulos:
 
 		if (guardarRecortados == False) | (informacionTotal[frame_number]['semaforo'][0]==0):
@@ -247,17 +227,18 @@ def __main_function__():
 		miAcetatoInformativo.inicializar()
 		
 		tiempoEjecucion = time.time() - tiempoAuxiliar
-		if tiempoEjecucion>periodoDeMuestreo:
-			miReporte.warning('Se sobrepaso el periodo de muestreo a {0:2f}'.format(tiempoEjecucion)+ '[s] en frame {}'.format(frame_number))
+		#if tiempoEjecucion>periodoDeMuestreo:
+		miReporte.warning('Tiempo Afuera {0:2f}'.format(tiempoEjecucion)+ '[s] en frame {}'.format(frame_number))
 
 		#sys.stdout.write("\033[F")
 		while time.time() - tiempoAuxiliar < periodoDeMuestreo:
 			True
+		tiempoAuxiliar = time.time()
 
 		if (cambiosImportantes)|(numeroDeObjetos != len(informacion['rectangulos'])):
 			miReporte.info('F{} Sema: '.format(frame_number)+informacion['semaforo'][1]+' I: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas())+'/'+str(miPoliciaReportando.numeroInfraccionesTotales())+' Objetos: {}'.format(len(informacion['rectangulos'])))
 		numeroDeObjetos = len(informacion['rectangulos'])
-		tiempoAuxiliar = time.time()
+		
 
 		porcentajeDeMemoria = psutil.virtual_memory()[2]
 		

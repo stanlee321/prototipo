@@ -1,6 +1,7 @@
 
 # import the necessary packages
 from threading import Thread
+from multiprocessing import Queue
 import cv2
 import datetime
 import bgsubcnt
@@ -137,7 +138,7 @@ class VideoStream:
 		# second parameter : Remember Frames until the end?
 		# thirth parameter : first parameter * FPS excpeted
 
-		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3*self.fps)
+		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3 * 10) #self.fps
 		self.k = 31
 		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 
@@ -158,8 +159,9 @@ class VideoStream:
 		self.scale_iny = self.frame.shape[1] / self.frame_resized.shape[1]
 
 		###### Information
-		self.information = {'frame': self.frame_resized, 'semaforo': [self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo],\
-							'recortados': self.listaderecortados, 'rectangulos': self.matches }
+		self.information = Queue()
+		self.information.put({'frame': self.frame_resized, 'semaforo': [self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo],\
+							'recortados': self.listaderecortados, 'rectangulos': self.matches })
 
 		if self.debug == True:
 
@@ -187,6 +189,7 @@ class VideoStream:
 	def update(self):
 		# keep looping infinitely until the thread is stopped
 		while True:
+			tiempo = time.time()
 
 			#time.sleep(0.0010)
 
@@ -222,17 +225,7 @@ class VideoStream:
 
 			# RETURNING VALUES FOR SEMAFORO
 			self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)	
-			print('flanco ', self.senalColor, self.flancoSemaforo)
-			if self.flancoSemaforo == 1:
-				print(' WTFFFF 2222222 informacion[semaforo][2]', self.flancoSemaforo)	
-				
-				#self.grupo.append(self.flancoSemaforo)
-				#print('GRUPO',self.grupo)
-
-				#if self.grupo[-1] == self.grupo[-2]:
-				#	self.flancoSemaforo == 0
-				#else:
-				#	pass
+			
 			# HACER BGSUBCNT
 			self.BgSubCNT(self.frame_resized)
 
@@ -240,15 +233,17 @@ class VideoStream:
 			self.cutHDImage(self.frame)
 
 			# Despachando los valores al mundo exterior.
-			self.information['frame'] = self.frame_resized
-			self.information['semaforo'] = [self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo]
-			self.information['recortados'] = self.listaderecortados 			
-			self.information['rectangulos'] = self.matches
+			self.information.put({'frame': self.frame_resized, 'semaforo': [self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo],\
+							'recortados': self.listaderecortados, 'rectangulos': self.matches })
+			print('Mi tiempo adentro es: ',time.time() -tiempo)
 
 	def read(self):
 		# return the frame most recently read
 		#return self.listaderecortados, self.frame_resized, self.senalColor, self.colorLiteral, self.flancoSemaforo 
-		return self.information
+		while self.information.qsize()==0:
+			True
+		return self.information.get()
+
 	def stop(self):
 		# indicate that the thread should be stopped
 		self.stopped = True
