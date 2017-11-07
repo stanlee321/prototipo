@@ -213,24 +213,36 @@ class VideoStream:
 				time.sleep(0.033)
 
 			else:
+				tiempoAuxiliar = time.time()
 				(self.grabbed, self.frame) = self.stream.read()
+				print('tiempo lectura ',time.time() -tiempoAuxiliar)
 				#adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
-
+				tiempoAuxiliar = time.time()
 				self.frame_medium = cv2.resize(self.frame, (640,480))
+				print('tiempo 640-480 ',time.time() -tiempoAuxiliar)
 				# Set new resolution for the consumers
+				tiempoAuxiliar = time.time()
 				self.frame_resized = cv2.resize(self.frame_medium, (320,240))
+				print('tiempo 320-240 ',time.time() -tiempoAuxiliar)
 				# Cut imagen for the semaforo
+				tiempoAuxiliar = time.time()
 				self.imagen_semaforo = self.frame_medium[self.y0:self.y1,self.x0:self.x1]
+				print('tiempo cutting semaforo',time.time() -tiempoAuxiliar)
 
 
 			# RETURNING VALUES FOR SEMAFORO
+			tiempoAuxiliar = time.time()
 			self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo = self.semaforo.obtenerColorEnSemaforo(self.imagen_semaforo)	
-			
+			print('tiempo semaforo ',time.time() -tiempoAuxiliar)
 			# HACER BGSUBCNT
+			tiempoAuxiliar = time.time()
 			self.BgSubCNT(self.frame_resized)
+			print('tiempo background',time.time() -tiempoAuxiliar)
 
 			# CORTAR LAS IMAGENS DE HD
+			tiempoAuxiliar = time.time()
 			self.cutHDImage(self.frame)
+			print('tiempo cutting bg',time.time() -tiempoAuxiliar)
 
 			# Despachando los valores al mundo exterior.
 			self.information.put({'frame': self.frame_resized, 'semaforo': [self.senalColor, self.colorLiteral, self.flancoSemaforo, self.periodoSemaforo],\
@@ -240,8 +252,10 @@ class VideoStream:
 	def read(self):
 		# return the frame most recently read
 		#return self.listaderecortados, self.frame_resized, self.senalColor, self.colorLiteral, self.flancoSemaforo 
+		tiempoAuxiliar = time.time()
 		while self.information.qsize()==0:
 			True
+		print('tiempo espera actualizacion: ',time.time() -tiempoAuxiliar)
 		return self.information.get()
 
 	def stop(self):
