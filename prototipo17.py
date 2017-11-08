@@ -138,12 +138,24 @@ def __main_function__():
 	periodoDeMuestreo = 1.0/mifps
 
 	filaImagenes = Queue()
+	periodoReal = time.time()
 
 	while True:
+		tiempoAuxiliar = time.time()
 		ret,capturaEnAlta = miCamara.read()
+		print('Lectura: ',time.time()-tiempoAuxiliar)
+		tiempoAuxiliar = time.time()
 		capturaEnBaja = cv2.resize(capturaEnAlta,(320,240))
+		print('Resize: ',time.time()-tiempoAuxiliar)
+		tiempoAuxiliar = time.time()
 		filaImagenes.put([capturaEnBaja,capturaEnAlta])
+		print('Put: ',time.time()-tiempoAuxiliar)
+		tiempoAuxiliar = time.time()
 		cv2.imshow('Camara',capturaEnBaja)
+		print('Show: ',time.time()-tiempoAuxiliar)
+
+		print('Periodo total: ',time.time()-periodoReal)
+		periodoReal = time.time()
 
 		if filaImagenes.qsize() > 10:
 			filaImagenes.get()
