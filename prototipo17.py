@@ -159,7 +159,7 @@ def __main_function__():
 
 		tiempoAuxiliar = time.time()
 		#if filaImagenes.qsize() > 10:
-		filaImagenes.get()
+		miImagen = filaImagenes.get()
 		#	print('Borrado elemento en la fila')
 		print('Get: ',time.time()-tiempoAuxiliar)
 		
