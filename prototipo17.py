@@ -158,9 +158,9 @@ def __main_function__():
 		periodoReal = time.time()
 
 		tiempoAuxiliar = time.time()
-		if filaImagenes.qsize() > 10:
-			filaImagenes.get()
-			print('Borrado elemento en la fila')
+		#if filaImagenes.qsize() > 10:
+		filaImagenes.get()
+		#	print('Borrado elemento en la fila')
 		print('Get: ',time.time()-tiempoAuxiliar)
 		
 		ch = 0xFF & cv2.waitKey(5)
