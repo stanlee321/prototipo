@@ -121,10 +121,11 @@ def __main_function__():
 			miReporte.error('No se pudo cargar el video por '+str(currentException))
 
 	# Se captura la imagen de flujo inicial y se trabaja con la misma
-	ret, frame = miCamara.read()
+	ret, capturaEnAlta = miCamara.read()
+	capturaEnBaja = cv2.resize(capturaEnAlta,(320,240))
 	
 	# Creación de objetos:
-	miPoliciaReportando = PoliciaInfractor(frame,verticesPartida,verticesLlegada)
+	miPoliciaReportando = PoliciaInfractor(capturaEnBaja,verticesPartida,verticesLlegada)
 	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,guardarRecortados)
 	miFiltro = IRSwitch()
 	miAcetatoInformativo = Acetato()
@@ -136,15 +137,23 @@ def __main_function__():
 	tiempoAuxiliar = time.time()
 	periodoDeMuestreo = 1.0/mifps
 
+	filaImagenes = Queue()
+
 	while True:
-		ret,frame = miCamara.read()
-		cv2.imshow('Camara',frame)
+		ret,capturaEnAlta = miCamara.read()
+		capturaEnBaja = cv2.resize(capturaEnAlta,(320,240))
+		filaImagenes.put([capturaEnBaja,capturaEnAlta])
+		cv2.imshow('Camara',capturaEnBaja)
+
+		if filaImagenes.qsize() > 10:
+			filaImagenes.get()
+			print('Borrado elemento en la fila')
+		
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
 			miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por salida manual')
 			break
 	
-
 if __name__ == '__main__':
 	# Tomamos los ingresos para controlar el video
 	for input in sys.argv:
