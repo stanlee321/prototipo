@@ -157,9 +157,11 @@ def __main_function__():
 		print('Periodo total: ',time.time()-periodoReal)
 		periodoReal = time.time()
 
+		tiempoAuxiliar = time.time()
 		if filaImagenes.qsize() > 10:
 			filaImagenes.get()
 			print('Borrado elemento en la fila')
+		print('Get: ',time.time()-tiempoAuxiliar)
 		
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
