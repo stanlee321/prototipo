@@ -200,17 +200,25 @@ class VideoStream:
 
 			#print(self.debug)
 			if self.debug == True:
-				for f in range(int(self.ratio)):
-					(self.grabbed, self.frame) = self.stream.read()
+				if not self.information.full():
+					for f in range(int(self.ratio)):
+						(self.grabbed, self.frame) = self.stream.read()
 
-				#adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
+					# if the `grabbed` boolean is `False`, then we have
+					# reached the end of the video file
 
-				# Set new resolution for the consumers
-				self.frame_resized = cv2.resize(self.frame, (320,240))
-				# Cut imagen for the semaforo
-				self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
-				# Compensation timefor using the simulation, since there is not ML Process
-				time.sleep(0.033)
+					# add the frame to the queue
+					self.information.put(self.frame)
+				
+
+					#adjusted = self.adjust_gamma(self.frame, gamma=self.gamma)
+
+					# Set new resolution for the consumers
+					self.frame_resized = cv2.resize(self.frame, (320,240))
+					# Cut imagen for the semaforo
+					self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
+					# Compensation timefor using the simulation, since there is not ML Process
+					time.sleep(0.033)
 
 			else:
 				tiempoAuxiliar = time.time()
@@ -252,10 +260,7 @@ class VideoStream:
 	def read(self):
 		# return the frame most recently read
 		#return self.listaderecortados, self.frame_resized, self.senalColor, self.colorLiteral, self.flancoSemaforo 
-		tiempoAuxiliar = time.time()
-		while self.information.qsize()==0:
-			True
-		print('tiempo espera actualizacion: ',time.time() -tiempoAuxiliar)
+		
 		return self.information.get()
 
 	def stop(self):

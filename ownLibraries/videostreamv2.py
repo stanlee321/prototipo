@@ -84,12 +84,13 @@ class VideoStream:
 	def stop(self):
 		# indicate that the thread should be stopped
 		self.stopped = True
-
+https://stackoverflow.com/questions/41686551/fast-circular-buffer-in-python-than-the-one-using-deque
+"""
 if __name__ == '__main__':
-	"""
-	Debugss
 
-	"""
+	#Debugss
+
+
 	import argparse
 	import imutils
 	import time
@@ -146,3 +147,4 @@ if __name__ == '__main__':
 	# do a bit of cleanup
 	cv2.destroyAllWindows()
 	vs.stop()
+"""
