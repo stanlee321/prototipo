@@ -19,6 +19,7 @@ from ownLibraries.visualizacion import Acetato
 from ownLibraries.herramientas import total_size
 from ownLibraries.policiainfractor import PoliciaInfractor
 from ownLibraries.generadorevidencia import GeneradorEvidencia
+from ownLibraries.videostreamv2 import VideoStream
 
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
@@ -60,6 +61,10 @@ def __main_function__():
 	cambiosImportantes = False
 	global numeroDeObjetos
 	numeroDeObjetos = 0
+
+	shapeUR = (3296,2512)
+	shapeMR = (640,480)
+	shapeLR = (320,240)
 
 	# Creamos el reporte inicial
 	miReporte = MiReporte(levelLogging=logging.INFO,nombre=__name__)			# Se crea por defecto con nombre de la fecha y hora actual
@@ -106,26 +111,32 @@ def __main_function__():
 	# Arrancando camara
 	if len(archivoDeVideo) == 0:												# modo real
 		if os.uname()[1] == 'alvarohurtado-305V4A':
-			miCamara = cv2.VideoCapture(1)
+			miCamara = VideoStream(src = 0, resolution = shapeMR).start()
 			time.sleep(1)
+		elif os.uname()[1] == 'stanlee321-MS-7693':
+			print('Hello stanlee321')
+			miCamara = VideoStream(src = 0, resolution = shapeMR).start()
 		else:
-			miCamara = cv2.VideoCapture(0)
-			miCamara.set(3,3296)
-			miCamara.set(4,2512)
+			miCamara = VideoStream(src = 0, resolution = shapeUR).start()
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		try:
-			miCamara = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
+			miCamara = miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = shapeMR).start()
 			miReporte.info('Archivo de video cargado exitosamente: '+directorioDeVideos+'/'+archivoDeVideo)
 		except Exception as currentException:
 			miReporte.error('No se pudo cargar el video por '+str(currentException))
 
 	# Se captura la imagen de flujo inicial y se trabaja con la misma
-	ret, capturaEnAlta = miCamara.read()
-	capturaEnBaja = cv2.resize(capturaEnAlta,(320,240))
-	
+	data = miCamara.read()
+
+	capturaEnBaja =  data['LRframe']
+
+	print('Captura en Baja:', capturaEnBaja.shape)
+	print('vertices : ', verticesPartida)
+	print('vertices : ', verticesLlegada)
+
 	# Creación de objetos:
-	miPoliciaReportando = PoliciaInfractor(capturaEnBaja,verticesPartida,verticesLlegada)
+	miPoliciaReportando = PoliciaInfractor(capturaEnBaja, verticesPartida, verticesLlegada)
 	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,guardarRecortados)
 	miFiltro = IRSwitch()
 	miAcetatoInformativo = Acetato()
@@ -137,19 +148,23 @@ def __main_function__():
 	tiempoAuxiliar = time.time()
 	periodoDeMuestreo = 1.0/mifps
 
-	filaImagenes = Queue()
 	periodoReal = time.time()
 
 	while True:
+		print('Entering to while loop')
 		tiempoAuxiliar = time.time()
-		ret,capturaEnAlta = miCamara.read()
+		data = miCamara.read()
+
+		capturaEnAlta = data['HRframe']
+		capturaEnBaja = data['LRframe']
+
 		print('Lectura: ',time.time()-tiempoAuxiliar)
 		tiempoAuxiliar = time.time()
-		capturaEnBaja = cv2.resize(capturaEnAlta,(320,240))
 		print('Resize: ',time.time()-tiempoAuxiliar)
 		tiempoAuxiliar = time.time()
-		filaImagenes.put([capturaEnBaja,capturaEnAlta])
-		print('Put: ',time.time()-tiempoAuxiliar)
+
+		#filaImagenes.put([capturaEnBaja,capturaEnAlta])
+		#print('Put: ',time.time()-tiempoAuxiliar)
 		if mostrarImagen:
 			tiempoAuxiliar = time.time()
 			cv2.imshow('Camara',capturaEnBaja)
@@ -163,7 +178,7 @@ def __main_function__():
 		#miImagen = filaImagenes.get()
 		#	print('Borrado elemento en la fila')
 		#print('Get: ',time.time()-tiempoAuxiliar)
-		if frame_number>8:
+		if frame_number>100:
 			break
 		frame_number +=1
 		

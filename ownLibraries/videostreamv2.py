@@ -60,7 +60,7 @@ class VideoStream:
 		self.font = cv2.FONT_HERSHEY_SIMPLEX
 		self.frame_number = -1
 
-		self.data = {'frame': self.frame, 'LRFrame': self.frame_resized}
+		self.data = {'HRframe': self.frame, 'LRframe': self.frame_resized}
 
 	def start(self):
 		# start the thread to read frames from the video stream
@@ -85,7 +85,7 @@ class VideoStream:
 			#cv2.putText(self.frame, str('In took: ') + str(time.time()-t1),(20,60), self.font, 0.4,(255,0,0),1,cv2.LINE_AA)
 			#self.frame_number +=1
 
-			self.data = {'frame': self.frame, 'LRFrame': self.frame_resized}
+			self.data = {'HRframe': self.frame, 'LRframe': self.frame_resized}
 			
 	def read(self):
 		# return the frame most recently read
@@ -131,9 +131,9 @@ if __name__ == '__main__':
 		t1 = time.time()
 		data = vs.read()
 		
-		frame = data['frame']
+		frame = data['HRframe']
 
-		LRFrame = data['LRFrame']
+		LRFrame = data['LRframe']
 
 		#print('shape', frame)
 		#frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

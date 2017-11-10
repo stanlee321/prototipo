@@ -24,7 +24,7 @@ class BGSUBCNT():
 		# list like to append bounding box where is the moving object
 		self.matches = []
 		
-	def feedbgsub(self, frame, frame_number = None):
+	def feedbgsub(self, frame):
 		# Variable to track the "matched cars" in the bgsubcnt 
 		self.matches = []
 
@@ -39,12 +39,16 @@ class BGSUBCNT():
 		# this is the bsubcnt result 
 		self.fgmask = self.fgbg.apply(smooth_frame, self.kernel, 0.1)
 
+
+		
 		# just thresholding values
 		self.fgmask[self.fgmask < 240] = 0
 		
 		self.fgmask = self.filter_mask(self.fgmask)
 
+		#return self.fgmask
 
+		
 		# Find the contours 
 		im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
 		
@@ -57,14 +61,15 @@ class BGSUBCNT():
 			centroid = BGSUBCNT.get_centroid(x, y, w, h)
 
 			# apeend to the matches for output from current frame
-			self.matches.append([(x, y, w, h), centroid,4])
+			self.matches.append([(x, y, w, h), centroid])
+			
 			# Optional, draw rectangle and circle where you find "movement"
 			#if self.draw == True:
-			cv2.rectangle(frame, (x,y),(x+w-1, y+h-1),(0,0,255),1)
-			cv2.circle(frame, centroid,2,(0,255,0),-1)
+			#cv2.rectangle(frame, (x,y),(x+w-1, y+h-1),(0,0,255),1)
+			#cv2.circle(frame, centroid,2,(0,255,0),-1)
 			#else:
 			#	pass
-
+		
 	def filter_mask(self, img, a=None):
 		'''
 		This filters are hand-picked just based on visual tests
@@ -120,7 +125,7 @@ if __name__ == '__main__':
 	# construct the argument parse and parse the arguments
 	ap = argparse.ArgumentParser()
 	ap.add_argument("-v", "--video", default=0,
-		help="path to input video file", type=int)
+		help="path to input video file", type= str)
 	args = vars(ap.parse_args())
 
 	print("[INFO] starting video file thread...")
@@ -139,6 +144,7 @@ if __name__ == '__main__':
 	backgroundsub = BGSUBCNT()
 	# loop over frames from the video file stream
 	while True:
+		t1 = time.time()
 		# grab the frame from the threaded video file stream, resize
 		# it, and convert it to grayscale (while still retaining 3
 		# channels)
@@ -148,30 +154,28 @@ if __name__ == '__main__':
 
 		LRFrame = data['LRFrame']
 
+		# Feed to BGSUB
+		backgroundsub.feedbgsub(LRFrame)
+
 
 		"""
 		RESERVADO DANIEL WARP
 
 		"""
-		
-		backgroundsub.feedbgsub(LRFrame)
-
-
-		"""
+	
 		poligonos_warp = backgroundsub()
 
-
-		poligonos_reales = f(poligonos_warp)
-
-
+		print(poligonos_warp)
 		"""
-		
+		poligonos_reales = f(poligonos_warp)
+		"""
 
 
 		
-		cv2.imshow('bgsub', fr)
-		#cv2.imshow("Frame", frame_resized)
+		#cv2.imshow('bgsub', f)
+		#cv2.imshow("Frame", LRFrame)
 
+		print('TOOK', time.time() - t1)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 		fps.update()
