@@ -187,7 +187,7 @@ def __main_function__():
 		print(poligonos_warp)
 		listaderecortados = cutImage(HDframe = capturaEnBaja, matches = poligonos_warp)
 
-		if listaderecortados > 0:
+		if len(listaderecortados) > 0:
 			for i, image in enumerate(listaderecortados):
 				cv2.imwrite('imagen_{}_.jpg'.format(i), image)
 		else:
