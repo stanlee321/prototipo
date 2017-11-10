@@ -190,7 +190,6 @@ def __main_function__():
 
 		for i, image in enumerate(listaderecortados):
 			cv2.imwrite('imagen_{}_.jpg'.format(i), image)
-		break
 		#print('Put: ',time.time()-tiempoAuxiliar)
 		#if mostrarImagen:
 		#	tiempoAuxiliar = time.time()
