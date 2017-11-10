@@ -12,6 +12,8 @@ import numpy as np
 
 from multiprocessing import Queue
 from multiprocessing import Process
+from multiprocessing.dummy import Pool as ThreadPool 
+
 
 from ownLibraries.irswitch import IRSwitch
 from ownLibraries.mireporte import MiReporte
@@ -22,6 +24,8 @@ from ownLibraries.generadorevidencia import GeneradorEvidencia
 from ownLibraries.videostreamv2 import VideoStream
 from ownLibraries.backgroundsub import BGSUBCNT
 from ownLibraries.cutHDImage import cutHDImage
+from ownLibraries.semaforo import CreateSemaforo
+
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos  = os.getenv('HOME')+'/trafficFlow/trialVideos'
@@ -118,16 +122,17 @@ def __main_function__():
 
 	miReporte.info('Cargado exitosamente parametros de instalacion: '+str(parametrosInstalacion))
 
+
 	# Arrancando camara
 	if len(archivoDeVideo) == 0:												# modo real
 		if os.uname()[1] == 'alvarohurtado-305V4A':
-			miCamara = VideoStream(src = 0, resolution = shapeMR).start()
+			miCamara = VideoStream(src = 0, resolution = shapeMR, poligono = poligonoSemaforo, debug = saltarFrames, fps = mifps).start()
 			time.sleep(1)
 		elif os.uname()[1] == 'stanlee321-MS-7693':
 			print('Hello stanlee321')
-			miCamara = VideoStream(src = 0, resolution = shapeMR).start()
+			miCamara = VideoStream(src = 0, resolution = shapeMR, poligono = poligonoSemaforo, debug = saltarFrames, fps = mifps).start()
 		else:
-			miCamara = VideoStream(src = 0, resolution = shapeUR).start()
+			miCamara = VideoStream(src = 0, resolution = shapeUR, poligono = poligonoSemaforo, debug = saltarFrames, fps = mifps).start()
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		try:
@@ -159,6 +164,9 @@ def __main_function__():
 	backgroundsub = BGSUBCNT()
 
 	# Create Multiprocessing parameters
+
+	#pool = ThreadPool(2) 
+
 	#input_q = Queue(5)
 	#output_q = Queue(5)
 
@@ -170,22 +178,34 @@ def __main_function__():
 		cutImage = cutHDImage(shapeHR = shapeMR, shapeLR = shapeLR)
 	else:
 		cutImage = cutHDImage(shapeHR = shapeUR, shapeLR = shapeLR)
+
+	# Create Semaphro
+	periodo = 0
+	semaforo = CreateSemaforo(periodoSemaforo = periodo)
+
 	while True:
 		tiempoAuxiliar = time.time()
 		data = miCamara.read()
 
 		capturaEnAlta = data['HRframe']
 		capturaEnBaja = data['LRframe']
+		capturaSemaforo = data['frame_semaforo']
 
+		senalColor, colorLiteral, flancoSemaforo, periodoSemaforo = semaforo.obtenerColorEnSemaforo(capturaSemaforo)
+
+
+		print('SEMAPHORO STATES: ',senalColor, colorLiteral, flancoSemaforo, periodoSemaforo)
 		print('Lectura: ',time.time()-tiempoAuxiliar)
-		
 		tiempoAuxiliar = time.time()
-		#feed data to queues
-		#input_q.put(capturaEnBaja)
-		#poligonos_warp = output_q.get()
-		poligonos_warp  = backgroundsub.feedbgsub(capturaEnBaja)
+
+		poligonos_warp = backgroundsub.feedbgsub(capturaEnBaja)
+		#poligonos_warp = pool.starmap(backgroundsub.feedbgsub, capturaEnBaja)
+		# close the pool and wait for the work to finish 
+		#pool.close() 
+		#pool.join()
 		print(poligonos_warp)
 		listaderecortados = cutImage(HDframe = capturaEnBaja, matches = poligonos_warp)
+
 
 		if len(listaderecortados) > 0:
 			for i, image in enumerate(listaderecortados):
@@ -193,9 +213,9 @@ def __main_function__():
 		else:
 			pass
 		#print('Put: ',time.time()-tiempoAuxiliar)
-		#if mostrarImagen:
+		if mostrarImagen:
 		#	tiempoAuxiliar = time.time()
-		#	cv2.imshow('Camara',capturaEnBaja)
+			cv2.imshow('Camara', cv2.resize(capturaEnBaja,(640,480)))
 		#	print('Show: ',time.time()-tiempoAuxiliar)
 
 		print('Periodo total: ',time.time()-periodoReal)
@@ -208,7 +228,7 @@ def __main_function__():
 		#miImagen = filaImagenes.get()
 		#	print('Borrado elemento en la fila')
 		#print('Get: ',time.time()-tiempoAuxiliar)
-		if frame_number>100:
+		if frame_number>200:
 			break
 		frame_number +=1
 		

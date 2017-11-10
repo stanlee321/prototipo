@@ -37,21 +37,20 @@ class FPS:
         return self._numFrames / self.elapsed()
 
 class VideoStream:
-	def __init__(self, src=0, resolution = (320,240)):
-		
+	def __init__(self, src=0, resolution = (320,240), poligono = [(0,0),(640,480)], debug = False, fps = 10):
+		self.debug = debug
 		width, height = resolution[0], resolution[1]
 		# initialize the video camera stream and read the first frame
 		# from the stream
 		self.stream = cv2.VideoCapture(src)
-
 		self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, width)
 		self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 		#self.stream.set(cv2.CAP_PROP_EXPOSURE, -1)
 		#self.stream.set(cv2.CAP_PROP_EXPOSURE, 50)
+
+
 		(self.grabbed, self.frame) = self.stream.read()
 		
-
-		self.frame_resized = cv2.resize(self.frame, (320,240))
 		# initialize the variable used to indicate if the thread should
 		# be stopped
 		time.sleep(1)
@@ -60,7 +59,65 @@ class VideoStream:
 		self.font = cv2.FONT_HERSHEY_SIMPLEX
 		self.frame_number = -1
 
-		self.data = {'HRframe': self.frame, 'LRframe': self.frame_resized}
+		print('-----------------------------------------------')
+		print("FRAME ORIGIN SHAPE", self.frame.shape)
+		print('-----------------------------------------------')
+
+		# If is debug mode
+		if self.debug == True:
+			print('::::::::BIENBENIDOS AL MODO DEBUG::::::::::')
+
+			self.frame_resized = cv2.resize(self.frame, (320,240))
+			print('FRAME:RESIZED', self.frame_resized.shape)
+			print('FRAME', self.frame.shape)
+
+			##### Semaforo part
+			# find MAX, MIN values  in poligono
+			maxinX = max([x[0] for x in poligono])
+			maxinY = max([y[1] for y in poligono])
+
+			mininX = min([x[0] for x in poligono])
+			mininY = min([y[1] for y in poligono])
+			# Values to cut the self.frame_resized for the 
+			# semaforo input
+
+			self.x0 = mininX //2 
+			self.x1 = maxinX //2
+
+			self.y0 = mininY //2
+			self.y1 = maxinY //2
+
+		else:
+			# Resized normal frame
+			self.frame_medium = cv2.resize(self.frame, (640,480))
+			# Set new resolution for the consumers
+			self.frame_resized = cv2.resize(self.frame_medium, (320,240))
+			print('FRAME:RESIZED', self.frame_resized.shape)
+			print('FRAME MEDIUM', self.frame_medium.shape)
+
+
+			##### Semaforo part
+			# find MAX, MIN values  in poligono
+			maxinX = max([x[0] for x in poligono])
+			maxinY = max([y[1] for y in poligono])
+
+			mininX = min([x[0] for x in poligono])
+			mininY = min([y[1] for y in poligono])
+			# Values to cut the self.frame_resized for the 
+			# semaforo input
+
+			self.x0 = mininX
+			self.x1 = maxinX
+
+			self.y0 = mininY
+			self.y1 = maxinY
+			
+		self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
+		self.data = {'HRframe': self.frame, 'LRframe': self.frame_resized, 'frame_semaforo' : self.imagen_semaforo}
+		
+		if self.debug == True:
+			self.ratio = 30 / fps
+	
 
 	def start(self):
 		# start the thread to read frames from the video stream
@@ -78,15 +135,27 @@ class VideoStream:
 				return
 			# otherwise, read the next frame from the stream
 
-			(self.grabbed, self.frame) = self.stream.read()
-			self.frame_resized = cv2.resize(self.frame, (320,240))
+			if self.debug == True:
+				for f in range(int(self.ratio)):
+					(self.grabbed, self.frame) = self.stream.read()
 
+				# Set new resolution for the consumers
+				self.frame_resized = cv2.resize(self.frame, (320,240))
+				# Cut imagen for the semaforo
+				self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
+				# Compensation timefor using the simulation, since there is not ML Process
+				time.sleep(0.033)
 
-			#cv2.putText(self.frame, str('Frame: ') + str(self.frame_number),(20,20), self.font, 0.4,(255,0,0),1,cv2.LINE_AA)
-			#cv2.putText(self.frame, str('In took: ') + str(time.time()-t1),(20,60), self.font, 0.4,(255,0,0),1,cv2.LINE_AA)
-			#self.frame_number +=1
+			else:
+				(self.grabbed, self.frame) = self.stream.read()
+				self.frame_medium = cv2.resize(self.frame, (640,480))
+				# Set new resolution for the consumers
+				self.frame_resized = cv2.resize(self.frame_medium, (320,240))
+				# Cut imagen for the semaforo
+				tiempoAuxiliar = time.time()
+				self.imagen_semaforo = self.frame_medium[self.y0:self.y1,self.x0:self.x1]
 
-			self.data = {'HRframe': self.frame[:,:,:], 'LRframe': self.frame_resized[:,:,:]}
+			self.data = {'HRframe': self.frame, 'LRframe': self.frame_resized, 'frame_semaforo' : self.imagen_semaforo}
 
 	def read(self):
 		# return the frame most recently read
