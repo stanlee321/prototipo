@@ -74,8 +74,9 @@ class BGSUBCNT():
 			#cv2.circle(frame, centroid,2,(0,255,0),-1)
 			#else:
 			#	pass
-		return self.matches
 		print('FOOR LOOP TOOK', time.time()-t3)
+
+		return self.matches
 	def filter_mask(self, img, a=None):
 		'''
 		This filters are hand-picked just based on visual tests
