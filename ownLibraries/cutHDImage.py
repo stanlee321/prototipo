@@ -48,7 +48,7 @@ class cutHDImage():
 			return self.listaderecortados
 
 		else:
-			pass
+			return self.listaderecortados
 
 
 if __name__ == '__main__':
