@@ -74,7 +74,7 @@ def __main_function__():
 
 	shapeUR = (3296,2512)
 	shapeMR = (640,480)
-	shapeLR = (320,240)
+	shapeLR = (160,120)
 
 	# Creamos el reporte inicial
 	miReporte = MiReporte(levelLogging=logging.INFO,nombre=__name__)			# Se crea por defecto con nombre de la fecha y hora actual
@@ -154,7 +154,7 @@ def __main_function__():
 	periodoDeMuestreo = 1.0/mifps
 	periodoReal = time.time()
 
-	
+
 	# Create BGSUBCNT object
 	backgroundsub = BGSUBCNT()
 
@@ -181,7 +181,6 @@ def __main_function__():
 		#poligonos_warp = output_q.get()
 		poligonos_warp  = backgroundsub.feedbgsub(capturaEnBaja)
 		print(poligonos_warp)
-		#filaImagenes.put([capturaEnBaja,capturaEnAlta])
 		#print('Put: ',time.time()-tiempoAuxiliar)
 		#if mostrarImagen:
 		#	tiempoAuxiliar = time.time()
