@@ -159,12 +159,12 @@ def __main_function__():
 
 
 	# Create Multiprocessing parameters
-	input_q = Queue(5)
-	output_q = Queue(5)
+	#input_q = Queue(5)
+	#output_q = Queue(5)
 
-	child_process = Process(target = child_process_detect_objects_with_bg, args=(input_q, output_q))
-	child_process.daemon = True
-	child_process.start()
+	#child_process = Process(target = child_process_detect_objects_with_bg, args=(input_q, output_q))
+	#child_process.daemon = True
+	#child_process.start()
 
 	while True:
 		tiempoAuxiliar = time.time()
@@ -177,9 +177,9 @@ def __main_function__():
 		
 		tiempoAuxiliar = time.time()
 		#feed data to queues
-		input_q.put(capturaEnBaja)
-
-		poligonos_warp = output_q.get()
+		#input_q.put(capturaEnBaja)
+		#poligonos_warp = output_q.get()
+		poligonos_warp  = backgroundsub.feedbgsub(LRframe)
 		print(poligonos_warp)
 		#filaImagenes.put([capturaEnBaja,capturaEnAlta])
 		#print('Put: ',time.time()-tiempoAuxiliar)
