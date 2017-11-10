@@ -47,7 +47,7 @@ class BGSUBCNT():
 		# just thresholding values
 		self.fgmask[self.fgmask < 240] = 0
 		
-		self.fgmask = self.filter_mask(self.fgmask)
+		#self.fgmask = self.filter_mask(self.fgmask)
 		print('FILTER TOOK ', time.time()-t2)
 		#return self.fgmask
 
