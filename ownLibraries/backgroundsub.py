@@ -26,7 +26,6 @@ class BGSUBCNT():
 		
 	def feedbgsub(self, frame):
 		# Variable to track the "matched cars" in the bgsubcnt
-		print('INSIDE OF BGSUBCNT', frame.shape)
 		self.matches = []
 
 		# Starting the Bgsubcnt logic

@@ -183,10 +183,10 @@ def __main_function__():
 		print(poligonos_warp)
 		#filaImagenes.put([capturaEnBaja,capturaEnAlta])
 		#print('Put: ',time.time()-tiempoAuxiliar)
-		if mostrarImagen:
-			tiempoAuxiliar = time.time()
-			cv2.imshow('Camara',capturaEnBaja)
-			print('Show: ',time.time()-tiempoAuxiliar)
+		#if mostrarImagen:
+		#	tiempoAuxiliar = time.time()
+		#	cv2.imshow('Camara',capturaEnBaja)
+		#	print('Show: ',time.time()-tiempoAuxiliar)
 
 		print('Periodo total: ',time.time()-periodoReal)
 		periodoReal = time.time()
@@ -196,9 +196,9 @@ def __main_function__():
 		#miImagen = filaImagenes.get()
 		#	print('Borrado elemento en la fila')
 		#print('Get: ',time.time()-tiempoAuxiliar)
-		#if frame_number>100:
-		#	break
-		#frame_number +=1
+		if frame_number>100:
+			break
+		frame_number +=1
 		
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
