@@ -130,13 +130,8 @@ def __main_function__():
 	data = miCamara.read()
 
 	capturaEnBaja =  data['LRframe']
-
-	print('Captura en Baja:', capturaEnBaja.shape)
-	print('vertices : ', verticesPartida)
-	print('vertices : ', verticesLlegada)
-
 	# Creación de objetos:
-	miPoliciaReportando = PoliciaInfractor(capturaEnBaja, verticesPartida, verticesLlegada)
+	miPoliciaReportando = PoliciaInfractor( capturaEnBaja, verticesPartida, verticesLlegada)
 	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,guardarRecortados)
 	miFiltro = IRSwitch()
 	miAcetatoInformativo = Acetato()
@@ -178,9 +173,9 @@ def __main_function__():
 		#miImagen = filaImagenes.get()
 		#	print('Borrado elemento en la fila')
 		#print('Get: ',time.time()-tiempoAuxiliar)
-		if frame_number>100:
-			break
-		frame_number +=1
+		#if frame_number>100:
+		#	break
+		#frame_number +=1
 		
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):

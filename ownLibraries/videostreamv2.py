@@ -51,7 +51,7 @@ class VideoStream:
 		(self.grabbed, self.frame) = self.stream.read()
 		
 
-		self.frame_resized = np.zeros((320,240), dtype='f')
+		self.frame_resized = np.zeros((320,240,3), dtype='f')
 		# initialize the variable used to indicate if the thread should
 		# be stopped
 		time.sleep(1)
@@ -79,14 +79,15 @@ class VideoStream:
 			# otherwise, read the next frame from the stream
 
 			(self.grabbed, self.frame) = self.stream.read()
+			self.frame_resized = cv2.resize(self.frame, (320,240))
 
-			self.frame_resized = cv2.resize(self.frame,(320,240))
+
 			#cv2.putText(self.frame, str('Frame: ') + str(self.frame_number),(20,20), self.font, 0.4,(255,0,0),1,cv2.LINE_AA)
 			#cv2.putText(self.frame, str('In took: ') + str(time.time()-t1),(20,60), self.font, 0.4,(255,0,0),1,cv2.LINE_AA)
 			#self.frame_number +=1
 
-			self.data = {'HRframe': self.frame, 'LRframe': self.frame_resized}
-			
+			self.data = {'HRframe': self.frame[:,:,:], 'LRframe': self.frame_resized[:,:,:]}
+
 	def read(self):
 		# return the frame most recently read
 		return self.data
