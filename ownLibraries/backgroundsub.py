@@ -26,8 +26,9 @@ class BGSUBCNT():
 		
 	def feedbgsub(self, frame):
 		# Variable to track the "matched cars" in the bgsubcnt
+		print('HELLO :::FEEDING...')
 		self.matches = []
-
+		t1 = time.time()
 		# Starting the Bgsubcnt logic
 
 		gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -53,7 +54,7 @@ class BGSUBCNT():
 		im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
 		
 		# for all the contours, calculate his centroid and position in the current frame
-		t1 = time.time()
+		
 		for (i, contour) in enumerate(contours):
 			(x, y, w, h) = cv2.boundingRect(contour)
 			contour_valid = (w >= self.min_contour_width) and (h >= self.min_contour_height)
