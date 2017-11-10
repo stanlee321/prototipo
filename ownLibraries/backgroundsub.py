@@ -25,6 +25,7 @@ class BGSUBCNT():
 		self.matches = []
 		
 	def feedbgsub(self, frame):
+		t0 = time.time()
 		# Variable to track the "matched cars" in the bgsubcnt
 		print('HELLO :::FEEDING...')
 		self.matches = []
@@ -75,7 +76,7 @@ class BGSUBCNT():
 			#else:
 			#	pass
 		print('FOOR LOOP TOOK', time.time()-t4)
-
+		print('ALL THE BG TOOOOOOOK>>>>>>>>', time.time()- t0)
 		return self.matches
 	def filter_mask(self, img, a=None):
 		'''
