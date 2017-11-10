@@ -40,7 +40,7 @@ class BGSUBCNT():
 		# this is the bsubcnt result 
 		self.fgmask = self.fgbg.apply(smooth_frame, self.kernel, 0.1)
 
-		#print('fbmask took (bgsubcnt)', time.time()-t1)
+		print('fbmask took (bgsubcnt)', time.time()-t1)
 
 		t2 = time.time()
 		
@@ -48,7 +48,7 @@ class BGSUBCNT():
 		self.fgmask[self.fgmask < 240] = 0
 		
 		#self.fgmask = self.filter_mask(self.fgmask)
-		#print('FILTER TOOK ', time.time()-t2)
+		print('FILTER TOOK ', time.time()-t2)
 		#return self.fgmask
 
 		t3 = time.time()
@@ -56,7 +56,7 @@ class BGSUBCNT():
 		im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
 	
 		# for all the contours, calculate his centroid and position in the current frame
-		#print('FIND CONTOURS TOOK ', time.time() - t3)
+		print('FIND CONTOURS TOOK ', time.time() - t3)
 		t4 = time.time()
 		for (i, contour) in enumerate(contours):
 			(x, y, w, h) = cv2.boundingRect(contour)
@@ -74,8 +74,8 @@ class BGSUBCNT():
 			#cv2.circle(frame, centroid,2,(0,255,0),-1)
 			#else:
 			#	pass
-		#print('FOOR LOOP TOOK', time.time()-t4)
-		#print('ALL THE BG TOOOOOOOK>>>>>>>>', time.time()- t0)
+		print('FOOR LOOP TOOK', time.time()-t4)
+		print('ALL THE BG TOOOOOOOK>>>>>>>>', time.time()- t0)
 		return self.matches
 	def filter_mask(self, img, a=None):
 		'''
