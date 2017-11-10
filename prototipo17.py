@@ -198,13 +198,13 @@ def __main_function__():
 		print('Lectura: ',time.time()-tiempoAuxiliar)
 		tiempoAuxiliar = time.time()
 
-		poligonos_warp = backgroundsub.feedbgsub(capturaEnBaja)
+		#poligonos_warp = backgroundsub.feedbgsub(capturaEnBaja)
 		#poligonos_warp = pool.starmap(backgroundsub.feedbgsub, capturaEnBaja)
 		# close the pool and wait for the work to finish 
 		#pool.close() 
 		#pool.join()
-		print(poligonos_warp)
-		listaderecortados = cutImage(HDframe = capturaEnBaja, matches = poligonos_warp)
+		#print(poligonos_warp)
+		#listaderecortados = cutImage(HDframe = capturaEnBaja, matches = poligonos_warp)
 
 
 		#if len(listaderecortados) > 0:
