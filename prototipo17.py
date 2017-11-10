@@ -20,6 +20,7 @@ from ownLibraries.herramientas import total_size
 from ownLibraries.policiainfractor import PoliciaInfractor
 from ownLibraries.generadorevidencia import GeneradorEvidencia
 from ownLibraries.videostreamv2 import VideoStream
+from ownLibraries.backgroundsub import BGSUBCNT
 
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
@@ -52,6 +53,16 @@ guardarRecortados = True
 
 gamma = 1.0
 noDraw = False
+
+# Create BGSUBCNT object
+backgroundsub = BGSUBCNT()
+
+def child_process_detect_objects_with_bg(input_q, output_q):
+	while True:
+		LRframe = input_q.get()
+		poligonos_warp  = backgroundsub.feedbgsub(LRframe)
+		output_q.put(poligonos_warp)
+
 
 # Función principal
 def __main_function__():
@@ -142,11 +153,19 @@ def __main_function__():
 	frame_number  = 0
 	tiempoAuxiliar = time.time()
 	periodoDeMuestreo = 1.0/mifps
-
 	periodoReal = time.time()
 
+
+
+	# Create Multiprocessing parameters
+	input_q = Queue(5)
+	output_q = Queue(5)
+
+	child_process = Process(target = child_process_detect_objects_with_bg, args=(input_q, output_q))
+	child_process.daemon = True
+	child_process.start()
+
 	while True:
-		print('Entering to while loop')
 		tiempoAuxiliar = time.time()
 		data = miCamara.read()
 
@@ -154,10 +173,13 @@ def __main_function__():
 		capturaEnBaja = data['LRframe']
 
 		print('Lectura: ',time.time()-tiempoAuxiliar)
+		
 		tiempoAuxiliar = time.time()
-		print('Resize: ',time.time()-tiempoAuxiliar)
-		tiempoAuxiliar = time.time()
+		#feed data to queues
+		input_q.put(capturaEnBaja)
 
+		poligonos_warp = output_q.get()
+		print(poligonos_warp)
 		#filaImagenes.put([capturaEnBaja,capturaEnAlta])
 		#print('Put: ',time.time()-tiempoAuxiliar)
 		if mostrarImagen:

@@ -69,7 +69,7 @@ class BGSUBCNT():
 			#cv2.circle(frame, centroid,2,(0,255,0),-1)
 			#else:
 			#	pass
-		
+		return self.matches
 	def filter_mask(self, img, a=None):
 		'''
 		This filters are hand-picked just based on visual tests
@@ -150,12 +150,12 @@ if __name__ == '__main__':
 		# channels)
 		data = vs.read()
 
-		frame = data['frame']
+		frame = data['HRframe']
 
-		LRFrame = data['LRFrame']
+		LRFrame = data['LRframe']
 
 		# Feed to BGSUB
-		backgroundsub.feedbgsub(LRFrame)
+		poligonos_warp = backgroundsub.feedbgsub(LRFrame)
 
 
 		"""
@@ -163,7 +163,7 @@ if __name__ == '__main__':
 
 		"""
 	
-		poligonos_warp = backgroundsub()
+		#poligonos_warp = backgroundsub()
 
 		print(poligonos_warp)
 		"""
