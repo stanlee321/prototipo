@@ -129,7 +129,7 @@ class VideoStream:
 	def update(self):
 		# keep looping infinitely until the thread is stopped
 		while True:
-			t1 = time.time()
+			
 			# if the thread indicator variable is set, stop the thread
 			if self.stopped:
 				return
@@ -153,7 +153,7 @@ class VideoStream:
 				# Set new resolution for the consumers
 				self.frame_resized = cv2.resize(self.frame_medium, (320,240))
 				# Cut imagen for the semaforo
-				print('rezising took', time.time()- t1O)
+				print('rezising took', time.time()- t1)
 				self.imagen_semaforo = self.frame_medium[self.y0:self.y1,self.x0:self.x1]
 
 			self.data = {'HRframe': self.frame, 'LRframe': self.frame_resized, 'frame_semaforo' : self.imagen_semaforo}
