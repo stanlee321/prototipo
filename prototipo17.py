@@ -54,8 +54,6 @@ guardarRecortados = True
 gamma = 1.0
 noDraw = False
 
-# Create BGSUBCNT object
-backgroundsub = BGSUBCNT()
 
 def child_process_detect_objects_with_bg(input_q, output_q):
 	while True:
@@ -156,7 +154,9 @@ def __main_function__():
 	periodoDeMuestreo = 1.0/mifps
 	periodoReal = time.time()
 
-
+	
+	# Create BGSUBCNT object
+	backgroundsub = BGSUBCNT()
 
 	# Create Multiprocessing parameters
 	#input_q = Queue(5)
