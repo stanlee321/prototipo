@@ -4,6 +4,8 @@ from threading import Thread
 import cv2
 import datetime
 import time
+from collections import deque
+import numpy as np
 class FPS:
     def __init__(self):
         # store the start time, end time, and total number of frames
@@ -34,9 +36,9 @@ class FPS:
     def fps(self):
         # compute the (approximate) frames per second
         return self._numFrames / self.elapsed()
-class VideoStream:
+
+class VideoStream(object):
 	def __init__(self, src=0, resolution = (320,240)):
-		
 		width, height = resolution[0], resolution[1]
 		# initialize the video camera stream and read the first frame
 		# from the stream
@@ -51,10 +53,13 @@ class VideoStream:
 		# be stopped
 		time.sleep(1)
 		self.stopped = False
+		length = 10
+		self.data = np.zeros(length, dtype='f')
+		self.index = 0
 
-		self.font = cv2.FONT_HERSHEY_SIMPLEX
+
 		self.frame_number = -1
-
+		self.font = cv2.FONT_HERSHEY_SIMPLEX
 	def start(self):
 		# start the thread to read frames from the video stream
 		t = Thread(target=self.update, args=())
@@ -77,15 +82,16 @@ class VideoStream:
 			cv2.putText(self.frame, str('In took: ') + str(time.time()-t1),(20,60), self.font, 0.4,(255,0,0),1,cv2.LINE_AA)
 
 			self.frame_number +=1
-			
+
 	def read(self):
 		# return the frame most recently read
 		return self.frame
 	def stop(self):
 		# indicate that the thread should be stopped
 		self.stopped = True
-https://stackoverflow.com/questions/41686551/fast-circular-buffer-in-python-than-the-one-using-deque
-"""
+
+  
+
 if __name__ == '__main__':
 
 	#Debugss
@@ -98,7 +104,7 @@ if __name__ == '__main__':
 	# construct the argument parse and parse the arguments
 	ap = argparse.ArgumentParser()
 	ap.add_argument("-v", "--video", default=0,
-		help="path to input video file", type=int)
+		help="path to input video file", type=int or str)
 	args = vars(ap.parse_args())
 
 	print("[INFO] starting video file thread...")
@@ -109,7 +115,9 @@ if __name__ == '__main__':
 
 	resolution = (height, width)
 
-	vs = VideoStream(src = args["video"], resolution = (640,480)).start()
+	#vs = VideoStream(src = args["video"], resolution = (640,480)).start()
+	vs = VideoStream(src = './mySquare.mp4', resolution = (640,480)).start()
+
 
 	# start the FPS timer
 	fps = FPS().start()
@@ -123,6 +131,7 @@ if __name__ == '__main__':
 		t1 = time.time()
 		frame = vs.read()
 		
+	
 
 		#print('shape', frame)
 		#frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -147,4 +156,3 @@ if __name__ == '__main__':
 	# do a bit of cleanup
 	cv2.destroyAllWindows()
 	vs.stop()
-"""
