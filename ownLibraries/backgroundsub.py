@@ -3,7 +3,7 @@
 import cv2
 import bgsubcnt
 import numpy as np
-
+import time
 class BGSUBCNT():
 	def __init__(self):
 		
@@ -53,6 +53,7 @@ class BGSUBCNT():
 		im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
 		
 		# for all the contours, calculate his centroid and position in the current frame
+		t1 = time.time()
 		for (i, contour) in enumerate(contours):
 			(x, y, w, h) = cv2.boundingRect(contour)
 			contour_valid = (w >= self.min_contour_width) and (h >= self.min_contour_height)
@@ -70,6 +71,7 @@ class BGSUBCNT():
 			#else:
 			#	pass
 		return self.matches
+		print('FOOR LOOP TOOK', time.time-t1)
 	def filter_mask(self, img, a=None):
 		'''
 		This filters are hand-picked just based on visual tests

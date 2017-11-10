@@ -74,7 +74,7 @@ def __main_function__():
 
 	shapeUR = (3296,2512)
 	shapeMR = (640,480)
-	shapeLR = (160,120)
+	shapeLR = (320,240)
 
 	# Creamos el reporte inicial
 	miReporte = MiReporte(levelLogging=logging.INFO,nombre=__name__)			# Se crea por defecto con nombre de la fecha y hora actual
