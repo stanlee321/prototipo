@@ -207,15 +207,15 @@ def __main_function__():
 		listaderecortados = cutImage(HDframe = capturaEnBaja, matches = poligonos_warp)
 
 
-		if len(listaderecortados) > 0:
-			for i, image in enumerate(listaderecortados):
-				cv2.imwrite('imagen_{}_.jpg'.format(i), image)
-		else:
-			pass
+		#if len(listaderecortados) > 0:
+		#	for i, image in enumerate(listaderecortados):
+		#		cv2.imwrite('imagen_{}_.jpg'.format(i), image)
+		#else:
+		#	pass
 		#print('Put: ',time.time()-tiempoAuxiliar)
-		if mostrarImagen:
+		#if mostrarImagen:
 		#	tiempoAuxiliar = time.time()
-			cv2.imshow('Camara', cv2.resize(capturaEnBaja,(640,480)))
+			#cv2.imshow('Camara', cv2.resize(capturaEnBaja,(640,480)))
 		#	print('Show: ',time.time()-tiempoAuxiliar)
 
 		print('Periodo total: ',time.time()-periodoReal)
