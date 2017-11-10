@@ -106,11 +106,11 @@ class VideoStream:
 			# Values to cut the self.frame_resized for the 
 			# semaforo input
 
-			self.x0 = mininX // 2
-			self.x1 = maxinX // 2
+			self.x0 = mininX
+			self.x1 = maxinX
 
-			self.y0 = mininY // 2
-			self.y1 = maxinY // 2
+			self.y0 = mininY
+			self.y1 = maxinY
 			
 		self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
 		self.data = {'HRframe': self.frame, 'LRframe': self.frame_resized, 'frame_semaforo' : self.imagen_semaforo}
@@ -149,12 +149,12 @@ class VideoStream:
 			else:
 				(self.grabbed, self.frame) = self.stream.read()
 				t1 = time.time()
-				#self.frame_medium = cv2.resize(self.frame, (640,480))
+				self.frame_medium = cv2.resize(self.frame, (640,480), interpolation = cv2.INTER_NEAREST)
 				# Set new resolution for the consumers
-				self.frame_resized = cv2.resize(self.frame, (320,240))
+				self.frame_resized = cv2.resize(self.frame_medium, (320,240), interpolation = cv2.INTER_NEAREST)
 				# Cut imagen for the semaforo
 				print('rezising took', time.time()- t1)
-				self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
+				self.imagen_semaforo = self.frame_medium[self.y0:self.y1,self.x0:self.x1]
 
 			self.data = {'HRframe': self.frame, 'LRframe': self.frame_resized, 'frame_semaforo' : self.imagen_semaforo}
 
