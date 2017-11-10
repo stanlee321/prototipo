@@ -40,8 +40,9 @@ class BGSUBCNT():
 		# this is the bsubcnt result 
 		self.fgmask = self.fgbg.apply(smooth_frame, self.kernel, 0.1)
 
-		print('FOOR LOOP TOOK', time.time-t1)
+		print('fbmask took (bgsubcnt)', time.time()-t1)
 
+		t2 = time.time()
 		
 		# just thresholding values
 		self.fgmask[self.fgmask < 240] = 0
@@ -55,7 +56,8 @@ class BGSUBCNT():
 		im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
 		
 		# for all the contours, calculate his centroid and position in the current frame
-		
+		print('FIND CONTOURS TOOK ', time.time() - t2)
+		t3 = time.time()
 		for (i, contour) in enumerate(contours):
 			(x, y, w, h) = cv2.boundingRect(contour)
 			contour_valid = (w >= self.min_contour_width) and (h >= self.min_contour_height)
@@ -73,6 +75,7 @@ class BGSUBCNT():
 			#else:
 			#	pass
 		return self.matches
+		print('FOOR LOOP TOOK', time.time()-t3)
 	def filter_mask(self, img, a=None):
 		'''
 		This filters are hand-picked just based on visual tests
