@@ -51,7 +51,7 @@ class VideoStream:
 		(self.grabbed, self.frame) = self.stream.read()
 		
 
-		self.frame_resized = np.zeros((320,240,3), dtype='f')
+		self.frame_resized = cv2.resize(self.frame, (320,240))
 		# initialize the variable used to indicate if the thread should
 		# be stopped
 		time.sleep(1)
