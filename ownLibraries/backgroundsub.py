@@ -40,6 +40,7 @@ class BGSUBCNT():
 		# this is the bsubcnt result 
 		self.fgmask = self.fgbg.apply(smooth_frame, self.kernel, 0.1)
 
+		print('FOOR LOOP TOOK', time.time-t1)
 
 		
 		# just thresholding values
@@ -72,7 +73,6 @@ class BGSUBCNT():
 			#else:
 			#	pass
 		return self.matches
-		print('FOOR LOOP TOOK', time.time-t1)
 	def filter_mask(self, img, a=None):
 		'''
 		This filters are hand-picked just based on visual tests
