@@ -21,7 +21,7 @@ from ownLibraries.policiainfractor import PoliciaInfractor
 from ownLibraries.generadorevidencia import GeneradorEvidencia
 from ownLibraries.videostreamv2 import VideoStream
 from ownLibraries.backgroundsub import BGSUBCNT
-
+from ownLibraries.cutHDImage import cutHDImage
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos  = os.getenv('HOME')+'/trafficFlow/trialVideos'
@@ -165,7 +165,11 @@ def __main_function__():
 	#child_process = Process(target = child_process_detect_objects_with_bg, args=(input_q, output_q))
 	#child_process.daemon = True
 	#child_process.start()
-
+	# Create CUT Object
+	if os.uname()[1] == 'stanlee321-MS-7693': 
+		cutImage = cutHDImage(shapeHR = shapeMR, shapeLR = shapeLR)
+	else:
+		cutImage = cutHDImage(shapeHR = shapeUR, shapeLR = shapeLR)
 	while True:
 		tiempoAuxiliar = time.time()
 		data = miCamara.read()
@@ -181,6 +185,12 @@ def __main_function__():
 		#poligonos_warp = output_q.get()
 		poligonos_warp  = backgroundsub.feedbgsub(capturaEnBaja)
 		print(poligonos_warp)
+		listaderecortados = cutImage(HDframe = capturaEnBaja, matches = poligonos_warp)
+
+
+		for i, image in enumerate(listaderecortados):
+			cv2.imwrite('imagen_{}_.jpg'.format(i), image)
+		break
 		#print('Put: ',time.time()-tiempoAuxiliar)
 		#if mostrarImagen:
 		#	tiempoAuxiliar = time.time()
@@ -188,6 +198,8 @@ def __main_function__():
 		#	print('Show: ',time.time()-tiempoAuxiliar)
 
 		print('Periodo total: ',time.time()-periodoReal)
+
+
 		periodoReal = time.time()
 
 		#tiempoAuxiliar = time.time()
