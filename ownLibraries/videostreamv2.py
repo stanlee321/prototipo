@@ -154,7 +154,7 @@ class VideoStream:
 				self.frame_resized = cv2.resize(self.frame, (320,240))
 				# Cut imagen for the semaforo
 				print('rezising took', time.time()- t1)
-				self.imagen_semaforo = self.frame_medium[self.y0:self.y1,self.x0:self.x1]
+				self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
 
 			self.data = {'HRframe': self.frame, 'LRframe': self.frame_resized, 'frame_semaforo' : self.imagen_semaforo}
 
