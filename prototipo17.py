@@ -60,6 +60,7 @@ backgroundsub = BGSUBCNT()
 def child_process_detect_objects_with_bg(input_q, output_q):
 	while True:
 		LRframe = input_q.get()
+		print(LRframe.shape)
 		poligonos_warp  = backgroundsub.feedbgsub(LRframe)
 		output_q.put(poligonos_warp)
 
