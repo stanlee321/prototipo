@@ -187,9 +187,11 @@ def __main_function__():
 		print(poligonos_warp)
 		listaderecortados = cutImage(HDframe = capturaEnBaja, matches = poligonos_warp)
 
-
-		for i, image in enumerate(listaderecortados):
-			cv2.imwrite('imagen_{}_.jpg'.format(i), image)
+		if listaderecortados > 0:
+			for i, image in enumerate(listaderecortados):
+				cv2.imwrite('imagen_{}_.jpg'.format(i), image)
+		else:
+			pass
 		#print('Put: ',time.time()-tiempoAuxiliar)
 		#if mostrarImagen:
 		#	tiempoAuxiliar = time.time()

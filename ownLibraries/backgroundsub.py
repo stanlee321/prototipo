@@ -27,7 +27,6 @@ class BGSUBCNT():
 	def feedbgsub(self, frame):
 		t0 = time.time()
 		# Variable to track the "matched cars" in the bgsubcnt
-		print('HELLO :::FEEDING...')
 		self.matches = []
 		t1 = time.time()
 		# Starting the Bgsubcnt logic
