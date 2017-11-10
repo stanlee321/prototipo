@@ -48,16 +48,16 @@ class BGSUBCNT():
 		self.fgmask[self.fgmask < 240] = 0
 		
 		self.fgmask = self.filter_mask(self.fgmask)
-
+		print('FILTER TOOK ', time.time()-t2)
 		#return self.fgmask
 
-		
+		t3 = time.time()
 		# Find the contours 
 		im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
-		
+	
 		# for all the contours, calculate his centroid and position in the current frame
-		print('FIND CONTOURS TOOK ', time.time() - t2)
-		t3 = time.time()
+		print('FIND CONTOURS TOOK ', time.time() - t3)
+		t4 = time.time()
 		for (i, contour) in enumerate(contours):
 			(x, y, w, h) = cv2.boundingRect(contour)
 			contour_valid = (w >= self.min_contour_width) and (h >= self.min_contour_height)
@@ -74,7 +74,7 @@ class BGSUBCNT():
 			#cv2.circle(frame, centroid,2,(0,255,0),-1)
 			#else:
 			#	pass
-		print('FOOR LOOP TOOK', time.time()-t3)
+		print('FOOR LOOP TOOK', time.time()-t4)
 
 		return self.matches
 	def filter_mask(self, img, a=None):
