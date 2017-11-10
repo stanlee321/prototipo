@@ -179,7 +179,7 @@ def __main_function__():
 		#feed data to queues
 		#input_q.put(capturaEnBaja)
 		#poligonos_warp = output_q.get()
-		poligonos_warp  = backgroundsub.feedbgsub(LRframe)
+		poligonos_warp  = backgroundsub.feedbgsub(capturaEnBaja)
 		print(poligonos_warp)
 		#filaImagenes.put([capturaEnBaja,capturaEnAlta])
 		#print('Put: ',time.time()-tiempoAuxiliar)
