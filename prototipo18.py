@@ -9,11 +9,7 @@ import psutil
 import logging
 import datetime
 import numpy as np
-
-from multiprocessing import Queue
-from multiprocessing import Process
-from multiprocessing.dummy import Pool as ThreadPool 
-
+from multiprocessing import Process, Queue, Value
 
 from ownLibraries.irswitch import IRSwitch
 from ownLibraries.mireporte import MiReporte
@@ -21,7 +17,6 @@ from ownLibraries.visualizacion import Acetato
 from ownLibraries.herramientas import total_size
 from ownLibraries.policiainfractor import PoliciaInfractor
 from ownLibraries.generadorevidencia import GeneradorEvidencia
-from ownLibraries.videostreamv2 import VideoStream
 from ownLibraries.backgroundsub import BGSUBCNT
 from ownLibraries.cutHDImage import cutHDImage
 from ownLibraries.semaforo import CreateSemaforo
@@ -57,15 +52,7 @@ guardarRecortados = True
 
 gamma = 1.0
 noDraw = False
-
-
-def child_process_detect_objects_with_bg(input_q, output_q):
-	while True:
-		LRframe = input_q.get()
-		print(LRframe.shape)
-		poligonos_warp  = backgroundsub.feedbgsub(LRframe)
-		output_q.put(poligonos_warp)
-
+estadoDeEjecucionDePrograma = Value('i',1)
 
 # Función principal
 def __main_function__():
@@ -125,25 +112,25 @@ def __main_function__():
 	# Arrancando camara
 	if len(archivoDeVideo) == 0:												# modo real
 		if os.uname()[1] == 'alvarohurtado-305V4A':
-			miCamara = VideoStream(src = 0, resolution = shapeMR, poligono = poligonoSemaforo, debug = saltarFrames, fps = mifps).start()
-			time.sleep(1)
-		elif os.uname()[1] == 'stanlee321-MS-7693':
-			print('Hello stanlee321')
-			miCamara = VideoStream(src = 0, resolution = shapeMR, poligono = poligonoSemaforo, debug = saltarFrames, fps = mifps).start()
+			miCamara = cv2.VideoCapture(1)
 		else:
-			miCamara = VideoStream(src = 0, resolution = shapeUR, poligono = poligonoSemaforo, debug = saltarFrames, fps = mifps).start()
+			miCamara = cv2.VideoCapture(0)
+			#miCamara.set(3,3280)
+			#miCamara.set(4,2464)
+			miCamara.set(3,2592)
+			miCamara.set(4,1944)
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		try:
-			miCamara = miCamara = VideoStream(src = directorioDeVideos+'/'+archivoDeVideo, resolution = shapeMR).start()
+			miCamara = miCamara = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
 			miReporte.info('Archivo de video cargado exitosamente: '+directorioDeVideos+'/'+archivoDeVideo)
 		except Exception as currentException:
 			miReporte.error('No se pudo cargar el video por '+str(currentException))
 
 	# Se captura la imagen de flujo inicial y se trabaja con la misma
-	data = miCamara.read()
+	ret, capturaEnAlta = miCamara.read() 
+	capturaEnBaja =  cv2.resize(capturaEnAlta,(320,240))
 
-	capturaEnBaja =  data['LRframe']
 	# Creación de objetos:
 	miPoliciaReportando = PoliciaInfractor( capturaEnBaja, verticesPartida, verticesLlegada)
 	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,guardarRecortados)
@@ -158,86 +145,62 @@ def __main_function__():
 	periodoDeMuestreo = 1.0/mifps
 	periodoReal = time.time()
 
-
 	# Create BGSUBCNT object
 	backgroundsub = BGSUBCNT()
-
-	# Create Multiprocessing parameters
-
-	#pool = ThreadPool(2) 
-
-	#input_q = Queue(5)
-	#output_q = Queue(5)
-
-	#child_process = Process(target = child_process_detect_objects_with_bg, args=(input_q, output_q))
-	#child_process.daemon = True
-	#child_process.start()
-	# Create CUT Object
-	if os.uname()[1] == 'stanlee321-MS-7693': 
-		cutImage = cutHDImage(shapeHR = shapeMR, shapeLR = shapeLR)
-	else:
-		cutImage = cutHDImage(shapeHR = shapeUR, shapeLR = shapeLR)
 
 	# Create Semaphro
 	periodo = 0
 	semaforo = CreateSemaforo(periodoSemaforo = periodo)
-	listaderecortados = []
+	periodoReal = time.time()
+
+	### HERRAMIENTAS MULTIPROCESSING:
+	imagenes = Queue()
+	procesoDeAcondicionado = Process(name = 'Acondicionado',target = procesoAcondicionado,args = (imagenes,estadoDeEjecucionDePrograma))
+	procesoDeAcondicionado.start()
 	while True:
 		tiempoAuxiliar = time.time()
-		data = miCamara.read()
-		data['index'] = frame_number
-
-		capturaEnAlta = data['HRframe']
-		capturaEnBaja = data['LRframe']
-		capturaSemaforo = data['frame_semaforo']
-
-		senalColor, colorLiteral, flancoSemaforo, periodoSemaforo = semaforo.obtenerColorEnSemaforo(capturaSemaforo)
-
-		print('SEMAPHORO STATES: ',senalColor, colorLiteral, flancoSemaforo, periodoSemaforo)
-		print('Lectura: ',time.time()-tiempoAuxiliar)
+		ret, capturaEnAlta = miCamara.read() 
+		print('0 Tiempo de captura: ',time.time()-tiempoAuxiliar)
 		tiempoAuxiliar = time.time()
+		capturaEnBaja =  cv2.resize(capturaEnAlta,(320,240))
+		print('0 Tiempo de Resize: ',time.time()-tiempoAuxiliar)
+		tiempoAuxiliar = time.time()
+		imagenes.put(capturaEnAlta)
+		print('0 Tiempo de Colocado: ',time.time()-tiempoAuxiliar)
 
-
-
-		#if colorLiteral == 'Rojo':
-			#poligonos_warp = backgroundsub.feedbgsub(capturaEnBaja)
-			#poligonos_warp = pool.starmap(backgroundsub.feedbgsub, capturaEnBaja)
-			# close the pool and wait for the work to finish 
-			#pool.close() 
-			#pool.join()
-			#print(poligonos_warp)
-			#listaderecortados = cutImage(HDframe = capturaEnBaja, matches = poligonos_warp)
-
-
-		#if len(listaderecortados) > 0:
-		#	for i, image in enumerate(listaderecortados):
-		#		cv2.imwrite('imagen_{}_.jpg'.format(i), image)
-		#else:
-		#	pass
 		#print('Put: ',time.time()-tiempoAuxiliar)
-		#if mostrarImagen:
-		#	tiempoAuxiliar = time.time()
-			#cv2.imshow('Camara', cv2.resize(capturaEnBaja,(640,480)))
-		#	print('Show: ',time.time()-tiempoAuxiliar)
+		if mostrarImagen:
+			tiempoAuxiliar = time.time()
+			cv2.imshow('Camara', capturaEnBaja)
+			print('0 Show: ',time.time()-tiempoAuxiliar)
 
-		print('Periodo total: ',time.time()-periodoReal)
-
-
+		print('0 Periodo total: ',time.time()-periodoReal)
 		periodoReal = time.time()
 
-		#tiempoAuxiliar = time.time()
-		#if filaImagenes.qsize() > 10:
-		#miImagen = filaImagenes.get()
-		#	print('Borrado elemento en la fila')
-		#print('Get: ',time.time()-tiempoAuxiliar)
-		if frame_number>200:
-			break
 		frame_number +=1
 		
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
 			miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por salida manual')
+			estadoDeEjecucionDePrograma.value = 0
+			procesoDeAcondicionado.join()
 			break
+
+def procesoAcondicionado(fila,estado):
+	#En este proceso simplemente imprimimos el numero de Queue y en caso de ser muy elevado los eliminamos
+	while estado.value == 1:
+		tiempoAuxiliarEnProceso = time.time()
+		numero = fila.qsize()
+		if numero <= 6:
+			continue
+		else:
+			print('1 La fila tiene: ',numero,' tiempo: ',time.time()-tiempoAuxiliarEnProceso)
+			tiempoAuxiliarEnProceso = time.time()
+			variableLeida = fila.get()
+			print('Dimensiones recibidas: ',variableLeida.shape)
+			print('1 Tiempo de lectura: ', time.time()-tiempoAuxiliarEnProceso)
+	else:
+		print('Salida externa del while en el processo interno')
 	
 if __name__ == '__main__':
 	# Tomamos los ingresos para controlar el video
