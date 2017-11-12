@@ -116,7 +116,7 @@ def __main_function__():
 		else:
 			miCamara = cv2.VideoCapture(0)
 			miCamara.set(3,3280)
-			miCamara.set(3,2464)
+			miCamara.set(4,2464)
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		try:
