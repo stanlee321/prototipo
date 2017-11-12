@@ -111,7 +111,6 @@ def __main_function__():
 
 	miReporte.info('Cargado exitosamente parametros de instalacion: '+str(parametrosInstalacion))
 
-
 	# Arrancando camara
 	if len(archivoDeVideo) == 0:												# modo real
 		if os.uname()[1] == 'alvarohurtado-305V4A':
@@ -161,23 +160,22 @@ def __main_function__():
 	procesoDeAcondicionado.start()
 	while True:
 		tiempoAuxiliar = time.time()
-		ret, data = miCamara.read()
 		ret, capturaEnAlta = miCamara.read() 
-		print('Tiempo de captura: ',time.time()-tiempoAuxiliar)
+		print('0 Tiempo de captura: ',time.time()-tiempoAuxiliar)
 		tiempoAuxiliar = time.time()
 		capturaEnBaja =  cv2.resize(capturaEnAlta,(320,240))
-		print('Tiempo de Resize: ',time.time()-tiempoAuxiliar)
+		print('0 Tiempo de Resize: ',time.time()-tiempoAuxiliar)
 		tiempoAuxiliar = time.time()
 		imagenes.put(capturaEnAlta)
-		print('Tiempo de Colocado: ',time.time()-tiempoAuxiliar)
+		print('0 Tiempo de Colocado: ',time.time()-tiempoAuxiliar)
 
 		#print('Put: ',time.time()-tiempoAuxiliar)
 		if mostrarImagen:
 			tiempoAuxiliar = time.time()
 			cv2.imshow('Camara', capturaEnBaja)
-			print('Show: ',time.time()-tiempoAuxiliar)
+			print('0 Show: ',time.time()-tiempoAuxiliar)
 
-		print('Periodo total: ',time.time()-periodoReal)
+		print('0 Periodo total: ',time.time()-periodoReal)
 		periodoReal = time.time()
 
 		frame_number +=1
@@ -196,11 +194,11 @@ def procesoAcondicionado(fila):
 		numero = fila.qsize()
 		if numero <= 6:
 			continue
-		print('La fila tiene: ',numero,' tiempo: ',time.time()-tiempoAuxiliarEnProceso)
-		if numero>6:
+		else:
+			print('1 La fila tiene: ',numero,' tiempo: ',time.time()-tiempoAuxiliarEnProceso)
 			tiempoAuxiliarEnProceso = time.time()
 			variableLeida = fila.get()
-			print('Tiempo de lectura: ', time.time()-tiempoAuxiliarEnProceso)
+			print('1 Tiempo de lectura: ', time.time()-tiempoAuxiliarEnProceso)
 	
 if __name__ == '__main__':
 	# Tomamos los ingresos para controlar el video
