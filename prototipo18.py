@@ -185,16 +185,25 @@ def __main_function__():
 			estadoDeEjecucionDePrograma.value = 0
 			procesoDeAcondicionado.join()
 			break
+		if (frame_number >= topeEjecucion) &(topeEjecucion!=0):
+			miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por indice de auto acabado predeterminado')
+			break
 
 def procesoAcondicionado(fila,estado):
 	#En este proceso simplemente imprimimos el numero de Queue y en caso de ser muy elevado los eliminamos
 	a = 2
+	b = 3
 	while estado.value == 1:
 		tiempoAuxiliarEnProceso = time.time()
 		numero = fila.qsize()
 		a = a**2
 		if a>10000000:
-			a = 2
+			print(a)
+			a = a%10000000
+		b = b**3
+		if b>10000000:
+			print(b)
+			b = b%10000000
 		"""
 		if numero <= 12:
 			continue
