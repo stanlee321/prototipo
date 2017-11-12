@@ -198,11 +198,11 @@ def procesoAcondicionado(fila,estado):
 		numero = fila.qsize()
 		a = a**2
 		if a>10000000:
-			print(a)
+			#print(a)
 			a = a%10000000
 		b = b**3
 		if b>10000000:
-			print(b)
+			#print(b)
 			b = b%10000000
 		"""
 		if numero <= 12:
