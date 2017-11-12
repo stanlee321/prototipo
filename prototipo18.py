@@ -9,10 +9,7 @@ import psutil
 import logging
 import datetime
 import numpy as np
-
-from multiprocessing import Queue
-from multiprocessing import Process
-from multiprocessing.dummy import Pool as ThreadPool
+from multiprocessing import Process, Queue, Value
 
 from ownLibraries.irswitch import IRSwitch
 from ownLibraries.mireporte import MiReporte
@@ -55,6 +52,7 @@ guardarRecortados = True
 
 gamma = 1.0
 noDraw = False
+estadoDeEjecucionDePrograma = Value('i',1)
 
 # Función principal
 def __main_function__():
@@ -145,7 +143,6 @@ def __main_function__():
 	periodoDeMuestreo = 1.0/mifps
 	periodoReal = time.time()
 
-
 	# Create BGSUBCNT object
 	backgroundsub = BGSUBCNT()
 
@@ -156,7 +153,7 @@ def __main_function__():
 
 	### HERRAMIENTAS MULTIPROCESSING:
 	imagenes = Queue()
-	procesoDeAcondicionado = Process(name = 'Acondicionado',target = procesoAcondicionado,args = (imagenes,))
+	procesoDeAcondicionado = Process(name = 'Acondicionado',target = procesoAcondicionado,args = (imagenes,estadoDeEjecucionDePrograma))
 	procesoDeAcondicionado.start()
 	while True:
 		tiempoAuxiliar = time.time()
@@ -183,13 +180,13 @@ def __main_function__():
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
 			miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por salida manual')
+			estadoDeEjecucionDePrograma.value = 0
 			procesoDeAcondicionado.join()
 			break
-	
 
-def procesoAcondicionado(fila):
+def procesoAcondicionado(fila,estado):
 	#En este proceso simplemente imprimimos el numero de Queue y en caso de ser muy elevado los eliminamos
-	while True:
+	while estado.value == 1:
 		tiempoAuxiliarEnProceso = time.time()
 		numero = fila.qsize()
 		if numero <= 6:
@@ -199,6 +196,8 @@ def procesoAcondicionado(fila):
 			tiempoAuxiliarEnProceso = time.time()
 			variableLeida = fila.get()
 			print('1 Tiempo de lectura: ', time.time()-tiempoAuxiliarEnProceso)
+	else:
+		print('Salida externa del while en el processo interno')
 	
 if __name__ == '__main__':
 	# Tomamos los ingresos para controlar el video
