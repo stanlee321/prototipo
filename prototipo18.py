@@ -188,9 +188,14 @@ def __main_function__():
 
 def procesoAcondicionado(fila,estado):
 	#En este proceso simplemente imprimimos el numero de Queue y en caso de ser muy elevado los eliminamos
+	a = 2
 	while estado.value == 1:
 		tiempoAuxiliarEnProceso = time.time()
 		numero = fila.qsize()
+		a = a**2
+		if a>10000000:
+			a = 2
+		"""
 		if numero <= 12:
 			continue
 		else:
@@ -199,6 +204,7 @@ def procesoAcondicionado(fila,estado):
 			variableLeida = fila.get()
 			print('Dimensiones recibidas: ',variableLeida.shape)
 			print('1 Tiempo de lectura: ', time.time()-tiempoAuxiliarEnProceso)
+		"""
 	else:
 		print('Salida externa del while en el processo interno')
 	
