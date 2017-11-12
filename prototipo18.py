@@ -157,7 +157,7 @@ def __main_function__():
 
 	### HERRAMIENTAS MULTIPROCESSING:
 	imagenes = Queue()
-	procesoDeAcondicionado = Process(name = 'Acondicionado',target = procesoAcondicionado,args = 'none')
+	procesoDeAcondicionado = Process(name = 'Acondicionado',target = procesoAcondicionado,args = (imagenes,))
 	procesoDeAcondicionado.start()
 	while True:
 		tiempoAuxiliar = time.time()
@@ -189,17 +189,17 @@ def __main_function__():
 			break
 	
 
-def procesoAcondicionado(argumentos):
+def procesoAcondicionado(fila):
 	#En este proceso simplemente imprimimos el numero de Queue y en caso de ser muy elevado los eliminamos
 	while True:
 		tiempoAuxiliarEnProceso = time.time()
-		numero = imagenes.qsize()
-		if numero == 0:
+		numero = fila.qsize()
+		if numero <= 6:
 			continue
 		print('La fila tiene: ',numero,' tiempo: ',time.time()-tiempoAuxiliarEnProceso)
 		if numero>6:
 			tiempoAuxiliarEnProceso = time.time()
-			variableLeida = imagenes.get()
+			variableLeida = fila.get()
 			print('Tiempo de lectura: ', time.time()-tiempoAuxiliarEnProceso)
 	
 if __name__ == '__main__':
