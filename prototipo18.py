@@ -195,6 +195,7 @@ def procesoAcondicionado(fila,estado):
 			print('1 La fila tiene: ',numero,' tiempo: ',time.time()-tiempoAuxiliarEnProceso)
 			tiempoAuxiliarEnProceso = time.time()
 			variableLeida = fila.get()
+			print('Dimensiones recibidas: ',variableLeida.shape)
 			print('1 Tiempo de lectura: ', time.time()-tiempoAuxiliarEnProceso)
 	else:
 		print('Salida externa del while en el processo interno')
