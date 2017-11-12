@@ -234,7 +234,7 @@ if __name__ == '__main__':
 		if 'fps' in input:
 			mifps = int(input[:-3])
 		if input =='Kill':
-			topeEjecucion = int(input[:-1])
+			topeEjecucion = int(input[:-4])
 		if 'gamma' in input:
 			gamma = float(input[:-5])
 		if input == 'noRec':
