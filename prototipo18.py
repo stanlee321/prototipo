@@ -233,7 +233,7 @@ if __name__ == '__main__':
 			mostrarImagen = True
 		if 'fps' in input:
 			mifps = int(input[:-3])
-		if input =='Kill':
+		if 'Kill' in input:
 			topeEjecucion = int(input[:-4])
 		if 'gamma' in input:
 			gamma = float(input[:-5])
