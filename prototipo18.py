@@ -182,12 +182,16 @@ def __main_function__():
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
 			miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por salida manual')
-			estadoDeEjecucionDePrograma.value = 0
-			procesoDeAcondicionado.join()
+			terminarProcesos()
 			break
 		if (frame_number >= topeEjecucion) &(topeEjecucion!=0):
 			miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por indice de auto acabado predeterminado')
+			terminarProcesos()
 			break
+
+def terminarProcesos():
+	estadoDeEjecucionDePrograma.value = 0
+	procesoDeAcondicionado.join()
 
 def procesoAcondicionado(fila,estado):
 	#En este proceso simplemente imprimimos el numero de Queue y en caso de ser muy elevado los eliminamos
