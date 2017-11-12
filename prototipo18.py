@@ -115,10 +115,10 @@ def __main_function__():
 			miCamara = cv2.VideoCapture(1)
 		else:
 			miCamara = cv2.VideoCapture(0)
-			#miCamara.set(3,3280)
-			#miCamara.set(4,2464)
-			miCamara.set(3,2592)
-			miCamara.set(4,1944)
+			miCamara.set(3,3280)
+			miCamara.set(4,2464)
+			#miCamara.set(3,2592)
+			#miCamara.set(4,1944)
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		try:
@@ -165,7 +165,7 @@ def __main_function__():
 		capturaEnBaja =  cv2.resize(capturaEnAlta,(320,240))
 		print('0 Tiempo de Resize: ',time.time()-tiempoAuxiliar)
 		tiempoAuxiliar = time.time()
-		imagenes.put(capturaEnAlta)
+		imagenes.put(capturaEnBaja)
 		print('0 Tiempo de Colocado: ',time.time()-tiempoAuxiliar)
 
 		#print('Put: ',time.time()-tiempoAuxiliar)
@@ -191,7 +191,7 @@ def procesoAcondicionado(fila,estado):
 	while estado.value == 1:
 		tiempoAuxiliarEnProceso = time.time()
 		numero = fila.qsize()
-		if numero <= 6:
+		if numero <= 12:
 			continue
 		else:
 			print('1 La fila tiene: ',numero,' tiempo: ',time.time()-tiempoAuxiliarEnProceso)
