@@ -182,10 +182,11 @@ def __main_function__():
 	# Create Semaphro
 	periodo = 0
 	semaforo = CreateSemaforo(periodoSemaforo = periodo)
-
+	listaderecortados = []
 	while True:
 		tiempoAuxiliar = time.time()
 		data = miCamara.read()
+		data['index'] = frame_number
 
 		capturaEnAlta = data['HRframe']
 		capturaEnBaja = data['LRframe']
@@ -193,18 +194,20 @@ def __main_function__():
 
 		senalColor, colorLiteral, flancoSemaforo, periodoSemaforo = semaforo.obtenerColorEnSemaforo(capturaSemaforo)
 
-
 		print('SEMAPHORO STATES: ',senalColor, colorLiteral, flancoSemaforo, periodoSemaforo)
 		print('Lectura: ',time.time()-tiempoAuxiliar)
 		tiempoAuxiliar = time.time()
 
-		#poligonos_warp = backgroundsub.feedbgsub(capturaEnBaja)
-		#poligonos_warp = pool.starmap(backgroundsub.feedbgsub, capturaEnBaja)
-		# close the pool and wait for the work to finish 
-		#pool.close() 
-		#pool.join()
-		#print(poligonos_warp)
-		#listaderecortados = cutImage(HDframe = capturaEnBaja, matches = poligonos_warp)
+
+
+		#if colorLiteral == 'Rojo':
+			#poligonos_warp = backgroundsub.feedbgsub(capturaEnBaja)
+			#poligonos_warp = pool.starmap(backgroundsub.feedbgsub, capturaEnBaja)
+			# close the pool and wait for the work to finish 
+			#pool.close() 
+			#pool.join()
+			#print(poligonos_warp)
+			#listaderecortados = cutImage(HDframe = capturaEnBaja, matches = poligonos_warp)
 
 
 		#if len(listaderecortados) > 0:
