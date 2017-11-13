@@ -130,6 +130,10 @@ def __main_function__():
 		elif os.uname()[1] == 'stanlee321-MS-7693':
 			print('Hello stanlee321')
 			miCamara = VideoStream(src = 0, resolution = shapeMR, poligono = poligonoSemaforo, debug = saltarFrames, fps = mifps).start()
+		elif os.uname()[1] == 'stanlee321-HP-240-G1-Notebook-PC':
+			print('Hello stanlee321')
+			miCamara = VideoStream(src = 0, resolution = shapeMR, poligono = poligonoSemaforo, debug = saltarFrames, fps = mifps).start()
+
 		else:
 			miCamara = VideoStream(src = 0, resolution = shapeUR, poligono = poligonoSemaforo, debug = saltarFrames, fps = mifps).start()
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
@@ -181,7 +185,8 @@ def __main_function__():
 	# Create Semaphro
 	periodo = 0
 	semaforo = CreateSemaforo(periodoSemaforo = periodo)
-	listaderecortados = []
+	listaderecortados = list
+	informacion = dict
 	while True:
 		tiempoAuxiliar = time.time()
 		data = miCamara.read()
@@ -192,13 +197,139 @@ def __main_function__():
 		capturaSemaforo = data['frame_semaforo']
 
 		senalColor, colorLiteral, flancoSemaforo, periodoSemaforo = semaforo.obtenerColorEnSemaforo(capturaSemaforo)
+		#print('Lectura: ',time.time()-tiempoAuxiliar)
+		poligonos_warp = backgroundsub.feedbgsub(capturaEnBaja)
+		#poligonos_warp = pool.starmap(backgroundsub.feedbgsub, capturaEnBaja)
 
-		print('SEMAPHORO STATES: ',senalColor, colorLiteral, flancoSemaforo, periodoSemaforo)
+
+		# close the pool and wait for the work to finish 
+		#pool.close() 
+		#pool.join()
+		#print(poligonos_warp)
+		listaderecortados = cutImage(HDframe = capturaEnBaja, matches = poligonos_warp)
+
+		informacion = {'semaforo': [senalColor, colorLiteral, flancoSemaforo, periodoSemaforo],\
+						'frame':capturaEnBaja, 'rectangulos': listaderecortados, 'index': data['index']}
+
+
+		"""
+		#print('SEMAPHORO STATES: ', senalColor, colorLiteral, flancoSemaforo, periodoSemaforo)
 		print('Lectura: ',time.time()-tiempoAuxiliar)
 		tiempoAuxiliar = time.time()
 
 
+		#informacionTotal[frame_number] = informacion.copy() #<------ ese .copy() faltaba
+		print('Out: ', informacion['semaforo'][2])
+		# Si forzamos por entrada o si estamos en verde botamos la información de los rectangulos:
 
+		if (guardarRecortados == False) | (informacion['semaforo'][0]==0):
+			#del informacion['recortados']
+			#informacionTotal[frame_number]['recortados'] = {}
+			pass
+		# Se reporta el periodo del semaforo si es necesario:
+
+		if informacion['semaforo'][3] != 0:
+			miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(informacion['semaforo'][3]))
+		else:
+			pass
+		# Si tengo infracciones pendientes las evoluciono
+		if informacion['semaforo'][0] >= 1 :							# Si estamos en rojo, realizamos una accion
+			if informacion['semaforo'][2] == 1:							# esto se inicia al principio de este estado
+				miReporte.info('SEMAFORO EN ROJO')
+				miPoliciaReportando.inicializarAgente()
+				#del informacionTotal
+				#informacionTotal = {}
+				frame_number = 0
+			else:
+				pass
+			cambiosImportantes = miPoliciaReportando.seguirObjeto(informacion['index'], informacion)
+		else:
+			pass
+
+		if informacion['semaforo'][0] == 0:							# Si estamos en verde realizamos otra accion
+			if informacion['semaforo'][2] == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
+				miReporte.info('Infracciones: ' + str(miPoliciaReportando.numeroInfraccionesConfirmadas()))
+				if generarArchivosDebug:
+					miGrabadora.generarReporteInfraccion(informacionTotal, False,miPoliciaReportando.numeroInfraccionesConfirmadas())
+			if miPoliciaReportando.numeroInfraccionesConfirmadas() > 0:
+				infraccionEnRevision = miPoliciaReportando.popInfraccion()
+				miGrabadora.generarReporteInfraccion(informacionTotal, infraccionEnRevision)
+			else:
+				#Si no hay infracciones a reportar me fijo el estado del filtro:
+				tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
+				if (tiempoAhora > amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Activado'):
+					miFiltro.colocarFiltroIR()
+				if (tiempoAhora < amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Desactivado'):
+					miFiltro.quitarFiltroIR()
+			pass
+
+		# Draw frame number into image on top
+		for infraction in miPoliciaReportando.listaDeInfracciones:
+			for puntos in infraction['desplazamiento']:
+				puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
+				for punto in puntosExtraidos:
+					if infraction['estado'] == 'Confirmado':
+						miAcetatoInformativo.colocarPunto(tuple(punto),0)
+					else:
+						miAcetatoInformativo.colocarPunto(tuple(punto),1)
+
+		# Configs and displays for the MASK according to the semaforo
+		#miAcetatoInformativo.agregarTextoEn("I{}".format(miPoliciaReportando.infraccionesConfirmadas), 2)
+		
+		miAcetatoInformativo.colorDeSemaforo(informacion['semaforo'][0])
+
+		# Draw the rectangles
+		for rectangulo in informacion['rectangulos']:
+			miAcetatoInformativo.colocarObjetivo(rectangulo[0],rectangulo[2])
+
+		if mostrarImagen:
+			#cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(informacion['frame'])[120:239,60:360])
+			cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(informacion['frame']))
+		miAcetatoInformativo.inicializar()
+		
+		tiempoEjecucion = time.time() - tiempoAuxiliar
+		#if tiempoEjecucion>periodoDeMuestreo:
+		miReporte.warning('Tiempo Afuera {0:2f}'.format(tiempoEjecucion)+ '[s] en frame {}'.format(frame_number))
+
+		#sys.stdout.write("\033[F")
+		while time.time() - tiempoAuxiliar < periodoDeMuestreo:
+			True
+		tiempoAuxiliar = time.time()
+
+		if (cambiosImportantes)|(numeroDeObjetos != len(informacion['rectangulos'])):
+			miReporte.info('F{} Sema: '.format(frame_number)+informacion['semaforo'][1]+' I: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas())+'/'+str(miPoliciaReportando.numeroInfraccionesTotales())+' Objetos: {}'.format(len(informacion['rectangulos'])))
+		numeroDeObjetos = len(informacion['rectangulos'])
+		
+		porcentajeDeMemoria = psutil.virtual_memory()[2]
+		
+		if porcentajeDeMemoria > 80:
+			miReporte.info('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
+		if porcentajeDeMemoria > 92:
+			frameAOptimizar = min(informacionTotal)
+			miReporte.warning('Alcanzado 92/100 de memoria, borrando frame: '+str(frameAOptimizar))
+			del informacionTotal[frameAOptimizar]['recortados']
+			informacionTotal[frameAOptimizar]['recortados'] = {}
+
+		if porcentajeDeMemoria > 96:
+			miReporte.warning('Alcanzado 96/100 de memoria, borrando todo e inicializando')
+			del informacionTotal
+			informacionTotal = {}
+			frame_number = 0
+
+		frame_number += 1
+		if (frame_number >= topeEjecucion) &(topeEjecucion!=0):
+			miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por indice de auto acabado predeterminado')
+			break
+		if informacion['semaforo'][0] == -2:
+			miReporte.critical('ABANDONANDO LA EJECUCION DE PROGRAMA El semaforo ya no obtuvo señal, necesito recalibrar, abandonando la ejecución del programa')
+			break
+		ch = 0xFF & cv2.waitKey(5)
+		if ch == ord('q'):
+			miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por salida manual')
+			break
+		if ch == ord('s'):
+			cv2.imwrite(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')+'.jpg',informacion['frame'])
+		fps.update()
 		#if colorLiteral == 'Rojo':
 			#poligonos_warp = backgroundsub.feedbgsub(capturaEnBaja)
 			#poligonos_warp = pool.starmap(backgroundsub.feedbgsub, capturaEnBaja)
@@ -208,17 +339,16 @@ def __main_function__():
 			#print(poligonos_warp)
 			#listaderecortados = cutImage(HDframe = capturaEnBaja, matches = poligonos_warp)
 
-
 		#if len(listaderecortados) > 0:
 		#	for i, image in enumerate(listaderecortados):
 		#		cv2.imwrite('imagen_{}_.jpg'.format(i), image)
 		#else:
 		#	pass
 		#print('Put: ',time.time()-tiempoAuxiliar)
-		#if mostrarImagen:
-		#	tiempoAuxiliar = time.time()
-			#cv2.imshow('Camara', cv2.resize(capturaEnBaja,(640,480)))
-		#	print('Show: ',time.time()-tiempoAuxiliar)
+		if mostrarImagen:
+			tiempoAuxiliar = time.time()
+			cv2.imshow('Camara', cv2.resize(capturaEnBaja,(640,480)))
+			print('Show: ',time.time()-tiempoAuxiliar)
 
 		print('Periodo total: ',time.time()-periodoReal)
 
@@ -233,7 +363,7 @@ def __main_function__():
 		if frame_number>200:
 			break
 		frame_number +=1
-		
+		"""
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
 			miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por salida manual')
