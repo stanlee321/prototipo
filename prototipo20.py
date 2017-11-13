@@ -56,19 +56,42 @@ noDraw = False
 # Función principal
 
 def obtenerIndicesSemaforo(poligono640):
+	
 	punto0 = poligono640[0]
 	punto1 = poligono640[1]
 	punto2 = poligono640[2]
 	punto3 = poligono640[3]
+
 	vectorHorizontal = punto3 - punto0
-	vectorVertical = punto2 - punto1
+	vectorVertical = punto1 - punto0
 	pasoHorizontal = vectorHorizontal//8
 	pasoVertical = vectorVertical//24
+
 	indices = []
+
 	for j in range(24):
 		for i in range(8):
 			indices.append((punto0+i*pasoHorizontal+j*pasoVertical).tolist())
 	return indices
+	"""
+	nx, ny = (8, 24)
+
+	maxinX = max([x[0] for x in poligono640])
+	maxinY = max([y[1] for y in poligono640])
+
+	mininX = min([x[0] for x in poligono640])
+	mininY = min([y[1] for y in poligono640])
+
+	x = np.linspace(mininX, maxinX, nx)
+	y = np.linspace(mininY, maxinY, ny)
+
+	xv, yv = np.meshgrid(x, y)
+	bone = np.ones((8,24), dtype = 'int')
+	bone[0:,:] = xv.T
+	bone[:,0:] = yv.T
+	return bone
+	"""
+
 
 def __main_function__():
 	# Import some global varialbes
@@ -170,9 +193,23 @@ def __main_function__():
 			ret, frameVideo = miCamara.read()
 		frameFlujo = cv2.resize(frameVideo,(320,240))
 		informacionTotal[frame_number] = frameFlujo.copy()
+
 		pixeles = frameVideo[indicesSemaforo[0]]
+		
+		#pixeles = pixeles.flatten()
+		#print('initial pixel ', pixeles)
+		#print(type(pixeles))
+		#print(pixeles.shape )
+
+
+		print('indices sem', indicesSemaforo)
+		print('La longitud semaforo: ',len(indicesSemaforo),' inicial ',pixeles.shape)
+		print('La longitud interna: ',len(indicesSemaforo[0]),' inicial ',pixeles.shape)
 		for indiceSemaforo in indicesSemaforo[1:]:
 			pixeles = np.append(pixeles,frameVideo[indiceSemaforo])
+			print('>>> ',pixeles.shape,' in ',indiceSemaforo)
+
+		#print('La longitud pixels: ',pixeles.shape)
 		senalSemaforo, semaforoLiteral, flanco, periodo = miSemaforo.obtenerColorEnSemaforo(pixeles)
 		
 		if periodo != 0:
