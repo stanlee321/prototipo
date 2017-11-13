@@ -264,7 +264,7 @@ class Real(Semaforo):
 
 		img = img.flatten()
 		"""
-
+		assert imagen.shape == (192*3, )
 		img = imagen
 
 		# Some numerical corrections
