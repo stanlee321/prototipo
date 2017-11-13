@@ -52,6 +52,23 @@ gamma = 1.0
 noDraw = False
 
 # Función principal
+
+def obtenerIndicesSemaforo(poligono640)
+	punto0 = poligono640[0]
+	punto1 = poligono640[1]
+	punto2 = poligono640[2]
+	punto3 = poligono640[3]
+	vectorHorizontal = punto3 - punto0
+	vectorVertical = punto2 - punto1
+	pasoHorizontal = vectorHorizontal//8
+	pasoVertical = vectorVertical//24
+	indices = []
+	for j in range(24):
+		for i in range(8):
+			indices.append((punto0+i*pasoHorizontal+j*pasoVertical).tolist())
+	return indices
+
+
 def __main_function__():
 	# Import some global varialbes
 	global archivoDeVideo
@@ -96,6 +113,7 @@ def __main_function__():
 	poligonoSemaforo = parametrosInstalacion[0]
 	verticesPartida = parametrosInstalacion[1]
 	verticesLlegada = parametrosInstalacion[2]
+	indicesSemaforo = obtenerIndicesSemaforo(np.array(poligonoSemaforo))
 	angulo = parametrosInstalacion[3]
 
 	miReporte.info('Cargado exitosamente parametros de instalacion: '+str(parametrosInstalacion))
@@ -141,12 +159,12 @@ def __main_function__():
 	grupo = [0]
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
-		
-		# Ways to access to the information 
 		ret, frameVideo = miCamara.read()
 		frameFlujo = cv2.resize(frameVideo,(320,240))
 		informacionTotal[frame_number] = frameFlujo.copy()
-
+		pixeles = frameVideo[indiceSemaforo[0]]
+		for indiceSemaforo in indicesSemaforo[1:]:
+			pixeles = np.append(pixeles,frameVideo[indiceSemaforo])
 		senalSemaforo, semaforoLiteral, flanco, periodo = 
 		
 		if periodo != 0:
