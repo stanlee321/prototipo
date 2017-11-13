@@ -264,7 +264,7 @@ class Real(Semaforo):
 
 		img = img.flatten()
 		"""
-		assert imagen.shape == (192*3, )
+		#assert imagen.shape == (192*3, )
 
 		img = imagen
 
@@ -382,7 +382,7 @@ class CreateSemaforo(Semaforo):
 		# Init parent attributes and methods
 		#
 		super().__init__()
-		self.littleFilter = [0,0,0,0,0]
+		self.littleFilter = [0,0,0,0,0]	
 		self.blueprint_semaforo = None
 		self.numericoAuxiliar = 0
 		if self.periodoSemaforo > 0 :
