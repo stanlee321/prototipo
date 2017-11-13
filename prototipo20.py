@@ -48,6 +48,7 @@ amaneciendo = 11*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
 maximoMemoria = 200
 guardarRecortados = True
+conVideoGrabado = False
 
 gamma = 1.0
 noDraw = False
@@ -119,7 +120,8 @@ def __main_function__():
 	miReporte.info('Cargado exitosamente parametros de instalacion: '+str(parametrosInstalacion))
 
 	# Arrancando camara
-	if len(archivoDeVideo) == 0:												# modo real
+	if len(archivoDeVideo) == 0:
+		conVideoGrabado = False												# modo real
 		if os.uname()[1] == 'alvarohurtado-305V4A':
 			miCamara = cv2.VideoCapture(1)
 			time.sleep(1)
@@ -131,6 +133,7 @@ def __main_function__():
 
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
+		conVideoGrabado = True
 		try:
 			miCamara = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
 			time.sleep(1)
@@ -147,7 +150,7 @@ def __main_function__():
 	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,guardarRecortados)
 	miFiltro = IRSwitch()
 	miAcetatoInformativo = Acetato()
-	miSemaforo = CreateSemaforo()
+	miSemaforo = CreateSemaforo(periodoDeSemaforo)
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
 	miAcetatoInformativo.colocarPoligono(np.array(verticesPartida))
 	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))	
@@ -160,7 +163,11 @@ def __main_function__():
 	grupo = [0]
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
-		ret, frameVideo = miCamara.read()
+		if conVideoGrabado:
+			for i in range(videofps//mifps):
+				ret, frameVideo = miCamara.read()
+		else:
+			ret, frameVideo = miCamara.read()
 		frameFlujo = cv2.resize(frameVideo,(320,240))
 		informacionTotal[frame_number] = frameFlujo.copy()
 		pixeles = frameVideo[indicesSemaforo[0]]
