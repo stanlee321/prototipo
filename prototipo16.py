@@ -166,7 +166,6 @@ def __main_function__():
 			informacionTotal[frame_number]['recortados'] = {}
 		# Se reporta el periodo del semaforo si es necesario:
 
-
 		if informacion['semaforo'][3] != 0:
 			miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(informacion['semaforo'][3]))
 		else:
@@ -239,7 +238,6 @@ def __main_function__():
 			miReporte.info('F{} Sema: '.format(frame_number)+informacion['semaforo'][1]+' I: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas())+'/'+str(miPoliciaReportando.numeroInfraccionesTotales())+' Objetos: {}'.format(len(informacion['rectangulos'])))
 		numeroDeObjetos = len(informacion['rectangulos'])
 		
-
 		porcentajeDeMemoria = psutil.virtual_memory()[2]
 		
 		if porcentajeDeMemoria > 80:

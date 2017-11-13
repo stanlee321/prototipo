@@ -135,26 +135,14 @@ class VideoStream:
 				return
 			# otherwise, read the next frame from the stream
 
-			if self.debug == True:
-				for f in range(int(self.ratio)):
-					(self.grabbed, self.frame) = self.stream.read()
-
-				# Set new resolution for the consumers
-				self.frame_resized = cv2.resize(self.frame, (320,240))
-				# Cut imagen for the semaforo
-				self.imagen_semaforo = self.frame_resized[self.y0:self.y1,self.x0:self.x1]
-				# Compensation timefor using the simulation, since there is not ML Process
-				time.sleep(0.033)
-
-			else:
-				(self.grabbed, self.frame) = self.stream.read()
-				#t1 = time.time()
-				self.frame_medium = cv2.resize(self.frame, (640,480), interpolation = cv2.INTER_NEAREST)
-				# Set new resolution for the consumers
-				self.frame_resized = cv2.resize(self.frame_medium, (320,240), interpolation = cv2.INTER_NEAREST)
-				# Cut imagen for the semaforo
-				#print('rezising took', time.time()- t1)
-				self.imagen_semaforo = self.frame_medium[self.y0:self.y1,self.x0:self.x1]
+			(self.grabbed, self.frame) = self.stream.read()
+			#t1 = time.time()
+			self.frame_medium = cv2.resize(self.frame, (640,480), interpolation = cv2.INTER_NEAREST)
+			# Set new resolution for the consumers
+			self.frame_resized = cv2.resize(self.frame_medium, (320,240), interpolation = cv2.INTER_NEAREST)
+			# Cut imagen for the semaforo
+			#print('rezising took', time.time()- t1)
+			self.imagen_semaforo = self.frame_medium[self.y0:self.y1,self.x0:self.x1]
 
 			self.data = {'HRframe': self.frame, 'LRframe': self.frame_resized, 'frame_semaforo' : self.imagen_semaforo}
 

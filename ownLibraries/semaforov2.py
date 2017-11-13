@@ -31,18 +31,19 @@ class Semaforo(object):
 
 
 	def __init__(self):
-		print('HELLO FROM SEMAFORO PARENT')
 		self.flanco = 0
 		self.state = 'verde'
 		self.previous_state = 'rojo'
 		self.numericValue = -1
 		self.counter = 0
-
+		self.tiempoParaPeriodo = time.time()
+		self.ultimoPeriodo = time.time() - self.tiempoParaPeriodo
+		self.maximoTiempoPeriodo = 150			# 2 minutos y medio sera el timeout para determinar que no se esta viendo semaforo
 	
 	def correrCronometro(self, periodoSemaforo, sleeptime):
 		# Run chronometer and reset self.flanco to 0 once that the
 		# pulse has been send.
-		print('Returning pulse ..flanco:', self.flanco)
+		#print('Returning pulse ..flanco:', self.flanco)
 		#
 		# After pulse has been send, self.flanco set to 0 again
 		#
@@ -138,7 +139,7 @@ class Simulado(Semaforo):
 	"""
 
 	def __init__(self, periodoSemaforo = 10 ):
-		print( 'STARTING .... SEMAFORO SIMULADO')
+		print( '[[[....STARTING .... SEMAFORO SIMULADO]]]')
 		self.periodoSemaforo = periodoSemaforo
 		self.sleeptime = 1
 
@@ -179,12 +180,12 @@ class Real(Semaforo):
 	def __init__(self):
 
 		# LOAD THE TRAINED SVM MODEL ... INTO THE MEMORY????
-		print( 'WILLKOMEN TO  REAL REAL REAL SEMAFORO')
+		print( '>>>>>>WILLKOMEN TO  REAL REAL REAL SEMAFORO<<<<<<')
 		print( 'checking for model....')
-		if os.path.isfile("./model/svm_model.pkl"):
+		if os.path.isfile("./model/svm_model_(8, 24)_96_39.pkl"):
 			print("Model Found!!!!")
 			print ("Using previous model... svm_model.pkl")
-			self.svm = pickle.load(open("./model/svm_model.pkl", "rb"))
+			self.svm = pickle.load(open("./model/svm_model_(8, 24)_96_39.pkl", "rb"))
 		else:
 			print ("No model, retrain DUde!!")
 
@@ -198,16 +199,16 @@ class Real(Semaforo):
 		self.upper_yellow = np.array([27,255,255], dtype=np.uint8)
 
 		# RED range
-		self.lower_red = np.array([140,100,0], dtype=np.uint8)
+		self.lower_red = np.array([140,100,0], dtype=np.uint8) #_,100,_
 		self.upper_red = np.array([180,255,255], dtype=np.uint8)
 
 		# GREEN range
-		self.lower_green = np.array([70,120,0], dtype=np.uint8)
-		self.upper_green = np.array([90,180,255], dtype=np.uint8)
+		self.lower_green = np.array([70,0,0], dtype=np.uint8)
+		self.upper_green = np.array([90,255,255], dtype=np.uint8)
 
 		# SOME VARIABLES for SVM, if retrain the SVM in another
 		# resolution, change this val to this resolution.
-		self.SHAPE = (30,30)
+		self.SHAPE = (8,24)
 
 		# SOME AUXILIAR VARIABLES:
 		self.ultimoColorValido = - 1
@@ -223,9 +224,11 @@ class Real(Semaforo):
 		Load some semaforo Image and find color on it using svm_model
 		"""
 		# Load image and some magic	
-		img = imagen
-		#cv2.imshow('semaforo', cv2.resize(img,(img.shape[1]*5,img.shape[0]*5)))
-		hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+		
+		#cv2.imshow('semaforo', cv2.resize(imagen,(imagen.shape[1]*5,imagen.shape[0]*5)))
+
+		"""
+		hsv = cv2.cvtColor(imagen, cv2.COLOR_BGR2HSV)
 		
 		# SOME MASKS
 		mask_red = cv2.inRange(hsv, self.lower_red, self.upper_red)
@@ -235,7 +238,7 @@ class Real(Semaforo):
 		full_mask = mask_red + mask_yellow + mask_green
 
 		# Put the mask and filter the R, Y , G colors in _imagen_
-		res = cv2.bitwise_and(img,img, mask= full_mask)
+		res = cv2.bitwise_and(imagen,imagen, mask= full_mask)
 
 
 
@@ -260,6 +263,9 @@ class Real(Semaforo):
 		#cv2.imwrite('red2.jpg', img)
 
 		img = img.flatten()
+		"""
+
+		img = imagen
 
 		# Some numerical corrections
 		feature_img = img/(np.mean(img)+0.0001)
@@ -281,13 +287,14 @@ class Real(Semaforo):
 		else:
 			pass
 
-	def encontrarSemaforoObtenerColor(self,poligono, imagen):
+	def encontrarSemaforoObtenerColor(self, imagen):
 		# Find the color in this piece of poligono and
 		# return colorPrediction, literalColour, self.flanco
-
+		"""
 		literalColour = 'error?'
 
 		ignore_mask_color = (255,) * 3
+		
 		# find MAX, MIN values  in poligono
 		maxinX = max([x[0] for x in poligono])
 		maxinY = max([y[1] for y in poligono])
@@ -295,25 +302,33 @@ class Real(Semaforo):
 		mininX = min([x[0] for x in poligono])
 		mininY = min([y[1] for y in poligono])
 
-		x0 = mininX
-		x1 = maxinX
+		x0 = mininX//2
+		x1 = maxinX//2
 
-		y0 = mininY
-		y1 = maxinY
+		y0 = mininY//2
+		y1 = maxinY//2
+		"""
+		#print(x0,y0,x1,y1)
+
+		#poligono = [(x0,y0),(x1,y1)]
+		#cv2.imshow('imagen',cv2.resize(imagen[y0:y1,x0:x1],(480,240)))
 
 		# Create mask of Zeros with shape iqual to image input shape.
-		mask =  np.zeros((imagen.shape[0], imagen.shape[1],imagen.shape[2]), np.uint8)
+		#mask =  np.zeros((imagen.shape[0], imagen.shape[1],imagen.shape[2]), np.uint8)
 
 		# Adjust poligono to mask
-		fillPolyImage = cv2.fillPoly(mask, np.array([poligono]), ignore_mask_color)
+		#fillPolyImage = cv2.fillPoly(mask, np.array([poligono]), ignore_mask_color)
 
 		# All zeros except the poligon region in image input
-		masked_image = cv2.bitwise_and(imagen,mask)
+		#masked_image = cv2.bitwise_and(imagen,mask)
+		#cv2.imshow('imagen',cv2.resize(masked_image[y0:y1,x0:x1],(480,240)))
 
 		# Feed to the SMV with cuted masked_image using max and min points (rectangle like)
 		# again, all zeros except poligion region of interest.
 
-		colorPrediction = self.find_color(masked_image[y0:y1,x0:x1])
+		#colorPrediction = self.find_color(masked_image[y0:y1,x0:x1])
+		colorPrediction = self.find_color(imagen)
+
 
 		if colorPrediction == 1:
 			literalColour = 'ROJO'
@@ -374,8 +389,9 @@ class CreateSemaforo(Semaforo):
 		else:
 			self.blueprint_semaforo = Real()
 	
-	def obtenerColorEnSemaforo(self, img, poligono):
-		numerico, literal, flancoErrado = self.blueprint_semaforo.encontrarSemaforoObtenerColor(poligono = poligono, imagen = img )
+	def obtenerColorEnSemaforo(self, img):
+		numerico, literal, flancoErrado = self.blueprint_semaforo.encontrarSemaforoObtenerColor(imagen = img )
+		periodoAMostrar = 0
 		if self.periodoSemaforo == 0 :
 			self.littleFilter[4] = self.littleFilter[3]
 			self.littleFilter[3] = self.littleFilter[2]
@@ -394,7 +410,6 @@ class CreateSemaforo(Semaforo):
 			if numeroDeVerdes>=3:
 				numerico = 0
 
-
 		flancoCorrecto = 0
 		# Si llegue a un valor valido entonces es posible generar flanco
 		if (numerico==0)|(numerico==1)|(numerico==2):
@@ -409,7 +424,20 @@ class CreateSemaforo(Semaforo):
 				self.numericoAuxiliar = numerico
 		else: # Si no llego a un valor valido repito
 			numerico = self.numericoAuxiliar
-		return numerico, literal, flancoCorrecto
+
+		# Si el flanco es correcto entonces genero los valores de periodo
+		if flancoCorrecto == -1:
+			periodoAMostrar = self.blueprint_semaforo.ultimoPeriodo
+			self.blueprint_semaforo.tiempoParaPeriodo = time.time()
+
+		self.blueprint_semaforo.ultimoPeriodo = time.time() - self.blueprint_semaforo.tiempoParaPeriodo
+		# Si el periodo excede los 1 minutos (normalmente 2, 1 para debug) entonces señalo que no hay semaforo
+		if self.blueprint_semaforo.ultimoPeriodo >self.maximoTiempoPeriodo:
+			flancoCorrecto = 1				# Flanco verde para guardar la información que se tenga
+			numerico = -2
+		
+
+		return numerico, literal, flancoCorrecto, periodoAMostrar
 
 
 if __name__ == '__main__':
