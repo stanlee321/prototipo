@@ -192,14 +192,11 @@ def __main_function__():
 		capturaSemaforo = data['frame_semaforo']
 
 		senalColor, colorLiteral, flancoSemaforo, periodoSemaforo = semaforo.obtenerColorEnSemaforo(capturaSemaforo)
-
-
-		print('SEMAPHORO STATES: ',senalColor, colorLiteral, flancoSemaforo, periodoSemaforo)
 		print('Lectura: ',time.time()-tiempoAuxiliar)
-		tiempoAuxiliar = time.time()
-
-		#poligonos_warp = backgroundsub.feedbgsub(capturaEnBaja)
+		poligonos_warp = backgroundsub.feedbgsub(capturaEnBaja)
 		#poligonos_warp = pool.starmap(backgroundsub.feedbgsub, capturaEnBaja)
+
+
 		# close the pool and wait for the work to finish 
 		#pool.close() 
 		#pool.join()

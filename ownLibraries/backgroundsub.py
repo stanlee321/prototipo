@@ -23,6 +23,7 @@ class BGSUBCNT():
 
 		# list like to append bounding box where is the moving object
 		self.matches = []
+		self.gray = None
 		
 	def feedbgsub(self, frame):
 		#t0 = time.time()
@@ -31,30 +32,33 @@ class BGSUBCNT():
 		#t1 = time.time()
 		# Starting the Bgsubcnt logic
 
-		gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+		self.gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-		smooth_frame = cv2.GaussianBlur(gray, (self.k,self.k), 1.5)
+		smooth_frame = cv2.GaussianBlur(self.gray, (self.k,self.k), 1.5)
 		#smooth_frame = cv2.bilateralFilter(gray,4,75,75)
 		#smooth_frame =cv2.bilateralFilter(smooth_frame,15,75,75)
 
 		# this is the bsubcnt result 
 		self.fgmask = self.fgbg.apply(smooth_frame, self.kernel, 0.1)
-
+		
 		#print('fbmask took (bgsubcnt)', time.time()-t1)
 
 		#t2 = time.time()
 		
 		# just thresholding values
-		self.fgmask[self.fgmask < 240] = 0
+		#self.fgmask[self.fgmask < 240] = 0
 		
 		#self.fgmask = self.filter_mask(self.fgmask)
+		#imagen = np.vstack([self.fgmask, gray])
+		#return imagen
+		
 		#print('FILTER TOOK ', time.time()-t2)
 		#return self.fgmask
 
 		#t3 = time.time()
 		# Find the contours 
 		im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
-	
+		
 		# for all the contours, calculate his centroid and position in the current frame
 		#print('FIND CONTOURS TOOK ', time.time() - t3)
 		#t4 = time.time()
@@ -77,6 +81,7 @@ class BGSUBCNT():
 		#print('FOOR LOOP TOOK', time.time()-t4)
 		#print('ALL THE BG TOOOOOOOK>>>>>>>>', time.time()- t0)
 		return self.matches
+		
 	def filter_mask(self, img, a=None):
 		'''
 		This filters are hand-picked just based on visual tests
@@ -96,7 +101,7 @@ class BGSUBCNT():
 		return dilation
 
 	def __call__(self):
-		return self.matches
+		return [self.fgmask, self.gray]
 
 
 	@staticmethod
@@ -129,6 +134,7 @@ if __name__ == '__main__':
 	import cv2
 	from videostreamv2 import VideoStream
 	from videostreamv2 import FPS
+	from cutImage import Transform
 	# construct the argument parse and parse the arguments
 	ap = argparse.ArgumentParser()
 	ap.add_argument("-v", "--video", default=0,
@@ -136,6 +142,15 @@ if __name__ == '__main__':
 	args = vars(ap.parse_args())
 
 	print("[INFO] starting video file thread...")
+
+
+	archivoParametrosACargar = 'mySquare.npy'
+	parametrosInstalacion = np.load('../installationFiles/'+ archivoParametrosACargar)
+	poligonoSemaforo = parametrosInstalacion[0]
+	verticesPartida = parametrosInstalacion[1]
+	verticesLlegada = parametrosInstalacion[2]
+	angulo = parametrosInstalacion[3]
+
 
 	# 8 mp ????
 	height = 640
@@ -149,8 +164,12 @@ if __name__ == '__main__':
 	# start the FPS timer
 	fps = FPS().start()
 	backgroundsub = BGSUBCNT()
+	print('PAREMETERS', parametrosInstalacion[1])
+
+	transformer = Transform(parametrosInstalacion[1])
 	# loop over frames from the video file stream
 	while True:
+
 		t1 = time.time()
 		# grab the frame from the threaded video file stream, resize
 		# it, and convert it to grayscale (while still retaining 3
@@ -162,7 +181,9 @@ if __name__ == '__main__':
 		LRFrame = data['LRframe']
 
 		# Feed to BGSUB
-		poligonos_warp = backgroundsub.feedbgsub(LRFrame)
+
+		warp_frame = transformer.cutRegion(frame)
+		poligonos_warp = backgroundsub.feedbgsub(warp_frame)
 
 
 		"""
@@ -177,15 +198,16 @@ if __name__ == '__main__':
 		poligonos_reales = f(poligonos_warp)
 		"""
 
-
+		imagen = np.vstack(backgroundsub())
 		
 		#cv2.imshow('bgsub', f)
-		#cv2.imshow("Frame", LRFrame)
+		cv2.imshow("Frame", imagen)
 
 		print('TOOK', time.time() - t1)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 		fps.update()
+		
 
 	# stop the timer and display FPS information
 	fps.stop()
