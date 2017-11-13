@@ -10,14 +10,15 @@ import logging
 import datetime
 import numpy as np
 
-from ownLibraries.irswitch import IRSwitch
 from ownLibraries.videostream import FPS
+from ownLibraries.irswitch import IRSwitch
 from ownLibraries.mireporte import MiReporte
+from ownLibraries.semaforov2 import CreateSemaforo
 from ownLibraries.visualizacion import Acetato
 from ownLibraries.herramientas import total_size
 from ownLibraries.videostream import VideoStream
 from ownLibraries.policiainfractor import PoliciaInfractor
-from ownLibraries.generadorevidencia import GeneradorEvidencia
+from ownLibraries.generadorevidenciasimple import GeneradorEvidencia
 
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
@@ -53,7 +54,7 @@ noDraw = False
 
 # Función principal
 
-def obtenerIndicesSemaforo(poligono640)
+def obtenerIndicesSemaforo(poligono640):
 	punto0 = poligono640[0]
 	punto1 = poligono640[1]
 	punto2 = poligono640[2]
@@ -67,7 +68,6 @@ def obtenerIndicesSemaforo(poligono640)
 		for i in range(8):
 			indices.append((punto0+i*pasoHorizontal+j*pasoVertical).tolist())
 	return indices
-
 
 def __main_function__():
 	# Import some global varialbes
@@ -147,6 +147,7 @@ def __main_function__():
 	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,guardarRecortados)
 	miFiltro = IRSwitch()
 	miAcetatoInformativo = Acetato()
+	miSemaforo = CreateSemaforo()
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
 	miAcetatoInformativo.colocarPoligono(np.array(verticesPartida))
 	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))	
@@ -162,10 +163,10 @@ def __main_function__():
 		ret, frameVideo = miCamara.read()
 		frameFlujo = cv2.resize(frameVideo,(320,240))
 		informacionTotal[frame_number] = frameFlujo.copy()
-		pixeles = frameVideo[indiceSemaforo[0]]
+		pixeles = frameVideo[indicesSemaforo[0]]
 		for indiceSemaforo in indicesSemaforo[1:]:
 			pixeles = np.append(pixeles,frameVideo[indiceSemaforo])
-		senalSemaforo, semaforoLiteral, flanco, periodo = 
+		senalSemaforo, semaforoLiteral, flanco, periodo = miSemaforo.obtenerColorEnSemaforo(pixeles)
 		
 		if periodo != 0:
 			miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(periodo))
@@ -181,7 +182,7 @@ def __main_function__():
 				frame_number = 0
 			else:
 				pass
-			cambiosImportantes, ondaFiltrada, flanco, flujoTotal = miPoliciaReportando.seguirImagen(frame_number,informacion)
+			cambiosImportantes, ondaFiltrada, flanco, flujoTotal = miPoliciaReportando.seguirImagen(frame_number,frameFlujo)
 		else:
 			pass
 
@@ -223,8 +224,8 @@ def __main_function__():
 		miAcetatoInformativo.inicializar()
 		
 		tiempoEjecucion = time.time() - tiempoAuxiliar
-		#if tiempoEjecucion>periodoDeMuestreo:
-		miReporte.warning('Tiempo Afuera {0:2f}'.format(tiempoEjecucion)+ '[s] en frame {}'.format(frame_number))
+		if tiempoEjecucion>periodoDeMuestreo:
+			miReporte.warning('Tiempo Afuera {0:2f}'.format(tiempoEjecucion)+ '[s] en frame {}'.format(frame_number))
 
 		#sys.stdout.write("\033[F")
 		while time.time() - tiempoAuxiliar < periodoDeMuestreo:
@@ -236,7 +237,7 @@ def __main_function__():
 		
 		porcentajeDeMemoria = psutil.virtual_memory()[2]
 		
-		if porcentajeDeMemoria > 80:
+		if (porcentajeDeMemoria > 80)&(os.uname()[1] == 'raspberrypi'):
 			miReporte.info('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
 		if porcentajeDeMemoria > 92:
 			frameAOptimizar = min(informacionTotal)

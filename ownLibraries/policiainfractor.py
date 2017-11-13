@@ -111,6 +111,7 @@ class PoliciaInfractor():
 		Get into the new frame, updates the flow and follows the item as required
 		"""
 		# la imagen introducida esta en RGB, 240,320,3
+		cambiosImportantes = False
 		imagenActualEnGris = cv2.cvtColor(imagenActual, cv2.COLOR_BGR2GRAY)
 		
 		self.lineaDeResguardoDelantera = np.array(self.lineaDeResguardoDelantera,dtype = np.float32)	# This solved the problem although the array seemed to ve  in float32, adding this specification to this line solved the problem
