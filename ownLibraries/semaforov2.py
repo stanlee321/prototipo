@@ -265,6 +265,7 @@ class Real(Semaforo):
 		img = img.flatten()
 		"""
 		assert imagen.shape == (192*3, )
+
 		img = imagen
 
 		# Some numerical corrections
@@ -389,7 +390,7 @@ class CreateSemaforo(Semaforo):
 		else:
 			self.blueprint_semaforo = Real()
 	
-	def obtenerColorEnSemaforo(self, img):
+	def obtenerColorEnSemaforo(self, 1dimg):
 		numerico, literal, flancoErrado = self.blueprint_semaforo.encontrarSemaforoObtenerColor(imagen = img )
 		periodoAMostrar = 0
 		if self.periodoSemaforo == 0 :
