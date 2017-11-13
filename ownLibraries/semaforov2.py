@@ -391,7 +391,7 @@ class CreateSemaforo(Semaforo):
 			self.blueprint_semaforo = Real()
 	
 	def obtenerColorEnSemaforo(self, 1dimg):
-		numerico, literal, flancoErrado = self.blueprint_semaforo.encontrarSemaforoObtenerColor(imagen = img )
+		numerico, literal, flancoErrado = self.blueprint_semaforo.encontrarSemaforoObtenerColor(imagen = 1dimg )
 		periodoAMostrar = 0
 		if self.periodoSemaforo == 0 :
 			self.littleFilter[4] = self.littleFilter[3]
