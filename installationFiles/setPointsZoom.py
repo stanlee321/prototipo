@@ -70,7 +70,7 @@ def get_BigRectangle(event,x,y,flags,param):
 			lista.append((listCorteAltaRes))      
 			np.save(fileToWrite,lista)
 			## file2.write("\n".listFinal)         
-			print('Press -e- to Save and Exit')
+			print('Press -q- to Save and Exit')
 
 def calcPoints(imag,listaS):
 	imag=imag
@@ -211,33 +211,28 @@ if __name__ == '__main__':
 			    alpha=alpha+180
 			#print('angule:.'+str(alpha))
 			lista.append([alpha])
-			print('Press -q- to save')
+			print('Press -q- to go a Full Resolution')
 		if keyPress&0xFF==ord('q'):
 			print ('lista:  ---' +str(lista))
-			np.save(fileToWrite,lista)
-			## file2.write("\n".listFinal)         
-			print('saved!!')
-			data=np.load(fileToWrite)
-			print (data)
 			break
 	cv2.destroyAllWindows()
-	##Capture of High Resolution
-	#try:
-	#	cap=cv2.VideoCapture(0)
-	#	cap.set(3,2592)
-	#	cap.set(4,1944)
-	#	ret, frame1=cap.read()
-	#	frame=cv2.resize(frame1,(640,480))
-	#except:
-	#	print('Error Al cargar la camara de placas')
-	#cv2.namedWindow('FrameDeSltaResolucion')
-	#cv2.setMouseCallback('FrameDeSltaResolucion', get_BigRectangle)
-	#while(len(listaAux2)<3):
-	#	cv2.imshow('FrameDeSltaResolucion',frame)
-	#	keyPress = cv2.waitKey()
-	#	if keyPress&0xFF==ord('q'):
-	#		print('Full Resolution saved!!')
-	#		data2=np.load(fileToWrite)
-	#		print (data2)
-	#		break
-#cv2.destroyAllWindows()	
+	#Capture of High Resolution
+	try:
+		cap=cv2.VideoCapture(1)
+		cap.set(3,2592)
+		cap.set(4,1944)
+		ret, frame1=cap.read()
+		frame=cv2.resize(frame1,(640,480))
+	except:
+		print('Error Al cargar la camara de placas')
+	cv2.namedWindow('FrameDeSltaResolucion')
+	cv2.setMouseCallback('FrameDeSltaResolucion', get_BigRectangle)
+	while(len(listaAux2)<3):
+		cv2.imshow('FrameDeSltaResolucion',frame)
+		keyPress = cv2.waitKey()
+		if keyPress&0xFF==ord('q'):
+			print('Full Resolution saved!! and file saved')
+			data2=np.load(fileToWrite)
+			print (data2)
+			break
+cv2.destroyAllWindows()	
