@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as graficaActual
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.analisisonda import AnalisisOnda
+from ownLibraries.shooter import Shooter
 
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
@@ -18,7 +19,7 @@ class PoliciaInfractor():
 	"""
 	Esta clase recibe una imagen, el estado del semaforo y determina flujo vehicular e infracciones
 	"""
-	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada):
+	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada,segundaCamara = False):
 		# Tomo la imagen de inicialización y obtengo algunas caracteristicas de la misma
 		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)
 		self.imagenAuxiliar = cv2.cvtColor(imagenParaInicializar, cv2.COLOR_BGR2GRAY)
@@ -54,6 +55,12 @@ class PoliciaInfractor():
 		self.listaDeInfracciones = []
 		self.maximoNumeroFramesParaDescarte = 100
 		self.ultimaVelocidad = 0
+		self.segundaCamara = segundaCamara
+		if self.segundaCamara:
+			self.camaraAlta = Shooter()
+
+	def establecerRegionInteresAlta(self,cutPoly):
+		self.camaraAlta.establecerRegionInteres(cutPoly)
 
 	def inicializarAgente(self,):
 		"""
@@ -126,7 +133,10 @@ class PoliciaInfractor():
 		ondaFiltrada, flanco = self.miFiltro.obtenerOndaFiltrada(flujoTotal)
 		if flanco == 1:
 			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad,informacion)
-			nuevaInfraccion = {'name':datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f'),'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
+			nombreInfraccionYFolder = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')
+			nuevaInfraccion = {'name':nombreInfraccionYFolder,'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
+			if self.segundaCamara:
+				self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder,nombreInfraccionYFolder)
 			cambiosImportantes = True
 			self.listaDeInfracciones.append(nuevaInfraccion)
 			
