@@ -85,7 +85,7 @@ class Shooter():
 				print('PLACA SHAPE', placa.shape)
 				placaActual = placa[self.primerPunto[1]:self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
 				print('GUARDADO en: '+self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3],self.counter))
-				#cv2.imwrite(self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion,self.counter), placaActual)
+				cv2.imwrite(self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion,self.counter), placaActual)
 				#cv2.imshow('CAPTURADO',cv2.resize(placaActual,(placaActual.shape[1]//2,placaActual.shape[0]//2))) 
 				self.counter += 1	
 				#  If Self.run is False everything starts to stop and close
