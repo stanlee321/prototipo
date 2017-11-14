@@ -56,8 +56,10 @@ class PoliciaInfractor():
 		self.maximoNumeroFramesParaDescarte = 100
 		self.ultimaVelocidad = 0
 		self.segundaCamara = segundaCamara
+		eightMP = (3296,2512)
+		piCamSource  = 0
 		if self.segundaCamara:
-			self.camaraAlta = Shooter()
+			self.camaraAlta = Shooter(video_source = piCamSource, width = eightMP[0], height = eightMP[1])
 
 	def establecerRegionInteresAlta(self,cutPoly):
 		self.camaraAlta.establecerRegionInteres(cutPoly)
