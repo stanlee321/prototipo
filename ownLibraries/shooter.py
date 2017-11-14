@@ -24,7 +24,6 @@ class Shooter():
 		self.video_source = video_source
 		self.width = width		# Integer Like
 		self.height = height	# Integer Like
-		print('camaraPLACA shape is', (self.width, self.height))
 		self.counter  = 0
 		self.maxCounter = 2
 		# FOR ROI
@@ -71,14 +70,10 @@ class Shooter():
 		time.sleep(0.01)
 
 		if self.eyesOpen == True:
-			print('self.eyesOpen', self.eyesOpen)
 			#self.miReporte.info('Iam in')
-
 			self.video_capture = cv2.VideoCapture(self.video_source)
 			self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
 			self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
-			_, placa = self.video_capture.read()
-			print('placashape??', placa.shape)
 			while True:
 				# Read plate
 				_, placa = self.video_capture.read()
