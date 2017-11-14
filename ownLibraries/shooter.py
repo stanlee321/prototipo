@@ -44,6 +44,7 @@ class Shooter():
 		self.thread = threading.Thread(target=self.start, args=())
 		self.thread.daemon = True									# Daemonize thread
 		self.thread.start() 
+		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
 
 	def establecerRegionInteres(self,cutPoly):
 		self.cutPoly = cutPoly
@@ -55,37 +56,42 @@ class Shooter():
 		if not os.path.exists(self.saveDir):
 			os.makedirs(self.saveDir) 
 		self.eyesOpen = True
+		print('Encendi Camara de Forma Exitosa en '+self.saveDir)
 
 	def encenderCamara(self):
 		#self.miReporte.moverRegistroACarpeta(fecha)
 		self.eyesOpen = True
-		#print('Encendi Camara de Forma Exitosa en '+self.saveDir)
 
 	def apagarCamara(self):
 		self.eyesOpen = False
-		#print('Camara Apagada')
+		print('Camara Apagada')
 	
 	def start(self):
 		time.sleep(0.01)
+		print('<<<<<<<<<INTO???? while???,>>>>>>>>>> ', self.eyesOpen)
 
 		if self.eyesOpen == True:
+			print('self.eyesOpen', self.eyesOpen)
 			#self.miReporte.info('Iam in')
 			self.video_capture = cv2.VideoCapture(self.video_source)
 			self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
 			self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
-
+			_, placa = self.video_capture.read()
+			print('placashape??', placa.shape)
 			while True:
 				# Read plate
 				_, placa = self.video_capture.read()
-
+				print('PLACA SHAPE', placa.shape)
 				placaActual = placa[self.primerPunto[1]:self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
-				#self.miReporte.info('VER AQUI: ',self.saveDir+'/{}_{}.jpg'.format(self.fechaInfraccion,self.counter))
-				#print('GUARDADO en: '+self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3],self.counter))
+				self.miReporte.info('VER AQUI: ',self.saveDir+'/{}_{}.jpg'.format(self.fechaInfraccion,self.counter))
+				print('GUARDADO en: '+self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3],self.counter))
 				#cv2.imwrite(self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion,self.counter), placaActual)
 				#cv2.imshow('CAPTURADO',cv2.resize(placaActual,(placaActual.shape[1]//2,placaActual.shape[0]//2))) 
 				self.counter += 1	
 				#  If Self.run is False everything starts to stop and close
 				time.sleep(.05)
+				print('self.counter', self.counter, '>??', self.maxCounter)
+				print('self.eyesOpen', self.eyesOpen)
 				if self.eyesOpen  == False or self.counter > self.maxCounter :# self.counter > self.maxCounter:
 					self.eyesOpen = False
 					self.video_capture.release()
