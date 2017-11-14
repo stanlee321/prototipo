@@ -33,7 +33,7 @@ class GeneradorEvidencia():
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
 		generandoDebug = False
 		try:
-			nombreInfraccion = infraccion['name'][:-7]
+			nombreInfraccion = infraccion['name']
 			generandoDebug = False
 		except:
 			nombreInfraccion = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')+'_{}i'.format(numero)

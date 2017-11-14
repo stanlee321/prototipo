@@ -133,7 +133,7 @@ class PoliciaInfractor():
 		ondaFiltrada, flanco = self.miFiltro.obtenerOndaFiltrada(flujoTotal)
 		if flanco == 1:
 			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad,informacion)
-			nombreInfraccionYFolder = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')
+			nombreInfraccionYFolder = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 			nuevaInfraccion = {'name':nombreInfraccionYFolder,'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
 			if self.segundaCamara:
 				self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder,nombreInfraccionYFolder)

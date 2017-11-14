@@ -71,8 +71,8 @@ def obtenerIndicesSemaforo(poligono640):
 	for j in range(24):
 		for i in range(8):
 			indices.append((punto0+i*pasoHorizontal+j*pasoVertical).tolist())
-	print('len of indices', len(indices))
-	print('single index', indices[0])
+	#print('len of indices', len(indices))
+	#print('single index', indices[0])
 	return indices
 
 def __main_function__():
@@ -180,7 +180,7 @@ def __main_function__():
 			pixeles = np.append(pixeles,[frameVideo[indiceSemaforo[1],indiceSemaforo[0]]], axis=0)
 			#print('>>> ',pixeles.shape,' in ',indiceSemaforo)
 			#cv2.circle(frameVideo, (indiceSemaforo[0],indiceSemaforo[1]), 1, (100,100,100), -1)
-		print('Pixeles: ',pixeles)
+		#print('Pixeles: ',pixeles)
 		#cv2.imshow('Semaforo',frameVideo)
 
 		#print('La longitud pixels: ',pixeles.shape)
