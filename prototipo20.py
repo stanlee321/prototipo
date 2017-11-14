@@ -55,7 +55,6 @@ noDraw = False
 # Función principal
 
 def obtenerIndicesSemaforo(poligono640):
-	
 	punto0 = poligono640[0]
 	punto1 = poligono640[1]
 	punto2 = poligono640[2]
@@ -121,6 +120,7 @@ def __main_function__():
 	verticesLlegada = parametrosInstalacion[2]
 	indicesSemaforo = obtenerIndicesSemaforo(np.array(poligonoSemaforo))
 	angulo = parametrosInstalacion[3]
+	poligonoEnAlta = parametrosInstalacion[4]
 
 	miReporte.info('Cargado exitosamente parametros de instalacion: '+str(parametrosInstalacion))
 
@@ -147,7 +147,7 @@ def __main_function__():
 
 	# Creación de objetos:
 	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,True)
-	#miPoliciaReportando.establecerRegionInteresAlta(poligonoEnAlta)
+	miPoliciaReportando.establecerRegionInteresAlta(poligonoEnAlta)
 	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,False)
 	miFiltro = IRSwitch()
 	miAcetatoInformativo = Acetato()
@@ -170,7 +170,6 @@ def __main_function__():
 		else:
 			ret, frameVideo = miCamara.read()
 		
-
 		pixeles = np.array([frameVideo[indicesSemaforo[0][1],indicesSemaforo[0][0]]])
 
 		#print('IndicesPixel: ',indicesSemaforo[0][0],indicesSemaforo[0][1])

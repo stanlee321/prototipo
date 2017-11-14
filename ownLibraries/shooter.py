@@ -25,7 +25,7 @@ class Shooter():
 		self.width = width		# Integer Like
 		self.height = height	# Integer Like
 		self.counter  = 0
-		self.maxCounter = 2
+		self.maxCounter = 1
 		# FOR ROI
 		self.cutPoly = cutPoly 	# ARRAY like (primerPunto, segundoPunto)
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
