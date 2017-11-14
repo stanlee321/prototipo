@@ -101,7 +101,8 @@ if __name__ == '__main__':
 		for i in range(100):
 			ret, frame=cap.read()
 		frame=cv2.resize(frame,(640,480))
-		frame2=frame.copy() 
+		frame2=frame.copy()
+		fram=frame.copy() 
 	except:
 		print('Error Al cargar la camara de flujo')
 		cap=cv2.VideoCapture(0)
@@ -114,7 +115,7 @@ if __name__ == '__main__':
 	cv2.setMouseCallback('semaforo_Zona', get_PointsSemaforZona)
 	while True:
 		print('press -z- to do zoom ')
-		cv2.imshow('semaforo_Zona',frame)
+		cv2 .imshow('semaforo_Zona',frame)
 		keyPress = cv2.waitKey()
 		if keyPress == ord('z'):
 			np.save(reAdjust,listaCorte)
