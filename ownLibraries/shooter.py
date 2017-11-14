@@ -24,6 +24,7 @@ class Shooter():
 		self.video_source = video_source
 		self.width = width		# Integer Like
 		self.height = height	# Integer Like
+		print('camaraPLACA shape is', (self.width, self.height))
 		self.counter  = 0
 		self.maxCounter = 2
 		# FOR ROI
@@ -68,11 +69,11 @@ class Shooter():
 	
 	def start(self):
 		time.sleep(0.01)
-		print('<<<<<<<<<INTO???? while???,>>>>>>>>>> ', self.eyesOpen)
 
 		if self.eyesOpen == True:
 			print('self.eyesOpen', self.eyesOpen)
 			#self.miReporte.info('Iam in')
+
 			self.video_capture = cv2.VideoCapture(self.video_source)
 			self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
 			self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
@@ -83,7 +84,6 @@ class Shooter():
 				_, placa = self.video_capture.read()
 				print('PLACA SHAPE', placa.shape)
 				placaActual = placa[self.primerPunto[1]:self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
-				self.miReporte.info('VER AQUI: ',self.saveDir+'/{}_{}.jpg'.format(self.fechaInfraccion,self.counter))
 				print('GUARDADO en: '+self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3],self.counter))
 				#cv2.imwrite(self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion,self.counter), placaActual)
 				#cv2.imshow('CAPTURADO',cv2.resize(placaActual,(placaActual.shape[1]//2,placaActual.shape[0]//2))) 
