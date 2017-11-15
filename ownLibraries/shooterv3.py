@@ -13,7 +13,7 @@ class Shooter():
 	"""
 	directorioDeTrabajo = os.getenv('HOME')+'/casosReportados'
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
-
+	
 
 	def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([0,0],[2592,1944]), capturas = 3):
 	#def __init__(self, video_source = 0, width = 680, height = 420, cutPoly=([0,0],[200,200]), saveDir='./test/'):
@@ -77,11 +77,9 @@ class Shooter():
 	def writter(self, input_queue):
 		while True:
 			data = input_queue.get()
-			placa, numero_de_captura, saveDir, fechaInfraccion, primerPunto, segundoPunto  = data[0], data[1], data[2], data[3], data[4], data[5]
-			placaActual = placa[primerPunto[1]:segundoPunto[1], primerPunto[0]: segundoPunto[0]]
-
+			placa, numero_de_captura, saveDir, fechaInfraccion  = data[0], data[1], data[2], data[3]
 			print('GUARDADO en: '+ saveDir+'/{}-{}.jpg'.format(fechaInfraccion[:-3], numero_de_captura))
-			cv2.imwrite(saveDir+'/{}-{}.jpg'.format(fechaInfraccion, numero_de_captura), placaActual)
+			cv2.imwrite(saveDir+'/{}-{}.jpg'.format(fechaInfraccion, numero_de_captura), placa)
 			#cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa)
 			
 
@@ -96,9 +94,8 @@ class Shooter():
 				# Read plate
 				_, placa = self.video_capture.read()
 				print('placa.shape', placa.shape)
-				#placaActual = placa[self.primerPunto[1]:self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
-				self.input_q.put((placa, captura, self.saveDir, self.fechaInfraccion, self.primerPunto, self.segundoPunto))
-				time.sleep(0.010)
+				placaActual = placa[self.primerPunto[1]:self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
+				self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
 				#  If Self.run is False everything starts to stop and close
 				if self.eyesOpen  == False: # self.counter > self.maxCounter:
 					self.eyesOpen = False
@@ -107,6 +104,7 @@ class Shooter():
 			print('finish limit of captures, releasing...')
 			self.eyesOpen = False
 			self.video_capture.release()
+
 		if self.eyesOpen == False:
 			pass
 		
