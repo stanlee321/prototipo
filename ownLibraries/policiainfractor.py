@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as graficaActual
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.analisisonda import AnalisisOnda
-from ownLibraries.shooter import Shooter
+from ownLibraries.shooterv3 import Shooter
 
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
