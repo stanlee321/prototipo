@@ -77,7 +77,7 @@ class Shooter():
 	def writter(self, input_queue):
 		while True:
 			data = input_queue.get()
-			placa, numero_de_captura, saveDir, fechaInfraccion, primerPunto, segundoPunto  = data[0], data[1], data[2], data[3]
+			placa, numero_de_captura, saveDir, fechaInfraccion, primerPunto, segundoPunto  = data[0], data[1], data[2], data[3], data[4], data[5]
 			placaActual = placa[primerPunto[1]:segundoPunto[1], primerPunto[0]: segundoPunto[0]]
 
 			print('GUARDADO en: '+ saveDir+'/{}-{}.jpg'.format(fechaInfraccion[:-3], numero_de_captura))
