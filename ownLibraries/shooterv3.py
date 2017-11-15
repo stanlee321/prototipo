@@ -13,7 +13,6 @@ class Shooter():
 	"""
 	directorioDeTrabajo = os.getenv('HOME')+'/casosReportados'
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
-	
 
 	def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([0,0],[2592,1944]), capturas = 3):
 	#def __init__(self, video_source = 0, width = 680, height = 420, cutPoly=([0,0],[200,200]), saveDir='./test/'):
@@ -90,6 +89,7 @@ class Shooter():
 			self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, self.width) 
 			self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height) 
 			for captura in range(self.maxCapturas):
+				time.sleep(0.020)
 				print('captura Numero: ', captura)
 				# Read plate
 				_, placa = self.video_capture.read()
