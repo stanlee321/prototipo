@@ -11,10 +11,10 @@ import multiprocessing
 class Shooter():
 	""" General PICAMERA DRIVER Prototipe
 	"""
-	directorioDeTrabajo =os.getenv('HOME')+'/casosReportados'
-	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')
+	directorioDeTrabajo = os.getenv('HOME')+'/casosReportados'
+	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
-	def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([0,0],[2592,1944])):
+	def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([0,0],[2592,1944]), capturas = 3):
 	#def __init__(self, video_source = 0, width = 680, height = 420, cutPoly=([0,0],[200,200]), saveDir='./test/'):
 		#self.miReporte = MiReporte(levelLogging=10)
 		#self.miReporte.info( 'Starting the  PiCam')
@@ -24,8 +24,7 @@ class Shooter():
 		self.video_source = video_source
 		self.width = width		# Integer Like
 		self.height = height	# Integer Like
-		self.counter  = 0
-		self.maxCapturas = 4
+		self.maxCapturas = capturas
 		# FOR ROI
 		self.cutPoly = cutPoly 	# ARRAY like (primerPunto, segundoPunto)
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
@@ -34,14 +33,15 @@ class Shooter():
 		# Dir where to save images
 		
 		self.directorioDeGuardadoGeneral = self.directorioDeTrabajo
-		self.fechaInfraccion = self.date_hour_string
-		self.saveDir = self.directorioDeGuardadoGeneral +"/"+self.fechaInfraccion
-		self.segundo_milisegundo = datetime.datetime.now().strftime('%S.%f')
+		self.fechaInfraccion = str
+		self.saveDir = str
+		#self.saveDir = self.directorioDeGuardadoGeneral +"/"+self.fechaInfraccion
+		#self.segundo_milisegundo = datetime.datetime.now().strftime('%S.%f')
 		
-		#self.video_capture = WebcamVideoStream(src=self.video_source, width=self.width, height=self.height).start()
+
+
+		## MultiPro and threadning
 		self.input_q = multiprocessing.Queue(maxsize = 6)
-
-
 
 		process = multiprocessing.Process(target = self.writter, args=((self.input_q,)))
 		process.daemon = True
@@ -55,9 +55,9 @@ class Shooter():
 	def establecerRegionInteres(self,cutPoly):
 		self.cutPoly = cutPoly
 
-	def encenderCamaraEnSubDirectorio(self,folder,fecha):
+	def encenderCamaraEnSubDirectorio(self, folder, fecha):
 		#self.miReporte.moverRegistroACarpeta(fecha)
-		self.fechaInfraccion =fecha
+		self.fechaInfraccion = fecha
 		self.saveDir = self.directorioDeGuardadoGeneral +"/" + folder
 		if not os.path.exists(self.saveDir):
 			os.makedirs(self.saveDir) 
@@ -76,25 +76,27 @@ class Shooter():
 	def writter(self, input_queue):
 		while True:
 			data = input_queue.get()
-			placa, numero_de_captura  = data[0], data[1]
-			print('GUARDADO en: '+self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3], numero_de_captura))
-			cv2.imwrite(self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion, numero_de_captura), placa)
+			placa, numero_de_captura, saveDir, fechaInfraccion  = data[0], data[1], data[2], data[3]
+			print('placashape is', placa.shape)
+			print('savedir is..', saveDir)
+			print('GUARDADO en: '+ saveDir+'/{}-{}.jpg'.format(fechaInfraccion[:-3], numero_de_captura))
+			cv2.imwrite(saveDir+'/{}-{}.jpg'.format(fechaInfraccion, numero_de_captura), placa)
 			#cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa)
 			
 
 	def start(self):
 		if self.eyesOpen == True:
 			#self.miReporte.info('Iam in')
-			self.video_capture = cv2.VideoCapture(self.video_source)
-			self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
-			self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
+			self.video_capture = cv2.VideoCapture(self.video_source) 
+			self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, self.width) 
+			self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height) 
 			for captura in range(self.maxCapturas):
 				print('captura Numero: ', captura)
 				# Read plate
 				_, placa = self.video_capture.read()
+				print('placa.shape', placa.shape)
 				placaActual = placa[self.primerPunto[1]:self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
-				self.input_q.put((placaActual, captura))
-				self.counter = captura	
+				self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
 				#  If Self.run is False everything starts to stop and close
 				print('self.eyesOpen', self.eyesOpen)
 				if self.eyesOpen  == False: # self.counter > self.maxCounter:

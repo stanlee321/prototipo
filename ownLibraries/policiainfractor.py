@@ -59,7 +59,7 @@ class PoliciaInfractor():
 		eightMP = (3296,2512)
 		piCamSource  = 1
 		if self.segundaCamara:
-			self.camaraAlta = Shooter(video_source = piCamSource, width = eightMP[0], height = eightMP[1])
+			self.camaraAlta = Shooter(video_source = piCamSource, width = eightMP[0], height = eightMP[1], capturas = 3)
 
 	def establecerRegionInteresAlta(self,cutPoly):
 		self.camaraAlta.establecerRegionInteres(cutPoly)
@@ -138,7 +138,7 @@ class PoliciaInfractor():
 			nombreInfraccionYFolder = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 			nuevaInfraccion = {'name':nombreInfraccionYFolder,'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
 			if self.segundaCamara:
-				self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder,nombreInfraccionYFolder)
+				self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder, nombreInfraccionYFolder)
 			cambiosImportantes = True
 			self.listaDeInfracciones.append(nuevaInfraccion)
 			
