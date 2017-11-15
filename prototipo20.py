@@ -62,8 +62,8 @@ def obtenerIndicesSemaforo(poligono640):
 
 	vectorHorizontal = punto3 - punto0
 	vectorVertical = punto1 - punto0
-	pasoHorizontal = vectorHorizontal//8
-	pasoVertical = vectorVertical//24
+	pasoHorizontal = vectorHorizontal/8
+	pasoVertical = vectorVertical/24
 
 	indices = []
 
@@ -72,6 +72,7 @@ def obtenerIndicesSemaforo(poligono640):
 			indices.append((punto0+i*pasoHorizontal+j*pasoVertical).tolist())
 	#print('len of indices', len(indices))
 	#print('single index', indices[0])
+	indices = [[round(x[0]),round(x[1])] for x in indices]
 	return indices
 
 def __main_function__():
