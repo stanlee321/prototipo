@@ -35,11 +35,9 @@ class Shooter():
 		self.directorioDeGuardadoGeneral = self.directorioDeTrabajo
 		self.fechaInfraccion = str
 		self.saveDir = str
+		
 		#self.saveDir = self.directorioDeGuardadoGeneral +"/"+self.fechaInfraccion
 		#self.segundo_milisegundo = datetime.datetime.now().strftime('%S.%f')
-		
-
-
 		## MultiPro and threadning
 		self.input_q = multiprocessing.Queue(maxsize = 6)
 
