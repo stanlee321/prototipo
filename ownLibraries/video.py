@@ -43,6 +43,7 @@ from time import clock
 # local modules
 from tst_scene_render import TestSceneRender
 import common
+from videostreamv1 import VideoStream
 
 class VideoSynthBase(object):
     def __init__(self, size=None, noise=0.0, bg = None, **params):
@@ -178,23 +179,14 @@ def create_capture(source = 0, resolution=(640,480)):
     source = chunks[0]
     try: source = int(source)
     except ValueError: pass
-    params = dict( s.split('=') for s in chunks[1:] )
 
-    cap = None
-    if source == 'synth':
-        Class = classes.get(params.get('class', None), VideoSynthBase)
-        try: cap = Class(**params)
-        except: pass
-    else:
-        cap = cv2.VideoCapture(source)
-        if 'size' in params:
-            w, h = resolution[0], resolution[1] #map(int, params['size'].split('x'))
-            cap.set(cv2.CAP_PROP_FRAME_WIDTH, w)
-            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, h)
-    if cap is None or not cap.isOpened():
-        print('Warning: unable to open video source: ', source)
-        if fallback is not None:
-            return create_capture(fallback, None)
+    cap = cv2.VideoCapture(source)
+    #cap = VideoStream(src=source, resolution = resolution )
+
+    #if cap is None or not cap.isOpened():
+    #    print('Warning: unable to open video source: ', source)
+    #    if fallback is not None:
+    #        return create_capture(fallback, None)
     return cap
 
 if __name__ == '__main__':

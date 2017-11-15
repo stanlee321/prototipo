@@ -35,7 +35,7 @@ class DummyTask:
 
 if __name__ == '__main__':
     import sys
-
+    import time
     print(__doc__)
 
     try:
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     threadn = cv2.getNumberOfCPUs()
     pool = ThreadPool(processes = threadn)
     pending = deque()
-
+    time.sleep(1)
     threaded_mode = True
 
     latency = StatValue()
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
             cv2.imshow('threaded video', res)
         if len(pending) < threadn:
-            ret, frame = cap.read()
+            _, frame = cap.read()
             t = clock()
             frame_interval.update(t - last_frame_time)
             last_frame_time = t
