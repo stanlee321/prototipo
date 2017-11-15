@@ -89,21 +89,30 @@ class Shooter():
 			self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, self.width) 
 			self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height) 
 			for captura in range(self.maxCapturas):
-				time.sleep(0.020)
 				print('captura Numero: ', captura)
 				# Read plate
 				_, placa = self.video_capture.read()
-				print('placa.shape', placa.shape)
+				print('placa Inputshape: ', placa.shape)
 				placaActual = placa[self.primerPunto[1]:self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
 				self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
 				#  If Self.run is False everything starts to stop and close
-				if self.eyesOpen  == False: # self.counter > self.maxCounter:
-					self.eyesOpen = False
-					self.video_capture.release()
-					break
+				#if self.eyesOpen  == False: # self.counter > self.maxCounter:
+				#	self.eyesOpen = False
+				#	self.video_capture.release()
+				#	break
 			print('finish limit of captures, releasing...')
 			self.eyesOpen = False
 			self.video_capture.release()
+			while True:
+				if self.video_capture.grab() == False:
+					print('Camera sucessfully released ...!')
+					break
+				else:
+					print('Releasing camera....')
+					self.video_capture.release()
+			#else:
+			#	self.video_capture.release()
+
 
 		if self.eyesOpen == False:
 			pass
