@@ -74,15 +74,12 @@ class Shooter():
 	
 
 	def writter(self, input_queue):
-		print('hello from writter')
-		#print('len of queue', len(input_queue))
-		try:
-			placa = input_queue.get()
-			print('GUARDADO en: '+self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3],self.counter))
-			cv2.imwrite(self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion,self.counter), placa)
-
-		except input_queue.Empty():
-			print('nothing to save')
+		while True:
+			data = input_queue.get()
+			placa, numero_de_captura  = data[0], data[1]
+			print('GUARDADO en: '+self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3], numero_de_captura))
+			cv2.imwrite(self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion, numero_de_captura), placa)
+			#cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa)
 			
 
 	def start(self):
@@ -92,23 +89,21 @@ class Shooter():
 			self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
 			self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
 			for captura in range(self.maxCapturas):
+				print('captura Numero: ', captura)
 				# Read plate
 				_, placa = self.video_capture.read()
 				placaActual = placa[self.primerPunto[1]:self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
-				self.input_q.put(placaActual)
+				self.input_q.put((placaActual, captura))
 				self.counter = captura	
 				#  If Self.run is False everything starts to stop and close
 				print('self.eyesOpen', self.eyesOpen)
 				if self.eyesOpen  == False: # self.counter > self.maxCounter:
 					self.eyesOpen = False
 					self.video_capture.release()
-					self.counter = 0
-					#print('APAGADO AUTOMATICO')
-					#self.miReporte.info(' Ending all the program...')
 					break
+			print('finish limit of captures, releasing...')
 			self.eyesOpen = False
 			self.video_capture.release()
-			self.counter = 0
 
 		if self.eyesOpen == False:
 			pass
@@ -135,9 +130,10 @@ eyes = False
 if __name__ == '__main__':
 	while True:
 		counter +=1 
-		if counter == 5:
+		if counter == 10:
 			shoot.eyesOpen = not eyes
 			eyes = not eyes
 			counter = 0
 			#main()
+		print(counter)
 		time.sleep(1)
