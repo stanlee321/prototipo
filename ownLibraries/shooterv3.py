@@ -54,6 +54,8 @@ class Shooter():
 
 	def establecerRegionInteres(self,cutPoly):
 		self.cutPoly = cutPoly
+		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
+		self.segundoPunto = self.cutPoly[1]
 
 	def encenderCamaraEnSubDirectorio(self, folder, fecha):
 		#self.miReporte.moverRegistroACarpeta(fecha)

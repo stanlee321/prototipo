@@ -8,9 +8,9 @@ import datetime
 import numpy as np
 
 import matplotlib.pyplot as graficaActual
+from ownLibraries.shooterv3 import Shooter
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.analisisonda import AnalisisOnda
-from ownLibraries.shooterv3 import Shooter
 
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
@@ -56,7 +56,7 @@ class PoliciaInfractor():
 		self.maximoNumeroFramesParaDescarte = 100
 		self.ultimaVelocidad = 0
 		self.segundaCamara = segundaCamara
-		eightMP = (3296,2512)
+		eightMP = (3240,2464)
 		piCamSource  = 1
 		if self.segundaCamara:
 			self.camaraAlta = Shooter(video_source = piCamSource, width = eightMP[0], height = eightMP[1], capturas = 3)
