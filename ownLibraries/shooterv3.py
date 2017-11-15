@@ -98,6 +98,7 @@ class Shooter():
 				print('placa.shape', placa.shape)
 				#placaActual = placa[self.primerPunto[1]:self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
 				self.input_q.put((placa, captura, self.saveDir, self.fechaInfraccion, self.primerPunto, self.segundoPunto))
+				time.sleep(0.010)
 				#  If Self.run is False everything starts to stop and close
 				if self.eyesOpen  == False: # self.counter > self.maxCounter:
 					self.eyesOpen = False
@@ -106,7 +107,6 @@ class Shooter():
 			print('finish limit of captures, releasing...')
 			self.eyesOpen = False
 			self.video_capture.release()
-
 		if self.eyesOpen == False:
 			pass
 		
