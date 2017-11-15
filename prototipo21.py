@@ -13,13 +13,13 @@ import numpy as np
 from ownLibraries.videostream import FPS
 from ownLibraries.irswitch import IRSwitch
 from ownLibraries.mireporte import MiReporte
+from ownLibraries.semaforov2 import CreateSemaforo
 from ownLibraries.visualizacion import Acetato
 from ownLibraries.herramientas import total_size
 from ownLibraries.videostream import VideoStream
-from ownLibraries.semaforov2 import CreateSemaforo
 from ownLibraries.policiainfractor import PoliciaInfractor
 from ownLibraries.generadorevidenciasimple import GeneradorEvidencia
-
+from ownLibraries.feedsemaphoro import SemaphoroParameters
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos  = os.getenv('HOME')+'/trafficFlow/trialVideos'
@@ -47,34 +47,14 @@ anocheciendo =  21*60+30														# Tiempo 17:30 am + 4 GMT
 amaneciendo = 11*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
 maximoMemoria = 200
+guardarRecortados = True
 conVideoGrabado = False
 
 gamma = 1.0
 noDraw = False
 
+mediumRes  = (640, 480)
 # Función principal
-
-def obtenerIndicesSemaforo(poligono640):
-	punto0 = poligono640[0]
-	punto1 = poligono640[1]
-	punto2 = poligono640[2]
-	punto3 = poligono640[3]
-
-	vectorHorizontal = punto3 - punto0
-	vectorVertical = punto1 - punto0
-	pasoHorizontal = vectorHorizontal/8
-	pasoVertical = vectorVertical/24
-
-	indices = []
-
-	for j in range(24):
-		for i in range(8):
-			indices.append((punto0+i*pasoHorizontal+j*pasoVertical).tolist())
-	#print('len of indices', len(indices))
-	#print('single index', indices[0])
-	indices = [[round(x[0]),round(x[1])] for x in indices]
-	return indices
-
 def __main_function__():
 	# Import some global varialbes
 	global archivoDeVideo
@@ -119,37 +99,51 @@ def __main_function__():
 	poligonoSemaforo = parametrosInstalacion[0]
 	verticesPartida = parametrosInstalacion[1]
 	verticesLlegada = parametrosInstalacion[2]
-	indicesSemaforo = obtenerIndicesSemaforo(np.array(poligonoSemaforo))
 	angulo = parametrosInstalacion[3]
-	poligonoEnAlta = parametrosInstalacion[4]
+	indicesSemaforo = SemaphoroParameters(poligonoSemaforo)
+
 
 	miReporte.info('Cargado exitosamente parametros de instalacion: '+str(parametrosInstalacion))
 
 	# Arrancando camara
 	if len(archivoDeVideo) == 0:
 		conVideoGrabado = False												# modo real
-		miCamara = cv2.VideoCapture(0)
-		miCamara.set(3,640)
-		miCamara.set(4,480)
-		time.sleep(1)
+		if os.uname()[1] == 'alvarohurtado-305V4A':
+			miCamara = cv2.VideoCapture(1)
+			time.sleep(1)
+		elif os.uname()[1] == 'stanlee321-HP-240-G1-Notebook-PC':
+			miCamara = cv2.VideoCapture(0)
+			miCamara.set(cv2.CAP_PROP_FRAME_WIDTH, mediumRes[0])
+			miCamara.set(cv2.CAP_PROP_FRAME_HEIGHT, mediumRes[1])
+			time.sleep(1)
+		else:
+			miCamara = cv2.VideoCapture(1)
+			miCamara.set(cv2.CAP_PROP_FRAME_WIDTH, mediumRes[0])
+			miCamara.set(cv2.CAP_PROP_FRAME_HEIGHT, mediumRes[1])
+			#miCamara = VideoStream(src = 0, resolution = (1920,1080),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
+			#miCamara = VideoStream(src = 0, resolution = (1280,960),poligono = poligonoSemaforo, debug = saltarFrames,fps = mifps, periodo = periodoDeSemaforo, gamma = gamma).start()
+			time.sleep(1)
+
 		miReporte.info('Activada Exitosamente cámara en tiempo real')
 	else:
 		conVideoGrabado = True
 		try:
 			miCamara = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
+			miCamara.set(cv2.CAP_PROP_FRAME_WIDTH, mediumRes[0])
+			miCamara.set(cv2.CAP_PROP_FRAME_HEIGHT, mediumRes[1])
+
 			time.sleep(1)
 			miReporte.info('Archivo de video cargado exitosamente: '+directorioDeVideos+'/'+archivoDeVideo)
 		except Exception as currentException:
 			miReporte.error('No se pudo cargar el video por '+str(currentException))
 
+	# Load points for the semaphoro
 	# Se captura la imagen de flujo inicial y se trabaja con la misma
 	ret, frameVideo = miCamara.read()
 	frameFlujo = cv2.resize(frameVideo,(320,240))
-
 	# Creación de objetos:
-	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,True)
-	miPoliciaReportando.establecerRegionInteresAlta(poligonoEnAlta)
-	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,False)
+	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada)
+	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,guardarRecortados)
 	miFiltro = IRSwitch()
 	miAcetatoInformativo = Acetato()
 	miSemaforo = CreateSemaforo(periodoDeSemaforo)
@@ -157,36 +151,29 @@ def __main_function__():
 	miAcetatoInformativo.colocarPoligono(np.array(verticesPartida))
 	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))	
 
+	fps = FPS().start()
 	informacionTotal = {}
 	frame_number  = 0
 	tiempoAuxiliar = time.time()
 	periodoDeMuestreo = 1.0/mifps
 	grupo = [0]
-
 	while True:
+
 		# LEEMOS LA CAMARA DE FLUJO
 		if conVideoGrabado:
 			for i in range(videofps//mifps):
 				ret, frameVideo = miCamara.read()
 		else:
 			ret, frameVideo = miCamara.read()
-		
-		pixeles = np.array([frameVideo[indicesSemaforo[0][1],indicesSemaforo[0][0]]])
-
-		#print('IndicesPixel: ',indicesSemaforo[0][0],indicesSemaforo[0][1])
-		#print('La longitud semaforo: ',len(indicesSemaforo),' inicial ',pixeles.shape)
-		#print('La longitud interna: ',len(indicesSemaforo[0]),' inicial ',pixeles.shape)
-		for indiceSemaforo in indicesSemaforo[1:]:
-			pixeles = np.append(pixeles,[frameVideo[indiceSemaforo[1],indiceSemaforo[0]]], axis=0)
-			#print('>>> ',pixeles.shape,' in ',indiceSemaforo)
-			#cv2.circle(frameVideo, (indiceSemaforo[0],indiceSemaforo[1]), 1, (100,100,100), -1)
-		#print('Pixeles: ',pixeles)
-		#wtf = pixeles.reshape((24,8,3))
-		#cv2.imshow('Semaforo', cv2.resize(wtf, (240,320)))
-		#print('La longitud pixels: ',pixeles.shape)
-		senalSemaforo, semaforoLiteral, flanco, periodo = miSemaforo.obtenerColorEnSemaforo(pixeles)
-		frameFlujo = cv2.resize(frameVideo,(320,240))
+		frameFlujo = cv2.resize(frameVideo,(320,240), interpolation = cv2.INTER_NEAREST)
+		tic = time.time()
 		informacionTotal[frame_number] = frameFlujo.copy()
+		pixeles = indicesSemaforo(frameVideo)
+		print('La longitud pixels: ',pixeles.shape)
+		senalSemaforo, semaforoLiteral, flanco, periodo = miSemaforo.obtenerColorEnSemaforo(pixeles)
+		tac = time.time()
+
+		print('tic-tac', tac-tic)
 
 		if periodo != 0:
 			miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(periodo))
@@ -284,7 +271,10 @@ def __main_function__():
 			break
 		if ch == ord('s'):
 			cv2.imwrite(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')+'.jpg',frameFlujo)
-		
+		fps.update()
+
+	# stop the timer and display FPS information
+	fps.stop()
 
 if __name__ == '__main__':
 	# Tomamos los ingresos para controlar el video
@@ -306,6 +296,8 @@ if __name__ == '__main__':
 			topeEjecucion = int(input[:-1])
 		if 'gamma' in input:
 			gamma = float(input[:-5])
+		if input == 'noRec':
+			guardarRecortados = False
 		if input == 'noDraw':
 			noDraw = True
 
