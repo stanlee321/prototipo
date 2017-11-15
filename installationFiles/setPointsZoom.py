@@ -118,11 +118,11 @@ if __name__ == '__main__':
 		cv2 .imshow('semaforo_Zona',frame)
 		keyPress = cv2.waitKey()
 		if keyPress == ord('z'):
-			np.save(reAdjust,listaCorte)
+			#np.save(reAdjust,listaCorte)
 			## file2.write("\n".listFinal)         
-			print('saved to ReAjust!!')
-			dataReAjust=np.load(reAdjust)
-			print ('file:..'+str(dataReAjust))
+			#print('saved to ReAjust!!')
+			#dataReAjust=np.load(reAdjust)
+			#print ('file:..'+str(dataReAjust))
 			print('listaCorte..'+str(listaCorte))
 			break            
 	cv2.destroyAllWindows()
@@ -219,6 +219,8 @@ if __name__ == '__main__':
 	cv2.destroyAllWindows()
 	#Capture of High Resolution
 	try:
+		#cap=cv2.VideoCapture(directorioDeVideos+nameSourceVideo)
+		#cap=cv2.VideoCapture('officialTrialVideos/sar.mp4')
 		cap=cv2.VideoCapture(1)
 		cap.set(3,2592)
 		cap.set(4,1944)
