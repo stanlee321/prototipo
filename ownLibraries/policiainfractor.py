@@ -3,6 +3,7 @@ import sys
 import cv2
 import time
 import math
+import shutil
 import logging
 import datetime
 import numpy as np
@@ -12,6 +13,7 @@ from ownLibraries.shooterv3 import Shooter
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.analisisonda import AnalisisOnda
 
+directorioDeReporte = os.getenv('HOME')+'/casosReportados'
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
 
@@ -115,7 +117,7 @@ class PoliciaInfractor():
 			estadoARetornar = True
 		return estadoARetornar, ondaFiltrada, flanco, flujoTotal
 
-	def seguirImagen(self,numeroDeFrame,imagenActual,informacion = False):
+	def seguirImagen(self,numeroDeFrame,imagenActual,informacion = False,colorSemaforo = 1):
 		"""
 		Get into the new frame, updates the flow and follows the item as required
 		"""
@@ -133,33 +135,34 @@ class PoliciaInfractor():
 		flujoTotal = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
 
 		ondaFiltrada, flanco = self.miFiltro.obtenerOndaFiltrada(flujoTotal)
-		if flanco == 1:
-			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad,informacion)
-			nombreInfraccionYFolder = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-			nuevaInfraccion = {'name':nombreInfraccionYFolder,'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
-			if self.segundaCamara:
-				self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder, nombreInfraccionYFolder)
-			cambiosImportantes = True
-			self.listaDeInfracciones.append(nuevaInfraccion)
-			
-		for infraccion in self.listaDeInfracciones:
-			# Si es candidato evoluciona:
-			if infraccion['estado'] == 'Candidato':
-				nuevoArrayAActualizar, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
-				infraccion['desplazamiento'] = nuevoArrayAActualizar
-				# Si es candidato y duro demasiado se descarta
-				if (numeroDeFrame - infraccion['frameInicial']) > self.maximoNumeroFramesParaDescarte:
-					infraccion['estado']='Descartado'
-				# Si es candidato y algun punto llego al final se confirma
-				for vector in nuevoArrayAActualizar:
-					xTest, yTest = vector[0][0], vector[0][1]
-					if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:
-						infraccion['estado'] = 'Confirmado'
-						cambiosImportantes = True
-						infraccion['frameFinal'] = numeroDeFrame
-						self.miReporte.info('Conf: '+infraccion['name']+' de '+str(infraccion['frameInicial'])+' a '+str(infraccion['frameFinal'])+' es '+infraccion['estado'])
-						break
-		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
+		if colorSemaforo >=1:
+			if flanco == 1:
+				puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad,informacion)
+				nombreInfraccionYFolder = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+				nuevaInfraccion = {'name':nombreInfraccionYFolder,'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
+				if self.segundaCamara:
+					self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder, nombreInfraccionYFolder)
+				cambiosImportantes = True
+				self.listaDeInfracciones.append(nuevaInfraccion)
+				
+			for infraccion in self.listaDeInfracciones:
+				# Si es candidato evoluciona:
+				if infraccion['estado'] == 'Candidato':
+					nuevoArrayAActualizar, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
+					infraccion['desplazamiento'] = nuevoArrayAActualizar
+					# Si es candidato y duro demasiado se descarta
+					if (numeroDeFrame - infraccion['frameInicial']) > self.maximoNumeroFramesParaDescarte:
+						infraccion['estado']='Descartado'
+					# Si es candidato y algun punto llego al final se confirma
+					for vector in nuevoArrayAActualizar:
+						xTest, yTest = vector[0][0], vector[0][1]
+						if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:
+							infraccion['estado'] = 'Confirmado'
+							cambiosImportantes = True
+							infraccion['frameFinal'] = numeroDeFrame
+							self.miReporte.info('Conf: '+infraccion['name']+' de '+str(infraccion['frameInicial'])+' a '+str(infraccion['frameFinal'])+' es '+infraccion['estado'])
+							break
+			infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
 
 		self.imagenAuxiliar = imagenActualEnGris
 		return cambiosImportantes, ondaFiltrada, flanco, flujoTotal
@@ -181,11 +184,18 @@ class PoliciaInfractor():
 		if self.numeroInfraccionesConfirmadas() != 0:
 			variableARetornar = self.listaDeInfracciones.pop()
 			while variableARetornar['estado'] != 'Confirmado':
+				self.eliminoCarpetaDeSerNecesario(variableARetornar)
 				variableARetornar = self.listaDeInfracciones.pop()
 			return variableARetornar
 		else:
 			return {}
 		return variableARetornar
+
+	def eliminoCarpetaDeSerNecesario(self,infraccion):
+		try: 
+			shutil.rmtree(directorioDeReporte+'/'+infraccion['name'])
+		except:
+			self.miReporte.warning('No pude borrar posible carpeta fantasma: '+infraccion['name'])
 
 	def reporteActual(self):
 		self.miReporte.info('Infracciones Sospechosas:')

@@ -11,7 +11,7 @@ import multiprocessing
 class Shooter():
 	""" General PICAMERA DRIVER Prototipe
 	"""
-	directorioDeTrabajo = os.getenv('HOME')+'/casosReportados'
+	directorioDeReporte = os.getenv('HOME')+'/casosReportados'
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
 	def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([0,0],[2592,1944]), capturas = 3):
@@ -32,7 +32,7 @@ class Shooter():
 
 		# Dir where to save images
 		
-		self.directorioDeGuardadoGeneral = self.directorioDeTrabajo
+		self.directorioDeGuardadoGeneral = self.directorioDeReporte
 		self.fechaInfraccion = str
 		self.saveDir = str
 		
