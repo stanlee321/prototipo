@@ -259,11 +259,6 @@ def __main_function__():
 		
 		if (porcentajeDeMemoria > 80)&(os.uname()[1] == 'raspberrypi'):
 			miReporte.info('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
-		if porcentajeDeMemoria > 92:
-			frameAOptimizar = min(informacionTotal)
-			miReporte.warning('Alcanzado 92/100 de memoria, borrando frame: '+str(frameAOptimizar))
-			del informacionTotal[frameAOptimizar]['recortados']
-			informacionTotal[frameAOptimizar]['recortados'] = {}
 
 		if porcentajeDeMemoria > 96:
 			miReporte.warning('Alcanzado 96/100 de memoria, borrando todo e inicializando')
