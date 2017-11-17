@@ -187,14 +187,13 @@ class PoliciaInfractor():
 			infraccion = self.listaDeInfracciones[indiceInfraccion]
 			if infraccion['estado'] != 'Confirmado':
 				indicesABorrar.append(indiceInfraccion)
+				self.eliminoCarpetaDeSerNecesario(infraccion)
 		# Itero sobre las infracciones
-		for i in indicesABorrar:
-			self.listaDeInfracciones.pop(i)
 
 	def eliminoCarpetaDeSerNecesario(self,infraccion):
 		try: 
 			carpetaABorrar = directorioDeReporte+'/'+infraccion['name']
-			print('>>>>> Borrando: ',carpetaABorrar)
+			self.miReporte.info('> Borrando: ',carpetaABorrar)
 			shutil.rmtree(carpetaABorrar)
 		except:
 			self.miReporte.warning('No pude borrar posible carpeta fantasma: '+infraccion['name'])
