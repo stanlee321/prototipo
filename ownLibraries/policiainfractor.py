@@ -181,9 +181,15 @@ class PoliciaInfractor():
 		return contadorInfracciones
 
 	def purgeInfractions(self):
-		for infraccion in self.listaDeInfracciones:
+		indicesABorrar = []
+		# Tomo los indices que contienen infracciones no confirmadas
+		for indiceInfraccion in range(len(self.listaDeInfracciones)):
+			infraccion = self.listaDeInfracciones[indiceInfraccion]
 			if infraccion['estado'] != 'Confirmado':
-				self.eliminoCarpetaDeSerNecesario(infraccion)
+				indicesABorrar.append[indiceInfraccion]
+		# Itero sobre las infracciones
+		for i in indicesABorrar:
+			self.listaDeInfracciones.pop(i)
 
 	def eliminoCarpetaDeSerNecesario(self,infraccion):
 		try: 

@@ -211,6 +211,7 @@ def __main_function__():
 				miReporte.info('Infracciones: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas()))
 				if generarArchivosDebug:
 					miGrabadora.generarReporteInfraccion(informacionTotal, False,miPoliciaReportando.numeroInfraccionesConfirmadas())
+				miPoliciaReportando.purgeInfractions()					
 			if miPoliciaReportando.numeroInfraccionesConfirmadas() > 0:
 				infraccionEnRevision = miPoliciaReportando.popInfraccion()
 				miGrabadora.generarReporteInfraccion(informacionTotal, infraccionEnRevision)
