@@ -193,7 +193,7 @@ def __main_function__():
 		else:
 			pass
 		# Si tengo infracciones pendientes las evoluciono
-		cambiosImportantes, ondaFiltrada, flanco, flujoTotal = miPoliciaReportando.seguirImagen(frame_number,frameFlujo,senalSemaforo)
+		cambiosImportantes, ondaFiltrada, flanco, flujoTotal = miPoliciaReportando.seguirImagen(frame_number,frameFlujo,colorSemaforo = senalSemaforo)
 		if senalSemaforo >= 1 :							# Si estamos en rojo, realizamos una accion
 			if flanco == 1:							# esto se inicia al principio de este estado
 				miReporte.info('SEMAFORO EN ROJO')
