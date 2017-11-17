@@ -27,5 +27,10 @@ print('FILES TO DELET: ', len(clean))
 print('USEFULL FILES: ', len(videos))
 for i,c in enumerate(clean):
 	print('{}/{}'.format(i, len(clean)))
-	shutil.rmtree(c)
+	try:
+		shutil.rmtree(c)
+	except:
+		print('this is a log')
+		print(c)
+		os.remove(c)
 	print('DONE!')
