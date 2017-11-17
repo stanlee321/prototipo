@@ -180,16 +180,10 @@ class PoliciaInfractor():
 			contadorInfracciones += 1
 		return contadorInfracciones
 
-	def popInfraccion(self):
-		if self.numeroInfraccionesConfirmadas() != 0:
-			variableARetornar = self.listaDeInfracciones.pop()
-			while variableARetornar['estado'] != 'Confirmado':
-				self.eliminoCarpetaDeSerNecesario(variableARetornar)
-				variableARetornar = self.listaDeInfracciones.pop()
-			return variableARetornar
-		else:
-			return {}
-		return variableARetornar
+	def purgeInfractions(self):
+		for infraccion in self.listaDeInfracciones:
+			if infraccion['estado'] != 'Confirmado':
+				self.eliminoCarpetaDeSerNecesario(infraccion)
 
 	def eliminoCarpetaDeSerNecesario(self,infraccion):
 		try: 
@@ -198,6 +192,16 @@ class PoliciaInfractor():
 			shutil.rmtree(carpetaABorrar)
 		except:
 			self.miReporte.warning('No pude borrar posible carpeta fantasma: '+infraccion['name'])
+
+	def popInfraccion(self):
+		if self.numeroInfraccionesConfirmadas() != 0:
+			variableARetornar = self.listaDeInfracciones.pop()
+			while variableARetornar['estado'] != 'Confirmado':
+				variableARetornar = self.listaDeInfracciones.pop()
+			return variableARetornar
+		else:
+			return {}
+		return variableARetornar
 
 	def reporteActual(self):
 		self.miReporte.info('Infracciones Sospechosas:')
