@@ -186,7 +186,7 @@ class PoliciaInfractor():
 		for indiceInfraccion in range(len(self.listaDeInfracciones)):
 			infraccion = self.listaDeInfracciones[indiceInfraccion]
 			if infraccion['estado'] != 'Confirmado':
-				indicesABorrar.append[indiceInfraccion]
+				indicesABorrar.append(indiceInfraccion)
 		# Itero sobre las infracciones
 		for i in indicesABorrar:
 			self.listaDeInfracciones.pop(i)
