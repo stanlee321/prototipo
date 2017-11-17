@@ -1,0 +1,37 @@
+sudo apt-get install libhdf5-dev
+
+cmake -D CMAKE_BUILD_TYPE=RELEASE \
+    -D CMAKE_INSTALL_PREFIX=/usr/local \
+    -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib-3.3.0/modules \
+    -D ENABLE_NEON=ON \
+    -D ENABLE_VFPV3=ON \
+    -D BUILD_TESTS=OFF \
+    -D INSTALL_PYTHON_EXAMPLES=OFF \
+    -D WITH_EIGEN=ON	\
+    -D BUILD_EXAMPLES=OFF ..
+
+
+sudo apt-get install swig
+git clone https://github.com/sagi-z/BackgroundSubtractorCNT.git --single-branch
+cd BackgroundSubtractorCNT
+mkdir build
+cd build
+
+cmake -DPYTHON_EXTENSION=ON -DPYTHON=/usr/bin/python3 ..
+make
+sudo make install
+
+
+sudo apt-get install python3-numpy python3-scipy python3-matplotlib  python3-pandas python3-sympy python3-nose
+sudo apt-get install build-essential python3-dev python3-distlib python3-setuptools python3-pip python3-wheel libzmq-dev libgdal-dev
+sudo apt-get install python3-sklearn
+sudo modprobe bcm2835-v4l2 
+pip3 install Cython
+pip3 install imutils
+
+v4l2-ctl --set-ctrl=auto_exposure=1
+v4l2-ctl --set-ctrl=exposure_time_absolute=30
+
+sudo apt-get install tightvncserver
+run at every start tightvncserver
+
