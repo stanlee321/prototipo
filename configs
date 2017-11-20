@@ -1,4 +1,39 @@
+// Thanks to Adrian from pyimagesearch.com
+
+
+
+//Step #1: Expand filesystem and reclaim space
+sudo raspi-config
+
+//delete wolfram and others
+sudo apt-get purge wolfram-engine
+sudo apt-get purge libreoffice*
+sudo apt-get clean
+sudo apt-get autoremove
+
+
+//Step #2: Install dependencies
+
+
+sudo apt-get update && sudo apt-get upgrade
+sudo apt-get install build-essential cmake pkg-config
 sudo apt-get install libhdf5-dev
+sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev
+sudo apt-get install libavcodec-dev lib`avformat-dev libswscale-dev libv4l-dev
+sudo apt-get install libxvidcore-dev libx264-dev
+sudo apt-get install libgtk2.0-dev libgtk-3-dev
+sudo apt-get install libcanberra-gtk*
+sudo apt-get install libatlas-base-dev gfortran
+sudo apt-get install python2.7-dev python3-dev
+
+
+//Step #3: Download the OpenCV source code
+
+cd ~
+wget -O opencv.zip https://github.com/Itseez/opencv/archive/3.3.0.zip
+unzip opencv.zip
+wget -O opencv_contrib.zip https://github.com/Itseez/opencv_contrib/archive/3.3.0.zip
+unzip opencv_contrib.zip
 
 cmake -D CMAKE_BUILD_TYPE=RELEASE \
     -D CMAKE_INSTALL_PREFIX=/usr/local \
