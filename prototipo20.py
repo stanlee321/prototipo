@@ -186,7 +186,6 @@ def __main_function__():
 		#print('La longitud pixels: ',pixeles.shape)
 		senalSemaforo, semaforoLiteral, flanco, periodo = miSemaforo.obtenerColorEnSemaforo(pixeles)
 		frameFlujo = cv2.resize(frameVideo,(320,240))
-		informacionTotal[frame_number] = frameFlujo.copy()
 
 		if periodo != 0:
 			miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(periodo))
@@ -242,6 +241,8 @@ def __main_function__():
 		if mostrarImagen:
 			#cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(frameFlujo)[120:239,60:360])
 			cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(frameFlujo))
+		
+		informacionTotal[frame_number] = frameFlujo.copy()
 		miAcetatoInformativo.inicializar()
 		
 		tiempoEjecucion = time.time() - tiempoAuxiliar
