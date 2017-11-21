@@ -82,6 +82,18 @@ $ pip3 install imutils
 v4l2-ctl --set-ctrl=auto_exposure=1
 v4l2-ctl --set-ctrl=exposure_time_absolute=30
 
-sudo apt-get install tightvncserver
+For tight vnc server
+Configurar el raspiconfig:
+sudo raspi-config
+SSH On
+VNC On
+Serial Shell Off
+Serial On
+Camera On
+
+sudo reboot
+
+sudo apt-get install tightvncserver # Instalar
+sudo tightvncserver # Contraseña DemS2017
 run at every start tightvncserver
 
