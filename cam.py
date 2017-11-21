@@ -14,7 +14,7 @@ args = vars(ap.parse_args())
 
 # initialize the video stream and allow the cammera sensor to warmup
 #vs = VideoStream(0, resolution=(640,480)).start()
-vs = cv2.VideoCapture(0)
+vs = cv2.VideoCapture(1)
 time.sleep(2.0)
 #killyourself=[]
 

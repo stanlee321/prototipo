@@ -67,7 +67,7 @@ $ cd BackgroundSubtractorCNT
 $ mkdir build
 $ cd build
 
-$ cmake -DPYTHON_EXTENSION=ON -DPYTHON=/usr/bin/python3 ..
+$ cmake -DPYTHON_EXTENSION=ON -DPYTHON=/usr/bin/python3.5 ..
 $ make
 $ sudo make install
 
@@ -82,6 +82,11 @@ $ pip3 install imutils
 v4l2-ctl --set-ctrl=auto_exposure=1
 v4l2-ctl --set-ctrl=exposure_time_absolute=30
 
+Para el VNC a tablet:
+En raspi-config: SSH VNC Serial Camera allow, Serial Shell NOP
+reboot
+
 sudo apt-get install tightvncserver
+sudo tightvncserver #for password
 run at every start tightvncserver
 
