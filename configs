@@ -88,5 +88,19 @@ reboot
 
 sudo apt-get install tightvncserver
 sudo tightvncserver #for password
+=======
+For tight vnc server
+Configurar el raspiconfig:
+sudo raspi-config
+SSH On
+VNC On
+Serial Shell Off
+Serial On
+Camera On
+
+sudo reboot
+
+sudo apt-get install tightvncserver # Instalar
+sudo tightvncserver # Contraseña DemS2017
 run at every start tightvncserver
 

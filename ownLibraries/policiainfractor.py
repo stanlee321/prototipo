@@ -59,7 +59,7 @@ class PoliciaInfractor():
 		self.ultimaVelocidad = 0
 		self.segundaCamara = segundaCamara
 		eightMP = (3240,2464)
-		piCamSource  = 1
+		piCamSource  = 0
 		if self.segundaCamara:
 			self.camaraAlta = Shooter(video_source = piCamSource, width = eightMP[0], height = eightMP[1], capturas = 2)
 
