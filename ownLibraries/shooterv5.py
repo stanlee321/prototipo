@@ -23,7 +23,7 @@ class Shooter():
 	directorioDeReporte = os.getenv('HOME')+'/casosReportados'
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
-	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([0,0],[3280,2464]), capturas = 3):
+	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([0,0],[1640,1200]), capturas = 3):
 	#def __init__(self, video_source = 0, width = 680, height = 420, cutPoly=([0,0],[200,200]), saveDir='./test/'):
 		#self.miReporte = MiReporte(levelLogging=10)
 		#self.miReporte.info( 'Starting the  PiCam')
@@ -44,7 +44,7 @@ class Shooter():
 		self.directorioDeGuardadoGeneral = self.directorioDeReporte
 		self.fechaInfraccion = str
 		self.saveDir = str
-		
+		self.files = list
 		#self.saveDir = self.directorioDeGuardadoGeneral +"/"+self.fechaInfraccion
 		#self.segundo_milisegundo = datetime.datetime.now().strftime('%S.%f')
 		## MultiPro and threadning
@@ -57,7 +57,11 @@ class Shooter():
 		#thread = threading.Thread(target=self.start, args=())
 		#thread.daemon = True									# Daemonize thread
 		#thread.start() 
-		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
+		proc=Processor(128)
+		pool=multiprocessing.Pool()
+		
+		pool.map(proc, self.files)
+	print('EXITOSAMENTE CREE LA CLASE SHOOTER')
 
 	def establecerRegionInteres(self,cutPoly):
 		self.cutPoly = cutPoly
@@ -113,7 +117,7 @@ class Shooter():
 			rawCapture = PiRGBArray(camera, size=(self.width, self.height))
 			stream = camera.capture_continuous(rawCapture, format="bgr", use_video_port=True)
 			captura = 0
-			images = []
+			self.files = []
 			for (i, frame) in enumerate(stream):
 				t1 = time.time()
 				print('captura Numero: ', captura)
@@ -130,11 +134,7 @@ class Shooter():
 
 				t5 = time.time()
 				#self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
-				images.append(placa)
-
-				proc=Processor(128)
-				pool=multiprocessing.Pool()
-				results=pool.map(proc,images)
+				self.files.append(placa)
 				t6 = time.time()
 				print('put took, ', t6-t5 )
 
