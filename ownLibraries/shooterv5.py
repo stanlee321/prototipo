@@ -84,20 +84,23 @@ class Shooter():
 	def writter(self, input_queue):
 		#while not input_queue.empty:
 		while True:
-			print('input queue is ...', input_queue)
-			#data = input_queue.get()
-			data, numero_de_captura = input_queue[0], input_queue[1]
-			#placa, numero_de_captura, saveDir, fechaInfraccion  = data[0], data[1], data[2], data[3]
-			#print('GUARDADO en: '+ saveDir+'/{}-{}.jpg'.format(fechaInfraccion[:-3], numero_de_captura))
-			#cv2.imwrite(saveDir+'/{}-{}.jpg'.format(fechaInfraccion, numero_de_captura), placa)
-			t1 = time.time()
-			#cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
-			cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), input_queue)
-			#imsave('./imagen_{}.jpg'.format(numero_de_captura), placa)
-			#scipy.misc.imsave('./imagen_{}.jpg'.format(numero_de_captura), placa)
-			t2 = time.time()
-			print('WRTIE TOOK: ', t2-t1)
+			try:
 
+				print('input queue is ...', input_queue)
+				#data = input_queue.get()
+				data, numero_de_captura = input_queue[0], input_queue[1]
+				#placa, numero_de_captura, saveDir, fechaInfraccion  = data[0], data[1], data[2], data[3]
+				#print('GUARDADO en: '+ saveDir+'/{}-{}.jpg'.format(fechaInfraccion[:-3], numero_de_captura))
+				#cv2.imwrite(saveDir+'/{}-{}.jpg'.format(fechaInfraccion, numero_de_captura), placa)
+				t1 = time.time()
+				#cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+				cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), input_queue)
+				#imsave('./imagen_{}.jpg'.format(numero_de_captura), placa)
+				#scipy.misc.imsave('./imagen_{}.jpg'.format(numero_de_captura), placa)
+				t2 = time.time()
+				print('WRTIE TOOK: ', t2-t1)
+			except:
+				pass
 
 	def start(self):
 		if self.eyesOpen == True:
