@@ -85,6 +85,7 @@ class Shooter():
 	def writter(self, input_queue):
 		#while not input_queue.empty:
 		while True:
+			print('input queue is ...', input_queue)
 			#data = input_queue.get()
 			data, numero_de_captura = input_queue[0], input_queue[1]
 			#placa, numero_de_captura, saveDir, fechaInfraccion  = data[0], data[1], data[2], data[3]
