@@ -98,25 +98,25 @@ class Shooter():
 			camera.resolution = (self.width, self.height)
 			camera.framerate = 32
 			rawCapture = PiRGBArray(camera, size=(self.width, self.height))
+			captura = 0
+			for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+				print('captura Numero: ', captura)
+				# Read plate
+				placa = frame.array
+				print('placa Inputshape: ', placa.shape)
+				placaActual = placa[self.primerPunto[1]: self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
+				self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
+				rawCapture.truncate(0)
 
-			for captura in range(self.maxCapturas):
-				for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-					print('captura Numero: ', captura)
-					# Read plate
-					placa = frame.array
-					print('placa Inputshape: ', placa.shape)
-					placaActual = placa[self.primerPunto[1]: self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
-					self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
-					rawCapture.truncate(0)
-
-					#  If Self.run is False everything starts to stop and close
-					#if self.eyesOpen  == False: # self.counter > self.maxCounter:
-					#	self.eyesOpen = False
-					#	self.video_capture.release()
-					if captura == self.maxCapturas:
-						break
-					else:
-						pass
+				#  If Self.run is False everything starts to stop and close
+				#if self.eyesOpen  == False: # self.counter > self.maxCounter:
+				#	self.eyesOpen = False
+				#	self.video_capture.release()
+				captura += 1
+				if captura == self.maxCapturas:
+					break
+				else:
+					pass
 			print('finish limit of captures, releasing...')
 			self.eyesOpen = False
 			#self.video_capture.release()
