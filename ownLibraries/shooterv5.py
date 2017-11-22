@@ -101,7 +101,7 @@ class Shooter():
 			stream = camera.capture_continuous(rawCapture, format="bgr", use_video_port=True)
 			captura = 0
 
-			for (i, frame) in stream:
+			for (i, frame) in enumerate(stream):
 				t1 = time.time()
 				print('captura Numero: ', captura)
 				# Read plate
