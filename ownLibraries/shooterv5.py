@@ -96,21 +96,34 @@ class Shooter():
 			#self.video_capture = PiVideoStream(resolution=( self.width, self.height),framerate=32).start() 
 			camera = PiCamera()
 			camera.resolution = (self.width, self.height)
-			camera.framerate = 32
+			camera.framerate = 5
 			rawCapture = PiRGBArray(camera, size=(self.width, self.height))
-			stream = camera.capture_continuous(rawCapture, format="bgr", use_video_port=True)
+			stream = camera.capture_continuous(rawCapture, format="jpeg", use_video_port=True)
 			captura = 0
 
 			for frame in stream:
-
+				t1 = time.time()
 				print('captura Numero: ', captura)
 				# Read plate
 				placa = frame.array
-				print('placa Inputshape: ', placa.shape)
-				placaActual = placa[self.primerPunto[1]: self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
-				self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
-				rawCapture.truncate(0)
 
+				t2 = time.time()
+				print('read placa took: ', t2-t1)
+				print('placa Inputshape: ', placa.shape)
+				t3 = time.time()
+				placaActual = placa[self.primerPunto[1]: self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
+				t4 = time.time()
+				print('Cutting took,: ' t4-t3)
+
+				t5 = time.time()
+				self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
+				t6 = time.time()
+				print('put took, ', t6-t5 )
+
+				t7 = time.time()
+				rawCapture.truncate(0)
+				t8 = time.time()
+				print('Truncate took', t8-t7)
 				#  If Self.run is False everything starts to stop and close
 				#if self.eyesOpen  == False: # self.counter > self.maxCounter:
 				#	self.eyesOpen = False
