@@ -54,7 +54,6 @@ class Shooter():
 		#process = multiprocessing.Process(target = self.writter, args=((self.input_q,)))
 		#process.daemon = True
 		self.pool = multiprocessing.Pool(4)
-		self.pool.map_async(self.writter, (self.input_q, ))
 
 		thread = threading.Thread(target=self.start, args=())
 		thread.daemon = True									# Daemonize thread
@@ -110,7 +109,6 @@ class Shooter():
 			rawCapture = PiRGBArray(camera, size=(self.width, self.height))
 			stream = camera.capture_continuous(rawCapture, format="bgr", use_video_port=True)
 			captura = 0
-			images = []
 			for (i, frame) in enumerate(stream):
 				t1 = time.time()
 				print('captura Numero: ', captura)
@@ -127,6 +125,8 @@ class Shooter():
 
 				t5 = time.time()
 				self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
+				self.pool.map_async(self.writter, (self.input_q, ))
+
 				t6 = time.time()
 				print('put took, ', t6-t5 )
 
