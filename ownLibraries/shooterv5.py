@@ -111,7 +111,6 @@ class Shooter():
 			rawCapture = PiRGBArray(camera, size=(self.width, self.height))
 			stream = camera.capture_continuous(rawCapture, format="bgr", use_video_port=True)
 			captura = 0
-			self.input_q = []
 			for (i, frame) in enumerate(stream):
 				t1 = time.time()
 				print('captura Numero: ', captura)
@@ -167,7 +166,9 @@ class Shooter():
 			"""
 
 		if self.eyesOpen == False:
-			pass
+			self.input_q = []
+
+#			pass
 		
 		self.thread = threading.Thread(target=self.start, args=())
 		self.thread.daemon = True									# Daemonize thread
