@@ -48,7 +48,7 @@ class Shooter():
 		#self.saveDir = self.directorioDeGuardadoGeneral +"/"+self.fechaInfraccion
 		#self.segundo_milisegundo = datetime.datetime.now().strftime('%S.%f')
 		## MultiPro and threadning
-		self.input_q = multiprocessing.Queue(maxsize = 6)
+		self.input_q = multiprocessing.Queue(maxsize = 4)
 
 		process = multiprocessing.Process(target = self.writter, args=((self.input_q,)))
 		process.daemon = True
@@ -83,7 +83,8 @@ class Shooter():
 	
 
 	def writter(self, input_queue):
-		while not input_queue.empty:
+		#while not input_queue.empty:
+		while True:
 			data = input_queue.get()
 			placa, numero_de_captura, saveDir, fechaInfraccion  = data[0], data[1], data[2], data[3]
 			#print('GUARDADO en: '+ saveDir+'/{}-{}.jpg'.format(fechaInfraccion[:-3], numero_de_captura))
@@ -178,7 +179,7 @@ class Processor:
         label,n = scipy.ndimage.label(im > self._threshold)
         return n
 
-        
+
 
 #DEMO DEMO DEMO 
 
