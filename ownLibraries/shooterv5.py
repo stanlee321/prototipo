@@ -49,10 +49,13 @@ class Shooter():
 		#self.segundo_milisegundo = datetime.datetime.now().strftime('%S.%f')
 		## MultiPro and threadning
 		#self.input_q = multiprocessing.Queue(maxsize = 4)
-		self.input_q = []
-		process = multiprocessing.Process(target = self.writter, args=((self.input_q,)))
-		process.daemon = True
-		self.pool = multiprocessing.Pool(4, self.writter, (self.input_q,))
+		manager = multiprocessing.Manager()
+    	self.input_q = manager.Queue()
+		#process = multiprocessing.Process(target = self.writter, args=((self.input_q,)))
+		#process.daemon = True
+		self.pool = multiprocessing.Pool(4)
+		self.pool.map_async(self.writter, (self.input_q, ))
+
 		thread = threading.Thread(target=self.start, args=())
 		thread.daemon = True									# Daemonize thread
 		thread.start() 
@@ -84,23 +87,17 @@ class Shooter():
 	def writter(self, input_queue):
 		#while not input_queue.empty:
 		while True:
-			try:
-
-				print('input queue is ...', input_queue)
-				#data = input_queue.get()
-				data, numero_de_captura = input_queue[0], input_queue[1]
-				#placa, numero_de_captura, saveDir, fechaInfraccion  = data[0], data[1], data[2], data[3]
-				#print('GUARDADO en: '+ saveDir+'/{}-{}.jpg'.format(fechaInfraccion[:-3], numero_de_captura))
-				#cv2.imwrite(saveDir+'/{}-{}.jpg'.format(fechaInfraccion, numero_de_captura), placa)
-				t1 = time.time()
-				#cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
-				cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), input_queue)
-				#imsave('./imagen_{}.jpg'.format(numero_de_captura), placa)
-				#scipy.misc.imsave('./imagen_{}.jpg'.format(numero_de_captura), placa)
-				t2 = time.time()
-				print('WRTIE TOOK: ', t2-t1)
-			except:
-				pass
+			data = input_queue.get()
+			placa, numero_de_captura, saveDir, fechaInfraccion  = data[0], data[1], data[2], data[3]
+			#print('GUARDADO en: '+ saveDir+'/{}-{}.jpg'.format(fechaInfraccion[:-3], numero_de_captura))
+			#cv2.imwrite(saveDir+'/{}-{}.jpg'.format(fechaInfraccion, numero_de_captura), placa)
+			t1 = time.time()
+			#cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+			cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa)
+			#imsave('./imagen_{}.jpg'.format(numero_de_captura), placa)
+			#scipy.misc.imsave('./imagen_{}.jpg'.format(numero_de_captura), placa)
+			t2 = time.time()
+			print('WRTIE TOOK: ', t2-t1)
 
 	def start(self):
 		if self.eyesOpen == True:
@@ -113,6 +110,7 @@ class Shooter():
 			rawCapture = PiRGBArray(camera, size=(self.width, self.height))
 			stream = camera.capture_continuous(rawCapture, format="bgr", use_video_port=True)
 			captura = 0
+			images = []
 			for (i, frame) in enumerate(stream):
 				t1 = time.time()
 				print('captura Numero: ', captura)
@@ -128,8 +126,7 @@ class Shooter():
 				print('Cutting took,: ', t4-t3)
 
 				t5 = time.time()
-				#self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
-				self.input_q.append((placa,i))
+				self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
 				t6 = time.time()
 				print('put took, ', t6-t5 )
 
@@ -143,14 +140,13 @@ class Shooter():
 				#	self.video_capture.release()
 				captura += 1
 				if captura == self.maxCapturas:
-					self.pool.map(self.writter, self.input_q)
-					self.input_q = []
 					break
 				else:
 					pass
 			print('finish limit of captures, releasing...')
 			self.eyesOpen = False
 			#self.video_capture.release()
+			self.pool.close()
 			stream.close()
 			rawCapture.close()
 			camera.close()
@@ -170,7 +166,6 @@ class Shooter():
 			"""
 
 		if self.eyesOpen == False:
-
 			pass
 		
 		self.thread = threading.Thread(target=self.start, args=())
