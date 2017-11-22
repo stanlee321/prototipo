@@ -8,7 +8,6 @@ from picamera.array import PiRGBArray
 from picamera import PiCamera
 from threading import Thread
 import cv2
-import numpy as np
 
 class PiVideoStream:
     def __init__(self, resolution=(320, 240), framerate=32, vf=False, hf=False):
@@ -30,12 +29,7 @@ class PiVideoStream:
         # initialize the frame and the variable used to indicate
         # if the thread should be stopped
         self.frame = np.zeros(resolution, np.int8)
-        print('RES', self.frame.shape)
         self.stopped = False
-
-
-        #self.frame_resized =  cv2.resize(self.frame, (320,240))
-        self.frame_resized = np.zeros((320,240), np.int8)
         
     def start(self):
         # start the thread to read frames from the video stream
@@ -48,7 +42,6 @@ class PiVideoStream:
             # grab the frame from the stream and clear the stream in
             # preparation for the next frame
             self.frame = f.array
-            self.frame_resized = cv2.resize(self.frame, (320,240))
             #print(self.frame_resized.shape)
             self.rawCapture.truncate(0)
  
@@ -62,7 +55,7 @@ class PiVideoStream:
 
     def read(self):
         # return the frame most recently read
-        return self.frame, self.frame_resized
+        return self.frame
  
     def stop(self):
         # indicate that the thread should be stopped
