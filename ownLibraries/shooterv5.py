@@ -12,9 +12,8 @@ from picamera.array import PiRGBArray
 from picamera import PiCamera
 import time
 import cv2
-
-
-
+from io import BytesIO
+from skimage.io import imsave
 
 class Shooter():
 	""" General PICAMERA DRIVER Prototipe
@@ -88,7 +87,8 @@ class Shooter():
 			#print('GUARDADO en: '+ saveDir+'/{}-{}.jpg'.format(fechaInfraccion[:-3], numero_de_captura))
 			#cv2.imwrite(saveDir+'/{}-{}.jpg'.format(fechaInfraccion, numero_de_captura), placa)
 			t1 = time.time()
-			cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+			#cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+			imsave('./imagen_{}.jpg'.format(numero_de_captura), placa)
 			t2 = time.time()
 			print('WRTIE TOOK: ', t2-t1)
 
