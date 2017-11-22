@@ -52,8 +52,7 @@ class Shooter():
 		self.input_q = []
 		process = multiprocessing.Process(target = self.writter, args=((self.input_q,)))
 		process.daemon = True
-		pool = multiprocessing.Pool(4, self.writter, (self.input_q,))
-		pool.map(self.writter, self.input_q)
+		self.pool = multiprocessing.Pool(4, self.writter, (self.input_q,))
 		thread = threading.Thread(target=self.start, args=())
 		thread.daemon = True									# Daemonize thread
 		thread.start() 
@@ -141,6 +140,8 @@ class Shooter():
 				#	self.video_capture.release()
 				captura += 1
 				if captura == self.maxCapturas:
+					self.pool.map(self.writter, self.input_q)
+					self.input_q = []
 					break
 				else:
 					pass
@@ -166,9 +167,8 @@ class Shooter():
 			"""
 
 		if self.eyesOpen == False:
-			self.input_q = []
 
-#			pass
+			pass
 		
 		self.thread = threading.Thread(target=self.start, args=())
 		self.thread.daemon = True									# Daemonize thread
