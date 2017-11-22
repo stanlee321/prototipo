@@ -12,9 +12,11 @@ from picamera.array import PiRGBArray
 from picamera import PiCamera
 import time
 import cv2
-from io import BytesIO
-from skimage.io import imsave
-
+#from io import BytesIO
+#from skimage.io import imsave
+import scipy
+import scipy.misc
+import scipy.ndimage
 class Shooter():
 	""" General PICAMERA DRIVER Prototipe
 	"""
@@ -81,14 +83,15 @@ class Shooter():
 	
 
 	def writter(self, input_queue):
-		while True:
+		while not input_queue.empty:
 			data = input_queue.get()
 			placa, numero_de_captura, saveDir, fechaInfraccion  = data[0], data[1], data[2], data[3]
 			#print('GUARDADO en: '+ saveDir+'/{}-{}.jpg'.format(fechaInfraccion[:-3], numero_de_captura))
 			#cv2.imwrite(saveDir+'/{}-{}.jpg'.format(fechaInfraccion, numero_de_captura), placa)
 			t1 = time.time()
 			#cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
-			imsave('./imagen_{}.jpg'.format(numero_de_captura), placa)
+			#imsave('./imagen_{}.jpg'.format(numero_de_captura), placa)
+			scipy.misc.imsave('./imagen_{}.jpg'.format(numero_de_captura), placa)
 			t2 = time.time()
 			print('WRTIE TOOK: ', t2-t1)
 
@@ -166,7 +169,16 @@ class Shooter():
 
 		#self.miReporte.info('Doing something imporant in the background')
 
+class Processor:
+    def __init__(self,threshold):
+        self._threshold=threshold
 
+    def __call__(self,filename):
+        im = scipy.misc.imread(filename)
+        label,n = scipy.ndimage.label(im > self._threshold)
+        return n
+
+        
 
 #DEMO DEMO DEMO 
 
