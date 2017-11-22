@@ -48,13 +48,11 @@ class Shooter():
 		#self.saveDir = self.directorioDeGuardadoGeneral +"/"+self.fechaInfraccion
 		#self.segundo_milisegundo = datetime.datetime.now().strftime('%S.%f')
 		## MultiPro and threadning
-		#self.input_q = multiprocessing.Queue(maxsize = 4)
-		self.input_q = []
+		self.input_q = multiprocessing.Queue(maxsize = 4)
 		process = multiprocessing.Process(target = self.writter, args=((self.input_q,)))
 		process.daemon = True
 		pool = multiprocessing.Pool(4, self.writter, (self.input_q,))
 		pool.map(self.writter, self.input_q)
-
 		thread = threading.Thread(target=self.start, args=())
 		thread.daemon = True									# Daemonize thread
 		thread.start() 
@@ -110,7 +108,7 @@ class Shooter():
 			rawCapture = PiRGBArray(camera, size=(self.width, self.height))
 			stream = camera.capture_continuous(rawCapture, format="bgr", use_video_port=True)
 			captura = 0
-			self.input_q = []
+			images = []
 			for (i, frame) in enumerate(stream):
 				t1 = time.time()
 				print('captura Numero: ', captura)
@@ -126,8 +124,7 @@ class Shooter():
 				print('Cutting took,: ', t4-t3)
 
 				t5 = time.time()
-				#self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
-				self.input_q.append(placa)
+				self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
 				t6 = time.time()
 				print('put took, ', t6-t5 )
 
