@@ -50,7 +50,7 @@ class Shooter():
 		## MultiPro and threadning
 		#self.input_q = multiprocessing.Queue(maxsize = 4)
 		manager = multiprocessing.Manager()
-    	self.input_q = manager.Queue()
+		self.input_q = manager.Queue()
 		#process = multiprocessing.Process(target = self.writter, args=((self.input_q,)))
 		#process.daemon = True
 		self.pool = multiprocessing.Pool(4)
