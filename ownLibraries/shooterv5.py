@@ -87,11 +87,14 @@ class Shooter():
 			placa, numero_de_captura, saveDir, fechaInfraccion  = data[0], data[1], data[2], data[3]
 			#print('GUARDADO en: '+ saveDir+'/{}-{}.jpg'.format(fechaInfraccion[:-3], numero_de_captura))
 			#cv2.imwrite(saveDir+'/{}-{}.jpg'.format(fechaInfraccion, numero_de_captura), placa)
+			t1 = time.time()
 			cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa)
-			
+			t2 = time.time()
+			print('WRTIE TOOK: ', t2-t1)
 
 	def start(self):
 		if self.eyesOpen == True:
+			t10 = time.time()
 			#self.miReporte.info('Iam in')
 			#self.video_capture = PiVideoStream(resolution=( self.width, self.height),framerate=32).start() 
 			camera = PiCamera()
@@ -139,7 +142,9 @@ class Shooter():
 			stream.close()
 			rawCapture.close()
 			camera.close()
+			t11 = time.time()
 
+			print('ALL TOOK<<<>>> : ', t11-t10)
 			"""
 			while True:
 				if self.video_capture.grab() == False:
