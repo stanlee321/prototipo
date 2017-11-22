@@ -113,10 +113,10 @@ class Shooter():
 					#if self.eyesOpen  == False: # self.counter > self.maxCounter:
 					#	self.eyesOpen = False
 					#	self.video_capture.release()
-				if captura == self.maxCapturas:
-					break
-				else:
-					pass
+					if captura == self.maxCapturas:
+						break
+					else:
+						pass
 			print('finish limit of captures, releasing...')
 			self.eyesOpen = False
 			#self.video_capture.release()
