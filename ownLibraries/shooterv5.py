@@ -44,7 +44,7 @@ class Shooter():
 		self.directorioDeGuardadoGeneral = self.directorioDeReporte
 		self.fechaInfraccion = str
 		self.saveDir = str
-		self.files = list
+		self.files = []
 		#self.saveDir = self.directorioDeGuardadoGeneral +"/"+self.fechaInfraccion
 		#self.segundo_milisegundo = datetime.datetime.now().strftime('%S.%f')
 		## MultiPro and threadning
