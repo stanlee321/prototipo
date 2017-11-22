@@ -98,7 +98,7 @@ class Shooter():
 			camera.resolution = (self.width, self.height)
 			camera.framerate = 32
 			rawCapture = PiRGBArray(camera, size=(self.width, self.height))
-			stream = camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+			stream = camera.capture_continuous(rawCapture, format="bgr", use_video_port=True)
 			captura = 0
 
 			for frame in stream:
