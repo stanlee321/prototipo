@@ -44,24 +44,21 @@ class Shooter():
 		self.directorioDeGuardadoGeneral = self.directorioDeReporte
 		self.fechaInfraccion = str
 		self.saveDir = str
-		self.files = []
+		
 		#self.saveDir = self.directorioDeGuardadoGeneral +"/"+self.fechaInfraccion
 		#self.segundo_milisegundo = datetime.datetime.now().strftime('%S.%f')
 		## MultiPro and threadning
 		#self.input_q = multiprocessing.Queue(maxsize = 4)
+		self.input_q = []
+		process = multiprocessing.Process(target = self.writter, args=((self.input_q,)))
+		process.daemon = True
+		pool = multiprocessing.Pool(4, self.writter, (self.input_q,))
+		pool.map(self.writter, self.input_q)
 
-		#process = multiprocessing.Process(target = self.writter, args=((self.input_q,)))
-		#process.daemon = True
-		#pool = multiprocessing.Pool(4, self.writter, (self.input_q,))
-
-		#thread = threading.Thread(target=self.start, args=())
-		#thread.daemon = True									# Daemonize thread
-		#thread.start() 
-		proc=Processor(128)
-		pool=multiprocessing.Pool()
-		
-		pool.map(proc, self.files)
-	print('EXITOSAMENTE CREE LA CLASE SHOOTER')
+		thread = threading.Thread(target=self.start, args=())
+		thread.daemon = True									# Daemonize thread
+		thread.start() 
+		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
 
 	def establecerRegionInteres(self,cutPoly):
 		self.cutPoly = cutPoly
@@ -101,10 +98,6 @@ class Shooter():
 			t2 = time.time()
 			print('WRTIE TOOK: ', t2-t1)
 
-	def writter_v2(self, images):
-		proc = Processor(128)
-		pool = multiprocessing.Pool()
-		results = pool.map(proc,images)
 
 	def start(self):
 		if self.eyesOpen == True:
@@ -117,7 +110,7 @@ class Shooter():
 			rawCapture = PiRGBArray(camera, size=(self.width, self.height))
 			stream = camera.capture_continuous(rawCapture, format="bgr", use_video_port=True)
 			captura = 0
-			self.files = []
+			self.input_q = []
 			for (i, frame) in enumerate(stream):
 				t1 = time.time()
 				print('captura Numero: ', captura)
@@ -134,7 +127,7 @@ class Shooter():
 
 				t5 = time.time()
 				#self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
-				self.files.append(placa)
+				self.input_q.append(placa)
 				t6 = time.time()
 				print('put took, ', t6-t5 )
 
@@ -180,18 +173,6 @@ class Shooter():
 		self.thread.start()
 
 		#self.miReporte.info('Doing something imporant in the background')
-
-class Processor:
-	def __init__(self,threshold):
-		self._threshold = threshold
-
-	def __call__(self,filename):
-		im = scipy.misc.imread(filename)
-		cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa)
-
-		label,n = scipy.ndimage.label(filename > self._threshold)
-		return n
-
 
 
 #DEMO DEMO DEMO 
