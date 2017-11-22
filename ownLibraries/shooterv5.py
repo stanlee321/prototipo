@@ -113,7 +113,7 @@ class Shooter():
 				t3 = time.time()
 				placaActual = placa[self.primerPunto[1]: self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
 				t4 = time.time()
-				print('Cutting took,: ' t4-t3)
+				print('Cutting took,: ', t4-t3)
 
 				t5 = time.time()
 				self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
