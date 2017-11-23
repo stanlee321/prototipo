@@ -128,7 +128,7 @@ def __main_function__():
 	# Arrancando camara
 	if len(archivoDeVideo) == 0:
 		conVideoGrabado = False												# modo real
-		miCamara = cv2.VideoCapture(1)
+		miCamara = cv2.VideoCapture(0)
 		miCamara.set(3,640)
 		miCamara.set(4,480)
 		time.sleep(1)
