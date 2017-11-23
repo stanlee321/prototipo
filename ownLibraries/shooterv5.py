@@ -88,9 +88,9 @@ class Shooter():
 			placa, numero_de_captura, saveDir, fechaInfraccion  = data[0], data[1], data[2], data[3]
 			#print('GUARDADO en: '+ saveDir+'/{}-{}.jpg'.format(fechaInfraccion[:-3], numero_de_captura))
 			t1 = time.time()
-			cv2.imwrite(saveDir+'/{}-{}.jpg'.format(fechaInfraccion, numero_de_captura), placa)
+			#cv2.imwrite(saveDir+'/{}-{}.jpg'.format(fechaInfraccion, numero_de_captura), placa)
 			#cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
-			#cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa)
+			cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa)
 			#imsave('./imagen_{}.jpg'.format(numero_de_captura), placa)
 			#scipy.misc.imsave('./imagen_{}.jpg'.format(numero_de_captura), placa)
 			t2 = time.time()
@@ -173,9 +173,9 @@ class Shooter():
 
 #DEMO DEMO DEMO 
 
-#shoot = Shooter()
-#counter = 0
-#eyes = False
+shoot = Shooter()
+counter = 0
+eyes = False
 
 #def main():
 #	shoot = Shooter()

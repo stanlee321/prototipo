@@ -9,7 +9,7 @@ import datetime
 import numpy as np
 
 import matplotlib.pyplot as graficaActual
-from ownLibraries.shooterv5 import Shooter
+from ownLibraries.shooterv3 import Shooter
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.analisisonda import AnalisisOnda
 
