@@ -15,6 +15,8 @@ args = vars(ap.parse_args())
 # initialize the video stream and allow the cammera sensor to warmup
 #vs = VideoStream(0, resolution=(640,480)).start()
 vs = cv2.VideoCapture(1)
+vs.set(cv2.CAP_PROP_FRAME_WIDTH, 3240) 
+vs.set(cv2.CAP_PROP_FRAME_HEIGHT, 2464)
 time.sleep(2.0)
 #killyourself=[]
 counter  = 0
@@ -34,7 +36,7 @@ while True:
 		0.35, (0, 0, 255), 1)
 
 	# show the frame
-	cv2.imshow("Frame", frame)
+	cv2.imshow("Frame", cv2.resize(frame,(320,240)))
 	key = cv2.waitKey(1) & 0xFF
 
 	# if the `q` key was pressed, break from the loop
@@ -42,6 +44,7 @@ while True:
 		break
 	if key == ord("s"):
 		cv2.imwrite('./demo_cv2_{}.jpg'.format(counter), frame)
+		print('image saved to disk..{}'.format(counter))
 		counter += 1
 
 # do a bit of cleanup
