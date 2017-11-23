@@ -17,7 +17,7 @@ args = vars(ap.parse_args())
 vs = cv2.VideoCapture(1)
 time.sleep(2.0)
 #killyourself=[]
-
+counter  = 0
 # loop over the frames from the video stream
 while True:
 	# grab the frame from the threaded video stream and resize it
@@ -40,6 +40,9 @@ while True:
 	# if the `q` key was pressed, break from the loop
 	if key == ord("q"):
 		break
+	if key == ord("s"):
+		cv2.imwrite('./demo_cv2_{}.jpg'.format(counter), frame)
+		counter += 1
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
