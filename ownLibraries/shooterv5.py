@@ -173,9 +173,9 @@ class Shooter():
 
 #DEMO DEMO DEMO 
 
-shoot = Shooter()
-counter = 0
-eyes = False
+#shoot = Shooter()
+#counter = 0
+#eyes = False
 
 #def main():
 #	shoot = Shooter()
