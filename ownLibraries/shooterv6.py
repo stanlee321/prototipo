@@ -84,7 +84,7 @@ class Shooter():
 
 	def writter(self):
 		#while not input_queue.empty:
-
+		self.frame_number = 0
 		while self.frame_number < self.maxCapturas:
 			#print('GUARDADO en: '+ self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3], frame))
 			#yield "image%02d.jpg" % frame
@@ -93,7 +93,6 @@ class Shooter():
 			yield "./imagen_{}.jpg".format(self.frame_number)
 			self.frame_number += 1
 
-		self.frame_number = 0
 
 
 	def start(self):
