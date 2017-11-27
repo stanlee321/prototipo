@@ -59,7 +59,7 @@ def __main_function__():
 		print('Se guardo en SD en ',tiempoGuardado,' con shape: ', placa.shape)
 		#placaActual = placa[self.primerPunto[1]:self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
 		#self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
-	miCamera.release()
+	miCamara.release()
 	print('Iniciando prueba con Picamera')
 	#Prueba con stream
 	frames = 0
