@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import picamera
+import numpy as np
 
 directorioDeReporte = os.getenv('HOME')+'/imagenes'
 
