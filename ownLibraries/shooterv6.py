@@ -46,9 +46,9 @@ class Shooter():
 		self.saveDir = str
 		self.frame_number = 0
 		
-		thread = threading.Thread(target=self.start, args=())
-		thread.daemon = True									# Daemonize thread
-		thread.start() 
+		#thread = threading.Thread(target=self.start, args=())
+		#thread.daemon = True									# Daemonize thread
+		#thread.start() 
 		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
 
 	def establecerRegionInteres(self,cutPoly):
@@ -102,12 +102,14 @@ class Shooter():
 			if self.eyesOpen == False:
 				pass
 
-		self.thread = threading.Thread(target=self.start, args=())
-		self.thread.daemon = True									# Daemonize thread
-		self.thread.start()
+		#self.thread = threading.Thread(target=self.start, args=())
+		#self.thread.daemon = True									# Daemonize thread
+		#self.thread.start()
 
 		#self.miReporte.info('Doing something imporant in the background')
-
+	def __call__(self, state = False):
+		self.eyesOpen = state
+		self.start()
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
@@ -119,8 +121,8 @@ if __name__ == '__main__':
 	while True:
 		counter +=1 
 		if counter == 10:
-			shoot.eyesOpen = not eyes
 			eyes = not eyes
+			shoot(state = eyes)
 			counter = 0
 			#main()
 		print(counter)
