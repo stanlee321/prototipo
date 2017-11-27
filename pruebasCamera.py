@@ -59,7 +59,7 @@ if __name__ == '__main__':
 		if input == 'picamera':
 			piCamera = True
 		if 'mp' in input:
-			resolucion = int(float[:-2])
+			resolucion = float(input[:-2])
 			print('Introducido ', resolucion,' MPx')
 		if input == 'Show':
 			mostrarImagen = True
