@@ -265,7 +265,7 @@ class Real(Semaforo):
 		img = img.flatten()
 		"""
 		#assert imagen.shape == (192*3, )
-
+		print('imagen shape is', imagen.shape)
 		img = imagen
 
 		# Some numerical corrections
@@ -273,6 +273,9 @@ class Real(Semaforo):
 		x = np.asarray(feature_img)
   
 		x = x.reshape(1, -1)
+
+		cv2.imshow('Semaforo before in ..', cv2.resize(np.reshape(x,(8,24,3)),(320,240)))
+
 		prediction = self.svm.predict(x)[0]
 		###########################
 		# END SVM PART (CLASSIFICATION) ML PROCESS
