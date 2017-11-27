@@ -44,10 +44,13 @@ def __main_function__():
 	print('Seleccionado ', width,' x ',height,' at ', fov, ' FOV')
 	contador = 0
 	camera = picamera.PiCamera()
+	camera.led= False
 	camera.resolution = (width, height)
+	output = np.empty((height, width, 3), dtype=np.uint8)
 	while True:
 		tiempoAuxiliar = time.time()
-		camera.capture(directorioDeReporte+'/image_{}.jpg'.format(contador))
+		#camera.capture(directorioDeReporte+'/image_{}.jpg'.format(contador))
+		camera.capture(output, 'rgb')
 		tiempoGuardado = time.time()-tiempoAuxiliar
 		print('Se guardo en SD en ',tiempoGuardado)
 		if contador >=10:
