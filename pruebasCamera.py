@@ -46,7 +46,21 @@ def __main_function__():
 	print('Seleccionado ', width,' x ',height,' at ', fov, ' FOV')
 	contador = 0
 
+	miCamara = cv2.VideoCapture(0) 
+	miCamara.set(cv2.CAP_PROP_FRAME_WIDTH, width) 
+	miCamara.set(cv2.CAP_PROP_FRAME_HEIGHT, height) 
+	for captura in range(10):
+		print('captura Numero: ', captura)
+		# Read plate
+		tiempoAuxiliar = time.time()
+		_, placa = miCamara.read()
+		tiempoGuardado = time.time()-tiempoAuxiliar
+		print('Se guardo en SD en ',tiempoGuardado,' con shape: ', placa.shape)
+		#placaActual = placa[self.primerPunto[1]:self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
+		#self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
 
+	"""
+	#Prueba con stream
 	frames = 0
 	stream = io.BytesIO()
 	with picamera.PiCamera() as camera:
@@ -65,6 +79,9 @@ def __main_function__():
 			#print("%02d center: %s (BGR)" % (frames,image[xc,yc]))
 
 	print('Framerate %.2f fps' %  (frames / (time.time() - start)) )
+	# 0.65 fps for 8MP
+	# 1.51 fps for 0.3MPx for stream
+	"""
 
 	"""
 	camera = picamera.PiCamera()
