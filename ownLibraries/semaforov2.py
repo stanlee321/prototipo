@@ -227,7 +227,7 @@ class Real(Semaforo):
 		
 		#cv2.imshow('semaforo', cv2.resize(imagen,(imagen.shape[1]*5,imagen.shape[0]*5)))
 
-		
+		imagen = np.reshape(imagen,(8,24,3))
 		hsv = cv2.cvtColor(imagen, cv2.COLOR_BGR2HSV)
 		
 		# SOME MASKS
