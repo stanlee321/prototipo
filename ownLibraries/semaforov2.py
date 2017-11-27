@@ -269,12 +269,12 @@ class Real(Semaforo):
 		img = imagen
 
 		# Some numerical corrections
-		feature_img = img/(np.mean(img)+0.0001)
-		x = np.asarray(feature_img)
+		#feature_img = img/(np.mean(img)+0.0001)
+		x = np.asarray(img)
   
 		x = x.reshape(1, -1)
 
-		cv2.imshow('Semaforo before in ..', cv2.resize(np.reshape(x,(8,24,3)),(8*3,24*3)))
+		cv2.imshow('Semaforo before in ..', cv2.resize(np.reshape(x,(8,24,3)),(8*6,24*6)))
 
 		prediction = self.svm.predict(x)[0]
 		###########################
