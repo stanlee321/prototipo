@@ -133,8 +133,8 @@ if __name__ == '__main__':
 		promedios = []
 		for i in resoluciones:
 			vector = __main_function__(i)
-			primeros.append(vector.pop(0))
-			promedios.append(sum(vector)/len(vector))
+			primeros.append(vector[1].pop(0))
+			promedios.append(sum(vector[1])/len(vector[1]))
 
 		i = vector[0]#range(len(listaDatos[0]))
 		graficaActual.title('prueba a todas resoluciones')
@@ -145,7 +145,6 @@ if __name__ == '__main__':
 		graficaActual.plot(resoluciones,promedios,label='Promedio')
 		#graficaActual.plot(t,v,'b.-',label='v',t,c,'y.-',label='i',t,T,'r.-',label='T',t,r,'g.-',label='rpm')
 		graficaActual.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),ncol=3, fancybox=True, shadow=True)
-
 		graficaActual.savefig(directorioDeReporte+'/Total_Mp.pdf', bbox_inches='tight')
 
 	else:
