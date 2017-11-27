@@ -70,13 +70,17 @@ def __main_function__():
 		time.sleep(2)
 		start = time.time()
 		for i in range(0, numeroImagenes):
+			tiempo = time.time()
 			camera.capture(stream, format='jpeg')
+			capturadoEn = time.time() - tiempo
 			stream.seek(0)
 			data = np.fromstring(stream.getvalue(), dtype=np.uint8)
 			image = cv2.imdecode(data, 1)
 			(h,w,cols) = image.shape
 			(xc,yc) = (h/2,w/2)
 			frames = frames + 1
+			decodeEn = time.time() - tiempo
+			print('Capturado en ',capturadoEn,' total por imagen ',decodeEn)
 			#print("%02d center: %s (BGR)" % (frames,image[xc,yc]))
 
 	print('Framerate %.2f fps' %  (frames / (time.time() - start)) )
