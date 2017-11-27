@@ -8,8 +8,8 @@ import datetime
 import threading
 import multiprocessing
 
-from picamera.array import PiRGBArray
-from picamera import PiCamera
+
+import picamera
 import time
 import cv2
 #from io import BytesIO
