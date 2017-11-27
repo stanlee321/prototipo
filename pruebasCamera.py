@@ -44,6 +44,7 @@ def __main_function__():
 	print('Seleccionado ', width,' x ',height,' at ', fov, ' FOV')
 	contador = 0
 	camera = picamera.PiCamera()
+	camera.resolution = (width, height)
 	while True:
 		tiempoAuxiliar = time.time()
 		camera.capture(directorioDeReporte+'/image_{}.jpg'.format(contador))
