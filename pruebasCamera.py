@@ -62,7 +62,7 @@ def __main_function__():
 			(h,w,cols) = image.shape
 			(xc,yc) = (h/2,w/2)
 			frames = frames + 1
-			print("%02d center: %s (BGR)" % (frames,image[xc,yc]))
+			#print("%02d center: %s (BGR)" % (frames,image[xc,yc]))
 
 	print('Framerate %.2f fps' %  (frames / (time.time() - start)) )
 
