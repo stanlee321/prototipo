@@ -49,6 +49,14 @@ class Shooter():
 		#thread = threading.Thread(target=self.start, args=())
 		#thread.daemon = True									# Daemonize thread
 		#thread.start() 
+
+
+		# PICMEARA INITs
+
+		self.camera = picamera.PiCamera()
+		self.camera.resolution = (3240,2464)
+		self.camera.framerate = 1
+		self.camera.start_preview()
 		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
 
 	def establecerRegionInteres(self,cutPoly):
@@ -89,6 +97,7 @@ class Shooter():
 
 
 	def start(self):
+		"""
 		with picamera.PiCamera() as camera:
 			camera.resolution = (3240,2464)
 			camera.framerate = 1
@@ -102,6 +111,14 @@ class Shooter():
 			if self.eyesOpen == False:
 				pass
 
+		"""
+		if self.eyesOpen == True:
+			start = time.time()
+			self.camera.capture_sequence(self.writter(), use_video_port=True)
+			finish = time.time()
+			print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
+		if self.eyesOpen == False:
+			pass
 		#self.thread = threading.Thread(target=self.start, args=())
 		#self.thread.daemon = True									# Daemonize thread
 		#self.thread.start()
