@@ -238,9 +238,11 @@ def __main_function__():
 		
 		miAcetatoInformativo.colorDeSemaforo(senalSemaforo)
 
+		frameFlujo = miAcetatoInformativo.aplicarAFrame(frameFlujo)
+
 		if mostrarImagen:
 			#cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(frameFlujo)[120:239,60:360])
-			cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(frameFlujo))
+			cv2.imshow('Visual',frameFlujo)
 		
 		informacionTotal[frame_number] = frameFlujo.copy()
 		miAcetatoInformativo.inicializar()

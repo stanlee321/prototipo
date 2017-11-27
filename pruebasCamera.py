@@ -5,15 +5,21 @@ import time
 import picamera
 import numpy as np
 import io, time, picamera, cv2
+import matplotlib.pyplot as graficaActual
 
 directorioDeReporte = os.getenv('HOME')+'/imagenes'
 
 piCamera = False
 resolucion = 5
 numeroImagenes = 6
+resoluciones = [0.1,0.3,1,1.5,2,5,8]
 
-def __main_function__():
+def __main_function__(resolution):
+	resolucion = resolution
 	print('Iniciando Prueba')
+	ordenada1 = []
+	ordenada2 = []
+	ordenada3 = []
 	# Encontrando la resolucion correspondiente:
 	if resolucion == 5: 
 		width = 2592
@@ -57,6 +63,7 @@ def __main_function__():
 		_, placa = miCamara.read()
 		tiempoGuardado = time.time()-tiempoAuxiliar
 		print('Se guardo en SD en ',tiempoGuardado,' con shape: ', placa.shape)
+		ordenada1.append(tiempoGuardado)
 		#placaActual = placa[self.primerPunto[1]:self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
 		#self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
 	miCamara.release()
@@ -81,6 +88,7 @@ def __main_function__():
 			frames = frames + 1
 			decodeEn = time.time() - tiempo
 			print('Capturado en ',capturadoEn,' total por imagen ',decodeEn)
+			ordenada2.append(decodeEn)
 			#print("%02d center: %s (BGR)" % (frames,image[xc,yc]))
 
 	print('Framerate %.2f fps' %  (frames / (time.time() - start)) )
@@ -98,9 +106,12 @@ def __main_function__():
 		#camera.capture(output, 'bgr')
 		tiempoGuardado = time.time()-tiempoAuxiliar
 		print('Se guardo en SD en ',tiempoGuardado)
-		if contador >= numeroImagenes:
+		ordenada3.append(tiempoGuardado)
+		if contador >= numeroImagenes-1:
 			break
 		contador +=1
+	indice = range(len(ordenada1))
+	return [indice,ordenada1,ordenada2,ordenada3]
 	
 
 if __name__ == '__main__':
@@ -117,4 +128,30 @@ if __name__ == '__main__':
 		if input == 'noDraw':
 			noDraw = True
 
-	__main_function__()
+	if resolucion == 0:
+		print('Modo Manual')
+		for i in resoluciones:
+			__main_function__(i)
+
+	else:
+		vector = __main_function__(resolucion)
+
+		graficaActual.cla()
+		ax1 = self.figure.add_subplot(111)
+		i = vector[0]#range(len(listaDatos[0]))
+		cv0 = vector[1]
+		stre = vector[2]
+		picam = vector[3]
+		graficaActual.title(self.titulo)
+		graficaActual.ylabel('$Tiempo [s]$')
+		graficaActual.xlabel('Lectura')
+		graficaActual.grid()
+		graficaActual.plot(i,cv0,label='CV2')
+		graficaActual.plot(i,stre,label='Stream')
+		graficaActual.plot(i,picam,label='PiCam')
+		#graficaActual.plot(t,v,'b.-',label='v',t,c,'y.-',label='i',t,T,'r.-',label='T',t,r,'g.-',label='rpm')
+		graficaActual.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),ncol=3, fancybox=True, shadow=True)
+
+		graficaActual.savefig(directorioDeReporte+'_'+self.miTarjetaAdquisicion.fechaHora+'.pdf', bbox_inches='tight')
+
+		graficaActual.gcf().clear()
