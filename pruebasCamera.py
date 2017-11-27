@@ -1,5 +1,5 @@
 # Prueba camara
-
+import os
 import time
 import picamera
 
