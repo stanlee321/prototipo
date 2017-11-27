@@ -53,7 +53,7 @@ def __main_function__(resolution):
 	print('Seleccionado ', width,' x ',height,' at ', fov, ' FOV')
 	contador = 0
 	
-	miCamara = cv2.VideoCapture(1) 
+	miCamara = cv2.VideoCapture(0) 
 	miCamara.set(cv2.CAP_PROP_FRAME_WIDTH, width) 
 	miCamara.set(cv2.CAP_PROP_FRAME_HEIGHT, height) 
 	for captura in range(numeroImagenes):
