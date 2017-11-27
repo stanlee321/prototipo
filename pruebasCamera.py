@@ -4,6 +4,7 @@ import sys
 import time
 import picamera
 import numpy as np
+import io, time, picamera, cv2
 
 directorioDeReporte = os.getenv('HOME')+'/imagenes'
 
@@ -44,6 +45,28 @@ def __main_function__():
 
 	print('Seleccionado ', width,' x ',height,' at ', fov, ' FOV')
 	contador = 0
+
+
+	frames = 0
+	stream = io.BytesIO()
+	with picamera.PiCamera() as camera:
+		camera.resolution = (width, height)
+		camera.start_preview()
+		time.sleep(2)
+		start = time.time()
+		for i in range(0, 10):
+			camera.capture(stream, format='jpeg')
+			stream.seek(0)
+			data = np.fromstring(stream.getvalue(), dtype=np.uint8)
+			image = cv2.imdecode(data, 1)
+			(h,w,cols) = image.shape
+			(xc,yc) = (h/2,w/2)
+			frames = frames + 1
+			print "%02d center: %s (BGR)" % (frames,image[xc,yc])
+
+    print('Framerate %.2f fps' %  (frames / (time.time() - start)) )
+
+	"""
 	camera = picamera.PiCamera()
 	camera.led= False
 	camera.resolution = (width, height)
@@ -51,13 +74,13 @@ def __main_function__():
 	while True:
 		tiempoAuxiliar = time.time()
 		#camera.capture(directorioDeReporte+'/image_{}.jpg'.format(contador))
-		camera.capture(output, 'rgb')
+		camera.capture(output, 'bgr')
 		tiempoGuardado = time.time()-tiempoAuxiliar
 		print('Se guardo en SD en ',tiempoGuardado)
 		if contador >=10:
 			break
 		contador +=1
-
+	"""
 
 if __name__ == '__main__':
 	for input in sys.argv:
