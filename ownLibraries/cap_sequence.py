@@ -1,6 +1,6 @@
 import time
 import picamera
-frames = 60
+frames = 2
 def filenames():
 	frame = 0
 	while frame < frames:
@@ -8,8 +8,8 @@ def filenames():
 		frame += 1
 
 with picamera.PiCamera() as camera:
-	camera.resolution = (1024, 768)
-	camera.framerate = 30
+	camera.resolution = (3240,2464)
+	camera.framerate = 3
 	camera.start_preview()
 	# Give the camera some warm-up time
 	time.sleep(2)
