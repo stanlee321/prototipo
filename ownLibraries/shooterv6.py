@@ -73,7 +73,7 @@ class Shooter():
 		print('Camara Apagada')
 	
 
-	def writter(self, input_queue):
+	def writter(self):
 		#while not input_queue.empty:
 
 		frame = 0
@@ -91,7 +91,7 @@ class Shooter():
 			# Give the camera some warm-up time
 			if self.eyesOpen == True:
 				start = time.time()
-				camera.capture_sequence(writter(), use_video_port=True)
+				camera.capture_sequence(self.writter(), use_video_port=True)
 				finish = time.time()
 				print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
 			if self.eyesOpen == False:
