@@ -45,14 +45,6 @@ class Shooter():
 		self.fechaInfraccion = str
 		self.saveDir = str
 		
-		#self.saveDir = self.directorioDeGuardadoGeneral +"/"+self.fechaInfraccion
-		#self.segundo_milisegundo = datetime.datetime.now().strftime('%S.%f')
-		## MultiPro and threadning
-		self.input_q = multiprocessing.Queue(maxsize = 4)
-
-		process = multiprocessing.Process(target = self.writter, args=((self.input_q,)))
-		process.daemon = True
-		pool = multiprocessing.Pool(4, self.writter, (self.input_q,))
 		thread = threading.Thread(target=self.start, args=())
 		thread.daemon = True									# Daemonize thread
 		thread.start() 
@@ -83,101 +75,33 @@ class Shooter():
 
 	def writter(self, input_queue):
 		#while not input_queue.empty:
-		while True:
-			data = input_queue.get()
-			placa, numero_de_captura, saveDir, fechaInfraccion  = data[0], data[1], data[2], data[3]
-			print('GUARDADO en: '+ saveDir+'/{}-{}.jpg'.format(fechaInfraccion[:-3], numero_de_captura))
-			t1 = time.time()
-			cv2.imwrite(saveDir+'/{}-{}.jpg'.format(fechaInfraccion, numero_de_captura), placa)
-			#cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
-			#cv2.imwrite('./imagen_{}.jpg'.format(numero_de_captura), placa)
-			#imsave('./imagen_{}.jpg'.format(numero_de_captura), placa)
-			#scipy.misc.imsave('./imagen_{}.jpg'.format(numero_de_captura), placa)
-			t2 = time.time()
-			print('WRTIE TOOK: ', t2-t1)
+
+		frame = 0
+		while frame < self.maxCapturas:
+			print('GUARDADO en: '+ self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3], frame))
+			#yield "image%02d.jpg" % frame
+			yield "saveDir+'/{}-{}.jpg".format(self.fechaInfraccion, frame)
+			frame += 1
 
 	def start(self):
-		if self.eyesOpen == True:
-			t10 = time.time()
-			#self.miReporte.info('Iam in')
-			#self.video_capture = PiVideoStream(resolution=( self.width, self.height),framerate=32).start() 
-			with picamera.Picamera() as camera:
-				camera.resolution = (self.width, self.height)
-				camera.framerate = 3
-				camera.start_preview()
-				camera.capture_sequence([
-					"image1.jpg",
-					"image2.jpg",
-					"image3.jpg",
-				])
-			rawCapture = PiRGBArray(camera, size=(self.width, self.height))
-			stream = camera.capture_continuous(rawCapture, format="bgr", use_video_port=True)
-			captura = 0
-			images = []
-			for (i, frame) in enumerate(stream):
-				t1 = time.time()
-				print('captura Numero: ', captura)
-				# Read plate
-				placa = frame.array
+		with picamera.PiCamera() as camera:
+			camera.resolution = (3240,2464)
+			camera.framerate = 3
+			camera.start_preview()
+			# Give the camera some warm-up time
+			if self.eyesOpen == True:
+				start = time.time()
+				camera.capture_sequence(writter(), use_video_port=True)
+				finish = time.time()
+				print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
+			if self.eyesOpen == False:
+				pass
 
-				t2 = time.time()
-				print('read placa took: ', t2-t1)
-				print('placa Inputshape: ', placa.shape)
-				t3 = time.time()
-				placaActual = placa[self.primerPunto[1]: self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
-				t4 = time.time()
-				print('Cutting took,: ', t4-t3)
-
-				t5 = time.time()
-				self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
-				t6 = time.time()
-				print('put took, ', t6-t5 )
-
-				t7 = time.time()
-				rawCapture.truncate(0)
-				t8 = time.time()
-				print('Truncate took', t8-t7)
-				#  If Self.run is False everything starts to stop and close
-				#if self.eyesOpen  == False: # self.counter > self.maxCounter:
-				#	self.eyesOpen = False
-				#	self.video_capture.release()
-				captura += 1
-				if captura == self.maxCapturas:
-					break
-				else:
-					pass
-			print('finish limit of captures, releasing...')
-			self.eyesOpen = False
-			#self.video_capture.release()
-			stream.close()
-			rawCapture.close()
-			camera.close()
-			t11 = time.time()
-
-			print('ALL TOOK<<<>>> : ', t11-t10)
-			"""
-			while True:
-				if self.video_capture.grab() == False:
-					print('Camera sucessfully released ...!')
-					break
-				else:
-					print('Releasing camera....')
-					self.video_capture.release()
-			#else:
-			#	self.video_capture.release()
-			"""
-
-		if self.eyesOpen == False:
-			pass
-		
 		self.thread = threading.Thread(target=self.start, args=())
 		self.thread.daemon = True									# Daemonize thread
 		self.thread.start()
 
 		#self.miReporte.info('Doing something imporant in the background')
-
-
-
 
 
 if __name__ == '__main__':
