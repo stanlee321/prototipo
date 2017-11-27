@@ -44,6 +44,7 @@ class Shooter():
 		self.directorioDeGuardadoGeneral = self.directorioDeReporte
 		self.fechaInfraccion = str
 		self.saveDir = str
+		self.frame_number = 0
 		
 		thread = threading.Thread(target=self.start, args=())
 		thread.daemon = True									# Daemonize thread
@@ -76,15 +77,16 @@ class Shooter():
 	def writter(self):
 		#while not input_queue.empty:
 
-		frame = 0
-		while frame < self.maxCapturas:
+		while self.frame_number < self.maxCapturas:
 			#print('GUARDADO en: '+ self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3], frame))
 			#yield "image%02d.jpg" % frame
 			
 			#yield "saveDir+'/{}-{}.jpg".format(self.fechaInfraccion, frame)
-			yield "./imagen_{}.jpg".format(frame)
+			yield "./imagen_{}.jpg".format(self.frame_number)
+			self.frame_number += 1
 
-			frame += 1
+		self.frame_number = 0
+
 
 	def start(self):
 		with picamera.PiCamera() as camera:
