@@ -128,11 +128,28 @@ if __name__ == '__main__':
 			noDraw = True
 
 	if resolucion == 0:
-		print('Modo Manual')
+		print('Modo Automatico')
+		primeros = []
+		promedios = []
 		for i in resoluciones:
-			__main_function__(i)
+			vector = __main_function__(i)
+			primeros.append(vector.pop(0))
+			promedios.append(sum(vector)/len(vector))
+
+		i = vector[0]#range(len(listaDatos[0]))
+		graficaActual.title('prueba a todas resoluciones')
+		graficaActual.ylabel('$Tiempo [s]$')
+		graficaActual.xlabel('Lectura')
+		graficaActual.grid()
+		graficaActual.plot(resoluciones,primeros,label='Primer dato')
+		graficaActual.plot(resoluciones,promedios,label='Promedio')
+		#graficaActual.plot(t,v,'b.-',label='v',t,c,'y.-',label='i',t,T,'r.-',label='T',t,r,'g.-',label='rpm')
+		graficaActual.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),ncol=3, fancybox=True, shadow=True)
+
+		graficaActual.savefig(directorioDeReporte+'/Total_Mp.pdf', bbox_inches='tight')
 
 	else:
+		print('Modo Manual')
 		vector = __main_function__(resolucion)
 
 		i = vector[0]#range(len(listaDatos[0]))
