@@ -227,7 +227,7 @@ class Real(Semaforo):
 		
 		#cv2.imshow('semaforo', cv2.resize(imagen,(imagen.shape[1]*5,imagen.shape[0]*5)))
 
-		"""
+		
 		hsv = cv2.cvtColor(imagen, cv2.COLOR_BGR2HSV)
 		
 		# SOME MASKS
@@ -263,10 +263,9 @@ class Real(Semaforo):
 		#cv2.imwrite('red2.jpg', img)
 
 		img = img.flatten()
-		"""
+		
 		#assert imagen.shape == (192*3, )
-		print('imagen shape is', imagen.shape)
-		img = imagen
+		#img = imagen
 
 		# Some numerical corrections
 		#feature_img = img/(np.mean(img)+0.0001)
