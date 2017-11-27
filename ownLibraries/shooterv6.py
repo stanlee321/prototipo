@@ -101,9 +101,15 @@ class Shooter():
 			t10 = time.time()
 			#self.miReporte.info('Iam in')
 			#self.video_capture = PiVideoStream(resolution=( self.width, self.height),framerate=32).start() 
-			camera = PiCamera()
-			camera.resolution = (self.width, self.height)
-			camera.framerate = 3
+			with picamera.Picamera() as camera:
+				camera.resolution = (self.width, self.height)
+				camera.framerate = 3
+				camera.start_preview()
+				camera.capture_sequence([
+					"image1.jpg",
+					"image2.jpg",
+					"image3.jpg",
+				])
 			rawCapture = PiRGBArray(camera, size=(self.width, self.height))
 			stream = camera.capture_continuous(rawCapture, format="bgr", use_video_port=True)
 			captura = 0
