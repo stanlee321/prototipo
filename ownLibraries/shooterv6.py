@@ -89,7 +89,7 @@ class Shooter():
 	def start(self):
 		with picamera.PiCamera() as camera:
 			camera.resolution = (3240,2464)
-			camera.framerate = 3
+			camera.framerate = 1
 			camera.start_preview()
 			# Give the camera some warm-up time
 			if self.eyesOpen == True:
