@@ -10,6 +10,7 @@ directorioDeReporte = os.getenv('HOME')+'/imagenes'
 
 piCamera = False
 resolucion = 5
+numeroImagenes = 6
 
 def __main_function__():
 	print('Iniciando Prueba')
@@ -45,11 +46,11 @@ def __main_function__():
 
 	print('Seleccionado ', width,' x ',height,' at ', fov, ' FOV')
 	contador = 0
-
+	
 	miCamara = cv2.VideoCapture(1) 
 	miCamara.set(cv2.CAP_PROP_FRAME_WIDTH, width) 
 	miCamara.set(cv2.CAP_PROP_FRAME_HEIGHT, height) 
-	for captura in range(10):
+	for captura in range(numeroImagenes):
 		print('captura Numero: ', captura)
 		# Read plate
 		tiempoAuxiliar = time.time()
@@ -58,8 +59,8 @@ def __main_function__():
 		print('Se guardo en SD en ',tiempoGuardado,' con shape: ', placa.shape)
 		#placaActual = placa[self.primerPunto[1]:self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
 		#self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
-
-	"""
+	miCamera.release()
+	print('Iniciando prueba con Picamera')
 	#Prueba con stream
 	frames = 0
 	stream = io.BytesIO()
@@ -68,7 +69,7 @@ def __main_function__():
 		camera.start_preview()
 		time.sleep(2)
 		start = time.time()
-		for i in range(0, 10):
+		for i in range(0, numeroImagenes):
 			camera.capture(stream, format='jpeg')
 			stream.seek(0)
 			data = np.fromstring(stream.getvalue(), dtype=np.uint8)
@@ -81,23 +82,22 @@ def __main_function__():
 	print('Framerate %.2f fps' %  (frames / (time.time() - start)) )
 	# 0.65 fps for 8MP
 	# 1.51 fps for 0.3MPx for stream
-	"""
-
-	"""
+	print('Iniciando prueba con Picamera direct SD')
+	
 	camera = picamera.PiCamera()
 	camera.led= False
 	camera.resolution = (width, height)
 	output = np.empty((height, width, 3), dtype=np.uint8)
 	while True:
 		tiempoAuxiliar = time.time()
-		#camera.capture(directorioDeReporte+'/image_{}.jpg'.format(contador))
-		camera.capture(output, 'bgr')
+		camera.capture(directorioDeReporte+'/piCamMod_{}.jpg'.format(contador))
+		#camera.capture(output, 'bgr')
 		tiempoGuardado = time.time()-tiempoAuxiliar
 		print('Se guardo en SD en ',tiempoGuardado)
-		if contador >=10:
+		if contador >= numeroImagenes:
 			break
 		contador +=1
-	"""
+	
 
 if __name__ == '__main__':
 	for input in sys.argv:
@@ -108,12 +108,8 @@ if __name__ == '__main__':
 			print('Introducido ', resolucion,' MPx')
 		if input == 'Show':
 			mostrarImagen = True
-		if 'fps' in input:
-			mifps = int(input[:-3])
-		if input =='Kill':
-			topeEjecucion = int(input[:-1])
-		if 'gamma' in input:
-			gamma = float(input[:-5])
+		if 'pic' in input:
+			numeroImagenes = int(input[:-3])
 		if input == 'noDraw':
 			noDraw = True
 
