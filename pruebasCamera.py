@@ -64,8 +64,7 @@ def __main_function__(resolution):
 		tiempoGuardado = time.time()-tiempoAuxiliar
 		print('Se guardo en SD en ',tiempoGuardado,' con shape: ', placa.shape)
 		ordenada1.append(tiempoGuardado)
-		#placaActual = placa[self.primerPunto[1]:self.segundoPunto[1], self.primerPunto[0]: self.segundoPunto[0]]
-		#self.input_q.put((placaActual, captura, self.saveDir, self.fechaInfraccion))
+
 	miCamara.release()
 	print('Iniciando prueba con Picamera')
 	#Prueba con stream
@@ -140,7 +139,7 @@ if __name__ == '__main__':
 		cv0 = vector[1]
 		stre = vector[2]
 		picam = vector[3]
-		graficaActual.title(self.titulo)
+		graficaActual.title('prueba a {} MP de resolucion')
 		graficaActual.ylabel('$Tiempo [s]$')
 		graficaActual.xlabel('Lectura')
 		graficaActual.grid()
