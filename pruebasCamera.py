@@ -136,8 +136,6 @@ if __name__ == '__main__':
 	else:
 		vector = __main_function__(resolucion)
 
-		graficaActual.cla()
-		ax1 = self.figure.add_subplot(111)
 		i = vector[0]#range(len(listaDatos[0]))
 		cv0 = vector[1]
 		stre = vector[2]
@@ -152,6 +150,4 @@ if __name__ == '__main__':
 		#graficaActual.plot(t,v,'b.-',label='v',t,c,'y.-',label='i',t,T,'r.-',label='T',t,r,'g.-',label='rpm')
 		graficaActual.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),ncol=3, fancybox=True, shadow=True)
 
-		graficaActual.savefig(directorioDeReporte+'_'+self.miTarjetaAdquisicion.fechaHora+'.pdf', bbox_inches='tight')
-
-		graficaActual.gcf().clear()
+		graficaActual.savefig(directorioDeReporte+'{}_Mp.pdf'.format(resolucion), bbox_inches='tight')
