@@ -51,10 +51,11 @@ class Shooter():
 		#thread.start() 
 
 
-		# PICMEARA INITs
+		# PICMEARA INIT
 
 		self.camera = picamera.PiCamera()
-		self.camera.resolution = (3240,2464)
+		#self.camera.resolution = (3240,2464)
+		self.camera.resolution = (2592,1944)
 		self.camera.framerate = 1
 		self.camera.start_preview()
 		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
