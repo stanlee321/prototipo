@@ -268,8 +268,8 @@ class Real(Semaforo):
 		#img = imagen
 
 		# Some numerical corrections
-		#feature_img = img/(np.mean(img)+0.0001)
-		x = np.asarray(img)
+		feature_img = img/255#(np.mean(img)+0.0001)
+		x = np.asarray(feature_im)
   
 		x = x.reshape(1, -1)
 
