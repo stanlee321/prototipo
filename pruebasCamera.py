@@ -64,7 +64,7 @@ def __main_function__():
 			frames = frames + 1
 			print("%02d center: %s (BGR)" % (frames,image[xc,yc]))
 
-    print('Framerate %.2f fps' %  (frames / (time.time() - start)) )
+	print('Framerate %.2f fps' %  (frames / (time.time() - start)) )
 
 	"""
 	camera = picamera.PiCamera()
