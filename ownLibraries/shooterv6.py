@@ -19,11 +19,8 @@ class Shooter():
 	directorioDeReporte = os.getenv('HOME')+'/casosReportados'
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
-	#def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([0,0],[3280,2464]), capturas = 3):
-	def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([0,0],[200,200]), capturas = 3):
-		#self.miReporte = MiReporte(levelLogging=10)
-		#self.miReporte.info( 'Starting the  PiCam')
-		#print('Cree objeto de forma exitosa')
+	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([0,0],[3280,2464]), capturas = 2):
+	#def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([0,0],[200,200]), capturas = 3):
 		self.eyesOpen = False
 		# Initial aparemeters
 		self.video_source = video_source
@@ -69,7 +66,6 @@ class Shooter():
 		print('Encendi Camara de Forma Exitosa en ' + self.saveDir)
 
 	def encenderCamara(self):
-		#self.miReporte.moverRegistroACarpeta(fecha)
 		self.eyesOpen = True
 
 	def apagarCamara(self):
