@@ -14,9 +14,7 @@ import time
 import cv2
 #from io import BytesIO
 #from skimage.io import imsave
-import scipy
-import scipy.misc
-import scipy.ndimage
+
 class Shooter():
 	""" General PICAMERA DRIVER Prototipe
 	"""
@@ -99,18 +97,17 @@ class Shooter():
 
 
 	def start(self):
-            if self.eyesOpen == True:
-                
-		start = time.time()
-		self.camera.capture_sequence(self.writter(), use_video_port=True)
-		finish = time.time()
-		self.eyesOpen = False
-		print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
+		if self.eyesOpen == True:
+			start = time.time()
+			self.camera.capture_sequence(self.writter(), use_video_port=True)
+			finish = time.time()
+			self.eyesOpen = False
+			print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
 	    else:
-                pass
-            self.thread = threading.Thread(target=self.start, args=())
-            self.thread.daemon = True									# Daemonize thread
-            self.thread.start()
+	    	pass
+        self.thread = threading.Thread(target=self.start, args=())
+        self.thread.daemon = True									# Daemonize thread
+        self.thread.start()
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
