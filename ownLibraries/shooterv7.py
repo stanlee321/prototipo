@@ -122,7 +122,7 @@ class ProcessWorker(multiprocessing.Process):
             next_task_list = self.task_q.get()
             if next_task is None:
                 # Poison pill means shutdown
-                print '%s: Exiting' % (proc_name)
+                print ('%s: Exiting' % (proc_name))
                 self.task_q.task_done()
                 break
             next_task = next_task_list[0]
