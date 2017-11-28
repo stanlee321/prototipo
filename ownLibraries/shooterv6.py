@@ -45,11 +45,6 @@ class Shooter():
 		self.fechaInfraccion = str
 		self.saveDir = str
 		self.frame_number = 0
-		
-		#thread = threading.Thread(target=self.start, args=())
-		#thread.daemon = True									# Daemonize thread
-		#thread.start() 
-
 
 		# PICMEARA INIT
 
@@ -61,9 +56,9 @@ class Shooter():
 		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
 
 
-		thread = threading.Thread(target=self.start, args=())
-		thread.daemon = True									# Daemonize thread
-		thread.start() 
+		#thread = threading.Thread(target=self.start, args=())
+		#thread.daemon = True									# Daemonize thread
+		#thread.start() 
 
 
 	def establecerRegionInteres(self,cutPoly):
@@ -78,8 +73,8 @@ class Shooter():
 		if not os.path.exists(self.saveDir):
 			os.makedirs(self.saveDir) 
 		self.eyesOpen = True
-		#self.start()
-		print('Encendi Camara de Forma Exitosa en '+self.saveDir)
+		self.start()
+		print('Encendi Camara de Forma Exitosa en ' + self.saveDir)
 
 	def encenderCamara(self):
 		#self.miReporte.moverRegistroACarpeta(fecha)
@@ -113,9 +108,9 @@ class Shooter():
 		if self.eyesOpen == False:
 			pass
 
-		self.thread = threading.Thread(target=self.start, args=())
-		self.thread.daemon = True									# Daemonize thread
-		self.thread.start()
+		#self.thread = threading.Thread(target=self.start, args=())
+		#self.thread.daemon = True									# Daemonize thread
+		#self.thread.start()
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
