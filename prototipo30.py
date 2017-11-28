@@ -55,12 +55,6 @@ noDraw = False
 
 # Función principal
 
-def guardarImagenAlta(direccion,imagenAguardar):
-	if not os.path.exists(direccion):
-		os.makedirs(direccion) 
-	cv2.imwrite(direccion+'/captura.jpg',imagenAguardar)
-	grabadoParalelo.join()
-
 def obtenerIndicesSemaforo(poligono640):
 	punto0 = poligono640[0]
 	punto1 = poligono640[1]
@@ -172,6 +166,7 @@ def __main_function__():
 	grupo = [0]
 	frameAlta = np.empty((320,240,3))
 	capturaEnAlta = False
+	imagenesEnAlta = []
 
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
@@ -181,6 +176,7 @@ def __main_function__():
 		else:
 			if capturaEnAlta:
 				ret, frameAlta = miCamara.read() 
+				imagenesEnAlta.append([miPoliciaReportando.ultimaCarpetaGuardado+'/imagen.jpg',frameAlta])
 				frameVideo = cv2.resize(frameAlta,(320,240))
 				capturaEnAlta = False
 				miCamara.set(3,640)
@@ -215,8 +211,6 @@ def __main_function__():
 				miCamara.set(3,3280)
 				miCamara.set(4,2464)
 				capturaEnAlta = True
-				grabadoParalelo = threading.Thread(target=guardarImagenAlta, args=(miPoliciaReportando.ultimaCarpetaGuardado,frameAlta))
-				grabadoParalelo.start()
 			
 			if flanco == 1:							# esto se inicia al principio de este estado
 				miReporte.info('SEMAFORO EN ROJO')
@@ -238,6 +232,9 @@ def __main_function__():
 			if miPoliciaReportando.numeroInfraccionesConfirmadas() > 0:
 				infraccionEnRevision = miPoliciaReportando.popInfraccion()
 				miGrabadora.generarReporteInfraccion(informacionTotal, infraccionEnRevision)
+			if miPoliciaReportando.numeroInfraccionesConfirmadas==0:
+				for imagen in imagenesEnAlta:
+					cv2.imwrite(imagen[0],imagen[1])
 			else:
 				#Si no hay infracciones a reportar me fijo el estado del filtro:
 				tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
