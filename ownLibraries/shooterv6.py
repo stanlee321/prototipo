@@ -91,7 +91,7 @@ class Shooter():
 			print('GUARDADO en: '+ self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3], self.frame_number))
 			#yield "image%02d.jpg" % frame
 			
-			yield "saveDir+'/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
+			yield saveDir+"/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
 			#yield "./imagen_{}.jpg".format(self.frame_number)
 			self.frame_number += 1
 
