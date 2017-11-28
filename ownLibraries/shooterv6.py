@@ -72,7 +72,7 @@ class Shooter():
 		self.saveDir = self.directorioDeGuardadoGeneral +"/" + folder
 		if not os.path.exists(self.saveDir):
 			os.makedirs(self.saveDir) 
-		self.eyesOpen = True
+		#self.eyesOpen = True
 		self.start()
 		print('Encendi Camara de Forma Exitosa en ' + self.saveDir)
 
@@ -99,15 +99,10 @@ class Shooter():
 
 
 	def start(self):
-		if self.eyesOpen == True:
-			start = time.time()
-			self.camera.capture_sequence(self.writter(), use_video_port=True)
-			finish = time.time()
-			print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
-			self.apagarCamara()
-		if self.eyesOpen == False:
-			pass
-
+		start = time.time()
+		self.camera.capture_sequence(self.writter(), use_video_port=True)
+		finish = time.time()
+		print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
 		#self.thread = threading.Thread(target=self.start, args=())
 		#self.thread.daemon = True									# Daemonize thread
 		#self.thread.start()
