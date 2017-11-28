@@ -65,7 +65,7 @@ if __name__ == '__main__':
 		counter +=1 
 		if counter == 10:
 			eyes = not eyes
-			shoot.encenderCamaraEnSubDirectorio('.')
+			shoot.encenderCamaraEnSubDirectorio('DEMO')
 			counter = 0
 			#main()
 		print(counter)
