@@ -234,6 +234,7 @@ def __main_function__():
 				miGrabadora.generarReporteInfraccion(informacionTotal, infraccionEnRevision)
 			if miPoliciaReportando.numeroInfraccionesConfirmadas==0:
 				for imagen in imagenesEnAlta:
+					print('>>>>> GUARDANDO COMO: ',imagen[0],' shape ', imagen[1].shape)
 					cv2.imwrite(imagen[0],imagen[1])
 			else:
 				#Si no hay infracciones a reportar me fijo el estado del filtro:
