@@ -61,6 +61,7 @@ class PoliciaInfractor():
 		eightMP = (3240,2464)
 		#fiveMP = (2592,1944)
 		piCamSource  = 1
+		self.ultimaCarpetaGuardado = ''
 		if self.segundaCamara:
 			self.camaraAlta = Shooter(video_source = piCamSource, width = eightMP[0], height = eightMP[1], capturas = 2)
 			#self.camaraAlta = Shooter(video_source = piCamSource, width = fiveMP[0], height = fiveMP[1], capturas = 2)
@@ -144,6 +145,7 @@ class PoliciaInfractor():
 				nuevaInfraccion = {'name':nombreInfraccionYFolder,'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
 				if self.segundaCamara:
 					self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder, nombreInfraccionYFolder)
+				self.ultimaCarpetaGuardado = os.getenv('HOME')+'/casosReportados/'+nombreInfraccionYFolder
 				cambiosImportantes = True
 				self.listaDeInfracciones.append(nuevaInfraccion)
 				
