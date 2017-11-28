@@ -67,7 +67,10 @@ class PoliciaInfractor():
 			#self.camaraAlta = Shooter(video_source = piCamSource, width = fiveMP[0], height = fiveMP[1], capturas = 2)
 
 	def establecerRegionInteresAlta(self,cutPoly):
-		self.camaraAlta.establecerRegionInteres(cutPoly)
+		if self.segundaCamara:
+			self.camaraAlta.establecerRegionInteres(cutPoly)
+		else:
+			pass
 
 	def inicializarAgente(self,):
 		"""

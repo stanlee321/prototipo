@@ -56,9 +56,9 @@ class Shooter():
 		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
 
 
-		#thread = threading.Thread(target=self.start, args=())
-		#thread.daemon = True									# Daemonize thread
-		#thread.start() 
+		thread = threading.Thread(target=self.start, args=())
+		thread.daemon = True									# Daemonize thread
+		thread.start() 
 
 
 	def establecerRegionInteres(self,cutPoly):
@@ -72,8 +72,8 @@ class Shooter():
 		self.saveDir = self.directorioDeGuardadoGeneral +"/" + folder
 		if not os.path.exists(self.saveDir):
 			os.makedirs(self.saveDir) 
-		#self.eyesOpen = True
-		self.start()
+		self.eyesOpen = True
+		#self.start()
 		print('Encendi Camara de Forma Exitosa en ' + self.saveDir)
 
 	def encenderCamara(self):
@@ -99,13 +99,18 @@ class Shooter():
 
 
 	def start(self):
+            if self.eyesOpen == True:
+                
 		start = time.time()
 		self.camera.capture_sequence(self.writter(), use_video_port=True)
 		finish = time.time()
+		self.eyesOpen = False
 		print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
-		#self.thread = threading.Thread(target=self.start, args=())
-		#self.thread.daemon = True									# Daemonize thread
-		#self.thread.start()
+	    else:
+                pass
+            self.thread = threading.Thread(target=self.start, args=())
+            self.thread.daemon = True									# Daemonize thread
+            self.thread.start()
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
