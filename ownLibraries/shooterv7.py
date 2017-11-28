@@ -12,7 +12,7 @@ import time
 #from io import BytesIO
 #from skimage.io import imsave
 
-class Shooter(picamera):
+class Shooter(picamera.PiCamera):
 	""" General PICAMERA DRIVER Prototipe
 	"""
 	directorioDeReporte = os.getenv('HOME')+'/casosReportados'
@@ -44,7 +44,7 @@ class Shooter(picamera):
 		self.frame_number = 0
 
 		# PICMEARA INIT
-		self.camera= picamera.PiCamera()
+		self.camera = picamera.PiCamera()
 		#self.camera.resolution = (3240,2464)
 		self.camera.resolution = (self.width,self.height)
 		self.camera.framerate = 1
