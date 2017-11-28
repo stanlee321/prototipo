@@ -215,7 +215,7 @@ def __main_function__():
 				miCamara.set(3,3280)
 				miCamara.set(4,2464)
 				capturaEnAlta = True
-				grabadoParalelo = threading.Thread(target=guardarImagenAlta, args=(ultimaCarpetaGuardado,frameAlta))
+				grabadoParalelo = threading.Thread(target=guardarImagenAlta, args=(miPoliciaReportando.ultimaCarpetaGuardado,frameAlta))
 				grabadoParalelo.start()
 			
 			if flanco == 1:							# esto se inicia al principio de este estado
