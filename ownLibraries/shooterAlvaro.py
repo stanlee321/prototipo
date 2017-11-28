@@ -15,15 +15,15 @@ import ctypes
 class ControladorCamara():
 	def __init__(self, root ='.'):
 		# Se declaran las variables de control con el proceso paralelo
-		programaPrincipalCorriendo = multiprocessing.Value('i',1)
+		self.programaPrincipalCorriendo = multiprocessing.Value('i',1)
 		#numeroImagenes = multiprocessing.Value('i',0)
 		self.numeroImagenes = 0
 		self.root = root
 		self.date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		self.input_q = multiprocessing.Queue(maxsize = 3)
 		#nombreCarpeta = multiprocessing.Value('c', ctypes.create_unicode_buffer(date))
-		procesoParalelo = multiprocessing.Process(target = procesadoParalelo, args = (self.input_q))
-		procesoParalelo.start()
+		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q))
+		self.procesoParalelo.start()
 
 	def encenderCamaraEnSubDirectorio(self,nombreFolder):
 		self.numeroImagenes += 2
@@ -38,18 +38,18 @@ class ControladorCamara():
 		return self
 	def apagarControlador(self):
 		programaPrincipalCorriendo = multiprocessing.Value('i',0)
-		procesoParalelo.join()
+		self.procesoParalelo.join()
 
 	def procesadoParalelo(self,input_q):
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
 		miCamara = Shooter()
-		while programaPrincipalCorriendo.value == 1:
+		while self.programaPrincipalCorriendo.value == 1:
 			numeroImagen, fecha = input_q.get()
+			folder = '.'
 
 			if numeroImagen > 0:
-				folder, fecha = '.', fecha
 				miCamara.encenderCamaraEnSubDirectorio(folder, fecha)
-				numeroImagen.value = numeroImagen.value -1
+				numeroImagen = numeroImagen -1
 
 
 
