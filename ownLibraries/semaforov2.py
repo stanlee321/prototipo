@@ -220,8 +220,8 @@ class Real(Semaforo):
 
 	def find_color(self, imagen):
 
-		"""
-		Load some semaforo Image and find color on it using svm_model
+		
+		#Load some semaforo Image and find color on it using svm_model
 		"""
 		# Load image and some magic	
 		
@@ -264,10 +264,10 @@ class Real(Semaforo):
 		#cv2.imwrite('red2.jpg', img)
 		
 		img = img.flatten()
-		"""
+		
 		#assert imagen.shape == (192*3, )
-		img = imagen
-		img = img.flatten()
+		#img = imagen
+		#img = img.flatten()
 		# Some numerical corrections
 		feature_img = img/(np.mean(img)+0.0001)
 		x = feature_img
