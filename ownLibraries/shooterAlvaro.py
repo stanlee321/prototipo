@@ -46,8 +46,6 @@ class ControladorCamara():
 		while self.programaPrincipalCorriendo.value == 1:
 			data = input_q.get()
 			folder, numeroImagen, date = data[0], data[1], data[2]
-			folder = '.'
-
 			if numeroImagen > 0:
 				miCamara.encenderCamaraEnSubDirectorio(folder, date)
 				numeroImagen = numeroImagen -1
