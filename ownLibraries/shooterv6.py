@@ -88,7 +88,7 @@ class Shooter():
 		#while not input_queue.empty:
 		self.frame_number = 0
 		while self.frame_number < self.maxCapturas:
-			print('GUARDADO en: '+ self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3], frame))
+			print('GUARDADO en: '+ self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3], self.frame_number))
 			#yield "image%02d.jpg" % frame
 			
 			yield "saveDir+'/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
@@ -106,7 +106,7 @@ class Shooter():
 			self.apagarCamara()
 		if self.eyesOpen == False:
 			pass
-			
+
 	def __call__(self, state = False):
 		self.eyesOpen = state
 		self.start()
