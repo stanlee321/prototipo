@@ -9,9 +9,9 @@ import datetime
 import numpy as np
 
 import matplotlib.pyplot as graficaActual
-from ownLibraries.shooterv6 import Shooter
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.analisisonda import AnalisisOnda
+from ownLibraries.shooterAlvaro import ControladorCamara
 
 directorioDeReporte = os.getenv('HOME')+'/casosReportados'
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
@@ -63,8 +63,7 @@ class PoliciaInfractor():
 		piCamSource  = 1
 		self.ultimaCarpetaGuardado = ''
 		if self.segundaCamara:
-			self.camaraAlta = Shooter(video_source = piCamSource, width = eightMP[0], height = eightMP[1], capturas = 2)
-			#self.camaraAlta = Shooter(video_source = piCamSource, width = fiveMP[0], height = fiveMP[1], capturas = 2)
+			self.camaraAlta = ControladorCamara(video_source = piCamSource, width = eightMP[0], height = eightMP[1], capturas = 2)
 
 	def establecerRegionInteresAlta(self,cutPoly):
 		if self.segundaCamara:
@@ -323,6 +322,9 @@ class PoliciaInfractor():
 		(x,y) = self.obtenerVectorMovimiento(vectorAntiguo, nuevoVector)
 		moduloPerpendicular = self.vectorPerpendicularUnitario[0]*x+self.vectorPerpendicularUnitario[1]*y
 		return moduloPerpendicular
+
+	def apagarCamara(self):
+		self.camaraAlta.apagarControlador()
 
 
 if __name__ == '__main__':
