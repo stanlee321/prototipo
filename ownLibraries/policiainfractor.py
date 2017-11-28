@@ -58,16 +58,14 @@ class PoliciaInfractor():
 		self.maximoNumeroFramesParaDescarte = 100
 		self.ultimaVelocidad = 0
 		self.segundaCamara = segundaCamara
-		eightMP = (3240,2464)
-		#fiveMP = (2592,1944)
-		piCamSource  = 1
 		self.ultimaCarpetaGuardado = ''
 		if self.segundaCamara:
-			self.camaraAlta = ControladorCamara(video_source = piCamSource, width = eightMP[0], height = eightMP[1], capturas = 2)
+			self.camaraAlta = ControladorCamara()
 
 	def establecerRegionInteresAlta(self,cutPoly):
 		if self.segundaCamara:
-			self.camaraAlta.establecerRegionInteres(cutPoly)
+			pass
+			#self.camaraAlta.establecerRegionInteres(cutPoly)
 		else:
 			pass
 
@@ -146,7 +144,7 @@ class PoliciaInfractor():
 				nombreInfraccionYFolder = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 				nuevaInfraccion = {'name':nombreInfraccionYFolder,'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
 				if self.segundaCamara:
-					self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder, nombreInfraccionYFolder)
+					self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder)
 				self.ultimaCarpetaGuardado = os.getenv('HOME')+'/casosReportados/'+nombreInfraccionYFolder
 				cambiosImportantes = True
 				self.listaDeInfracciones.append(nuevaInfraccion)
