@@ -100,13 +100,14 @@ class Shooter():
 		while True:
 			data = input_q.get()
 			camera = data[5]
+			writter = data[6]
 			start = time.time()
-			camera.capture_sequence(self.writter(data), use_video_port=True)
+			camera.capture_sequence(writter(data), use_video_port=True)
 			finish = time.time()
 			self.eyesOpen = False
 			print("Captured %d frames at %.2ffps" % (data[2],data[2] / (finish - start)))
 	def feed(self, input_q):
-		input_q.put([self.saveDir, self.fechaInfraccion, self.maxCapturas, self.frame_number, self.camera])
+		input_q.put([self.saveDir, self.fechaInfraccion, self.maxCapturas, self.frame_number, self.camera,self.writter])
 		return self
 
 if __name__ == '__main__':
