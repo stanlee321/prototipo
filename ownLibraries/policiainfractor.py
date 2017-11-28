@@ -143,7 +143,7 @@ class PoliciaInfractor():
 				nombreInfraccionYFolder = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 				nuevaInfraccion = {'name':nombreInfraccionYFolder,'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':'Candidato','foto':False}
 				if self.segundaCamara:
-					self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder, nombreInfraccionYFolder)
+					self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder)
 				self.ultimaCarpetaGuardado = os.getenv('HOME')+'/casosReportados/'+nombreInfraccionYFolder
 				cambiosImportantes = True
 				self.listaDeInfracciones.append(nuevaInfraccion)
