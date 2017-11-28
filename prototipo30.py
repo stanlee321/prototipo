@@ -171,7 +171,7 @@ def __main_function__():
 	periodoDeMuestreo = 1.0/mifps
 	grupo = [0]
 	frameAlta = np.empty((320,240,3))
-	captureEnAlta = False
+	capturaEnAlta = False
 
 	while True:
 		# LEEMOS LA CAMARA DE FLUJO
@@ -182,7 +182,7 @@ def __main_function__():
 			if capturaEnAlta:
 				ret, frameAlta = miCamara.read() 
 				frameVideo = cv2.resize(frameAlta,(320,240))
-				captureEnAlta = False
+				capturaEnAlta = False
 				miCamara.set(3,640)
 				miCamara.set(4,480)
 			else:
