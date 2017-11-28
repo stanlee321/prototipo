@@ -97,8 +97,10 @@ if __name__ == '__main__':
 		frame2=frame.copy()
 		fram=frame.copy() 
 	except:
-		print('Error Al cargar la camara de flujo')
+		print('No se introdujo source de video')
 		cap=cv2.VideoCapture(1)
+		cap.set(3,640)
+		cap.set(4,480)
 		for i in range(100):
 			ret, frame=cap.read()
 		frame=cv2.resize(frame,(640,480))
