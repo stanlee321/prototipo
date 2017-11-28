@@ -64,7 +64,8 @@ class PoliciaInfractor():
 
 	def establecerRegionInteresAlta(self,cutPoly):
 		if self.segundaCamara:
-			self.camaraAlta.establecerRegionInteres(cutPoly)
+			pass
+			#self.camaraAlta.establecerRegionInteres(cutPoly)
 		else:
 			pass
 
