@@ -55,7 +55,7 @@ class Shooter():
 
 		self.camera = picamera.PiCamera()
 		#self.camera.resolution = (3240,2464)
-		self.camera.resolution = (2592,1944)
+		self.camera.resolution = (self.width,self.height)
 		self.camera.framerate = 1
 		self.camera.start_preview()
 		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
@@ -87,11 +87,11 @@ class Shooter():
 		#while not input_queue.empty:
 		self.frame_number = 0
 		while self.frame_number < self.maxCapturas:
-			#print('GUARDADO en: '+ self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3], frame))
+			print('GUARDADO en: '+ self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3], frame))
 			#yield "image%02d.jpg" % frame
 			
-			#yield "saveDir+'/{}-{}.jpg".format(self.fechaInfraccion, frame)
-			yield "./imagen_{}.jpg".format(self.frame_number)
+			yield "saveDir+'/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
+			#yield "./imagen_{}.jpg".format(self.frame_number)
 			self.frame_number += 1
 
 

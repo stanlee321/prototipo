@@ -15,7 +15,7 @@ args = vars(ap.parse_args())
 # initialize the video stream and allow the cammera sensor to warmup
 #vs = VideoStream(0, resolution=(640,480)).start()
 vs = cv2.VideoCapture(1)
-
+#fivemp = (2592,1944)
 vs.set(cv2.CAP_PROP_FRAME_WIDTH, 2592)  #3240
 vs.set(cv2.CAP_PROP_FRAME_HEIGHT, 1944)  #2464
 time.sleep(2.0)

@@ -9,7 +9,7 @@ import datetime
 import numpy as np
 
 import matplotlib.pyplot as graficaActual
-from ownLibraries.shooterv5 import Shooter
+from ownLibraries.shooterv6 import Shooter
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.analisisonda import AnalisisOnda
 
@@ -58,10 +58,12 @@ class PoliciaInfractor():
 		self.maximoNumeroFramesParaDescarte = 100
 		self.ultimaVelocidad = 0
 		self.segundaCamara = segundaCamara
-		eightMP = (3240,2464)
+		#eightMP = (3240,2464)
+		fiveMP = (2592,1944)
 		piCamSource  = 1
 		if self.segundaCamara:
-			self.camaraAlta = Shooter(video_source = piCamSource, width = eightMP[0], height = eightMP[1], capturas = 4)
+			#self.camaraAlta = Shooter(video_source = piCamSource, width = eightMP[0], height = eightMP[1], capturas = 2)
+			self.camaraAlta = Shooter(video_source = piCamSource, width = fiveMP[0], height = fiveMP[1], capturas = 2)
 
 	def establecerRegionInteresAlta(self,cutPoly):
 		self.camaraAlta.establecerRegionInteres(cutPoly)
