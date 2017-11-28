@@ -52,7 +52,7 @@ class Shooter():
 		self.camera.framerate = 1
 		self.camera.start_preview()
 
-		self.input_q = multiprocessing.Queue(maxsize = 4)
+		self.input_q = multiprocessing.Queue(maxsize = 5)
 
 		process = multiprocessing.Process(target = self.start, args=((self.input_q,)))
 		process.daemon = True
@@ -98,14 +98,15 @@ class Shooter():
 			frame_number += 1
 	def start(self, input_q):
 		data = input_q.get()
+		camera = data[5]
 		while True:
 			start = time.time()
-			self.camera.capture_sequence(self.writter(data), use_video_port=True)
+			camera.capture_sequence(self.writter(data), use_video_port=True)
 			finish = time.time()
 			self.eyesOpen = False
 			print("Captured %d frames at %.2ffps" % (data[2],data[2] / (finish - start)))
 	def feed(self, input_q):
-		input_q.put([self.saveDir, self.fechaInfraccion, self.maxCapturas, self.frame_number])
+		input_q.put([self.saveDir, self.fechaInfraccion, self.maxCapturas, self.frame_number, self.camera])
 		return self
 
 if __name__ == '__main__':
