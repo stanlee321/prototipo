@@ -10,7 +10,7 @@ import threading
 import multiprocessing
 from shooterv6 import Shooter
 class ControladorCamara():
-	def __init__(self, root):
+	def __init__(self, root ='.'):
 		# Se declaran las variables de control con el proceso paralelo
 		programaPrincipalCorriendo = multiprocessing.Value('i',1)
 		numeroImagenes = multiprocessing.Value('i',0)
