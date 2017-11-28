@@ -51,6 +51,14 @@ class Shooter():
 		self.camera.resolution = (self.width,self.height)
 		self.camera.framerate = 1
 		self.camera.start_preview()
+
+		self.input_q = multiprocessing.Queue(maxsize = 5)
+
+		process = multiprocessing.Process(target = self.start, args=((self.input_q,)))
+		process.daemon = True
+		pool = multiprocessing.Pool(4, self.start, (self.input_q,))
+
+
 		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
 
 
@@ -59,6 +67,7 @@ class Shooter():
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
 		self.segundoPunto = self.cutPoly[1]
 
+
 	def encenderCamaraEnSubDirectorio(self, folder, fecha):
 		#self.miReporte.moverRegistroACarpeta(fecha)
 		self.fechaInfraccion = fecha
@@ -66,7 +75,7 @@ class Shooter():
 		if not os.path.exists(self.saveDir):
 			os.makedirs(self.saveDir) 
 		self.eyesOpen = True
-		#self.start()
+		self.start()
 		print('Encendi Camara de Forma Exitosa en ' + self.saveDir)
 
 	def encenderCamara(self):
@@ -88,8 +97,6 @@ class Shooter():
 			yield self.saveDir+"/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
 			#yield "./imagen_{}.jpg".format(self.frame_number)
 			self.frame_number += 1
-
-
 
 	def start(self):
 		start = time.time()
@@ -114,3 +121,4 @@ if __name__ == '__main__':
 			#main()
 		print(counter)
 		time.sleep(1)
+
