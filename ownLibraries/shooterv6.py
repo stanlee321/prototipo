@@ -103,7 +103,7 @@ class Shooter():
 			self.camera.capture_sequence(self.writter(data), use_video_port=True)
 			finish = time.time()
 			self.eyesOpen = False
-			print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
+			print("Captured %d frames at %.2ffps" % (data[2],data[2] / (finish - start)))
 	def feed(self, input_q):
 		input_q.put([self.saveDir, self.fechaInfraccion, self.maxCapturas, self.frame_number])
 		return self
