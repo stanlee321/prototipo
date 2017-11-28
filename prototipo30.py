@@ -114,7 +114,7 @@ def __main_function__():
 	if len(archivoDeVideo) > 4:
 		archivoParametrosACargar = archivoDeVideo[:-4]+'.npy'
 	else:
-		archivoParametrosACargar = 'datos.npy'
+		archivoParametrosACargar = 'puntos.npy'
 	
 	parametrosInstalacion = np.load(folderDeInstalacion+'/'+archivoParametrosACargar)
 	miReporte.info('Datos de Instalacion de: '+folderDeInstalacion+'/'+archivoParametrosACargar)
