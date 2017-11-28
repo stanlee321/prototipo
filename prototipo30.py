@@ -179,9 +179,12 @@ def __main_function__():
 			for i in range(videofps//mifps):
 				ret, frameVideo = miCamara.read()
 		else:
-			if captureEnAlta:
+			if capturaEnAlta:
+				ret, frameAlta = miCamara.read() 
 				frameVideo = cv2.resize(frameAlta,(320,240))
 				captureEnAlta = False
+				miCamara.set(3,640)
+				miCamara.set(4,480)
 			else:
 				ret, frameVideo = miCamara.read()
 		
@@ -211,8 +214,7 @@ def __main_function__():
 			if frenteAutomovil == 1:
 				miCamara.set(3,3280)
 				miCamara.set(4,2464)
-				ret, frameAlta = miCamara.read() 
-				captureEnAlta = True
+				capturaEnAlta = True
 				grabadoParalelo = threading.Thread(target=guardarImagenAlta, args=(ultimaCarpetaGuardado,frameAlta))
 				grabadoParalelo.start()
 			
