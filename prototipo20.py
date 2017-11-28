@@ -274,6 +274,7 @@ def __main_function__():
 			frame_number += 1
 			if (frame_number >= topeEjecucion) &(topeEjecucion!=0):
 				miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por indice de auto acabado predeterminado')
+				miPoliciaReportando.apagarCamara()
 				break
 			if senalSemaforo == -2:
 				miReporte.critical('ABANDONANDO LA EJECUCION DE PROGRAMA El semaforo ya no obtuvo señal, necesito recalibrar, abandonando la ejecución del programa')
