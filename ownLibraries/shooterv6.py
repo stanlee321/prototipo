@@ -97,9 +97,9 @@ class Shooter():
 			#yield "./imagen_{}.jpg".format(self.frame_number)
 			frame_number += 1
 	def start(self, input_q):
-		data = input_q.get()
-		camera = data[5]
 		while True:
+			data = input_q.get()
+			camera = data[5]
 			start = time.time()
 			camera.capture_sequence(self.writter(data), use_video_port=True)
 			finish = time.time()
