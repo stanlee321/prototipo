@@ -72,6 +72,7 @@ class Shooter():
 		if not os.path.exists(self.saveDir):
 			os.makedirs(self.saveDir) 
 		self.eyesOpen = True
+		self.start()
 		print('Encendi Camara de Forma Exitosa en '+self.saveDir)
 
 	def encenderCamara(self):
@@ -80,7 +81,7 @@ class Shooter():
 
 	def apagarCamara(self):
 		self.eyesOpen = False
-		print('Camara Apagada')
+		print('Realizada las capturas, cerrando ojos...')
 	
 
 	def writter(self):
@@ -97,33 +98,15 @@ class Shooter():
 
 
 	def start(self):
-		"""
-		with picamera.PiCamera() as camera:
-			camera.resolution = (3240,2464)
-			camera.framerate = 1
-			camera.start_preview()
-			# Give the camera some warm-up time
-			if self.eyesOpen == True:
-				start = time.time()
-				camera.capture_sequence(self.writter(), use_video_port=True)
-				finish = time.time()
-				print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
-			if self.eyesOpen == False:
-				pass
-
-		"""
 		if self.eyesOpen == True:
 			start = time.time()
 			self.camera.capture_sequence(self.writter(), use_video_port=True)
 			finish = time.time()
 			print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
+			self.apagarCamara()
 		if self.eyesOpen == False:
 			pass
-		#self.thread = threading.Thread(target=self.start, args=())
-		#self.thread.daemon = True									# Daemonize thread
-		#self.thread.start()
-
-		#self.miReporte.info('Doing something imporant in the background')
+			
 	def __call__(self, state = False):
 		self.eyesOpen = state
 		self.start()
