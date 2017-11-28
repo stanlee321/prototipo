@@ -117,7 +117,7 @@ class ProcessWorker(multiprocessing.Process):
         Overloaded function provided by multiprocessing.Process.  Called upon start() signal
         """
         proc_name = self.name
-        print '%s: Launched' % (proc_name)
+        print ('%s: Launched' % (proc_name))
         while True:
             next_task_list = self.task_q.get()
             if next_task is None:
@@ -126,7 +126,7 @@ class ProcessWorker(multiprocessing.Process):
                 self.task_q.task_done()
                 break
             next_task = next_task_list[0]
-            print '%s: %s' % (proc_name, next_task)
+            print ('%s: %s' % (proc_name, next_task))
             args = next_task_list[1]
             kwargs = next_task_list[2]
             answer = next_task(*args, **kwargs)
@@ -152,7 +152,7 @@ class Worker(object):
 
             self.process_worker = ProcessWorker(self.task_q, self.result_q)
             self.process_worker.start()
-            print "Got here"
+            print ("Got here")
             # Process should be running and listening for functions to execute
         return
 
@@ -177,7 +177,7 @@ class Worker(object):
 
     @enqueue_process
     def run_long_command(self, command):
-        print "I am running number % as process "%number, self.name
+        print ("I am running number % as process "%number, self.name)
 
         # In here, I will launch a subprocess to run a  long-running system command
         # p = Popen(command), etc
