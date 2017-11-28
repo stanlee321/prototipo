@@ -103,11 +103,11 @@ class Shooter():
 			finish = time.time()
 			self.eyesOpen = False
 			print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
-	    else:
-	    	pass
-        self.thread = threading.Thread(target=self.start, args=())
-        self.thread.daemon = True									# Daemonize thread
-        self.thread.start()
+		else:
+			pass
+		self.thread = threading.Thread(target=self.start, args=())
+		self.thread.daemon = True									# Daemonize thread
+		self.thread.start()
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
