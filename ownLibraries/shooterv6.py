@@ -2,7 +2,6 @@
 # semaforo como clase
 
 import os
-import cv2
 import time
 import datetime
 import threading
@@ -11,7 +10,6 @@ import multiprocessing
 
 import picamera
 import time
-import cv2
 #from io import BytesIO
 #from skimage.io import imsave
 
@@ -52,13 +50,6 @@ class Shooter():
 		self.camera.framerate = 1
 		self.camera.start_preview()
 
-		self.input_q = multiprocessing.Queue(maxsize = 5)
-
-		process = multiprocessing.Process(target = self.start, args=((self.input_q,)))
-		process.daemon = True
-		pool = multiprocessing.Pool(4, self.start, (self.input_q,))
-
-
 		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
 
 
@@ -66,7 +57,6 @@ class Shooter():
 		self.cutPoly = cutPoly
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
 		self.segundoPunto = self.cutPoly[1]
-
 
 	def encenderCamaraEnSubDirectorio(self, folder, fecha):
 		#self.miReporte.moverRegistroACarpeta(fecha)
