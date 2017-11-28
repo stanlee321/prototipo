@@ -15,7 +15,8 @@ class ControladorCamara():
 		programaPrincipalCorriendo = multiprocessing.Value('i',1)
 		numeroImagenes = multiprocessing.Value('i',0)
 		self.root = root
-		nombreCarpeta = multiprocessing.Value('c',datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
+		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+		nombreCarpeta = multiprocessing.Value('c', str(date))
 		procesoParalelo = multiprocessing.Process(target = procesadoParalelo, args = (programaPrincipalCorriendo,numeroImagenes, fecha))
 		procesoParalelo.start()
 
