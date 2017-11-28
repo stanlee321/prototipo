@@ -9,6 +9,9 @@ import datetime
 import threading
 import multiprocessing
 from shooterv6 import Shooter
+import ctypes
+
+
 class ControladorCamara():
 	def __init__(self, root ='.'):
 		# Se declaran las variables de control con el proceso paralelo
@@ -16,7 +19,7 @@ class ControladorCamara():
 		numeroImagenes = multiprocessing.Value('i',0)
 		self.root = root
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-		nombreCarpeta = multiprocessing.Value('c', date.encode('utf-8'))
+		nombreCarpeta = multiprocessing.Value('c', ctypes.create_unicode_buffer(date))
 		procesoParalelo = multiprocessing.Process(target = procesadoParalelo, args = (programaPrincipalCorriendo,numeroImagenes, fecha))
 		procesoParalelo.start()
 
