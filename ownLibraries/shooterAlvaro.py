@@ -22,7 +22,7 @@ class ControladorCamara():
 		self.date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		self.input_q = multiprocessing.Queue(maxsize = 3)
 		#nombreCarpeta = multiprocessing.Value('c', ctypes.create_unicode_buffer(date))
-		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q))
+		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q,))
 		self.procesoParalelo.start()
 
 	def encenderCamaraEnSubDirectorio(self,nombreFolder):
