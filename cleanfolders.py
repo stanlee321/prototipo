@@ -32,5 +32,5 @@ for i,c in enumerate(clean):
 	except:
 		print('this is a log')
 		print(c)
-		os.remove(c)
+		#os.remove(c)
 	print('DONE!')
