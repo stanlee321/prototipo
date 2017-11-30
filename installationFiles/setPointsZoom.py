@@ -23,7 +23,7 @@ listaAux1=[]
 listaAux2=[]
 listCorteAltaRes=[]
 file_Points='datos.npy'
-reAdjust='reAdjust.npy'
+
 
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/'
 directorioDeVideos = directorioDeTrabajo+'trialVideos/'
@@ -56,7 +56,11 @@ def get_Points(event,x,y,flags,param):
 		if len(listaAux)!= 0:
 			cv2.circle(frame, (x,y),2,(0,255,255),-1)
 			cv2.imshow('First_Frame',frame)
-            
+		if len(listaAux)>= 2:
+			cv2.line(frame,listaAux[len(listaAux)-1],listaAux[len(listaAux)-2],(0,255,255),1)
+		if len(listaAux)>= 4:
+			cv2.line(frame,listaAux[len(listaAux)-1],listaAux[len(listaAux)-len(listaAux)],(0,255,255),1)
+		cv2.imshow('First_Frame',frame)
 ###############################################################
 def get_BigRectangle(event,x,y,flags,param):
 	global frame
@@ -105,7 +109,13 @@ if __name__ == '__main__':
 		fram=frame.copy() 
 	except:
 		print('Error Al cargar la camara de flujo')
-		cap=cv2.VideoCapture(0)
+		try:
+			if sys.argv[1] == 'picam':
+				cap=cv2.VideoCapture(1)
+				fileToWrite = directorioDeTrabajo+'prototipo/installationFiles/datos.npy'
+				cont=0
+		except:
+			cap=cv2.VideoCapture(0)
 		for i in range(100):
 			ret, frame=cap.read()
 		frame=cv2.resize(frame,(640,480))
@@ -174,7 +184,7 @@ if __name__ == '__main__':
 			lista.append((listaAux1))
 			vrx=np.array([[listaAux]],np.int32)
 			pts=vrx.reshape((-1,1,2))
-			cv2.polylines(frame,[pts],True,(0,255,255))
+			cv2.polylines(frame,[pts],True,(0,0,255))
 			cv2.imshow('First_Frame',frame)
 			#print('lista: '+str(lista))
 			listaAux=[]
