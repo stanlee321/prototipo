@@ -29,7 +29,7 @@ folderDeInstalacion = directorioDeTrabajo+'/installationFiles'
 ### PARAMETROS DE CONTROL DE EJECUCIÓN DE PROGRAMA
 archivoDeVideo = ''
 videofps = 30
-mifps = 10
+mifps = 8
 saltarFrames = False
 entradaReal = 'en tiempo real '													# Complementario
 ## Parametros semaforo
@@ -43,8 +43,8 @@ longitudRegistro = 360
 font = cv2.FONT_HERSHEY_SIMPLEX
 
 # Temporizaciones
-anocheciendo =  21*60+30														# Tiempo 17:30 am + 4 GMT
-amaneciendo = 11*60																# Tiempo  7:00 am + 4 GMT
+anocheciendo =  17*60+15														# Tiempo 17:30 am + 4 GMT
+amaneciendo = 7*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
 maximoMemoria = 200
 conVideoGrabado = False
