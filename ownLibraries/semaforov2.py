@@ -203,7 +203,7 @@ class Real(Semaforo):
 		self.upper_red = np.array([180,255,255], dtype=np.uint8)
 
 		# GREEN range
-		self.lower_green = np.array([70,0,0], dtype=np.uint8)
+		self.lower_green = np.array([70,50,0], dtype=np.uint8) #_,0,_
 		self.upper_green = np.array([90,255,255], dtype=np.uint8)
 
 		# SOME VARIABLES for SVM, if retrain the SVM in another
