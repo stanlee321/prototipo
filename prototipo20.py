@@ -183,7 +183,7 @@ def __main_function__():
 				#cv2.circle(frameVideo, (indiceSemaforo[0],indiceSemaforo[1]), 1, (100,100,100), -1)
 			#print('Pixeles: ',pixeles)
 			wtf = pixeles.reshape((24,8,3))
-			cv2.imshow('Semaforo', cv2.resize(wtf, (240,320)))
+			#cv2.imshow('Semaforo', cv2.resize(wtf, (240,320)))
 			#print('La longitud pixels: ',pixeles.shape)
 			senalSemaforo, semaforoLiteral, flanco, periodo = miSemaforo.obtenerColorEnSemaforo(pixeles)
 			frameFlujo = cv2.resize(frameVideo,(320,240))
