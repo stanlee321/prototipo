@@ -5,14 +5,8 @@ import math
 import time
 
 
-help_message= '''USAGE: opt_flow.py [<video_source>]
+help_message= '''Selección zona de análisis 
 
-Keys:t
- 1 - toggle HSV flow visualization
- 2 - toggle glitch
- Points  Selection:
- Press: Enter and Esc, to accept or don't accept respectively  
-Lst
 '''
 listaSemFinal=[]
 listaCorte=[]
@@ -135,6 +129,9 @@ if __name__ == '__main__':
 			#print ('file:..'+str(dataReAjust))
 			print('listaCorte..'+str(listaCorte))
 			break            
+		if keyPress == ord('q'):
+			print ('Interrumpido...')
+			break
 	cv2.destroyAllWindows()
 
 ######################################
@@ -159,6 +156,7 @@ if __name__ == '__main__':
 ####--------º--------------------------------            
 			lista.append((listaSemFinal))
 			break
+		
 	cv2.destroyAllWindows()
 ######################	
 	#try:
