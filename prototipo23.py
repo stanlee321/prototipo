@@ -147,7 +147,11 @@ def __main_function__():
 	frameFlujo = cv2.resize(frameVideo,(320,240))
 
 	# Creación de objetos:
-	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,True)
+	if os.uname()[1] == 'raspberrypi':
+		trabajoConPiCamara = True
+	else:
+		trabajoConPiCamara = False
+	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,trabajoConPiCamara)
 	miPoliciaReportando.establecerRegionInteresAlta(poligonoEnAlta)
 	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,False)
 	miFiltro = IRSwitch()
