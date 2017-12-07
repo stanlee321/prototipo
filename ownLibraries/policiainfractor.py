@@ -163,7 +163,7 @@ class PoliciaInfractor():
 					nuevoArrayAActualizar, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
 					for otroIndice in range(len(infraccion['desplazamiento'])):
 						controlVector = infraccion['desplazamiento'][otroIndice]
-						if self.puntoEstaEnRectangulo((controlVector[0][0],controlVector[0][1]),(0,0,320,240)):
+						if not self.puntoEstaEnRectangulo((controlVector[0][0],controlVector[0][1]),(0,0,320,240)):
 							nuevoArrayAActualizar[otroIndice] = infraccion['desplazamiento'][otroIndice]
 					# Si es candidato y duro demasiado se descarta
 					if (numeroDeFrame - infraccion['frameInicial']) > self.maximoNumeroFramesParaDescarte:
