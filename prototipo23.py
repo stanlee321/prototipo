@@ -201,6 +201,7 @@ def __main_function__():
 			if senalSemaforo >= 1 :							# Si estamos en rojo, realizamos una accion
 				if flanco == 1:							# esto se inicia al principio de este estado
 					miReporte.info('SEMAFORO EN ROJO')
+					miPoliciaReportando.inicializarAgente()
 					del informacionTotal
 					informacionTotal = {}
 					frame_number = 0
