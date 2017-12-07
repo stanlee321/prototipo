@@ -32,6 +32,15 @@ class PoliciaInfractor():
 		
 		self.areaDeResguardo = np.array(poligonoPartida)
 		self.areaDeConfirmacion = np.array(poligonoLlegada)
+
+		# En si un punto sale del carril valido (ensanchado debidamente) se descarta el punto individual
+		self.carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[0],poligonoLlegada[1],poligonoLlegada[2],poligonoLlegada[3]])
+
+		# la linea de referencia para tamanio sera del largo del paso de cebra, su longitud servira para descartar puntos que se alejen del resto
+		self.lineaReferenciaTamanio = np.array(poligonoPartida[0])-np.array(poligonoPartida[1])
+		self.maximaDistanciaEntrePuntos = math.sqrt(self.lineaReferenciaTamanio[0]**2+self.lineaReferenciaTamanio[1]**2)
+
+		# La linea de pintado LK y trasera son los puntos del paso de cebra
 		self.lineaDePintadoLK =  np.array([poligonoPartida[0],poligonoPartida[3]])
 		self.lineaTraseraLK =  np.array([poligonoPartida[1],poligonoPartida[2]])
 
@@ -96,7 +105,7 @@ class PoliciaInfractor():
 			centroid  = rectangulo[1]
 			for infraccion in self.listaDeInfracciones:
 				for punto in infraccion['desplazamiento']:
-					if self.puntoEstaEnPoligono((punto[0][0],punto[0][1]),(x,y,w,h)):
+					if self.puntoEstaEnRectangulo((punto[0][0],punto[0][1]),(x,y,w,h)):
 						estado = 0
 						break
 					else:
@@ -111,11 +120,11 @@ class PoliciaInfractor():
 
 		return cambiosImportantes
 
-	def puntoEstaEnPoligono(self,punto,rectangulo):
+	def puntoEstaEnRectangulo(self,punto,rectangulo):
 		estadoARetornar = False
 		if (punto[0]>rectangulo[0])&(punto[0]<rectangulo[0]+rectangulo[2])&(punto[1]>rectangulo[1])&(punto[1]<rectangulo[1]+rectangulo[3]):
 			estadoARetornar = True
-		return estadoARetornar, ondaFiltrada, flanco, flujoTotal
+		return estadoARetornar
 
 	def seguirImagen(self,numeroDeFrame,imagenActual,informacion = False,colorSemaforo = 1):
 		"""
@@ -149,20 +158,29 @@ class PoliciaInfractor():
 			for infraccion in self.listaDeInfracciones:
 				# Si es candidato evoluciona:
 				if infraccion['estado'] == 'Candidato':
+					# Al principio descarto los puntos negativos o en los bordes (0,0), -(x,y)
+					print('TIPO: ',infraccion['desplazamiento'])
 					nuevoArrayAActualizar, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
-					infraccion['desplazamiento'] = nuevoArrayAActualizar
+					for otroIndice in range(len(infraccion['desplazamiento'])):
+						controlVector = infraccion['desplazamiento'][otroIndice]
+						if self.puntoEstaEnRectangulo((controlVector[0][0],controlVector[0][1]),(0,0,320,240)):
+							nuevoArrayAActualizar[otroIndice] = infraccion['desplazamiento'][otroIndice]
 					# Si es candidato y duro demasiado se descarta
 					if (numeroDeFrame - infraccion['frameInicial']) > self.maximoNumeroFramesParaDescarte:
 						infraccion['estado']='Descartado'
 					# Si es candidato y algun punto llego al final se confirma
-					for vector in nuevoArrayAActualizar:
+					for indiceVector in range(len(nuevoArrayAActualizar)):
+						vector = nuevoArrayAActualizar[indiceVector]
 						xTest, yTest = vector[0][0], vector[0][1]
-						if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:
+						if cv2.pointPolygonTest(self.carrilValido,(xTest, yTest),True)<=0:	# Si esta fuera del carril valido se descarta
+							nuevoArrayAActualizar[indiceVector] = -nuevoArrayAActualizar[indiceVector]
+						if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:	# Si esta dentro del espacio de llegada se confirma
 							infraccion['estado'] = 'Confirmado'
 							cambiosImportantes = True
 							infraccion['frameFinal'] = numeroDeFrame
 							self.miReporte.info('Conf: '+infraccion['name']+' de '+str(infraccion['frameInicial'])+' a '+str(infraccion['frameFinal'])+' es '+infraccion['estado'])
 							break
+					infraccion['desplazamiento'] = nuevoArrayAActualizar
 			infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
 
 		self.imagenAuxiliar = imagenActualEnGris
