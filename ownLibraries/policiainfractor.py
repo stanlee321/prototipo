@@ -173,7 +173,7 @@ class PoliciaInfractor():
 						vector = nuevoArrayAActualizar[indiceVector]
 						xTest, yTest = vector[0][0], vector[0][1]
 						if cv2.pointPolygonTest(self.carrilValido,(xTest, yTest),True)<=0:	# Si esta fuera del carril valido se descarta
-							nuevoArrayAActualizar[indiceVector] = -nuevoArrayAActualizar[indiceVector]
+							nuevoArrayAActualizar[indiceVector] = -np.abs(nuevoArrayAActualizar[indiceVector])
 						if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:	# Si esta dentro del espacio de llegada se confirma
 							infraccion['estado'] = 'Confirmado'
 							cambiosImportantes = True
