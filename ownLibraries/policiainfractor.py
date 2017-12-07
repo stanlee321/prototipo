@@ -52,11 +52,9 @@ class PoliciaInfractor():
 		self.lineaDeResguardoDelantera = np.array([self.lineaDePintadoLK[0]])
 		self.lineaFijaDelantera = np.zeros((self.numeroDePuntos+1,1,2))
 		self.lineaEmpuje = np.zeros((self.numeroDePuntos+1,1,2))
-		self.infraccionesConfirmadas = 0
 		self.restablecerLineaLK()
 		self.listaDeInfracciones = []
 		self.maximoNumeroFramesParaDescarte = 100
-		self.ultimaVelocidad = 0
 		self.segundaCamara = segundaCamara
 		self.ultimaCarpetaGuardado = ''
 		if self.segundaCamara:
@@ -69,15 +67,14 @@ class PoliciaInfractor():
 		else:
 			pass
 
+	# No longer needed
 	def inicializarAgente(self,):
 		"""
 		Resets the starting line to get ready to the next frame
 		"""
-		self.infraccionesConfirmadas = 0
 		self.restablecerLineaLK()
 		del self.listaDeInfracciones
 		self.listaDeInfracciones = []
-		self.ultimaVelocidad = 0
 
 	def restablecerLineaLK(self,):
 		self.lineaDeResguardoDelantera = np.array([[self.lineaDePintadoLK[0]]])
