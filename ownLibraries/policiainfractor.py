@@ -34,7 +34,7 @@ class PoliciaInfractor():
 		self.areaDeConfirmacion = np.array(poligonoLlegada)
 
 		# En si un punto sale del carril valido (ensanchado debidamente) se descarta el punto individual
-		self.carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[0],poligonoLlegada[1],poligonoLlegada[2],poligonoLlegada[3]])
+		self.carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
 
 		# la linea de referencia para tamanio sera del largo del paso de cebra, su longitud servira para descartar puntos que se alejen del resto
 		self.lineaReferenciaTamanio = np.array(poligonoPartida[0])-np.array(poligonoPartida[1])
