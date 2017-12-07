@@ -26,6 +26,7 @@ class Acetato(object):
 		self.colorRectanguloIrrelevante = (100,100,100)
 		self.colorRectanguloConError = (255,255,255)
 		self.colorRectanguloPaz = (0,255,0)
+		self.paletaColores = [(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200)]
 
 	def inicializar(self):
 		del self.targets
@@ -36,10 +37,20 @@ class Acetato(object):
 	def aplicarAFrame(self,frameNP):
 		for poligono in self.poligonos:
 			frameNP = cv2.polylines(frameNP,np.int32([poligono]),1,(160,160,160))
-		for puntoInformacion in self.misPuntos:
+		for ind in range(len(self.misPuntos)):
+			puntoInformacion = self.misPuntos[ind]
 			punto = puntoInformacion[0]
 			color = puntoInformacion[1]
-			frameNP = cv2.circle(frameNP, punto, 1, (100*color,100*color,255), -1)
+			if color == 0:
+				frameNP = cv2.circle(frameNP, punto, 1, (0,0,255), -1)
+			else:
+				if (punto[0]<=0)|(punto[1]<=0):
+					# Si el valor es negativo, lo vuelvo positivo y lo pinto de negro:
+					frameNP = cv2.circle(frameNP, (-punto[0],-punto[1]), 1, (0,0,0), -1)
+				else:
+					# Si el punto es valido lo pinto de un color determinado
+					frameNP = cv2.circle(frameNP, punto, 1, self.paletaColores[ind], -1)
+
 		for target in self.targets:
 			x,y,w,h = target[0]
 			prioridad = target[1]
