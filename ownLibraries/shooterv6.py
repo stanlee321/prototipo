@@ -24,7 +24,7 @@ class Shooter():
 	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 2):
 	#def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([10,10],[2592,1944]), capturas = 2):
 		
-		data = np.load(directorioDeNumpy+'datos.npy')
+		data = np.load(Shooter.directorioDeNumpy+'datos.npy')
 
 		roi = data[-1]
 		print(roi[0])
