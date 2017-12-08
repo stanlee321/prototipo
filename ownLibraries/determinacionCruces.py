@@ -193,8 +193,8 @@ class PoliciaInfractor():
 			carpetaABorrar = directorioDeReporte+'/'+infraccion['name']
 			self.miReporte.info('> Borrando: '+carpetaABorrar)
 			shutil.rmtree(carpetaABorrar)
-		except:
-			self.miReporte.warning('No pude borrar posible carpeta fantasma: '+infraccion['name'])
+		except Exception as e:
+			self.miReporte.warning('No pude borrar carpeta fantasma: '+infraccion['name']+' por '+str(e))
 
 	def popInfraccion(self):
 		if self.numeroInfraccionesConfirmadas() != 0:
