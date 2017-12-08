@@ -19,8 +19,8 @@ class Shooter():
 	directorioDeReporte = os.getenv('HOME')+'/casosReportados'
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
-	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([0,0],[3280,2464]), capturas = 2):
-	#def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([0,0],[200,200]), capturas = 2):
+	#def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([0,0],[3280,2464]), capturas = 2):
+	def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([0,0],[200,200]), capturas = 2):
 		self.eyesOpen = False
 		# Initial aparemeters
 		self.video_source = video_source
