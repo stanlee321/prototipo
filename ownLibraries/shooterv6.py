@@ -44,6 +44,7 @@ class Shooter():
 		self.camera = picamera.PiCamera()
 		#self.camera.resolution = (3240,2464)
 		self.camera.resolution = (self.width,self.height)
+		self.camera.zoom = (0.25, 0.25, 0.5, 0.5)
 		self.camera.framerate = 1
 		self.camera.start_preview()
 
