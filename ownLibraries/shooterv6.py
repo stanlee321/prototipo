@@ -27,8 +27,6 @@ class Shooter():
 		self.width = width		# Integer Like
 		self.height = height	# Integer Like
 		self.maxCapturas = capturas
-		data = np.load('../installationFiles/datos.npy')
-		print('data from numpy', data)
 		# FOR ROI
 		self.cutPoly = cutPoly 	# ARRAY like (primerPunto, segundoPunto)
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
