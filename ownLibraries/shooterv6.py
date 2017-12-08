@@ -19,8 +19,8 @@ class Shooter():
 	directorioDeReporte = os.getenv('HOME')+'/casosReportados'
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
-	#def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([0,0],[3280,2464]), capturas = 2):
-	def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([10,10],[2592,1944]), capturas = 2):
+	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 2):
+	#def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([10,10],[2592,1944]), capturas = 2):
 		self.eyesOpen = False
 		# Initial aparemeters
 		self.video_source = video_source
@@ -32,24 +32,14 @@ class Shooter():
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
 		self.segundoPunto = self.cutPoly[1]				# Array like [p0,p1]
 
-		print('primerpunto', self.primerPunto)
-		print('segundoPunto', self.segundoPunto)
-
-
 		p0x = self.primerPunto[0]/self.width
 		p0y = self.primerPunto[1]/self.height
 
 		p1x = self.segundoPunto[0]/self.width
 		p1y = self.segundoPunto[1]/self.height
 
-		print('scales for zoom are', p0x, p0y, p1x, p1y)
-
 		self.scale_factor_in_X = (self.segundoPunto[0] - self.primerPunto[0])
 		self.scale_factor_in_Y = (self.segundoPunto[1] - self.primerPunto[1])
-
-		print('SCALES ARE:')
-		print('in X', self.scale_factor_in_X)
-		print('in Y', self.scale_factor_in_Y)
 
 		# Dir where to save images
 
@@ -101,16 +91,16 @@ class Shooter():
 		#while not input_queue.empty:
 		self.frame_number = 0
 		while self.frame_number < self.maxCapturas:
-			print('GUARDADO en: '+ self.saveDir+'/{}-{}.png'.format(self.fechaInfraccion[:-3], self.frame_number))
+			print('GUARDADO en: '+ self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3], self.frame_number))
 			#yield "image%02d.jpg" % frame
 			
-			yield self.saveDir+"/{}-{}.png".format(self.fechaInfraccion, self.frame_number)
+			yield self.saveDir+"/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
 			#yield "./imagen_{}.jpg".format(self.frame_number)
 			self.frame_number += 1
 
 	def start(self):
 		start = time.time()
-		self.camera.capture_sequence(self.writter(), format='png', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
+		self.camera.capture_sequence(self.writter(), format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
 		finish = time.time()
 		self.eyesOpen = False
 		print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
