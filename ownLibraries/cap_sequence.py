@@ -1,4 +1,4 @@
-import time
+"""import time
 import picamera
 frames = 2
 def filenames():
@@ -18,3 +18,19 @@ with picamera.PiCamera() as camera:
 	finish = time.time()
 
 print("Captured %d frames at %.2ffps" % (frames,frames / (finish - start)))
+
+"""
+
+import picamera
+import time
+
+my_file = 'test.jpg'
+with picamera.PiCamera() as camera:
+    camera.resolution = camera.MAX_RESOLUTION
+    camera.framerate = 5
+    camera.zoom = (0.25, 0.25, 0.25, 0.25)
+    camera.shutter_speed = 190000
+    camera.iso = 800
+    camera.start_preview()
+    time.sleep(5)
+    camera.capture(my_file)
