@@ -16,7 +16,7 @@ from ownLibraries.visualizacion import Acetato
 from ownLibraries.herramientas import total_size
 from ownLibraries.videostream import VideoStream
 from ownLibraries.semaforov2 import CreateSemaforo
-from ownLibraries.policiainfractor import PoliciaInfractor
+from ownLibraries.determinacionCruces import PoliciaInfractor
 from ownLibraries.generadorevidencia import GeneradorEvidencia
 
 # Se crean las variables de directorios
@@ -48,6 +48,7 @@ tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
 maximoMemoria = 200
 conVideoGrabado = False
 
+
 gamma = 1.0
 noDraw = False
 
@@ -77,8 +78,8 @@ def obtenerIndicesSemaforo(poligono640):
 def __main_function__():
 	# Import some global varialbes
 	global archivoDeVideo
-	global cambiosImportantes
-	cambiosImportantes = False
+	global acaboDeIniciarNuevoCiclo
+	acaboDeIniciarNuevoCiclo = False
 
 	# Creamos el reporte inicial
 	miReporte = MiReporte(levelLogging=logging.INFO,nombre=__name__)			# Se crea por defecto con nombre de la fecha y hora actual
@@ -198,28 +199,30 @@ def __main_function__():
 			else:
 				pass
 			# Si tengo infracciones pendientes las evoluciono
-			cambiosImportantes, ondaFiltrada, frenteAutomovil, flujoTotal = miPoliciaReportando.seguirImagen(frame_number,frameFlujo,colorSemaforo = senalSemaforo)
+			
+			velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear = miPoliciaReportando.seguirImagen(frame_number,frameFlujo,colorSemaforo = senalSemaforo)
 			if senalSemaforo >= 1 :							# Si estamos en rojo, realizamos una accion
 				if flanco == 1:							# esto se inicia al principio de este estado
 					miReporte.info('SEMAFORO EN ROJO')
-					miPoliciaReportando.inicializarAgente()
-					del historial
-					historial = {}
-					frame_number = 0
-				else:
-					pass			
-			else:
-				pass
+	
 
 			if senalSemaforo == 0:							# Si estamos en verde realizamos otra accion
 				if flanco == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
-					miReporte.info('Infracciones: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas()))
-					if generarArchivosDebug:
-						miGrabadora.generarReporteInfraccion(historial, False,miPoliciaReportando.numeroInfraccionesConfirmadas())
-					miPoliciaReportando.purgeInfractions()					
-				if miPoliciaReportando.numeroInfraccionesConfirmadas() > 0:
-					infraccionEnRevision = miPoliciaReportando.popInfraccion()
-					miGrabadora.generarReporteInfraccion(historial, infraccionEnRevision)
+					miReporte.info('INICIANDO REPORTE DE: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas()))
+					acaboDeIniciarNuevoCiclo = True
+				if acaboDeIniciarNuevoCiclo:			
+					if miPoliciaReportando.numeroInfraccionesConfirmadas() > 0:
+						infraccionEnRevision = miPoliciaReportando.popInfraccion()
+						miGrabadora.generarReporteInfraccion(historial, infraccionEnRevision)
+					else:
+						if generarArchivosDebug:
+							miGrabadora.generarReporteInfraccion(historial, False,miPoliciaReportando.numeroInfraccionesConfirmadas())
+						miPoliciaReportando.purgeInfractions()
+						miPoliciaReportando.inicializarAgente()
+						del historial
+						historial = {}
+						frame_number = 0	
+						acaboDeIniciarNuevoCiclo = False
 				else:
 					#Si no hay infracciones a reportar me fijo el estado del filtro:
 					tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
@@ -227,7 +230,6 @@ def __main_function__():
 						miFiltro.colocarFiltroIR()
 					if (tiempoAhora < amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Desactivado'):
 						miFiltro.quitarFiltroIR()
-				pass
 
 			# Draw frame number into image on top
 			for infraction in miPoliciaReportando.listaDeInfracciones:
@@ -250,7 +252,7 @@ def __main_function__():
 				#cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(frameFlujo)[120:239,60:360])
 				cv2.imshow('Visual',frameFlujo)
 			
-			historial[frame_number] = {'frame':frameFlujo.copy(),'data':[cambiosImportantes, ondaFiltrada, frenteAutomovil, flujoTotal]}
+			historial[frame_number] = {'frame':frameFlujo.copy(),'data':[velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear]}
 			miAcetatoInformativo.inicializar()
 			
 			tiempoEjecucion = time.time() - tiempoAuxiliar
@@ -262,9 +264,6 @@ def __main_function__():
 				True
 			tiempoAuxiliar = time.time()
 
-			if cambiosImportantes:
-				miReporte.info('F{} Sema: '.format(frame_number)+semaforoLiteral+' I: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas())+'/'+str(miPoliciaReportando.numeroInfraccionesTotales()))
-			
 			porcentajeDeMemoria = psutil.virtual_memory()[2]
 			
 			if (porcentajeDeMemoria > 80)&(os.uname()[1] == 'raspberrypi'):

@@ -42,7 +42,7 @@ class GeneradorEvidencia():
 			generandoDebug = True
 		directorioActual = self.carpetaDeReporteActual + '/'+nombreInfraccion
 		if not os.path.exists(directorioActual):
-			self.miReporte.info('Creado: '+directorioActual)
+			#self.miReporte.info('Creado: '+directorioActual)
 			os.makedirs(directorioActual) 
 
 		if generandoDebug==False:
