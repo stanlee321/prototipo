@@ -286,6 +286,7 @@ def __main_function__():
 			ch = 0xFF & cv2.waitKey(5)
 			if ch == ord('q'):
 				miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por salida manual')
+				miPoliciaReportando.apagarCamara()
 				break
 			if ch == ord('s'):
 				cv2.imwrite(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')+'.jpg',frameFlujo)
