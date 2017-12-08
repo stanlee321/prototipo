@@ -18,11 +18,17 @@ class Shooter():
 	""" General PICAMERA DRIVER Prototipe
 	"""
 	directorioDeReporte = os.getenv('HOME')+'/casosReportados'
+	directorioDeNumpy = os.getenv('HOME')+'/trafficFlow/installationFiles/'
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
 	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 2):
 	#def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([10,10],[2592,1944]), capturas = 2):
-		self.eyesOpen = False
+		
+		data = np.load(directorioDeNumpy+'datos.npy')
+
+		roi = data[-1]
+		print(roi[0])
+		print(roi[1])
 		# Initial aparemeters
 		self.video_source = video_source
 		self.width = width		# Integer Like
@@ -32,8 +38,6 @@ class Shooter():
 		self.cutPoly = cutPoly 	# ARRAY like (primerPunto, segundoPunto)
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
 		self.segundoPunto = self.cutPoly[1]				# Array like [p0,p1]
-		data = np.load('../installationFiles/datos.npy')
-		print('data from numpy', data[-1] )
 		p0x = self.primerPunto[0]/self.width
 		p0y = self.primerPunto[1]/self.height
 
