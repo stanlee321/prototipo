@@ -20,7 +20,7 @@ class Shooter():
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
 	#def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([0,0],[3280,2464]), capturas = 2):
-	def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([10,10],[1920,740]), capturas = 2):
+	def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([10,10],[2592,1944]), capturas = 2):
 		self.eyesOpen = False
 		# Initial aparemeters
 		self.video_source = video_source
@@ -64,7 +64,7 @@ class Shooter():
 		self.camera = picamera.PiCamera()
 		#self.camera.resolution = (self.width,self.height)
 		self.camera.resolution = self.camera.MAX_RESOLUTION
-		self.camera.framerate = 1
+		self.camera.framerate = 5
 
 		self.camera.zoom = (p0x, p0y, p1x, p1y)
 		#self.camera.shutter_speed = 190000
