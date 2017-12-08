@@ -183,7 +183,7 @@ class PoliciaInfractor():
 		# Tomo los indices que contienen infracciones no confirmadas
 		for indiceInfraccion in range(len(self.listaDeInfracciones)):
 			infraccion = self.listaDeInfracciones[indiceInfraccion]
-			if infraccion['estado'] != 'Confirmado':
+			if (infraccion['estado'] != 'Confirmado')&(infraccion['estado'] != 'Cruce'):
 				indicesABorrar.append(indiceInfraccion)
 				self.miReporte.info('Purgando infraccion con estado y fecha: '+infraccion['estado']+' at '+infraccion['name'])
 				self.eliminoCarpetaDeSerNecesario(infraccion)
