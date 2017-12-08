@@ -34,8 +34,8 @@ class Shooter():
 
 		print('primerpunto', self.primerPunto)
 		print('segundoPunto', self.segundoPunto)
-		self.scale_factor_in_X = int(self.segundoPunto[0]/self.width)
-		self.scale_factor_in_Y = int(self.segundoPunto[1]/self.height)
+		self.scale_factor_in_X = self.segundoPunto[0]/self.width)
+		self.scale_factor_in_Y = self.segundoPunto[1]/self.height)
 
 		print('SCALES ARE:')
 		print('in X', self.scale_factor_in_X)
@@ -107,7 +107,7 @@ class Shooter():
 
 	def start(self):
 		start = time.time()
-		self.camera.capture_sequence(self.writter(), format='png', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
+		self.camera.capture_sequence(self.writter(), format='png', use_video_port=True, resize=(int(self.width*self.scale_factor_in_X), int(self.height*self.scale_factor_in_Y)))
 		finish = time.time()
 		self.eyesOpen = False
 		print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
