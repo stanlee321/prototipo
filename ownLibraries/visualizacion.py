@@ -26,13 +26,15 @@ class Acetato(object):
 		self.colorRectanguloIrrelevante = (100,100,100)
 		self.colorRectanguloConError = (255,255,255)
 		self.colorRectanguloPaz = (0,255,0)
-		self.paletaColores = [(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200)]
+		self.paletaColores = [(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200)]
+		self.ultimoColor = 0
 
 	def inicializar(self):
 		del self.targets
 		del self.misPuntos
 		self.targets = []
 		self.misPuntos = []
+		self.ultimoColor = 0
 
 	def aplicarAFrame(self,frameNP):
 		for poligono in self.poligonos:
@@ -41,15 +43,7 @@ class Acetato(object):
 			puntoInformacion = self.misPuntos[ind]
 			punto = puntoInformacion[0]
 			color = puntoInformacion[1]
-			if color == 0:
-				frameNP = cv2.circle(frameNP, punto, 1, (0,0,255), -1)
-			else:
-				if (punto[0]<=0)|(punto[1]<=0):
-					# Si el valor es negativo, lo vuelvo positivo y lo pinto de negro:
-					frameNP = cv2.circle(frameNP, (-punto[0],-punto[1]), 1, (0,0,0), -1)
-				else:
-					# Si el punto es valido lo pinto de un color determinado
-					frameNP = cv2.circle(frameNP, punto, 1, self.paletaColores[ind], -1)
+			frameNP = cv2.circle(frameNP, punto, 1, color, -1)
 
 		for target in self.targets:
 			x,y,w,h = target[0]
@@ -78,8 +72,18 @@ class Acetato(object):
 		rectangulo = target
 		self.targets.append([rectangulo,prioridad])
 
-	def colocarPunto(self,pointTuple,estado):
-		self.misPuntos.append([pointTuple,estado])
+	def colocarPunto(self,pointTuple,color):
+		self.misPuntos.append([pointTuple,color])
+
+	def colocarObjeto(self,puntosList,estado):
+		for punto in puntosList:
+			if estado == 'Confirmado':
+				self.colocarPunto(tuple(punto),(0,0,255))
+			elif estado == 'Cruzo':
+				self.colocarPunto(tuple(punto),(0,255,0))
+			else:
+				self.colocarPunto(tuple(punto),self.paletaColores[self.ultimoColor])
+		self.ultimoColor += 1
 
 	def colorDeSemaforo(self,colorInt):
 		if colorInt == 1:

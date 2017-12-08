@@ -235,11 +235,12 @@ def __main_function__():
 			for infraction in miPoliciaReportando.listaDeInfracciones:
 				for puntos in infraction['desplazamiento']:
 					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
-					for punto in puntosExtraidos:
-						if infraction['estado'] == 'Confirmado':
-							miAcetatoInformativo.colocarPunto(tuple(punto),0)
-						else:
-							miAcetatoInformativo.colocarPunto(tuple(punto),1)
+					miAcetatoInformativo.colocarObjeto(puntosExtraidos,infraction['estado'])
+					#for punto in puntosExtraidos:
+					#	if infraction['estado'] == 'Confirmado':
+					#		miAcetatoInformativo.colocarPunto(tuple(punto),0)
+					#	else:
+					#		miAcetatoInformativo.colocarPunto(tuple(punto),1)
 
 			# Configs and displays for the MASK according to the semaforo
 			#miAcetatoInformativo.agregarTextoEn("I{}".format(miPoliciaReportando.infraccionesConfirmadas), 2)
