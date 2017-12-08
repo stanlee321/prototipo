@@ -32,8 +32,8 @@ class Shooter():
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
 		self.segundoPunto = self.cutPoly[1]				# Array like [p0,p1]
 
-		self.scale_factor_in_X = self.segundoPunto[0]/self.width
-		self.scale_factor_in_Y = self.segundoPunto[1]/self.height
+		self.scale_factor_in_X = int(self.segundoPunto[0]/self.width)
+		self.scale_factor_in_Y = int(self.segundoPunto[1]/self.height)
 
 		self.p0x = self.primerPunto[0]/self.width
 		self.p0y = self.primerPunto[1]/self.height
@@ -100,7 +100,7 @@ class Shooter():
 
 	def start(self):
 		start = time.time()
-		self.camera.capture_sequence(self.writter(), format='png', use_video_port=True, resize=(int(self.width*0.25), int(self.height*0.25)))
+		self.camera.capture_sequence(self.writter(), format='png', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y)
 		finish = time.time()
 		self.eyesOpen = False
 		print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
