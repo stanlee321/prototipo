@@ -122,11 +122,12 @@ class PoliciaInfractor():
 			nombreInfraccionYFolder = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 			if colorSemaforo >=1:
 				miEstado = 'Candidato'
+				if self.segundaCamara:
+					self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder)
 			else:
 				miEstado = 'Cruce normal'
 			nuevaInfraccion = {'name':nombreInfraccionYFolder,'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':miEstado,'foto':False}
-			if self.segundaCamara:
-				self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder)
+			
 			self.ultimaCarpetaGuardado = os.getenv('HOME')+'/casosReportados/'+nombreInfraccionYFolder
 			momentumAEmplear = True
 			self.listaDeInfracciones.append(nuevaInfraccion)
