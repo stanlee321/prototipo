@@ -31,7 +31,8 @@ class Shooter():
 		self.cutPoly = cutPoly 	# ARRAY like (primerPunto, segundoPunto)
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
 		self.segundoPunto = self.cutPoly[1]				# Array like [p0,p1]
-
+		data = np.load('../installationFiles/datos.npy')
+		print('data from numpy', data )
 		p0x = self.primerPunto[0]/self.width
 		p0y = self.primerPunto[1]/self.height
 
