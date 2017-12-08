@@ -10,6 +10,7 @@ import multiprocessing
 
 import picamera
 import time
+import numpy as np
 #from io import BytesIO
 #from skimage.io import imsave
 
