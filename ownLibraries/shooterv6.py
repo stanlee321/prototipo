@@ -44,8 +44,8 @@ class Shooter():
 
 		print('scales for zoom are', p0x, p0y, p1x, p1y)
 
-		self.scale_factor_in_X = (self.segundoPunto[0] - self.primerpunto[0])
-		self.scale_factor_in_Y = (self.segundoPunto[1] - self.primerpunto[1])
+		self.scale_factor_in_X = (self.segundoPunto[0] - self.primerPunto[0])
+		self.scale_factor_in_Y = (self.segundoPunto[1] - self.primerPunto[1])
 
 		print('SCALES ARE:')
 		print('in X', self.scale_factor_in_X)
