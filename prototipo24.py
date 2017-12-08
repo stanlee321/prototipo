@@ -80,6 +80,8 @@ def __main_function__():
 	global archivoDeVideo
 	global acaboDeIniciarNuevoCiclo
 	acaboDeIniciarNuevoCiclo = False
+	global tuveInfracciones
+	tuveInfracciones = False
 
 	# Creamos el reporte inicial
 	miReporte = MiReporte(levelLogging=logging.INFO,nombre=__name__)			# Se crea por defecto con nombre de la fecha y hora actual
@@ -210,13 +212,15 @@ def __main_function__():
 				if flanco == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
 					miReporte.info('INICIANDO REPORTE DE: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas()))
 					acaboDeIniciarNuevoCiclo = True
-				if acaboDeIniciarNuevoCiclo:			
+				if acaboDeIniciarNuevoCiclo:	
 					if miPoliciaReportando.numeroInfraccionesConfirmadas() > 0:
+						tuveInfracciones = True
 						infraccionEnRevision = miPoliciaReportando.popInfraccion()
 						miGrabadora.generarReporteInfraccion(historial, infraccionEnRevision)
 					else:
-						if generarArchivosDebug:
+						if tuveInfracciones:
 							miGrabadora.generarReporteInfraccion(historial, False,miPoliciaReportando.numeroInfraccionesConfirmadas())
+							tuveInfracciones = False
 						miPoliciaReportando.purgeInfractions()
 						miPoliciaReportando.inicializarAgente()
 						del historial
