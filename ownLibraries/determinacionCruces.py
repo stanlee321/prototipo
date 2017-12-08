@@ -126,11 +126,11 @@ class PoliciaInfractor():
 					self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder)
 			else:
 				miEstado = 'Cruce normal'
-			nuevaInfraccion = {'name':nombreInfraccionYFolder,'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':miEstado,'foto':False}
+			nuevoVehiculo = {'name':nombreInfraccionYFolder,'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':miEstado,'foto':False}
 			
 			self.ultimaCarpetaGuardado = os.getenv('HOME')+'/casosReportados/'+nombreInfraccionYFolder
 			momentumAEmplear = True
-			self.listaDeInfracciones.append(nuevaInfraccion)
+			self.listaDeInfracciones.append(nuevoVehiculo)
 			
 		for infraccion in self.listaDeInfracciones:
 			# Si es candidato evoluciona:
