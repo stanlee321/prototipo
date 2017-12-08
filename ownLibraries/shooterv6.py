@@ -26,16 +26,13 @@ class Shooter():
 		
 		data = np.load(Shooter.directorioDeNumpy+'datos.npy')
 
-		roi = data[-1]
-		print(roi[0])
-		print(roi[1])
 		# Initial aparemeters
 		self.video_source = video_source
 		self.width = width		# Integer Like
 		self.height = height	# Integer Like
 		self.maxCapturas = capturas
 		# FOR ROI
-		self.cutPoly = cutPoly 	# ARRAY like (primerPunto, segundoPunto)
+		self.cutPoly = data[-1] 	# ARRAY like (primerPunto, segundoPunto)
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
 		self.segundoPunto = self.cutPoly[1]				# Array like [p0,p1]
 		p0x = self.primerPunto[0]/self.width
