@@ -191,7 +191,7 @@ class PoliciaInfractor():
 	def eliminoCarpetaDeSerNecesario(self,infraccion):
 		try: 
 			carpetaABorrar = directorioDeReporte+'/'+infraccion['name']
-			self.miReporte.info('> Borrando: ',carpetaABorrar)
+			self.miReporte.info('> Borrando: '+carpetaABorrar)
 			shutil.rmtree(carpetaABorrar)
 		except:
 			self.miReporte.warning('No pude borrar posible carpeta fantasma: '+infraccion['name'])
