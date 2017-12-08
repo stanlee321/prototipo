@@ -18,7 +18,7 @@ class Shooter():
 	""" General PICAMERA DRIVER Prototipe
 	"""
 	directorioDeReporte = os.getenv('HOME')+'/casosReportados'
-	directorioDeNumpy = os.getenv('HOME')+'/trafficFlow/installationFiles/'
+	directorioDeNumpy = os.getenv('HOME')+'/trafficFlow/prototipo/installationFiles/'
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
 	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 2):
