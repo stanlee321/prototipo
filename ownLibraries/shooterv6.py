@@ -45,7 +45,7 @@ class Shooter():
 		#self.camera.resolution = (self.width,self.height)
 		self.camera.resolution = self.camera.MAX_RESOLUTION
 		self.camera.framerate = 5
-		self.camera.zoom = (0, 0, 0.5, 0.5)
+		self.camera.zoom = (0.25, 0.25, 0.25, 0.25)
 		#self.camera.shutter_speed = 190000
 		#self.camera.iso = 800
 		self.camera.start_preview()
@@ -89,7 +89,7 @@ class Shooter():
 
 	def start(self):
 		start = time.time()
-		self.camera.capture_sequence(self.writter(), format='png', use_video_port=True, resize=(self.width*0.5, self.height*0.5))
+		self.camera.capture_sequence(self.writter(), format='png', use_video_port=True, resize=(self.width*0.25, self.height*0.25))
 		finish = time.time()
 		self.eyesOpen = False
 		print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
