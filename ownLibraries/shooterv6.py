@@ -89,7 +89,7 @@ class Shooter():
 
 	def start(self):
 		start = time.time()
-		self.camera.capture_sequence(self.writter(), format='png', use_video_port=True, resize=(self.width*0.25, self.height*0.25))
+		self.camera.capture_sequence(self.writter(), format='png', use_video_port=True, resize=(int(self.width*0.25), int(self.height*0.25)))
 		finish = time.time()
 		self.eyesOpen = False
 		print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
