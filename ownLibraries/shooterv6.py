@@ -35,9 +35,6 @@ class Shooter():
 		print('primerpunto', self.primerPunto)
 		print('segundoPunto', self.segundoPunto)
 
-		print('SCALES ARE:')
-		print('in X', self.scale_factor_in_X)
-		print('in Y', self.scale_factor_in_Y)
 
 		p0x = self.primerPunto[0]/self.width
 		p0y = self.primerPunto[1]/self.height
@@ -45,11 +42,15 @@ class Shooter():
 		p1x = self.segundoPunto[0]/self.width
 		p1y = self.segundoPunto[1]/self.height
 
+		print('scales for zoom are', p0x, p0y, p1x, p1y)
 
 		self.scale_factor_in_X = (self.segundoPunto[0] - self.primerpunto[0])
 		self.scale_factor_in_Y = (self.segundoPunto[1] - self.primerpunto[1])
 
-		print('scales for zoom are', p0x, p0y, p1x, p1y)
+		print('SCALES ARE:')
+		print('in X', self.scale_factor_in_X)
+		print('in Y', self.scale_factor_in_Y)
+
 		# Dir where to save images
 
 		
