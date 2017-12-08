@@ -32,7 +32,17 @@ class Shooter():
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
 		self.segundoPunto = self.cutPoly[1]				# Array like [p0,p1]
 
+		self.scale_factor_in_X = self.segundoPunto[0]/self.width
+		self.scale_factor_in_Y = self.segundoPunto[1]/self.height
+
+		self.p0x = self.primerPunto[0]/self.width
+		self.p0y = self.primerPunto[1]/self.height
+
+		self.p1x = self.segundoPunto[0]/self.width
+		self.p1y = self.segundoPunto[1]/self.height
+
 		# Dir where to save images
+
 		
 		self.directorioDeGuardadoGeneral = self.directorioDeReporte
 		self.fechaInfraccion = str
@@ -44,8 +54,9 @@ class Shooter():
 		self.camera = picamera.PiCamera()
 		#self.camera.resolution = (self.width,self.height)
 		self.camera.resolution = self.camera.MAX_RESOLUTION
-		self.camera.framerate = 5
-		self.camera.zoom = (0.25, 0.25, 0.25, 0.25)
+		self.camera.framerate = 1
+
+		self.camera.zoom = (self.p0x, self.p0y, self.p1x, self.p1y)
 		#self.camera.shutter_speed = 190000
 		#self.camera.iso = 800
 		self.camera.start_preview()
