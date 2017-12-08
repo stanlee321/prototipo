@@ -147,7 +147,11 @@ def __main_function__():
 	frameFlujo = cv2.resize(frameVideo,(320,240))
 
 	# Creación de objetos:
-	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,True)
+	if os.uname()[1] == 'raspberrypi':
+		trabajoConPiCamara = True
+	else:
+		trabajoConPiCamara = False
+	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,trabajoConPiCamara)
 	miPoliciaReportando.establecerRegionInteresAlta(poligonoEnAlta)
 	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,False)
 	miFiltro = IRSwitch()
@@ -197,6 +201,7 @@ def __main_function__():
 			if senalSemaforo >= 1 :							# Si estamos en rojo, realizamos una accion
 				if flanco == 1:							# esto se inicia al principio de este estado
 					miReporte.info('SEMAFORO EN ROJO')
+					miPoliciaReportando.inicializarAgente()
 					del informacionTotal
 					informacionTotal = {}
 					frame_number = 0
@@ -281,6 +286,7 @@ def __main_function__():
 			ch = 0xFF & cv2.waitKey(5)
 			if ch == ord('q'):
 				miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por salida manual')
+				miPoliciaReportando.apagarCamara()
 				break
 			if ch == ord('s'):
 				cv2.imwrite(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')+'.jpg',frameFlujo)

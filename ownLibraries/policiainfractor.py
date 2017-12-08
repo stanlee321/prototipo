@@ -159,7 +159,6 @@ class PoliciaInfractor():
 				# Si es candidato evoluciona:
 				if infraccion['estado'] == 'Candidato':
 					# Al principio descarto los puntos negativos o en los bordes (0,0), -(x,y)
-					print('TIPO: ',infraccion['desplazamiento'])
 					nuevoArrayAActualizar, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
 					for otroIndice in range(len(infraccion['desplazamiento'])):
 						controlVector = infraccion['desplazamiento'][otroIndice]

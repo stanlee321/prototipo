@@ -45,8 +45,6 @@ class ControladorCamara():
 				miCamara.encenderCamaraEnSubDirectorio(folder, date)
 				numeroImagen = numeroImagen -1
 
-
-
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
 
