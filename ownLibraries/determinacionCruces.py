@@ -185,6 +185,7 @@ class PoliciaInfractor():
 			infraccion = self.listaDeInfracciones[indiceInfraccion]
 			if infraccion['estado'] != 'Confirmado':
 				indicesABorrar.append(indiceInfraccion)
+				self.miReporte.info('Purgando infraccion con estado y fecha: '+infraccion['estado']+' at '+infraccion['name'])
 				self.eliminoCarpetaDeSerNecesario(infraccion)
 		# Itero sobre las infracciones
 

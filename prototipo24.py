@@ -210,7 +210,7 @@ def __main_function__():
 
 			if senalSemaforo == 0:							# Si estamos en verde realizamos otra accion
 				if flanco == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
-					miReporte.info('INICIANDO REPORTE DE: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas()))
+					miReporte.info('INICIANDO REPORTE DE: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas())+' INFRACCIONES')
 					acaboDeIniciarNuevoCiclo = True
 				if acaboDeIniciarNuevoCiclo:	
 					if miPoliciaReportando.numeroInfraccionesConfirmadas() > 0:
