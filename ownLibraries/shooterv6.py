@@ -32,6 +32,8 @@ class Shooter():
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
 		self.segundoPunto = self.cutPoly[1]				# Array like [p0,p1]
 
+		print('primerpunto', self.primerpunto)
+		print('segundoPunto', self.segundoPunto)
 		self.scale_factor_in_X = int(self.segundoPunto[0]/self.width)
 		self.scale_factor_in_Y = int(self.segundoPunto[1]/self.height)
 
