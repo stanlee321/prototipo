@@ -42,7 +42,6 @@ class Shooter():
 		# PICMEARA INIT
 
 		self.camera = picamera.PiCamera()
-		#self.camera.resolution = (3240,2464)
 		#self.camera.resolution = (self.width,self.height)
 		self.camera.resolution = self.camera.MAX_RESOLUTION
 		self.camera.framerate = 5
