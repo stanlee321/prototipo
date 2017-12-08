@@ -44,7 +44,7 @@ class Shooter():
 		self.camera = picamera.PiCamera()
 		#self.camera.resolution = (3240,2464)
 		#self.camera.resolution = (self.width,self.height)
-		self.camera.resolution = camera.MAX_RESOLUTION
+		self.camera.resolution = self.camera.MAX_RESOLUTION
 		self.camera.framerate = 5
 		self.camera.zoom = (0.25, 0.25, 0.5, 0.5)
 		#self.camera.shutter_speed = 190000
