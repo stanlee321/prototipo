@@ -113,7 +113,7 @@ class Shooter():
 	def move_relevant_files(self, route_for_save):
 		photo0 = route_for_save[0]
 		src, dest = photo0[0], photo0[1]
-    	shutil.move(src, dest)
+		shutil.move(src, dest)
 
 	def start(self):
 		start = time.time()
