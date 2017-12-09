@@ -151,15 +151,21 @@ class Shooter():
 
 		try:
 			shutil.move(src0, dest0)
-			#shutil.move(src1, dest1)
+		except:
+			print('The destinacion of {} was deleted, delering source {}'.format(dest0, src0))
+			os.remove(src0)
+		try:
 			shutil.move(src_zero, dest_zero)
+		except:
+			print('The destinacion of {} was deleted, delering source {}'.format(dest_zero, src_zero))
+			os.remove(src_zero)
+		try:
 			shutil.move(src_two, dest_two)
 		except Exception as e:
-			print('The destination of this file {} or {}  or  {} was deleted, deleting sources files'.format(dest0, dest_zero, dest_two))
-			os.remove(src0)
-			os.remove(src_zero)
-			os.remove(src_zero)
-			print('Done!.')
+			print('The destinacion of {} was deleted, delering source {}'.format(dest_two, src_two))
+			os.remove(src_two)
+
+		print('Done!.')
 
 
 		# Get present photo
