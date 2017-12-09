@@ -8,7 +8,7 @@ import ctypes
 import datetime
 import threading
 import multiprocessing
-from shooterv8 import Shooter
+from .shooterv8 import Shooter
 
 
 class ControladorCamara():
