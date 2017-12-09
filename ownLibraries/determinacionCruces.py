@@ -20,37 +20,38 @@ directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
 
 class PoliciaInfractor():
 	"""
-	Esta clase recibe una imagen, el estado del semaforo y determina flujo vehicular e infracciones
+	Entre las principales funciones de esta clase esta traducir la información de los frames entrantes a información mas manipulable y valiosa para un ser humano o para una inteligencia artificial
+	Tambien se encarga de crear los objetos Vehiculos que pueden estar en estado cruce o infraccion
+	También se encarga de proveer el estado actual del infractor
 	"""
-	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada,segundaCamara = False):
+	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada):
 		# Tomo la imagen de inicialización y obtengo algunas caracteristicas de la misma
 		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)
+
+		# Se cargan las variables de creación de la clase
 		self.imagenAuxiliar = cv2.cvtColor(imagenParaInicializar, cv2.COLOR_BGR2GRAY)
-		try:
-			height,width = self.imagenAuxiliar.shape
-		except:
-			self.miReporte.error('No pude obtener data, es una imagen el objeto de inicializacion?')
-		
 		self.areaDeResguardo = np.array(poligonoPartida)
 		self.areaDeConfirmacion = np.array(poligonoLlegada)
 
+		# CONDICIONES DE DESCARTE
 		# En si un punto sale del carril valido (ensanchado debidamente) se descarta el punto individual
 		self.carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
+		self.maximoNumeroFramesParaDescarte = 80
 
 		# la linea de referencia para tamanio sera del largo del paso de cebra, su longitud servira para descartar puntos que se alejen del resto
-		self.lineaReferenciaTamanio = np.array(poligonoPartida[0])-np.array(poligonoPartida[1])
-		self.maximaDistanciaEntrePuntos = math.sqrt(self.lineaReferenciaTamanio[0]**2+self.lineaReferenciaTamanio[1]**2)
+		self.maximaDistanciaEntrePuntos = self.tamanoVector(np.array(poligonoPartida[0])-np.array(poligonoPartida[1]))
+
+		# Se crea la clase correspondiente
+		self.miFiltro = AnalisisOnda()
 
 		# La linea de pintado LK y trasera son los puntos del paso de cebra
 		self.lineaDePintadoLK =  np.array([poligonoPartida[0],poligonoPartida[3]])
 		self.lineaTraseraLK =  np.array([poligonoPartida[1],poligonoPartida[2]])
 
-		self.miFiltro = AnalisisOnda()
-
 		ditanciaEnX = self.lineaDePintadoLK[1][0] - self.lineaDePintadoLK[0][0]
 		ditanciaEnY = self.lineaDePintadoLK[1][1] - self.lineaDePintadoLK[0][1]
 		vectorParalelo = self.lineaDePintadoLK[1] - self.lineaDePintadoLK[0]
-		self.vectorParaleloUnitario = (vectorParalelo)/math.sqrt(vectorParalelo[0]**2+vectorParalelo[1]**2)
+		self.vectorParaleloUnitario = (vectorParalelo)/self.tamanoVector(vectorParalelo)
 		self.vectorPerpendicularUnitario = np.array([self.vectorParaleloUnitario[1],-self.vectorParaleloUnitario[0]])
 		self.numeroDePuntos = 9
 		self.stepX = ditanciaEnX//self.numeroDePuntos
@@ -58,111 +59,162 @@ class PoliciaInfractor():
 		self.lk_params = dict(  winSize  = (15,15),
 								maxLevel = 7,
 								criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
-		# erase 4 lines featureparams
-		self.lineaDeResguardoDelantera = np.array([self.lineaDePintadoLK[0]])
+
 		self.lineaFijaDelantera = np.zeros((self.numeroDePuntos+1,1,2))
-		self.lineaEmpuje = np.zeros((self.numeroDePuntos+1,1,2))
-		self.restablecerLineaLK()
+		self.lineaDeResguardoDelantera = self.crearLineaDeResguardo()
+		
 		self.listaDeInfracciones = []
-		self.maximoNumeroFramesParaDescarte = 100
-		self.segundaCamara = segundaCamara
+		"""
+		Estados de vehiculos
+		1. Cruce, cruce normal, cuando el vehiculo cruzo en el sentido de control del semaforo, un carril solamente para la versión actual
+		2. Confirmado, cuando se verifico que el vehiculo cruzo en Rojo
+		3. Giro, cuando el automovil giro a otro carril que el de interés
+		4. Ruido, cuando se da alguna condicion de descarte por ruido
+		5. Candidato, posible a llegar al estado 2 como infraccion confirmada, de lo contrario, 3, 4
+		6. Candidato a Cruce, cuando no puede llegar a ser infraccion, puede evolucionar a estado 1 o de lo contrario ser descartado
+		7. Descartado, no se descarta que sea un vehiculo, pero excedio el tiempo maximo
+		"""
+		self.estadoActual =   { 'cruces':0,
+								'infracciones':0,
+								'giro':0,
+								'ruido':0,
+								'candidato':0,
+								'candidatoACruce':0,
+								'descartes':0,
+								'colorSemaforo':'Verde'}
+
 		self.ultimaCarpetaGuardado = ''
-		if self.segundaCamara:
+		if os.uname()[1] == 'raspberrypi':
 			self.camaraAlta = ControladorCamara()
 
-	def establecerRegionInteresAlta(self,cutPoly):
-		if self.segundaCamara:
-			pass
-			#self.camaraAlta.establecerRegionInteres(cutPoly)
-		else:
-			pass
+	def tamanoVector(self,vector):
+		# Metodo auxiliar por la recurencia de esta aplicacion
+		return math.sqrt(vector[0]**2+vector[1]**2)
+
+	def puntoEstaEnRectangulo(self,punto,rectangulo):
+		# Metodo auxiliar por la recurencia de esta aplicacion
+		estadoARetornar = False
+		if (punto[0]>rectangulo[0])&(punto[0]<rectangulo[0]+rectangulo[2])&(punto[1]>rectangulo[1])&(punto[1]<rectangulo[1]+rectangulo[3]):
+			estadoARetornar = True
+		return estadoARetornar
 
 	# No longer needed
 	def inicializarAgente(self,):
 		"""
 		Resets the starting line to get ready to the next frame
 		"""
-		self.restablecerLineaLK()
 		del self.listaDeInfracciones
 		self.listaDeInfracciones = []
 
-	def restablecerLineaLK(self,):
-		self.lineaDeResguardoDelantera = np.array([[self.lineaDePintadoLK[0]]])
+	def crearLineaDeResguardo(self):
+		"""
+		La linea de resguardo es una linea preparada para entrar en el algoritmo de lucas Kanade y controlar el flujo o seguir objetos que crucen la zona de partida
+		"""
+		lineaAuxiliar = np.array([[self.lineaDePintadoLK[0]]])
 		for numeroDePunto in range(1,self.numeroDePuntos+1):
-			self.lineaDeResguardoDelantera = np.append(self.lineaDeResguardoDelantera,[[self.lineaDePintadoLK[0]+numeroDePunto*np.array([self.stepX,self.stepY])]],axis=0)
-		self.lineaFijaDelantera = self.lineaDeResguardoDelantera
-
-	def puntoEstaEnRectangulo(self,punto,rectangulo):
-		estadoARetornar = False
-		if (punto[0]>rectangulo[0])&(punto[0]<rectangulo[0]+rectangulo[2])&(punto[1]>rectangulo[1])&(punto[1]<rectangulo[1]+rectangulo[3]):
-			estadoARetornar = True
-		return estadoARetornar
+			lineaAuxiliar = np.append(lineaAuxiliar,[[self.lineaDePintadoLK[0]+numeroDePunto*np.array([self.stepX,self.stepY])]],axis=0)
+		self.lineaFijaDelantera = lineaAuxiliar
+		self.lineaFijaDelantera = np.array(self.lineaFijaDelantera,dtype = np.float32)
+		return lineaAuxiliar
 
 	def seguirImagen(self,numeroDeFrame,imagenActual,informacion = False,colorSemaforo = 1):
 		"""
-		Get into the new frame, updates the flow and follows the item as required
+		Metodo mas importante del infractor: Se encarga de:
+		1. Crear vehiculos de ser necesario
+		2. Seguir vehiculos
+		3. Confirmar o descartar vehículos
 		"""
-		# la imagen introducida esta en RGB, 240,320,3
+		if colorSemaforo == 1:
+			self.estadoActual['colorSemaforo'] = 'Rojo'
+		elif colorSemaforo == 0:
+			self.estadoActual['colorSemaforo'] = 'Verde'
+		elif colorSemaforo == 2:
+			self.estadoActual['colorSemaforo'] = 'Amarillo'
+		else:
+			self.estadoActual['colorSemaforo'] = 'No hay semaforo'
+		
+		nuevoObjeto = False
 		momentumAEmplear = False
 		imagenActualEnGris = cv2.cvtColor(imagenActual, cv2.COLOR_BGR2GRAY)
-		
-		self.lineaDeResguardoDelantera = np.array(self.lineaDeResguardoDelantera,dtype = np.float32)	# This solved the problem although the array seemed to ve  in float32, adding this specification to this line solved the problem
-		self.lineaFijaDelantera = np.array(self.lineaFijaDelantera,dtype = np.float32)
-		# Se compara las lineas anterior y nueva para obtener el flujo en dirección deseada
-		
 		arrayAuxiliarParaVelocidad, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaFijaDelantera, None, **self.lk_params)
-
-		self.lineaEmpuje = arrayAuxiliarParaVelocidad
 		velocidadEnBruto = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
-
 		velocidadFiltrada, pulsoVehiculos = self.miFiltro.obtenerOndaFiltrada(velocidadEnBruto)
-		
 		if pulsoVehiculos == 1:
+			nuevoObjeto = True
+		
+		if nuevoObjeto:
+			# Se determina los mejores puntos para seguir para ser parte del objeto Vehiculo
 			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad,informacion)
+			# Cada vehiculo tiene un numbre que biene a xer ela fecja y hora de la infracción en cuestion
 			nombreInfraccionYFolder = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+			# Si el semaforo esta en rojo o amarillo entonces se encendera la camara de alta y se creara un vehiculo con el estado Candidato
 			if colorSemaforo >=1:
 				miEstado = 'Candidato'
-				if self.segundaCamara:
+				if os.uname()[1] == 'raspberrypi':
 					self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder)
 			else:
-				miEstado = 'Cruce normal'
+				miEstado = 'Candidato a Cruce'
 			nuevoVehiculo = {'name':nombreInfraccionYFolder,'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':miEstado,'foto':False}
 			
-			self.ultimaCarpetaGuardado = os.getenv('HOME')+'/casosReportados/'+nombreInfraccionYFolder
+			self.ultimaCarpetaGuardado = directorioDeReporte+'/'+nombreInfraccionYFolder
 			momentumAEmplear = True
 			self.listaDeInfracciones.append(nuevoVehiculo)
-			
+
+		# Se evoluciona el resto de vehiculos solo si son Candidatos o Candidatos a Cruce
 		for infraccion in self.listaDeInfracciones:
 			# Si es candidato evoluciona:
-			if (infraccion['estado'] == 'Candidato')|(infraccion['estado'] == 'Cruce normal'):
+			if (infraccion['estado'] == 'Candidato')|(infraccion['estado'] == 'Candidato a Cruce'):
 				# Al principio descarto los puntos negativos o en los bordes (0,0), -(x,y)
-				nuevoArrayAActualizar, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
-				for otroIndice in range(len(infraccion['desplazamiento'])):
-					controlVector = infraccion['desplazamiento'][otroIndice]
-					if not self.puntoEstaEnRectangulo((controlVector[0][0],controlVector[0][1]),(0,0,320,240)):
-						nuevoArrayAActualizar[otroIndice] = infraccion['desplazamiento'][otroIndice]
-				# Si es candidato y duro demasiado se descarta
+				nuevaPosicionVehiculo, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
+				# Si ya no hay puntos que seguir el anterior retorna NoneType, se determina como Giro,
+				NoneType = type(None)
+				if type(nuevaPosicionVehiculo) == NoneType:
+					infraccion['estado'] = 'Giro'
+					self.estadoActual['giro'] += 1
+					break
+				# DESCARTE INDIVIDUAL POR PUNTO
+				# Se descarta puntos individualmente, si un punto esta en el borde del frame o fuera de el entonces se lo mantiene congelado
+				# PELIGRO, los frames congelados estan ingresando al calcOpticalFlow arriba, revisar
+				#for otroIndice in range(len(infraccion['desplazamiento'])):
+				#	controlVector = infraccion['desplazamiento'][otroIndice]
+				#	if not self.puntoEstaEnRectangulo((controlVector[0][0],controlVector[0][1]),(0,0,320,240)):
+				#		nuevaPosicionVehiculo[otroIndice] = infraccion['desplazamiento'][otroIndice]
+				# DESCARTE POR TIEMPO, POR VEHICULO
 				if (numeroDeFrame - infraccion['frameInicial']) > self.maximoNumeroFramesParaDescarte:
 					infraccion['estado']='Descartado'
+					self.estadoActual['descartes'] += 1
 				# Si es candidato y algun punto llego al final se confirma
-				for indiceVector in range(len(nuevoArrayAActualizar)):
-					vector = nuevoArrayAActualizar[indiceVector]
+				indicesValidos = []
+				puntosQueLlegaron = 0
+
+				for indiceVector in range(len(nuevaPosicionVehiculo)):
+					# Para cada indice
+					vector = nuevaPosicionVehiculo[indiceVector]
 					xTest, yTest = vector[0][0], vector[0][1]
-					if cv2.pointPolygonTest(self.carrilValido,(xTest, yTest),True)<=0:	# Si esta fuera del carril valido se descarta
-						nuevoArrayAActualizar[indiceVector] = -np.abs(nuevoArrayAActualizar[indiceVector])
+					# hago una lista de los indices que aun son validos
+					if cv2.pointPolygonTest(self.carrilValido,(xTest, yTest),True)>=0:	# Si esta dentro del carril valido se mantiene el punto
+						indicesValidos.append(indiceVector)
+					# Confirmo la llegada de uno
 					if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:	# Si esta dentro del espacio de llegada se confirma
+						puntosQueLlegaron += 1
+					if puntosQueLlegaron >= 2:
 						if infraccion['estado'] == 'Candidato':
 							infraccion['estado'] = 'Confirmado'
-						if infraccion['estado'] == 'Cruce normal':
+							self.estadoActual['infracciones'] += 1
+						if infraccion['estado'] == 'Candidato a Cruce':
 							infraccion['estado'] = 'Cruzo'
+							self.estadoActual['cruces'] += 1
 						momentumAEmplear = True
 						infraccion['frameFinal'] = numeroDeFrame
-						self.miReporte.info('Conf: '+infraccion['name']+' de '+str(infraccion['frameInicial'])+' a '+str(infraccion['frameFinal'])+' es '+infraccion['estado'])
+						self.miReporte.info(infraccion['estado']+' : '+infraccion['name']+' de '+str(infraccion['frameInicial'])+' a '+str(infraccion['frameFinal'])+' es '+infraccion['estado'])
 						break
-				infraccion['desplazamiento'] = nuevoArrayAActualizar
+				# Se continuara solamente con los puntos validos
+				infraccion['desplazamiento'] = nuevaPosicionVehiculo[indicesValidos]
 		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
 
 		self.imagenAuxiliar = imagenActualEnGris
+		print(self.estadoActual)
+		sys.stdout.write("\033[F") # Cursor up one line
 		return velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear
 
 	def numeroInfraccionesConfirmadas(self):
@@ -178,15 +230,18 @@ class PoliciaInfractor():
 			contadorInfracciones += 1
 		return contadorInfracciones
 
-	def purgeInfractions(self):
-		indicesABorrar = []
-		# Tomo los indices que contienen infracciones no confirmadas
+	def purgarInfraccionesRemanentes(self):
+		# Se borran todos los candidatos sueltos
 		for indiceInfraccion in range(len(self.listaDeInfracciones)):
 			infraccion = self.listaDeInfracciones[indiceInfraccion]
-			if (infraccion['estado'] != 'Confirmado')&(infraccion['estado'] != 'Cruce'):
-				indicesABorrar.append(indiceInfraccion)
+			if infraccion['estado'] == 'Candidato':
 				self.miReporte.info('Purgando infraccion con estado y fecha: '+infraccion['estado']+' at '+infraccion['name'])
 				self.eliminoCarpetaDeSerNecesario(infraccion)
+				self.estadoActual['candidato']+=1
+			if infraccion['estado'] == 'Candidato a Cruce':
+				self.estadoActual['candidatoACruce']+=1
+		self.inicializarAgente()
+		self.inicializarAgente()
 		# Itero sobre las infracciones
 
 	def eliminoCarpetaDeSerNecesario(self,infraccion):
@@ -243,69 +298,25 @@ class PoliciaInfractor():
 		"""
 		Gets center of movement as a tuple of three vectors
 		"""
-		puntosOptimizados = False
-		try:
-			misRectangulos = informacion['rectangulos']
-			puntosOptimizados = True
-		except:
-			puntosOptimizados = False
-		if puntosOptimizados:
-			lineaInterna = []
-			for punto in self.lineaFijaDelantera:
-				lineaInterna.append(punto[0].tolist())
-			
-			contadorDeRectangulos = 0
-			lineaParaRectangulo = {}
-			for rectangulo in misRectangulos:
-				lineaParaRectangulo[contadorDeRectangulos] = lineaInterna.copy()
-				for punto in lineaParaRectangulo[contadorDeRectangulos]:
-					if (punto[0]<rectangulo[0][0])|(punto[0]>rectangulo[0][0]+rectangulo[0][1])|(punto[1]<rectangulo[0][1])|(punto[1]>rectangulo[0][1]+rectangulo[0][2]):
-						lineaParaRectangulo[contadorDeRectangulos].pop(lineaParaRectangulo[contadorDeRectangulos].index(punto))
-				lineaParaRectangulo[contadorDeRectangulos].pop()
-				lineaParaRectangulo[contadorDeRectangulos].pop(0)
-				contadorDeRectangulos+=1
-			
-			maximaLongitud = 0
-			lineaRespuesta = []
-			for index,linea in lineaParaRectangulo.items():
-				if len(linea)>maximaLongitud:
-					maximaLongitud = len(linea)
-					lineaRespuesta = linea
-			try:
-				extremoInferior = lineaRespuesta[0]
-			except:
-				extremoInferior = lineaInterna[self.numeroDePuntos//2]
-				self.miReporte.error('No pude detectar puntos a seguir en el rectangulo')
-			extremoSuperior = extremoInferior
-			if len(lineaRespuesta)>2:
-				extremoInferior = lineaRespuesta.pop(0)
-				extremoSuperior = lineaRespuesta.pop()
-			if len(lineaRespuesta)>2:
-				extremoInferior = lineaRespuesta.pop(0)
-				extremoSuperior = lineaRespuesta.pop()
-			extremoMedio = (np.array(extremoInferior)+np.array(extremoSuperior))//2
-			extremoMedio = extremoMedio.tolist()
-			
-			return np.array([[np.array(extremoInferior,dtype = np.float32)],[np.array(extremoMedio,dtype = np.float32)],[np.array(extremoSuperior,dtype = np.float32)]])
-		else:
-			dif2 = []
-			for numeroDePunto in range(1,self.numeroDePuntos+1):
-				x = nuevoVector[numeroDePunto][0][0] - vectorAntiguo[numeroDePunto][0][0]
-				y = nuevoVector[numeroDePunto][0][1] - vectorAntiguo[numeroDePunto][0][1]
-				dif2.append(x**2+y**2)
-			indiceDeMayores = []
-			
-			indice = dif2.index(max(dif2))
-			indiceDeMayores.append(indice)
-			dif2.pop(indice)
-			indice = dif2.index(max(dif2))
-			indiceDeMayores.append(indice)
-			dif2.pop(indice)
-			indice = dif2.index(max(dif2))
-			indiceDeMayores.append(indice)
-			dif2.pop(indice)
-			
-			return np.array([[nuevoVector[indiceDeMayores[0]][0]],[nuevoVector[indiceDeMayores[1]][0]],[nuevoVector[indiceDeMayores[2]][0]]])
+		##### OJO
+		dif2 = []
+		for numeroDePunto in range(1,self.numeroDePuntos+1):
+			x = nuevoVector[numeroDePunto][0][0] - vectorAntiguo[numeroDePunto][0][0]
+			y = nuevoVector[numeroDePunto][0][1] - vectorAntiguo[numeroDePunto][0][1]
+			dif2.append(x**2+y**2)
+		indiceDeMayores = []
+		
+		indice = dif2.index(max(dif2))
+		indiceDeMayores.append(indice)
+		dif2.pop(indice)
+		indice = dif2.index(max(dif2))
+		indiceDeMayores.append(indice)
+		dif2.pop(indice)
+		indice = dif2.index(max(dif2))
+		indiceDeMayores.append(indice)
+		dif2.pop(indice)
+		
+		return np.array([[nuevoVector[indiceDeMayores[0]][0]],[nuevoVector[indiceDeMayores[1]][0]],[nuevoVector[indiceDeMayores[2]][0]]])
 			
 
 	def obtenerMagnitudMovimiento(self,vectorAntiguo, nuevoVector):
@@ -383,9 +394,6 @@ if __name__ == '__main__':
 			graficaActual.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),ncol=4, fancybox=True, shadow=True)
 			graficaActual.show()
 
-		if ch == ord('r'):
-			miPolicia.restablecerLineaLK()
-		
 		print('Ciclo',time.time()-tiempoAuxiliar)
 		while time.time()-tiempoAuxiliar<1/mifps:
 			True

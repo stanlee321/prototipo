@@ -153,8 +153,7 @@ def __main_function__():
 		trabajoConPiCamara = True
 	else:
 		trabajoConPiCamara = False
-	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,trabajoConPiCamara)
-	miPoliciaReportando.establecerRegionInteresAlta(poligonoEnAlta)
+	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada)
 	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,False)
 	miFiltro = IRSwitch()
 	miAcetatoInformativo = Acetato()
@@ -207,11 +206,11 @@ def __main_function__():
 				if flanco == 1:							# esto se inicia al principio de este estado
 					miReporte.info('SEMAFORO EN ROJO')
 	
-
 			if senalSemaforo == 0:							# Si estamos en verde realizamos otra accion
 				if flanco == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
 					miReporte.info('INICIANDO REPORTE DE: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas())+' INFRACCIONES')
 					acaboDeIniciarNuevoCiclo = True
+					ultimoNumeroInfraccion = miPoliciaReportando.numeroInfraccionesConfirmadas()
 				if acaboDeIniciarNuevoCiclo:	
 					if miPoliciaReportando.numeroInfraccionesConfirmadas() > 0:
 						tuveInfracciones = True
@@ -219,10 +218,9 @@ def __main_function__():
 						miGrabadora.generarReporteInfraccion(historial, infraccionEnRevision)
 					else:
 						if tuveInfracciones:
-							miGrabadora.generarReporteInfraccion(historial, False,miPoliciaReportando.numeroInfraccionesConfirmadas())
+							miGrabadora.generarReporteInfraccion(historial, False,ultimoNumeroInfraccion)
 							tuveInfracciones = False
-						miPoliciaReportando.purgeInfractions()
-						miPoliciaReportando.inicializarAgente()
+						miPoliciaReportando.purgarInfraccionesRemanentes()
 						del historial
 						historial = {}
 						frame_number = 0	
@@ -273,13 +271,13 @@ def __main_function__():
 			
 			if (porcentajeDeMemoria > 80)&(os.uname()[1] == 'raspberrypi'):
 				miReporte.info('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
-
+			"""
 			if porcentajeDeMemoria > 96:
 				miReporte.warning('Alcanzado 96/100 de memoria, borrando todo e inicializando')
 				del historial
 				historial = {}
 				frame_number = 0
-
+			"""
 			frame_number += 1
 			if (frame_number >= topeEjecucion) &(topeEjecucion!=0):
 				miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por indice de auto acabado predeterminado')
