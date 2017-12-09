@@ -16,13 +16,14 @@ class ControladorCamara():
 		# Se declaran las variables de control con el proceso paralelo
 		self.programaPrincipalCorriendo = multiprocessing.Value('i',1)
 		self.capture = False
+		self.nombreFolderWORKDIR = 'WORKDIR'
 		self.input_q = multiprocessing.Queue(maxsize = 3)
 		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q,))
 		self.procesoParalelo.start()
-	def encenderCamaraEnSubDirectorio(self, nombreFolderWORKDIR = 'WORKDIR', nombreFoldertoSave):
+	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		self.capture = True
-		self.input_q.put([nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave])
+		self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave])
 		return self
 
 	def apagarCamara(self):
