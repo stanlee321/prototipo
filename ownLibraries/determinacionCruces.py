@@ -213,8 +213,8 @@ class PoliciaInfractor():
 		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
 
 		self.imagenAuxiliar = imagenActualEnGris
-		print(self.estadoActual)
-		sys.stdout.write("\033[F") # Cursor up one line
+		#print(self.estadoActual)
+		#sys.stdout.write("\033[F") # Cursor up one line
 		return velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear
 
 	def numeroInfraccionesConfirmadas(self):
