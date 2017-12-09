@@ -24,7 +24,11 @@ class ControladorCamara():
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		self.capture = True
 		print('>>>> a antes put')
-		self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave])
+		try: 
+			print('size: ',self.input_q.qsize())
+			self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave],False)
+		except Exception as e:
+			print('SE TIENE LA EXCEPTION POR NO SLOT AVAILABLE')
 		print('>>>> a despues put')
 		return self
 
