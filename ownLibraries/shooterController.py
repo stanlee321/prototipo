@@ -52,7 +52,7 @@ if __name__ == '__main__':
 		counter +=1 
 		if counter == 10:
 			eyes = not eyes
-			shoot.encenderCamaraEnSubDirectorio('WORKDIR', 'Destiny')
+			shoot.encenderCamaraEnSubDirectorio('Destiny')
 			counter = 0
 			if counter == 0:
 				shoot.apagarCamara()
