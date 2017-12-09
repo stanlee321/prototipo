@@ -89,7 +89,7 @@ class Shooter():
 			os.makedirs(self.saveDirWORK) 
 		self.start()
 		print('Encendi Camara de Forma Exitosa en ' + self.saveDir)
-		print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDir)
+		print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK)
 
 	
 
