@@ -12,7 +12,7 @@ import matplotlib.pyplot as graficaActual
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.analisisonda import AnalisisOnda
 if os.uname()[1] == 'raspberrypi':
-	from ownLibraries.shooterAlvaro import ControladorCamara
+	from ownLibraries.shooterController import ControladorCamara
 
 directorioDeReporte = os.getenv('HOME')+'/casosReportados'
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
