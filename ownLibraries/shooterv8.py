@@ -12,6 +12,7 @@ import picamera
 import time
 import numpy as np
 import shutil
+import collections
 #from io import BytesIO
 #from skimage.io import imsave
 
@@ -64,6 +65,7 @@ class Shooter():
 		#self.camera.iso = 800
 		self.camera.start_preview()
 
+		self.circular_buff = collections.deque(maxlen=5)
 
 		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
 
@@ -91,29 +93,29 @@ class Shooter():
 	def writter(self):
 		#while not input_queue.empty:
 		self.frame_number = 0
-		route_for_save = {}
 		while self.frame_number < self.maxCapturas:
 
 			save_in_file = self.saveDir+"/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
 			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
-
-			route_for_save[self.frame_number] = [save_in_work_dir, save_in_file]
-			
-
+			self.circular_buff.append([save_in_work_dir, save_in_file])
 			print('GUARDADO en: '+ self.saveDirWORK+'/{}.jpg'.format(self.frame_number))
 			#yield "image%02d.jpg" % frame
 			yield save_in_work_dir
 			#yield "./imagen_{}.jpg".format(self.frame_number)
 			self.frame_number += 1
 		# Move relevenat files [0] and [2]
-		self.move_relevant_files(route_for_save)
+		self.move_relevant_files()
 
 
 
-	def move_relevant_files(self, route_for_save):
-		photo0 = route_for_save[0]
-		src, dest = photo0[0], photo0[1]
-		shutil.move(src, dest)
+	def move_relevant_files(self):
+		photo0 = self.circular_buff.popleft()
+		photo1 = self.circular_buff.popleft()
+		src0, dest0 = photo0[0], photo0[1]
+		src1, dest1 = photo1[0], photo1[1]
+		shutil.move(src0, dest0)
+		shutil.move(src1, dest1)
+
 
 	def start(self):
 		start = time.time()
