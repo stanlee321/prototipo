@@ -138,8 +138,6 @@ class Shooter():
 
 		photo0 = self.circular_buff.popleft()
 		photo1 = self.circular_buff.popleft()
-		print('photo 0 is', photo0)
-		print('photo 1 is', photo1)
 
 		src0, dest0 = photo0[0], photo0[1]
 		src1, dest1 = photo1[0], photo1[1]
