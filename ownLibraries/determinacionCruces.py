@@ -124,7 +124,7 @@ class PoliciaInfractor():
 		2. Seguir vehiculos
 		3. Confirmar o descartar vehículos
 		"""
-		print('>> 01 Inicio Seguir')
+		#print('>> 01 Inicio Seguir')
 		if colorSemaforo == 1:
 			self.estadoActual['colorSemaforo'] = 'Rojo'
 		elif colorSemaforo == 0:
@@ -139,18 +139,18 @@ class PoliciaInfractor():
 		momentumAEmplear = False
 		imagenActualEnGris = cv2.cvtColor(imagenActual, cv2.COLOR_BGR2GRAY)
 		arrayAuxiliarParaVelocidad, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaFijaDelantera, None, **self.lk_params)
-		print('>> 02 optical LK good')
+		#print('>> 02 optical LK good')
 		velocidadEnBruto = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
-		print('>> 03 magnitud good')
+		#print('>> 03 magnitud good')
 		velocidadFiltrada, pulsoVehiculos = self.miFiltro.obtenerOndaFiltrada(velocidadEnBruto)
 		if pulsoVehiculos == 1:
 			nuevoObjeto = True
 		
 		if nuevoObjeto:
-			print('>> 04 inside new')
+			#print('>> 04 inside new')
 			# Se determina los mejores puntos para seguir para ser parte del objeto Vehiculo
 			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad,informacion)
-			print('>> 05 obtener puntos good')
+			#print('>> 05 obtener puntos good')
 			# Cada vehiculo tiene un numbre que biene a xer ela fecja y hora de la infracción en cuestion
 			nombreInfraccionYFolder = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 			# Si el semaforo esta en rojo o amarillo entonces se encendera la camara de alta y se creara un vehiculo con el estado Candidato
@@ -158,7 +158,7 @@ class PoliciaInfractor():
 				miEstado = 'Candidato'
 				if os.uname()[1] == 'raspberrypi':
 					self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder)
-				print('>> 06 encenci camara en')
+				#print('>> 06 encenci camara en')
 			else:
 				miEstado = 'Candidato a Cruce'
 			nuevoVehiculo = {'name':nombreInfraccionYFolder,'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':miEstado,'foto':False}
@@ -169,12 +169,12 @@ class PoliciaInfractor():
 
 		# Se evoluciona el resto de vehiculos solo si son Candidatos o Candidatos a Cruce
 		for infraccion in self.listaDeInfracciones:
-			print('>> 07 inside for')
+			#print('>> 07 inside for')
 			# Si es candidato evoluciona:
 			if (infraccion['estado'] == 'Candidato')|(infraccion['estado'] == 'Candidato a Cruce'):
 				# Al principio descarto los puntos negativos o en los bordes (0,0), -(x,y)
 				nuevaPosicionVehiculo, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
-				print('>> 08 nuevo punto calculado good')
+				#print('>> 08 nuevo punto calculado good')
 				# Si ya no hay puntos que seguir el anterior retorna NoneType, se determina como Giro,
 				NoneType = type(None)
 				if type(nuevaPosicionVehiculo) == NoneType:
@@ -197,10 +197,10 @@ class PoliciaInfractor():
 				puntosQueLlegaron = 0
 
 				for indiceVector in range(len(nuevaPosicionVehiculo)):
-					print('>> 09 inside for puntos good')
+					#print('>> 09 inside for puntos good')
 					# Para cada indice
 					vector = nuevaPosicionVehiculo[indiceVector]
-					print('>> 10 after new')
+					#print('>> 10 after new')
 					xTest, yTest = vector[0][0], vector[0][1]
 					# hago una lista de los indices que aun son validos
 					if cv2.pointPolygonTest(self.carrilValido,(xTest, yTest),True)>=0:	# Si esta dentro del carril valido se mantiene el punto
@@ -208,7 +208,7 @@ class PoliciaInfractor():
 					# Confirmo la llegada de uno
 					if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:	# Si esta dentro del espacio de llegada se confirma
 						puntosQueLlegaron += 1
-					print('>> 11 after poligons')
+					#print('>> 11 after poligons')
 					if puntosQueLlegaron >= 2:
 						if infraccion['estado'] == 'Candidato':
 							infraccion['estado'] = 'Confirmado'
@@ -223,7 +223,7 @@ class PoliciaInfractor():
 				# Se continuara solamente con los puntos validos
 				infraccion['desplazamiento'] = nuevaPosicionVehiculo[indicesValidos]
 		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
-		print('>> 13 final good')
+		#print('>> 13 final good')
 
 		self.imagenAuxiliar = imagenActualEnGris
 		#print(self.estadoActual)
