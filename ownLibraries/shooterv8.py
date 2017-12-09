@@ -65,6 +65,7 @@ class Shooter():
 		#self.camera.iso = 800
 		self.camera.start_preview()
 
+		# Create circular buff deque of len 5
 		self.circular_buff = collections.deque(maxlen=5)
 
 		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
@@ -75,10 +76,10 @@ class Shooter():
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
 		self.segundoPunto = self.cutPoly[1]
 
-	def encenderCamaraEnSubDirectorio(self, folder_demo, fecha, folder ):
+	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder ):
 		#self.miReporte.moverRegistroACarpeta(fecha)
 		self.fechaInfraccion = fecha
-		self.saveDirWORK = self.directorioDeGuardadoGeneral +"/" + folder_demo
+		self.saveDirWORK = self.directorioDeGuardadoGeneral +"/" + folder_WORK
 		self.saveDir = self.directorioDeGuardadoGeneral +"/" + folder
 
 		if not os.path.exists(self.saveDir):
@@ -88,31 +89,31 @@ class Shooter():
 			os.makedirs(self.saveDirWORK) 
 		self.start()
 		print('Encendi Camara de Forma Exitosa en ' + self.saveDir)
+		print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDir)
+
 	
 
 	def writter(self):
-		#while not input_queue.empty:
 		self.frame_number = 0
 		while self.frame_number < self.maxCapturas:
 
 			save_in_file = self.saveDir+"/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
 			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
 			self.circular_buff.appendleft([save_in_work_dir, save_in_file])
-			#print(self.circular_buff)
 			print('GUARDADO en: '+ self.saveDirWORK+'/{}.jpg'.format(self.frame_number))
 			#yield "image%02d.jpg" % frame
 			yield save_in_work_dir
 			#yield "./imagen_{}.jpg".format(self.frame_number)
 			self.frame_number += 1
-		# Move relevenat files [0] and [2]
 
+		# Once the while is finish move the files to his folders.
 		self.move_relevant_files()
 
 
 
 	def move_relevant_files(self):
 
-		# Get by index  frame 0 ,1 ,3 or 4
+		# Get by index  frame 0 ,1 ,3 or 4, example:
 		"""
 		photo0 = self.circular_buff[0]
 		photo1 = self.circular_buff[1]
@@ -134,7 +135,7 @@ class Shooter():
 		shutil.move(src3, dest3)
 		shutil.move(src4, dest4)
 		"""
-		# Get by last apperance: get the last two photos
+		# Get by last value in past: get the last two photos
 
 		photo0 = self.circular_buff.popleft()
 		photo1 = self.circular_buff.popleft()

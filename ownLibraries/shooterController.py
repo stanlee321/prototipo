@@ -19,10 +19,10 @@ class ControladorCamara():
 		self.input_q = multiprocessing.Queue(maxsize = 3)
 		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q,))
 		self.procesoParalelo.start()
-	def encenderCamaraEnSubDirectorio(self,nombreFolderDemo, nombreFolder):
+	def encenderCamaraEnSubDirectorio(self,nombreFolderWORKDIR, nombreFoldertoSave):
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		self.capture = True
-		self.input_q.put([nombreFolderDemo, self.capture, date, nombreFolder])
+		self.input_q.put([nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave])
 		#nombreCarpeta.value = nombreFolder
 		#numeroImagenes.value = numeroImagenes.value + 2
 		return self
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 		counter +=1 
 		if counter == 10:
 			eyes = not eyes
-			shoot.encenderCamaraEnSubDirectorio('DEMO', 'Destiny')
+			shoot.encenderCamaraEnSubDirectorio('WORKDIR', 'Destiny')
 			counter = 0
 			#main()
 		print(counter)
