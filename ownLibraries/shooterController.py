@@ -23,13 +23,10 @@ class ControladorCamara():
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		self.capture = True
 		self.input_q.put([nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave])
-		#nombreCarpeta.value = nombreFolder
-		#numeroImagenes.value = numeroImagenes.value + 2
 		return self
 
 	def apagarCamara(self):
-		#numeroImagenes.value = 0
-		self.numeroImagenes = 0
+		self.capture = False
 		return self
 	def apagarControlador(self):
 		programaPrincipalCorriendo = multiprocessing.Value('i',0)
@@ -57,7 +54,9 @@ if __name__ == '__main__':
 			eyes = not eyes
 			shoot.encenderCamaraEnSubDirectorio('WORKDIR', 'Destiny')
 			counter = 0
-			#main()
+			if counter == 0:
+				shoot.apagarCamara()
+				print('copture off')
 		print(counter)
 		time.sleep(1)
 

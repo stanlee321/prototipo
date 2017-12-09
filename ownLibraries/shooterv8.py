@@ -138,13 +138,26 @@ class Shooter():
 		# Get by last value in past: get the last two photos
 
 		photo0 = self.circular_buff.popleft()
-		photo1 = self.circular_buff.popleft()
+		#photo1 = self.circular_buff.popleft()
+
+		photo_zero_present = self.circular_buff.pop()
+		photo_two_present = self.circular_buff.pop()
 
 		src0, dest0 = photo0[0], photo0[1]
-		src1, dest1 = photo1[0], photo1[1]
+		#src1, dest1 = photo1[0], photo1[1]
+
+		src_zero, dest_zero = photo_zero_present[0], photo_zero_present[1]
+		src_two, dest_two = photo_two_present[0], photo_two_present[1]
 
 		shutil.move(src0, dest0)
-		shutil.move(src1, dest1)
+		#shutil.move(src1, dest1)
+		shutil.move(src_zero, dest_zero)
+		shutil.move(src_two, dest_two)
+
+		# Get present photo
+
+
+
 
 
 
