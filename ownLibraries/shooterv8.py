@@ -98,7 +98,7 @@ class Shooter():
 			save_in_file = self.saveDir+"/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
 			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
 			self.circular_buff.appendleft([save_in_work_dir, save_in_file])
-			print(self.circular_buff)
+			#print(self.circular_buff)
 			print('GUARDADO en: '+ self.saveDirWORK+'/{}.jpg'.format(self.frame_number))
 			#yield "image%02d.jpg" % frame
 			yield save_in_work_dir
@@ -138,6 +138,8 @@ class Shooter():
 
 		photo0 = self.circular_buff.pop()
 		photo1 = self.circular_buff.pop()
+		print('photo 0 is', photo0)
+		print('photo 1 is', photo1)
 
 		src0, dest0 = photo0[0], photo0[1]
 		src1, dest1 = photo1[0], photo1[1]
