@@ -109,12 +109,27 @@ class Shooter():
 
 
 	def move_relevant_files(self):
-		photo0 = self.circular_buff.popleft()
-		photo1 = self.circular_buff.popleft()
+		photo0 = self.circular_buff[0]
+		photo1 = self.circular_buff[1]
+
+		photo3 = self.circular_buff[3]
+		photo4 = self.circular_buff[4]
+
+
 		src0, dest0 = photo0[0], photo0[1]
 		src1, dest1 = photo1[0], photo1[1]
+
+		src3, dest3 = photo3[0], photo3[1]
+		src4, dest4 = photo4[0], photo4[1]
+
+
 		shutil.move(src0, dest0)
 		shutil.move(src1, dest1)
+
+		shutil.move(src3, dest3)
+		shutil.move(src4, dest4)
+
+
 
 
 	def start(self):
