@@ -23,7 +23,9 @@ class ControladorCamara():
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		self.capture = True
+		print('>>>> a antes put')
 		self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave])
+		print('>>>> a despues put')
 		return self
 
 	def apagarCamara(self):
