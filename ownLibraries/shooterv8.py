@@ -136,8 +136,8 @@ class Shooter():
 		"""
 		# Get by last apperance: get the last two photos
 
-		photo0 = self.circular_buff[-1]
-		photo1 = self.circular_buff[-2]
+		photo0 = self.circular_buff.pop()
+		photo1 = self.circular_buff.pop()
 
 		src0, dest0 = photo0[0], photo0[1]
 		src1, dest1 = photo1[0], photo1[1]
