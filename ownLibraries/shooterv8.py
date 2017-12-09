@@ -98,12 +98,14 @@ class Shooter():
 			save_in_file = self.saveDir+"/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
 			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
 			self.circular_buff.appendleft([save_in_work_dir, save_in_file])
+			print(self.circular_buff)
 			print('GUARDADO en: '+ self.saveDirWORK+'/{}.jpg'.format(self.frame_number))
 			#yield "image%02d.jpg" % frame
 			yield save_in_work_dir
 			#yield "./imagen_{}.jpg".format(self.frame_number)
 			self.frame_number += 1
 		# Move relevenat files [0] and [2]
+
 		self.move_relevant_files()
 
 
