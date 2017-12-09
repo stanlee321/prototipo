@@ -109,6 +109,9 @@ class Shooter():
 
 
 	def move_relevant_files(self):
+
+		# Get by index  frame 0 ,1 ,3 or 4
+		"""
 		photo0 = self.circular_buff[0]
 		photo1 = self.circular_buff[1]
 
@@ -128,7 +131,17 @@ class Shooter():
 
 		shutil.move(src3, dest3)
 		shutil.move(src4, dest4)
+		"""
+		# Get by last apperance: get the last two photos
 
+		photo0 = self.circular_buff[-1]
+		photo1 = self.circular_buff[-2]
+
+		src0, dest0 = photo0[0], photo0[1]
+		src1, dest1 = photo1[0], photo1[1]
+
+		shutil.move(src0, dest0)
+		shutil.move(src1, dest1)
 
 
 
