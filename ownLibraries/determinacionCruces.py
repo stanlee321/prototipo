@@ -250,7 +250,7 @@ class PoliciaInfractor():
 							self.estadoActual['cruce'] += 1
 						momentumAEmplear = True
 						infraccion['frameFinal'] = numeroDeFrame
-						self.miReporte.info(infraccion['estado']+' : '+infraccion['name']+' de '+str(infraccion['frameInicial'])+' a '+str(infraccion['frameFinal'])+' es '+infraccion['estado'])
+						self.miReporte.info('\t'+infraccion['estado']+' en hora '+infraccion['name'][-8:]+' ('+str(infraccion['frameInicial'])+'-'+str(infraccion['frameFinal'])+')')
 						break
 				# Se continuara solamente con los puntos validos
 				infraccion['desplazamiento'] = nuevaPosicionVehiculo[indicesValidos]
@@ -280,7 +280,7 @@ class PoliciaInfractor():
 		for indiceInfraccion in range(len(self.listaDeInfracciones)):
 			infraccion = self.listaDeInfracciones[indiceInfraccion]
 			if infraccion['estado'] == 'Candidato':
-				self.miReporte.info('Purgando infraccion con estado y fecha: '+infraccion['estado']+' at '+infraccion['name'])
+				#self.miReporte.info('Purgando infraccion con estado y fecha: '+infraccion['estado']+' at '+infraccion['name'])
 				#self.eliminoCarpetaDeSerNecesario(infraccion)
 				self.estadoActual['candidato']+=1
 				self.estadoActual['otro']+=1
