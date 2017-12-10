@@ -9,11 +9,27 @@ import os
 import glob
 import shutil
 import datetime
+import argparse
 
-home_dir = os.getenv('HOME')
-today_date = datetime.datetime.now().strftime('%Y-%m-%d')
 
-path_to_clean =  home_dir + '/' + today_date+ '/*'
+
+parser = argparse.ArgumentParser(description='Process SubFolders in a Root folder')
+
+parser.add_argument('-folder', '--cleanFolder',
+                    default = None, type=str, help="format is Year-month-day")
+
+args = parser.parse_args()
+
+
+if args.cleanFolder != None:
+	home_dir = os.getenv('HOME')
+	today_date = datetime.datetime.now().strftime('%Y-%m-%d')
+	path_to_clean = home_dir + '/' + args.cleanFolder + '/*'
+
+else:
+	home_dir = os.getenv('HOME')
+	today_date = datetime.datetime.now().strftime('%Y-%m-%d')
+	path_to_clean =  home_dir + '/' + today_date+ '/*'
 
 print('Path to clean is: ', path_to_clean)
 
