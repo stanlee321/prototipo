@@ -135,6 +135,8 @@ class Shooter():
 		shutil.move(src3, dest3)
 		shutil.move(src4, dest4)
 		"""
+
+		"""
 		# Get by last value in past: get the last two photos
 
 		photo0 = self.circular_buff.popleft()
@@ -148,21 +150,31 @@ class Shooter():
 
 		src_zero, dest_zero = photo_zero_present[0], photo_zero_present[1]
 		src_two, dest_two = photo_two_present[0], photo_two_present[1]
+		"""
+
+		photo0 = self.circular_buff[0]
+		src0, dst0 = photo0[0], photo0[1]
+
+		src_one = self.circular_buff[1]
+		src_one, dst_one = src_one[0], src_one[1]
+
+		src_two = self.circular_buff[2]
+		src_two, dst_two = src_two[0], src_two[1]
 
 		try:
-			shutil.move(src0, dest0)
+			shutil.move(src0, dst0)
 		except:
-			print('The destinacion of {} was deleted, delering source {}'.format(dest0, src0))
+			print('The destinacion of {} was deleted, delering source {}'.format(dst0, src0))
 			os.remove(src0)
 		try:
-			shutil.move(src_zero, dest_zero)
+			shutil.move(src_one, dst_one)
 		except:
-			print('The destinacion of {} was deleted, delering source {}'.format(dest_zero, src_zero))
-			os.remove(src_zero)
+			print('The destinacion of {} was deleted, delering source {}'.format(dst_one, src_one))
+			os.remove(src_one)
 		try:
-			shutil.move(src_two, dest_two)
+			shutil.move(src_two, dst_two)
 		except Exception as e:
-			print('The destinacion of {} was deleted, delering source {}'.format(dest_two, src_two))
+			print('The destinacion of {} was deleted, delering source {}'.format(dst_two, src_two))
 			os.remove(src_two)
 
 		print('Done!.')
