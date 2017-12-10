@@ -280,14 +280,15 @@ def __main_function__():
 			
 			miAcetatoInformativo.colorDeSemaforo(senalSemaforo)
 
+			historial[frame_number] = {'captura':frameFlujo.copy()}
 			frameFlujo = miAcetatoInformativo.aplicarAFrame(frameFlujo)
 			
-
 			if mostrarImagen:
 				#cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(frameFlujo)[120:239,60:360])
 				cv2.imshow('Visual',frameFlujo)
 			
-			historial[frame_number] = {'frame':frameFlujo.copy(),'data':[velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear]}
+			historial[frame_number]['frame'] = frameFlujo.copy()
+			historial[frame_number]['data'] = [velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear]
 			miAcetatoInformativo.inicializar()
 			
 			tiempoEjecucion = time.time() - tiempoAuxiliar
