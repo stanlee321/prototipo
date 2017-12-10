@@ -17,7 +17,8 @@ import numpy as np
 class Shooter():
 	""" General PICAMERA DRIVER Prototipe
 	"""
-	directorioDeReporte = os.getenv('HOME')+'/casosReportados'
+	nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
+	directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
 	directorioDeNumpy = os.getenv('HOME')+'/trafficFlow/prototipo/installationFiles/'
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 

@@ -22,8 +22,11 @@ from ownLibraries.generadorevidencia import GeneradorEvidencia
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos  = os.getenv('HOME')+'/trafficFlow/trialVideos'
-directorioDeReporte = os.getenv('HOME')+'/casosReportados'
+nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
+directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
 folderDeInstalacion = directorioDeTrabajo+'/installationFiles'
+# Archivos
+reporteDiario = directorioDeReporte+'/reporteDiario.npy'
 
 ### PARAMETROS DE CONTROL DE EJECUCIÓN DE PROGRAMA
 archivoDeVideo = ''
@@ -88,7 +91,16 @@ def __main_function__():
 	miReporte.info('Programa iniciado exitosamente con ingreso de senal video '+archivoDeVideo+entradaReal+' con semaforo '+semaforoSimuladoTexto+str(periodoDeSemaforo) +', corriendo a '+str(mifps)+' Frames por Segundo')
 	# Si no existe el directorio de reporte lo creo
 	if not os.path.exists(directorioDeReporte):
-		os.makedirs(directorioDeReporte) 
+		os.makedirs(directorioDeReporte)
+	# Vector de inicio:
+	# vector de inicio = [tiempo, periodo semaforo, cruce, giro, infraccion, otros]
+	vectorDeInicio = [[datetime.datetime.now(),0,0,0,0,0]]
+	if os.path.isfile(reporteDiario):
+		miReporte.info('Continuando reporte')
+		np.save(reporteDiario,np.append(np.load(reporteDiario),vectorDeInicio,0))
+	else:
+		miReporte.info('Creando reporte desde cero')
+		np.save(reporteDiario,vectorDeInicio)
 	
 	# Is statements
 	if generarArchivosDebug:
@@ -198,6 +210,12 @@ def __main_function__():
 
 			if periodo != 0:
 				miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(periodo))
+				cruce = miPoliciaReportando.estadoActual['cruce']
+				giro = miPoliciaReportando.estadoActual['giro']
+				infraccion = miPoliciaReportando.estadoActual['infraccion']
+				otro = miPoliciaReportando.estadoActual['otro']
+				vectorDeInicio = [[datetime.datetime.now(),periodo,cruce,giro,infraccion,otro]]
+				np.save(reporteDiario,np.append(np.load(reporteDiario),vectorDeInicio,0))
 			else:
 				pass
 			# Si tengo infracciones pendientes las evoluciono
