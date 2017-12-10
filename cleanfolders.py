@@ -3,17 +3,47 @@
 """
 Script to clean  sub folder that just has  *.jpg files in folder input.
 Expected input /home/user/today_date/< folders to clean >
+
+Use as :
+
+python3 cleanfolders.py -folder <Y-m-d>
+example : python3 cleanfolders.py -folder 2012-05-01
+
+or leave black the -folder paramter to clean the folder with
+the time of today_date
+
+example : python3 cleanfolders.py
+
 """
 
 import os
 import glob
 import shutil
 import datetime
+import argparse
 
-home_dir = os.getenv('HOME')
-today_date = datetime.datetime.now().strftime('%Y-%m-%d')
 
+parser = argparse.ArgumentParser(description='Process SubFolders in a Root folder')
+
+parser.add_argument('-folder', '--cleanFolder',
+                    default = None, type=str, help="format is Year-month-day")
+
+args = parser.parse_args()
+
+
+if args.cleanFolder != None:
+	home_dir = os.getenv('HOME')
+	today_date = datetime.datetime.now().strftime('%Y-%m-%d')
+	path_to_clean = home_dir + '/' + args.cleanFolder + '/*'
+
+<<<<<<< HEAD
 path_to_clean =  home_dir + '/' + today_date+ '_reporte/*'
+=======
+else:
+	home_dir = os.getenv('HOME')
+	today_date = datetime.datetime.now().strftime('%Y-%m-%d')
+	path_to_clean =  home_dir + '/' + today_date+ '/*'
+>>>>>>> 58efc13ec1c646198cc69b759a05c46a0a27e582
 
 print('Path to clean is: ', path_to_clean)
 
@@ -36,6 +66,7 @@ print('USEFULL FOLDERS: ', len(videos))
 for i,c in enumerate(clean):
 	print('{}/{}'.format(i+1, len(clean)))
 	try:
+		print('removing ...', c)
 		shutil.rmtree(c)
 	except:
 		print('this is a log')
