@@ -88,9 +88,10 @@ class Shooter():
 
 		if not os.path.exists(self.saveDirWORK):
 			os.makedirs(self.saveDirWORK) 
+			print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
 		self.start()
 		#print('Encendi Camara de Forma Exitosa en ' + self.saveDir)
-		print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
+		
 
 	
 
@@ -165,17 +166,17 @@ class Shooter():
 		try:
 			shutil.move(src0, dst0)
 		except:
-			print('The destinacion of {} was deleted, delering source {}'.format(dst0, src0))
+			print('DELETION WARNING for {}, delering source {}'.format(dst0, src0))
 			os.remove(src0)
 		try:
 			shutil.move(src_one, dst_one)
 		except:
-			print('The destinacion of {} was deleted, delering source {}'.format(dst_one, src_one))
+			print('DELETION WARNING for {}, delering source {}'.format(dst_one, src_one))
 			os.remove(src_one)
 		try:
 			shutil.move(src_two, dst_two)
 		except Exception as e:
-			print('The destinacion of {} was deleted, delering source {}'.format(dst_two, src_two))
+			print('DELETION WARNING for {}, delering source {}'.format(dst_two, src_two))
 			os.remove(src_two)
 
 		print('Done!.')

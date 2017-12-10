@@ -40,7 +40,7 @@ class ControladorCamara():
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
 		miCamara = Shooter()
 		while self.programaPrincipalCorriendo.value == 1:
-			print('inside while the value is', self.programaPrincipalCorriendo.value )
+			#print('inside while the value is', self.programaPrincipalCorriendo.value )
 			data = input_q.get()
 			folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
 			if capture == True:
