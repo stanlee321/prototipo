@@ -292,7 +292,7 @@ def __main_function__():
 			
 			tiempoEjecucion = time.time() - tiempoAuxiliar
 			if tiempoEjecucion>periodoDeMuestreo:
-				miReporte.warning('Tiempo Afuera {0:2f}'.format(tiempoEjecucion)+ '[s] en frame {}'.format(frame_number))
+				miReporte.warning('\t[f{}'.format(frame_number)+']'+' Periodo Excedido {0:2f}'.format(tiempoEjecucion)+ '[s]')
 
 			#sys.stdout.write("\033[F")
 			while time.time() - tiempoAuxiliar < periodoDeMuestreo:
