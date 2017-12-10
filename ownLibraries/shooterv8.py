@@ -179,7 +179,7 @@ class Shooter():
 			print('DELETION WARNING for {}, delering source {}'.format(dst_two, src_two))
 			os.remove(src_two)
 
-		print('Done!.')
+		print('Done moving!')
 
 
 		# Get present photo
