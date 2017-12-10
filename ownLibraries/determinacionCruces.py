@@ -37,9 +37,11 @@ class PoliciaInfractor():
 		# En si un punto sale del carril valido (ensanchado debidamente) se descarta el punto individual
 		self.carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
 		self.maximoNumeroFramesParaDescarte = 80
+		self.numeroDePuntosASeguirDeInicializacion = 4
 
 		# la linea de referencia para tamanio sera del largo del paso de cebra, su longitud servira para descartar puntos que se alejen del resto
 		self.maximaDistanciaEntrePuntos = self.tamanoVector(np.array(poligonoPartida[0])-np.array(poligonoPartida[1]))
+
 
 		# Se crea la clase correspondiente
 		self.miFiltro = AnalisisOnda()
@@ -53,9 +55,9 @@ class PoliciaInfractor():
 		vectorParalelo = self.lineaDePintadoLK[1] - self.lineaDePintadoLK[0]
 		self.vectorParaleloUnitario = (vectorParalelo)/self.tamanoVector(vectorParalelo)
 		self.vectorPerpendicularUnitario = np.array([self.vectorParaleloUnitario[1],-self.vectorParaleloUnitario[0]])
-		self.numeroDePuntos = 9
-		self.stepX = ditanciaEnX//self.numeroDePuntos
-		self.stepY = ditanciaEnY//self.numeroDePuntos
+		self.numeroDePuntos = 14
+		self.stepX = ditanciaEnX/self.numeroDePuntos
+		self.stepY = ditanciaEnY/self.numeroDePuntos
 		self.lk_params = dict(  winSize  = (15,15),
 								maxLevel = 7,
 								criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
@@ -323,25 +325,19 @@ class PoliciaInfractor():
 		"""
 		Gets center of movement as a tuple of three vectors
 		"""
-		##### OJO
-		dif2 = []
+		##### OJO AQUI TAMBIEN PUEDO FILTRAR RUIDO???
+		dif2 = []	# Para todos los puntos de resguardo veo los que tienen mayor movimiento
 		for numeroDePunto in range(1,self.numeroDePuntos+1):
 			x = nuevoVector[numeroDePunto][0][0] - vectorAntiguo[numeroDePunto][0][0]
 			y = nuevoVector[numeroDePunto][0][1] - vectorAntiguo[numeroDePunto][0][1]
 			dif2.append(x**2+y**2)
 		indiceDeMayores = []
-		
-		indice = dif2.index(max(dif2))
-		indiceDeMayores.append(indice)
-		dif2.pop(indice)
-		indice = dif2.index(max(dif2))
-		indiceDeMayores.append(indice)
-		dif2.pop(indice)
-		indice = dif2.index(max(dif2))
-		indiceDeMayores.append(indice)
-		dif2.pop(indice)
-		
-		return np.array([[nuevoVector[indiceDeMayores[0]][0]],[nuevoVector[indiceDeMayores[1]][0]],[nuevoVector[indiceDeMayores[2]][0]]])
+		for numeroDePuntoASeguir in range(self.numeroDePuntosASeguirDeInicializacion):
+			indice = dif2.index(max(dif2))
+			indiceDeMayores.append(indice)
+			dif2.pop(indice)
+
+		return nuevoVector[indiceDeMayores] #np.array([[nuevoVector[indiceDeMayores[0]][0]],[nuevoVector[indiceDeMayores[1]][0]],[nuevoVector[indiceDeMayores[2]][0]]])
 			
 
 	def obtenerMagnitudMovimiento(self,vectorAntiguo, nuevoVector):
