@@ -14,7 +14,8 @@ from ownLibraries.analisisonda import AnalisisOnda
 if os.uname()[1] == 'raspberrypi':
 	from ownLibraries.shooterController import ControladorCamara
 
-directorioDeReporte = os.getenv('HOME')+'/casosReportados'
+nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
+directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
 
@@ -36,6 +37,7 @@ class PoliciaInfractor():
 		# CONDICIONES DE DESCARTE
 		# En si un punto sale del carril valido (ensanchado debidamente) se descarta el punto individual
 		self.carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
+		self.carrilValido = self.ensancharCarrilValido(self.carrilValido)
 		self.maximoNumeroFramesParaDescarte = 80
 		self.numeroDePuntosASeguirDeInicializacion = 4
 
@@ -77,9 +79,10 @@ class PoliciaInfractor():
 		6. Candidato a Cruce, cuando no puede llegar a ser infraccion, puede evolucionar a estado 1 o de lo contrario ser descartado
 		7. Descartado, no se descarta que sea un vehiculo, pero excedio el tiempo maximo
 		"""
-		self.estadoActual =   { 'cruces':0,
-								'infracciones':0,
+		self.estadoActual =   { 'cruce':0,
+								'infraccion':0,
 								'giro':0,
+								'otro':0,
 								'ruido':0,
 								'candidato':0,
 								'candidatoACruce':0,
@@ -89,6 +92,14 @@ class PoliciaInfractor():
 		self.ultimaCarpetaGuardado = ''
 		if os.uname()[1] == 'raspberrypi':
 			self.camaraAlta = ControladorCamara()
+
+	
+	def ensancharCarrilValido(self, carrilValido):
+		# Input type: self.carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
+		# Se modifican los puntos
+		# partida: 0-,3+
+		# llegada: 1+,2-
+		return carrilValido
 
 	def tamanoVector(self,vector):
 		# Metodo auxiliar por la recurencia de esta aplicacion
@@ -137,7 +148,6 @@ class PoliciaInfractor():
 		else:
 			self.estadoActual['colorSemaforo'] = 'No hay semaforo'
 
-		
 		nuevoObjeto = False
 		momentumAEmplear = False
 		imagenActualEnGris = cv2.cvtColor(imagenActual, cv2.COLOR_BGR2GRAY)
@@ -196,6 +206,7 @@ class PoliciaInfractor():
 				if (numeroDeFrame - infraccion['frameInicial']) > self.maximoNumeroFramesParaDescarte:
 					infraccion['estado']='Descartado'
 					self.estadoActual['descartes'] += 1
+					self.estadoActual['otro']+=1
 				# Si es candidato y algun punto llego al final se confirma
 				indicesValidos = []
 				puntosQueLlegaron = 0
@@ -216,10 +227,10 @@ class PoliciaInfractor():
 					if puntosQueLlegaron >= 2:
 						if infraccion['estado'] == 'Candidato':
 							infraccion['estado'] = 'Confirmado'
-							self.estadoActual['infracciones'] += 1
+							self.estadoActual['infraccion'] += 1
 						if infraccion['estado'] == 'Candidato a Cruce':
 							infraccion['estado'] = 'Cruzo'
-							self.estadoActual['cruces'] += 1
+							self.estadoActual['cruce'] += 1
 						momentumAEmplear = True
 						infraccion['frameFinal'] = numeroDeFrame
 						self.miReporte.info(infraccion['estado']+' : '+infraccion['name']+' de '+str(infraccion['frameInicial'])+' a '+str(infraccion['frameFinal'])+' es '+infraccion['estado'])
@@ -253,11 +264,12 @@ class PoliciaInfractor():
 			infraccion = self.listaDeInfracciones[indiceInfraccion]
 			if infraccion['estado'] == 'Candidato':
 				self.miReporte.info('Purgando infraccion con estado y fecha: '+infraccion['estado']+' at '+infraccion['name'])
-				self.eliminoCarpetaDeSerNecesario(infraccion)
+				#self.eliminoCarpetaDeSerNecesario(infraccion)
 				self.estadoActual['candidato']+=1
+				self.estadoActual['otro']+=1
 			if infraccion['estado'] == 'Candidato a Cruce':
 				self.estadoActual['candidatoACruce']+=1
-		self.inicializarAgente()
+				self.estadoActual['otro']+=1
 		self.inicializarAgente()
 		# Itero sobre las infracciones
 

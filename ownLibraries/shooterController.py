@@ -23,13 +23,10 @@ class ControladorCamara():
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		self.capture = True
-		print('>>>> a antes put')
 		try: 
-			print('size: ',self.input_q.qsize())
 			self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave],False)
 		except Exception as e:
-			print('SE TIENE LA EXCEPTION POR NO SLOT AVAILABLE')
-		print('>>>> a despues put')
+			print('SLOT AVAILABLE!!! Size: '+str(self.input_q.qsize())+' '+str(e))
 		return self
 
 	def apagarCamara(self):
@@ -43,7 +40,7 @@ class ControladorCamara():
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
 		miCamara = Shooter()
 		while self.programaPrincipalCorriendo.value == 1:
-			print('inside while the value is', self.programaPrincipalCorriendo.value )
+			#print('inside while the value is', self.programaPrincipalCorriendo.value )
 			data = input_q.get()
 			folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
 			if capture == True:
