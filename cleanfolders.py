@@ -36,14 +36,10 @@ if args.cleanFolder != None:
 	today_date = datetime.datetime.now().strftime('%Y-%m-%d')
 	path_to_clean = home_dir + '/' + args.cleanFolder + '/*'
 
-<<<<<<< HEAD
-path_to_clean =  home_dir + '/' + today_date+ '_reporte/*'
-=======
 else:
 	home_dir = os.getenv('HOME')
 	today_date = datetime.datetime.now().strftime('%Y-%m-%d')
 	path_to_clean =  home_dir + '/' + today_date+ '/*'
->>>>>>> 58efc13ec1c646198cc69b759a05c46a0a27e582
 
 print('Path to clean is: ', path_to_clean)
 
