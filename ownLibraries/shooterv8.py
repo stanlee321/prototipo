@@ -88,8 +88,8 @@ class Shooter():
 		if not os.path.exists(self.saveDirWORK):
 			os.makedirs(self.saveDirWORK) 
 		self.start()
-		print('Encendi Camara de Forma Exitosa en ' + self.saveDir)
-		print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK)
+		#print('Encendi Camara de Forma Exitosa en ' + self.saveDir)
+		print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK ' para: '+ self.saveDir)
 
 	
 
@@ -100,7 +100,7 @@ class Shooter():
 			save_in_file = self.saveDir+"/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
 			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
 			self.circular_buff.appendleft([save_in_work_dir, save_in_file])
-			print('GUARDADO en: '+ self.saveDirWORK+'/{}.jpg'.format(self.frame_number))
+			#print('GUARDADO en: '+ self.saveDirWORK+'/{}.jpg'.format(self.frame_number))
 			#yield "image%02d.jpg" % frame
 			yield save_in_work_dir
 			#yield "./imagen_{}.jpg".format(self.frame_number)
@@ -191,7 +191,7 @@ class Shooter():
 		start = time.time()
 		self.camera.capture_sequence(self.writter(), format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
 		finish = time.time()
-		print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
+		#print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 

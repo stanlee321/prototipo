@@ -23,13 +23,10 @@ class ControladorCamara():
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		self.capture = True
-		print('>>>> a antes put')
 		try: 
-			print('size: ',self.input_q.qsize())
 			self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave],False)
 		except Exception as e:
-			print('SE TIENE LA EXCEPTION POR NO SLOT AVAILABLE')
-		print('>>>> a despues put')
+			print('SLOT AVAILABLE!!! Size: '+str(self.input_q.qsize())+' '+str(e))
 		return self
 
 	def apagarCamara(self):
