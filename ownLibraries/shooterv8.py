@@ -153,7 +153,7 @@ class Shooter():
 		"""
 
 		photo0 = self.circular_buff[0]
-		src0, dest0 = photo0[0], photo[1]
+		src0, dest0 = photo0[0], photo0[1]
 
 		src_one = self.circular_buff[1]
 		src_one, dst_one = src_one[0], src_one[1]
