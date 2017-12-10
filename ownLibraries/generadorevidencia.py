@@ -6,9 +6,8 @@ import os
 import cv2
 import time
 import glob
-import pickle
+import shutil
 import logging
-import zipfile
 import datetime
 import numpy as np
 
@@ -20,6 +19,9 @@ class GeneradorEvidencia():
 	def __init__(self, carpetaReporte,mifps = 10,guardoRecortados = True):
 		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)
 		self.carpetaDeReporteActual = carpetaReporte
+		self.carpetaParaEntrega = carpetaReporte+'Oficial'
+		if not os.path.exists(self.carpetaParaEntrega):
+			os.makedirs(self.carpetaParaEntrega)
 		self.framesPorSegundoEnVideo = mifps
 		self.ventana = 5
 		self.height, self.width = 240, 320
@@ -40,16 +42,25 @@ class GeneradorEvidencia():
 			if (numero == 0)&(len(informacionTotal)<20):
 				return 0
 			generandoDebug = True
+
 		directorioActual = self.carpetaDeReporteActual + '/'+nombreInfraccion
+		directorioActualOficial = self.carpetaParaEntrega + '/'+nombreInfraccion
 		if not os.path.exists(directorioActual):
-			#self.miReporte.info('Creado: '+directorioActual)
 			os.makedirs(directorioActual) 
+		
 
 		if generandoDebug==False:
+			if not os.path.exists(directorioActualOficial):
+				os.makedirs(directorioActualOficial) 
 			frameInferior = infraccion['frameInicial'] - self.ventana
 			frameSuperior = infraccion['frameFinal'] + self.ventana
+			archivosEnCarpeta = glob.glob(directorioActual+'/*')
+			for imagenACopiar in archivosEnCarpeta:
+				shutil.copy(imagenACopiar,directorioActualOficial+'/'+nombreInfraccion+imagenACopiar[-6:])
+				self.miReporte.info('Recuperado '+imagenACopiar[-5])
 			
 			prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
+			entrega = cv2.VideoWriter(directorioActualOficial+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
 			
 			# Check valid frame 
 			if frameInferior < 1:
@@ -68,7 +79,10 @@ class GeneradorEvidencia():
 					os.makedirs(directorioRecorte) 
 			for indiceVideo in range(inicio, final):
 				prueba.write(informacionTotal[indiceVideo]['frame'])
+				entrega.write(informacionTotal[indiceVideo]['captura'])
 			prueba.release()
+			entrega.release()
+
 			# Vuelvo a iterar por la imagen mas grande:
 			return 1
 		else:
