@@ -152,13 +152,13 @@ class Shooter():
 		src_two, dest_two = photo_two_present[0], photo_two_present[1]
 		"""
 
-		photo0 = self.circular_buff[0]
+		photo0 = self.circular_buff[-1]
 		src0, dst0 = photo0[0], photo0[1]
 
-		src_one = self.circular_buff[1]
+		src_one = self.circular_buff[-2]
 		src_one, dst_one = src_one[0], src_one[1]
 
-		src_two = self.circular_buff[2]
+		src_two = self.circular_buff[-3]
 		src_two, dst_two = src_two[0], src_two[1]
 
 		try:
