@@ -22,6 +22,7 @@ class Shooter():
 	nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
 	directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
 	directorioDeNumpy = os.getenv('HOME')+'/trafficFlow/prototipo/installationFiles/'
+	directorioWORKDIR = os.getenv('HOME')
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
 	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 5):
@@ -50,6 +51,7 @@ class Shooter():
 
 		
 		self.directorioDeGuardadoGeneral = self.directorioDeReporte
+		self.root = self.directorioWORKDIR
 		self.fechaInfraccion = str
 		self.saveDir = str
 		self.frame_number = 0
@@ -80,7 +82,7 @@ class Shooter():
 	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder ):
 		#self.miReporte.moverRegistroACarpeta(fecha)
 		self.fechaInfraccion = fecha
-		self.saveDirWORK = self.directorioDeGuardadoGeneral +"/" + folder_WORK
+		self.saveDirWORK = self.root + "/" + folder_WORK
 		self.saveDir = self.directorioDeGuardadoGeneral +"/" + folder
 
 		if not os.path.exists(self.saveDir):
