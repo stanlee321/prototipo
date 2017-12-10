@@ -37,6 +37,7 @@ class PoliciaInfractor():
 		# CONDICIONES DE DESCARTE
 		# En si un punto sale del carril valido (ensanchado debidamente) se descarta el punto individual
 		self.carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
+		self.carrilValido = self.ensancharCarrilValido(self.carrilValido)
 		self.maximoNumeroFramesParaDescarte = 80
 		self.numeroDePuntosASeguirDeInicializacion = 4
 
@@ -91,6 +92,13 @@ class PoliciaInfractor():
 		self.ultimaCarpetaGuardado = ''
 		if os.uname()[1] == 'raspberrypi':
 			self.camaraAlta = ControladorCamara()
+
+	
+	def ensancharCarrilValido(self, carrilValido):
+		# Input type: self.carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
+		# Se modifican los puntos
+		# partida: 0-,3+
+		# llegada: 1+,2-
 
 	def tamanoVector(self,vector):
 		# Metodo auxiliar por la recurencia de esta aplicacion
@@ -255,13 +263,12 @@ class PoliciaInfractor():
 			infraccion = self.listaDeInfracciones[indiceInfraccion]
 			if infraccion['estado'] == 'Candidato':
 				self.miReporte.info('Purgando infraccion con estado y fecha: '+infraccion['estado']+' at '+infraccion['name'])
-				self.eliminoCarpetaDeSerNecesario(infraccion)
+				#self.eliminoCarpetaDeSerNecesario(infraccion)
 				self.estadoActual['candidato']+=1
 				self.estadoActual['otro']+=1
 			if infraccion['estado'] == 'Candidato a Cruce':
 				self.estadoActual['candidatoACruce']+=1
 				self.estadoActual['otro']+=1
-		self.inicializarAgente()
 		self.inicializarAgente()
 		# Itero sobre las infracciones
 
