@@ -172,7 +172,8 @@ def __main_function__():
 	miSemaforo = CreateSemaforo(periodoDeSemaforo)
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
 	miAcetatoInformativo.colocarPoligono(np.array(verticesPartida))
-	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))	
+	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))
+	miAcetatoInformativo.colocarPoligono(miPoliciaReportando.carrilValido)
 
 	# El historial sera una lista de la siguiente forma:
 	# {numeroFrame: {'frame':np.array((320,240)),'data':{"info"}}}

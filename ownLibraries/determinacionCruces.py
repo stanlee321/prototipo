@@ -47,6 +47,7 @@ class PoliciaInfractor():
 
 		# Se crea la clase correspondiente
 		self.miFiltro = AnalisisOnda()
+		self.angulo = 14
 
 		# La linea de pintado LK y trasera son los puntos del paso de cebra
 		self.lineaDePintadoLK =  np.array([poligonoPartida[0],poligonoPartida[3]])
@@ -93,15 +94,27 @@ class PoliciaInfractor():
 		if os.uname()[1] == 'raspberrypi':
 			self.camaraAlta = ControladorCamara()
 
-	
 	def ensancharCarrilValido(self, carrilValido):
 		# Input type: self.carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
 		# Se modifican los puntos
 		# partida: 0-,3+
 		# llegada: 1+,2-
 		# La matriz de rotacion por un angulo de 15 grados
+		self.angulo = 14
+		cos15 = math.cos(self.angulo*math.pi/180)
+		sin15 = math.sin(self.angulo*math.pi/180)
+		rotacionNegativa = np.array([[cos15,sin15],[-sin15,cos15]])
+		rotacionPositiva = np.array([[cos15,-sin15],[sin15,cos15]])
+		llegada1_p7 = carrilValido[6]+rotacionPositiva.dot(carrilValido[7]-carrilValido[6])
+		llegada1_p4 = carrilValido[5]+rotacionNegativa.dot(carrilValido[4]-carrilValido[5])
 
-		R = np.array([[],[]])
+		llegada1_p0 = carrilValido[1]+rotacionNegativa.dot(carrilValido[0]-carrilValido[1])
+		llegada1_p3 = carrilValido[2]+rotacionPositiva.dot(carrilValido[3]-carrilValido[2])
+
+		carrilValido[0]=llegada1_p0
+		carrilValido[3]=llegada1_p3
+		carrilValido[4]=llegada1_p4
+		carrilValido[7]=llegada1_p7
 
 		return carrilValido
 
