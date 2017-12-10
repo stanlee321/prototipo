@@ -99,6 +99,7 @@ class PoliciaInfractor():
 		# Se modifican los puntos
 		# partida: 0-,3+
 		# llegada: 1+,2-
+		return carrilValido
 
 	def tamanoVector(self,vector):
 		# Metodo auxiliar por la recurencia de esta aplicacion
