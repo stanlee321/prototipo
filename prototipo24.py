@@ -252,6 +252,9 @@ def __main_function__():
 					#		miAcetatoInformativo.colocarPunto(tuple(punto),0)
 					#	else:
 					#		miAcetatoInformativo.colocarPunto(tuple(punto),1)
+
+			#for puntoResguardo in miPoliciaReportando.obtenerLineasDeResguardo(False):
+			miAcetatoInformativo.colocarObjeto(miPoliciaReportando.obtenerLineasDeResguardo(True),'Referencia')
 			
 			# Configs and displays for the MASK according to the semaforo
 			#miAcetatoInformativo.agregarTextoEn("I{}".format(miPoliciaReportando.infraccionesConfirmadas), 2)

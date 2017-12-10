@@ -62,6 +62,7 @@ class PoliciaInfractor():
 
 		self.lineaFijaDelantera = np.zeros((self.numeroDePuntos+1,1,2))
 		self.lineaDeResguardoDelantera = self.crearLineaDeResguardo()
+		self.lineaDeResguardoAlteradaDelantera = self.lineaDeResguardoDelantera
 		
 		self.listaDeInfracciones = []
 		"""
@@ -139,6 +140,7 @@ class PoliciaInfractor():
 		momentumAEmplear = False
 		imagenActualEnGris = cv2.cvtColor(imagenActual, cv2.COLOR_BGR2GRAY)
 		arrayAuxiliarParaVelocidad, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaFijaDelantera, None, **self.lk_params)
+		self.lineaDeResguardoAlteradaDelantera = arrayAuxiliarParaVelocidad
 		#print('>> 02 optical LK good')
 		velocidadEnBruto = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
 		#print('>> 03 magnitud good')
@@ -292,6 +294,16 @@ class PoliciaInfractor():
 			if infraccion['estado']=='Candidato':
 				for punto in infraccion['desplazamiento']:
 					aDevolver.append(tuple(punto[0]))
+		return aDevolver
+
+	def obtenerLineasDeResguardo(self,alterada=False):
+		aDevolver = []
+		if alterada:
+			for punto in self.lineaDeResguardoAlteradaDelantera:
+				aDevolver.append(tuple(punto[0]))
+		else:
+			for punto in self.lineaDeResguardoDelantera:
+				aDevolver.append(tuple(punto[0]))
 		return aDevolver
 
 	def obtenerVectorMovimiento(self,vectorAntiguo, nuevoVector):

@@ -81,6 +81,8 @@ class Acetato(object):
 				self.colocarPunto(tuple(punto),(0,0,255))
 			elif estado == 'Cruzo':
 				self.colocarPunto(tuple(punto),(0,255,0))
+			elif estado == 'Referencia':
+				self.colocarPunto(tuple(punto),(0,0,0))
 			else:
 				self.colocarPunto(tuple(punto),self.paletaColores[self.ultimoColor])
 		self.ultimoColor += 1
