@@ -137,7 +137,7 @@ def __main_function__():
 	angulo = parametrosInstalacion[3]
 	poligonoEnAlta = parametrosInstalacion[4]
 
-	miReporte.info('Cargado exitosamente parametros de instalacion: '+str(parametrosInstalacion))
+	miReporte.info('Cargado exitosamente parametros de instalacion ')#+str(parametrosInstalacion))
 
 	# Arrancando camara
 	if len(archivoDeVideo) == 0:

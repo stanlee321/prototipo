@@ -99,6 +99,10 @@ class PoliciaInfractor():
 		# Se modifican los puntos
 		# partida: 0-,3+
 		# llegada: 1+,2-
+		# La matriz de rotacion por un angulo de 15 grados
+
+		R = np.array([[],[]])
+
 		return carrilValido
 
 	def tamanoVector(self,vector):
