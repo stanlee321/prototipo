@@ -48,7 +48,6 @@ class GeneradorEvidencia():
 		if not os.path.exists(directorioActual):
 			os.makedirs(directorioActual) 
 		
-
 		if generandoDebug==False:
 			if not os.path.exists(directorioActualOficial):
 				os.makedirs(directorioActualOficial) 

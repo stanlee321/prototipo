@@ -39,7 +39,7 @@ periodoDeSemaforo = 0
 topeEjecucion = 0
 semaforoSimuladoTexto = 'real '
 
-generarArchivosDebug = True
+generarArchivosDebug = False
 mostrarImagen = False
 longitudRegistro = 360
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -240,9 +240,9 @@ def __main_function__():
 						miGrabadora.generarReporteInfraccion(historial, infraccionEnRevision)
 						
 					else:
-						if tuveInfracciones:
-							miGrabadora.generarReporteInfraccion(historial, False,ultimoNumeroInfraccion)
-							
+						if (tuveInfracciones):
+							if generarArchivosDebug:
+								miGrabadora.generarReporteInfraccion(historial, False,ultimoNumeroInfraccion)
 							tuveInfracciones = False
 						miPoliciaReportando.purgarInfraccionesRemanentes()
 						
@@ -252,7 +252,6 @@ def __main_function__():
 						acaboDeIniciarNuevoCiclo = False
 				else:
 					#Si no hay infracciones a reportar me fijo el estado del filtro:
-					
 					tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
 					if (tiempoAhora > amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Activado'):
 						miFiltro.colocarFiltroIR()
@@ -286,8 +285,10 @@ def __main_function__():
 			if mostrarImagen:
 				#cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(frameFlujo)[120:239,60:360])
 				cv2.imshow('Visual',frameFlujo)
-			
-			historial[frame_number]['frame'] = frameFlujo.copy()
+			if generarArchivosDebug:
+				historial[frame_number]['frame'] = frameFlujo.copy()
+			else:
+				historial[frame_number]['frame'] = historial[frame_number]['captura']
 			historial[frame_number]['data'] = [velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear]
 			miAcetatoInformativo.inicializar()
 			
@@ -336,8 +337,8 @@ def __main_function__():
 if __name__ == '__main__':
 	# Tomamos los ingresos para controlar el video
 	for input in sys.argv:
-		if input == 'NoDebug':
-			generarArchivosDebug = False
+		if input == 'debug':
+			generarArchivosDebug = True
 		if ('.mp4' in input)|('.avi' in input):
 			archivoDeVideo = input
 			entradaReal = ''
