@@ -56,7 +56,7 @@ class GeneradorEvidencia():
 			archivosEnCarpeta = glob.glob(directorioActual+'/*')
 			for imagenACopiar in archivosEnCarpeta:
 				shutil.copy(imagenACopiar,directorioActualOficial+'/'+nombreInfraccion+imagenACopiar[-6:])
-				self.miReporte.info('Recuperado '+imagenACopiar[-5])
+				self.miReporte.debug('Recuperado '+imagenACopiar[-5])
 			
 			prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
 			entrega = cv2.VideoWriter(directorioActualOficial+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
