@@ -23,7 +23,7 @@ while(1):
 
     w,h = frame.shape[0], frame.shape[1]
 
-    frame = frame[int(0):int(w*0.35), int(h*0.20):int(h*0.5)]
+    frame = frame[int(0):int(w*0.35), int(h*0.25):int(h*0.80)]
     #converting to HSV
     hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
 
