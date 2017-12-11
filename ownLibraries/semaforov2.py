@@ -199,7 +199,7 @@ class Real(Semaforo):
 		self.upper_yellow = np.array([27,255,255], dtype=np.uint8)
 
 		# RED range
-		self.lower_red = np.array([0,140,0], dtype=np.uint8) #_,100,_ # 140,70,_
+		self.lower_red = np.array([0,160,0], dtype=np.uint8) #_,100,_ # 140,70,_
 		self.upper_red = np.array([180,255,255], dtype=np.uint8)
 
 		# GREEN range
