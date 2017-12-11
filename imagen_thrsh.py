@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-path = '../trialVideos/goodElAlto.mp4'
+path = 0
 cap = cv2.VideoCapture(path)
 
 def nothing(x):
