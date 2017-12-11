@@ -199,7 +199,7 @@ class Real(Semaforo):
 		self.upper_yellow = np.array([27,255,255], dtype=np.uint8)
 
 		# RED range
-		self.lower_red = np.array([10,150,0], dtype=np.uint8) #_,100,_ # 140,70,_
+		self.lower_red = np.array([0,120,0], dtype=np.uint8) #_,100,_ # 140,70,_
 		self.upper_red = np.array([180,255,255], dtype=np.uint8)
 
 		# GREEN range
@@ -228,7 +228,12 @@ class Real(Semaforo):
 		#cv2.imshow('semaforo', cv2.resize(imagen,(imagen.shape[1]*5,imagen.shape[0]*5)))
 
 		"""
+
+
+		"""
 		imagen = np.reshape(imagen,(8,24,3))
+
+
 		hsv = cv2.cvtColor(imagen, cv2.COLOR_BGR2HSV)
 		
 		# SOME MASKS
@@ -262,7 +267,8 @@ class Real(Semaforo):
 		#cv2.imshow('res2', cv2.resize(img,(img.shape[1]*5,img.shape[0]*5)))
 		# LitleDebug for see what is the SVM seeing
 		#cv2.imwrite('red2.jpg', img)
-		
+		"""
+		img = imagen
 		img = img.flatten()
 		
 		#assert imagen.shape == (192*3, )
