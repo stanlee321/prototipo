@@ -195,11 +195,11 @@ class Real(Semaforo):
 		# SOME COLORS
 		#
 		# YELLOW /(Orangen) range
-		self.lower_yellow = np.array([18,40,190], dtype=np.uint8)
+		self.lower_yellow = np.array([18,40,190], dtype=np.uint8) # 18,40,190
 		self.upper_yellow = np.array([27,255,255], dtype=np.uint8)
 
 		# RED range
-		self.lower_red = np.array([140,70,0], dtype=np.uint8) #_,100,_
+		self.lower_red = np.array([140,100,0], dtype=np.uint8) #_,100,_ # _,70,_
 		self.upper_red = np.array([180,255,255], dtype=np.uint8)
 
 		# GREEN range
@@ -275,7 +275,7 @@ class Real(Semaforo):
   
 		x = x.reshape(1, -1)
 
-		#cv2.imshow('Semaforo before in ..', cv2.resize(np.reshape(x,(8,24,3)),(8*6,24*6)))
+		cv2.imshow('Semaforo before in ..', cv2.resize(np.reshape(x,(8,24,3)),(8*6,24*6)))
 
 		prediction = self.svm.predict(x)[0]
 		###########################
