@@ -64,6 +64,7 @@ class Shooter():
 		#self.camera.shutter_speed = 190000
 		#self.camera.iso = 800
 		self.camera.start_preview()
+		self.start()
 
 		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
 
@@ -80,7 +81,6 @@ class Shooter():
 		if not os.path.exists(self.saveDir):
 			os.makedirs(self.saveDir) 
 		self.eyesOpen = True
-		self.start()
 		print('Encendi Camara de Forma Exitosa en ' + self.saveDir)
 
 	def encenderCamara(self):
