@@ -115,17 +115,17 @@ class Shooter():
 
 		photo0 = self.circular_buff[-1]
 		src0 = photo0
-		dst0 = self.save_in_file + '-0.jpg'
+		dst0 = self.save_in_file + '_0.jpg'
 
 
 		src_one = self.circular_buff[-2]
 		src_one = src_one
-		dst_one = self.save_in_file + '-1.jpg'
+		dst_one = self.save_in_file + '_1.jpg'
 
 
 		src_two = self.circular_buff[-3]
 		src_two = src_two
-		dst_two = self.save_in_file + '-2.jpg'
+		dst_two = self.save_in_file + '_-1.jpg'
 
 
 		try:
