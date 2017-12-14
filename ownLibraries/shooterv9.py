@@ -100,13 +100,12 @@ class Shooter():
 
 	def writter(self):
 		self.frame_number = 0
+		print('self.frame_number', self.frame_number)
 		while self.frame_number < self.maxCapturas:
 			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
 			self.circular_buff.appendleft(save_in_work_dir)
 			yield save_in_work_dir
 			self.frame_number += 1
-
-		print(self.save_in_file)
 		# Once the while is finish move the files to his folders.
 		if self.save_in_file != None:
 			print('diff als none', self.save_in_file)
