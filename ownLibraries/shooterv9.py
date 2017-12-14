@@ -25,7 +25,7 @@ class Shooter():
 	directorioWORKDIR = os.getenv('HOME')
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
-	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 2):
+	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 3):
 	#def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([10,10],[2592,1944]), capturas = 5):
 		
 		data = np.load(Shooter.directorioDeNumpy+'datos.npy')
@@ -103,10 +103,7 @@ class Shooter():
 		while self.frame_number < self.maxCapturas:
 			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
 			self.circular_buff.appendleft(save_in_work_dir)
-			#print('GUARDADO en: '+ self.saveDirWORK+'/{}.jpg'.format(self.frame_number))
-			#yield "image%02d.jpg" % frame
 			yield save_in_work_dir
-			#yield "./imagen_{}.jpg".format(self.frame_number)
 			self.frame_number += 1
 
 		print(self.save_in_file)
@@ -131,28 +128,7 @@ class Shooter():
 
 		#src_two = self.circular_buff[-3]
 		#src_two, dst_two = src_two[0], src_two[1]
-
-
-		try:
-			shutil.copy(src0, dst0)
-		except:
-			print('DELETION WARNING for {}, delering source {}'.format(dst0, src0))
-			os.remove(src0)
-		try:
-			shutil.copy(src_one, dst_one)
-		except:
-			print('DELETION WARNING for {}, delering source {}'.format(dst_one, src_one))
-			os.remove(src_one)
-		#try:
-		#	shutil.move(src_two, dst_two)
-		#except Exception as e:
-			#print('DELETION WARNING for {}, delering source {}'.format(dst_two, src_two))
-			#os.remove(src_two)
-
 		print('Capturado posible infractor!')
-
-
-		# Get present photo
 
 	def start(self):
 		start = time.time()
