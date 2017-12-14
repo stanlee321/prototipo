@@ -52,8 +52,6 @@ if __name__ == '__main__':
 
 	shoot = ControladorCamara()
 	counter = 0
-	eyes = False
-
 	while True:
 		counter +=1 
 		if counter == 10:

@@ -93,6 +93,7 @@ class Shooter():
 		if not os.path.exists(self.saveDirWORK):
 			os.makedirs(self.saveDirWORK) 
 			print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
+		
 		self.save_in_file = self.saveDir+"/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
 		print('save file is', self.save_in_file)
 
@@ -104,8 +105,8 @@ class Shooter():
 		while self.frame_number < self.maxCapturas:
 			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
 			self.circular_buff.appendleft(save_in_work_dir)
-			yield save_in_work_dir
 			self.frame_number += 1
+			yield save_in_work_dir
 		# Once the while is finish move the files to his folders.
 		if self.save_in_file != None:
 			print('diff als none', self.save_in_file)
