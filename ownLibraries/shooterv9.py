@@ -102,7 +102,7 @@ class Shooter():
 		self.frame_number = 0
 		while self.frame_number < self.maxCapturas:
 			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
-			self.circular_buff.appendleft([save_in_work_dir])
+			self.circular_buff.appendleft(save_in_work_dir)
 			#print('GUARDADO en: '+ self.saveDirWORK+'/{}.jpg'.format(self.frame_number))
 			#yield "image%02d.jpg" % frame
 			yield save_in_work_dir
@@ -121,22 +121,25 @@ class Shooter():
 
 		print(self.save_in_file)
 		photo0 = self.circular_buff[-1]
-		print('photo0', photo0)
-		src0, dst0 = photo0[0], photo0[1]
+		src0 = photo0
+		dst0 = self.save_in_file
 
-		src_one = self.circular_buff[-2].self.append(self.save_in_file)
-		src_one, dst_one = src_one[0], src_one[1]
+
+		src_one = self.circular_buff[-2]
+		src_one = src_one
+		dst0 = self.save_in_file
 
 		#src_two = self.circular_buff[-3]
 		#src_two, dst_two = src_two[0], src_two[1]
 
+
 		try:
-			shutil.move(src0, dst0)
+			shutil.copy(src0, dst0)
 		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst0, src0))
 			os.remove(src0)
 		try:
-			shutil.move(src_one, dst_one)
+			shutil.copy(src_one, dst_one)
 		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_one, src_one))
 			os.remove(src_one)
