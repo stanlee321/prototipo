@@ -125,7 +125,7 @@ class Shooter():
 
 		src_two = self.circular_buff[-3]
 		src_two = src_two
-		dst_two = self.save_int_file + '-2.jpg'
+		dst_two = self.save_in_file + '-2.jpg'
 
 
 		try:
