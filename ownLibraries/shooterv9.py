@@ -82,7 +82,6 @@ class Shooter():
 		self.cutPoly = cutPoly
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
 		self.segundoPunto = self.cutPoly[1]
-		self.start()
 
 	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder ):
 		self.fechaInfraccion = fecha
