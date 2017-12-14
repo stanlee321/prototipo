@@ -95,13 +95,11 @@ class Shooter():
 			print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
 		
 		self.save_in_file = self.saveDir+"/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
-		print('save file is', self.save_in_file)
 
 	
 
 	def writter(self):
 		self.frame_number = 0
-		print('self.frame_number', self.frame_number)
 		while self.frame_number < self.maxCapturas:
 			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
 			self.circular_buff.appendleft(save_in_work_dir)
@@ -125,6 +123,17 @@ class Shooter():
 		src_one = self.circular_buff[-2]
 		src_one = src_one
 		dst_one = self.save_in_file
+
+		try:
+			shutil.move(src0, dst0)
+		except:
+			print('DELETION WARNING for {}, delering source {}'.format(dst0, src0))
+			os.remove(src0)
+		try:
+			shutil.move(src_one, dst_one)
+		except:
+			print('DELETION WARNING for {}, delering source {}'.format(dst_one, src_one))
+			os.remove(src_one)
 
 		#src_two = self.circular_buff[-3]
 		#src_two, dst_two = src_two[0], src_two[1]
