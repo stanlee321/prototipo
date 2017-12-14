@@ -127,7 +127,7 @@ class Shooter():
 
 		src_one = self.circular_buff[-2]
 		src_one = src_one
-		dst0 = self.save_in_file
+		dst_one = self.save_in_file
 
 		#src_two = self.circular_buff[-3]
 		#src_two, dst_two = src_two[0], src_two[1]
