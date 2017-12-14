@@ -8,7 +8,7 @@ import ctypes
 import datetime
 import threading
 import multiprocessing
-from .shooterv8 import Shooter
+from shooterv9 import Shooter
 
 
 class ControladorCamara():
@@ -43,6 +43,7 @@ class ControladorCamara():
 			#print('inside while the value is', self.programaPrincipalCorriendo.value )
 			data = input_q.get()
 			folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
+			miCamara.start()
 			if capture == True:
 				miCamara.encenderCamaraEnSubDirectorio(folder_demo, date, folder)
 

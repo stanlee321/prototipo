@@ -11,6 +11,8 @@ import multiprocessing
 import picamera
 import time
 import numpy as np
+import shutil
+import collections
 #from io import BytesIO
 #from skimage.io import imsave
 
@@ -20,13 +22,13 @@ class Shooter():
 	nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
 	directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
 	directorioDeNumpy = os.getenv('HOME')+'/trafficFlow/prototipo/installationFiles/'
+	directorioWORKDIR = os.getenv('HOME')
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
 	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 2):
-	#def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([10,10],[2592,1944]), capturas = 2):
+	#def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([10,10],[2592,1944]), capturas = 5):
 		
 		data = np.load(Shooter.directorioDeNumpy+'datos.npy')
-
 		# Initial aparemeters
 		self.video_source = video_source
 		self.width = width		# Integer Like
@@ -49,6 +51,7 @@ class Shooter():
 
 		
 		self.directorioDeGuardadoGeneral = self.directorioDeReporte
+		self.root = self.directorioWORKDIR
 		self.fechaInfraccion = str
 		self.saveDir = str
 		self.frame_number = 0
@@ -58,14 +61,20 @@ class Shooter():
 		self.camera = picamera.PiCamera()
 		#self.camera.resolution = (self.width,self.height)
 		self.camera.resolution = self.camera.MAX_RESOLUTION
-		#self.camera.framerate = 3
+		self.camera.framerate = 1
 
 		self.camera.zoom = (p0x, p0y, p1x, p1y)
 		#self.camera.shutter_speed = 190000
 		#self.camera.iso = 800
 		self.camera.start_preview()
-		self.start()
 
+		# Create circular buff deque of len 5
+		self.circular_buff = collections.deque(maxlen=5)
+
+		# None paratemer for controll save files
+		self.save_in_file = None
+		folder_WORK = 'WORKDIR'
+		self.saveDirWORK = self.root + "/" + folder_WORK
 		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
 
 
@@ -73,41 +82,80 @@ class Shooter():
 		self.cutPoly = cutPoly
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
 		self.segundoPunto = self.cutPoly[1]
+		self.start()
 
-	def encenderCamaraEnSubDirectorio(self, folder, fecha):
-		#self.miReporte.moverRegistroACarpeta(fecha)
+	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder ):
 		self.fechaInfraccion = fecha
 		self.saveDir = self.directorioDeGuardadoGeneral +"/" + folder
+
 		if not os.path.exists(self.saveDir):
-			os.makedirs(self.saveDir) 
-		self.eyesOpen = True
-		print('Encendi Camara de Forma Exitosa en ' + self.saveDir)
+			os.makedirs(self.saveDir)
 
-	def encenderCamara(self):
-		self.eyesOpen = True
+		if not os.path.exists(self.saveDirWORK):
+			os.makedirs(self.saveDirWORK) 
+			print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
+		self.save_in_file = self.saveDir+"/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
+		print('save file is', self.save_in_file)
 
-	def apagarCamara(self):
-		self.eyesOpen = False
-		print('Realizada las capturas, cerrando ojos...')
 	
 
 	def writter(self):
-		#while not input_queue.empty:
 		self.frame_number = 0
 		while self.frame_number < self.maxCapturas:
-			#print('GUARDADO en: '+ self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3], self.frame_number))
+			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
+			self.circular_buff.appendleft([save_in_work_dir])
+			#print('GUARDADO en: '+ self.saveDirWORK+'/{}.jpg'.format(self.frame_number))
 			#yield "image%02d.jpg" % frame
-			
-			yield self.saveDir+"/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
+			yield save_in_work_dir
 			#yield "./imagen_{}.jpg".format(self.frame_number)
 			self.frame_number += 1
+
+		print(self.save_in_file)
+		# Once the while is finish move the files to his folders.
+		if self.save_in_file != None:
+			print('diff als none', self.save_in_file)
+			self.move_relevant_files()
+			self.save_in_file = None
+	def move_relevant_files(self):
+
+		# Get by index  frame 0 ,1 ,3 or 4, example:
+
+		print(self.save_in_file)
+		photo0 = self.circular_buff[-1]
+		print('photo0', photo0)
+		src0, dst0 = photo0[0], photo0[1]
+
+		src_one = self.circular_buff[-2].self.append(self.save_in_file)
+		src_one, dst_one = src_one[0], src_one[1]
+
+		#src_two = self.circular_buff[-3]
+		#src_two, dst_two = src_two[0], src_two[1]
+
+		try:
+			shutil.move(src0, dst0)
+		except:
+			print('DELETION WARNING for {}, delering source {}'.format(dst0, src0))
+			os.remove(src0)
+		try:
+			shutil.move(src_one, dst_one)
+		except:
+			print('DELETION WARNING for {}, delering source {}'.format(dst_one, src_one))
+			os.remove(src_one)
+		#try:
+		#	shutil.move(src_two, dst_two)
+		#except Exception as e:
+			#print('DELETION WARNING for {}, delering source {}'.format(dst_two, src_two))
+			#os.remove(src_two)
+
+		print('Capturado posible infractor!')
+
+
+		# Get present photo
 
 	def start(self):
 		start = time.time()
 		self.camera.capture_sequence(self.writter(), format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
 		finish = time.time()
-		self.eyesOpen = False
-		print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
