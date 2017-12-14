@@ -107,36 +107,43 @@ class Shooter():
 			yield save_in_work_dir
 		# Once the while is finish move the files to his folders.
 		if self.save_in_file != None:
-			print('diff als none', self.save_in_file)
 			self.move_relevant_files()
 			self.save_in_file = None
 	def move_relevant_files(self):
 
 		# Get by index  frame 0 ,1 ,3 or 4, example:
 
-		print(self.save_in_file)
 		photo0 = self.circular_buff[-1]
 		src0 = photo0
-		dst0 = self.save_in_file+'-0.jpg'
+		dst0 = self.save_in_file + '-0.jpg'
 
 
 		src_one = self.circular_buff[-2]
 		src_one = src_one
-		dst_one = self.save_in_file+'-1.jpg'
+		dst_one = self.save_in_file + '-1.jpg'
+
+
+		src_two = self.circular_buff[-3]
+		src_two = src_two
+		dst_two = self.save_int_file + '-2.jpg'
+
 
 		try:
 			shutil.copy(src0, dst0)
 		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst0, src0))
 			os.remove(src0)
+
 		try:
 			shutil.copy(src_one, dst_one)
 		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_one, src_one))
 			os.remove(src_one)
-
-		#src_two = self.circular_buff[-3]
-		#src_two, dst_two = src_two[0], src_two[1]
+		try:
+			shutil.copy(src_two, dst_two)
+		except:
+			print('DELETION WARNING for {}, delering source {}'.format(dst_two, src_two))
+			os.remove(src_two)
 		print('Capturado posible infractor!')
 
 	def start(self):
