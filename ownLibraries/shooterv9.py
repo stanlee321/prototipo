@@ -94,7 +94,7 @@ class Shooter():
 			os.makedirs(self.saveDirWORK) 
 			print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
 		
-		self.save_in_file = self.saveDir+"/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
+		self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
 
 	
 
@@ -117,20 +117,20 @@ class Shooter():
 		print(self.save_in_file)
 		photo0 = self.circular_buff[-1]
 		src0 = photo0
-		dst0 = self.save_in_file
+		dst0 = self.save_in_file+'-0.jpg'
 
 
 		src_one = self.circular_buff[-2]
 		src_one = src_one
-		dst_one = self.save_in_file
+		dst_one = self.save_in_file+'-1.jpg'
 
 		try:
-			shutil.move(src0, dst0)
+			shutil.copy(src0, dst0)
 		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst0, src0))
 			os.remove(src0)
 		try:
-			shutil.move(src_one, dst_one)
+			shutil.copy(src_one, dst_one)
 		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_one, src_one))
 			os.remove(src_one)
