@@ -211,6 +211,7 @@ def __main_function__():
 
 			if periodo != 0:
 				miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(periodo))
+				miReporte.info('DateTime '+datetime.datetime.now().strftime('%Y%m%d_%H%M'))
 				cruce = miPoliciaReportando.estadoActual['cruce']
 				giro = miPoliciaReportando.estadoActual['giro']
 				infraccion = miPoliciaReportando.estadoActual['infraccion']
