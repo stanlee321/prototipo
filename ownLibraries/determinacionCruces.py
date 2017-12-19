@@ -47,7 +47,7 @@ class PoliciaInfractor():
 
 		# Se crea la clase correspondiente
 		self.miFiltro = AnalisisOnda()
-		self.angulo = 10
+		self.angulo = 18
 
 		# La linea de pintado LK y trasera son los puntos del paso de cebra
 		self.lineaDePintadoLK =  np.array([poligonoPartida[0],poligonoPartida[3]])
