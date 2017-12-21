@@ -6,9 +6,8 @@ import os
 import cv2
 import time
 import glob
-import pickle
+import shutil
 import logging
-import zipfile
 import datetime
 import numpy as np
 
@@ -20,6 +19,9 @@ class GeneradorEvidencia():
 	def __init__(self, carpetaReporte,mifps = 10,guardoRecortados = True):
 		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)
 		self.carpetaDeReporteActual = carpetaReporte
+		self.carpetaParaEntrega = carpetaReporte+'Oficial'
+		if not os.path.exists(self.carpetaParaEntrega):
+			os.makedirs(self.carpetaParaEntrega)
 		self.framesPorSegundoEnVideo = mifps
 		self.ventana = 5
 		self.height, self.width = 240, 320
@@ -33,23 +35,31 @@ class GeneradorEvidencia():
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
 		generandoDebug = False
 		try:
-			nombreInfraccion = infraccion['name'][:-7]
+			nombreInfraccion = infraccion['name']
 			generandoDebug = False
 		except:
 			nombreInfraccion = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')+'_{}i'.format(numero)
 			if (numero == 0)&(len(informacionTotal)<20):
 				return 0
 			generandoDebug = True
-		directorioActual = self.carpetaDeReporteActual + '/'+nombreInfraccion
-		if not os.path.exists(directorioActual):
-			self.miReporte.info('Creado: '+directorioActual)
-			os.makedirs(directorioActual) 
 
+		directorioActual = self.carpetaDeReporteActual + '/'+nombreInfraccion
+		directorioActualOficial = self.carpetaParaEntrega + '/'+nombreInfraccion
+		if not os.path.exists(directorioActual):
+			os.makedirs(directorioActual) 
+		
 		if generandoDebug==False:
+			if not os.path.exists(directorioActualOficial):
+				os.makedirs(directorioActualOficial) 
 			frameInferior = infraccion['frameInicial'] - self.ventana
 			frameSuperior = infraccion['frameFinal'] + self.ventana
+			archivosEnCarpeta = glob.glob(directorioActual+'/*')
+			for imagenACopiar in archivosEnCarpeta:
+				shutil.copy(imagenACopiar,directorioActualOficial+'/'+nombreInfraccion+imagenACopiar[-6:])
+				self.miReporte.debug('Recuperado '+imagenACopiar[-5])
 			
 			prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
+			entrega = cv2.VideoWriter(directorioActualOficial+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
 			
 			# Check valid frame 
 			if frameInferior < 1:
@@ -68,37 +78,11 @@ class GeneradorEvidencia():
 					os.makedirs(directorioRecorte) 
 			for indiceVideo in range(inicio, final):
 				prueba.write(informacionTotal[indiceVideo]['frame'])
-				if self.guardoRecortados:
-					contadorDeRecortados = 0
-					# Si tengo rectangulos, los guardo
-					for indiceImagen in range(len(informacionTotal[indiceVideo]['recortados'])):
-						imagen = informacionTotal[indiceVideo]['recortados'][indiceImagen]
-						if informacionTotal[indiceVideo]['rectangulos'][indiceImagen][2] == 0:
-							estado = 'Saved'
-						else:
-							estado = 'Erased'
-						# Si la imagen es suficientemente grande la guardo
-						if len(imagen) != 0:
-							nombreRecorte = directorioRecorte+'/photo_{}_{}_'.format(contadorDeRecortados,indiceVideo)+estado+'.jpg'
-							cv2.imwrite(nombreRecorte,imagen)
-						contadorDeRecortados+=1
+				entrega.write(informacionTotal[indiceVideo]['captura'])
 			prueba.release()
-			# Vuelvo a iterar por la imagen mas grande:
-			ultimoValorMayor = 0
-			indicesMejorFoto = (-1,0)
-			for indiceVideo in range(inicio, final):
-				for indiceImagen in range(len(informacionTotal[indiceVideo]['recortados'])):
-					ancho = informacionTotal[indiceVideo]['rectangulos'][indiceImagen][0][2]
-					alto = informacionTotal[indiceVideo]['rectangulos'][indiceImagen][0][3]
-					valorActual = ancho*alto
-					if valorActual>ultimoValorMayor:
-						ultimoValorMayor = valorActual
-						indicesMejorFoto = (indiceVideo,indiceImagen)
+			entrega.release()
 
-			if indicesMejorFoto[0] != -1:
-				imagen = informacionTotal[indicesMejorFoto[0]]['recortados'][indicesMejorFoto[1]]
-				nombreEvidencia = directorioActual+'/evidencia_{}_{}.jpg'.format(indicesMejorFoto[1],indicesMejorFoto[0])
-				cv2.imwrite(nombreEvidencia,imagen)
+			# Vuelvo a iterar por la imagen mas grande:
 			return 1
 		else:
 			prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))

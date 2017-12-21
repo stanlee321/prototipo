@@ -10,7 +10,6 @@ import logging
 import datetime
 import numpy as np
 
-from ownLibraries.videostream import FPS
 from ownLibraries.irswitch import IRSwitch
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.visualizacion import Acetato

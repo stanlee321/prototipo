@@ -22,7 +22,9 @@ class ControladorCamara():
 	def encenderCamaraEnSubDirectorio(self,nombreFolder):
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		self.numeroImagenes += 2
+		print('>>>> a antes put')
 		self.input_q.put([nombreFolder, self.numeroImagenes, date])
+		print('>>>> a despues put')
 		#nombreCarpeta.value = nombreFolder
 		#numeroImagenes.value = numeroImagenes.value + 2
 		return self

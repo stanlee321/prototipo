@@ -195,11 +195,11 @@ class Real(Semaforo):
 		# SOME COLORS
 		#
 		# YELLOW /(Orangen) range
-		self.lower_yellow = np.array([18,40,190], dtype=np.uint8)
+		self.lower_yellow = np.array([18,40,190], dtype=np.uint8) # 18,40,190
 		self.upper_yellow = np.array([27,255,255], dtype=np.uint8)
 
 		# RED range
-		self.lower_red = np.array([140,70,0], dtype=np.uint8) #_,100,_
+		self.lower_red = np.array([255,255,255], dtype=np.uint8) #_,100,_ # 140,70,_
 		self.upper_red = np.array([180,255,255], dtype=np.uint8)
 
 		# GREEN range
@@ -288,7 +288,7 @@ class Real(Semaforo):
 		elif prediction == 'red':
 			return 1
 		elif prediction == 'black':
-			return -1
+			return 1
 		else:
 			pass
 
@@ -386,7 +386,7 @@ class CreateSemaforo(Semaforo):
 		# Init parent attributes and methods
 		#
 		super().__init__()
-		self.littleFilter = [0,0,0,0,0]	
+		self.littleFilter = [0,0,0,0,0,0,0,0,0,0,0,0]	
 		self.blueprint_semaforo = None
 		self.numericoAuxiliar = 0
 		if self.periodoSemaforo > 0 :
@@ -396,8 +396,16 @@ class CreateSemaforo(Semaforo):
 	
 	def obtenerColorEnSemaforo(self, imagenUnidimensional):
 		numerico, literal, flancoErrado = self.blueprint_semaforo.encontrarSemaforoObtenerColor(imagen = imagenUnidimensional )
+		#print('COLOR EN BRUTO: '+literal)
 		periodoAMostrar = 0
 		if self.periodoSemaforo == 0 :
+			self.littleFilter[11] = self.littleFilter[10]
+			self.littleFilter[10] = self.littleFilter[9]
+			self.littleFilter[9] = self.littleFilter[8]
+			self.littleFilter[8] = self.littleFilter[7]
+			self.littleFilter[7] = self.littleFilter[6]
+			self.littleFilter[6] = self.littleFilter[5]
+			self.littleFilter[5] = self.littleFilter[4]
 			self.littleFilter[4] = self.littleFilter[3]
 			self.littleFilter[3] = self.littleFilter[2]
 			self.littleFilter[2] = self.littleFilter[1]
@@ -410,12 +418,13 @@ class CreateSemaforo(Semaforo):
 					numeroDeVerdes+=1
 				if colorNumeral==1:
 					numeroDeRojos+=1
-			if numeroDeRojos>=3:
-				numerico = 1
-			if numeroDeVerdes>=3:
+			if numeroDeVerdes>=7:
 				numerico = 0
-
+			if numeroDeRojos>=5:
+				numerico = 1
+			
 		flancoCorrecto = 0
+
 		# Si llegue a un valor valido entonces es posible generar flanco
 		if (numerico==0)|(numerico==1)|(numerico==2):
 			#Si hay cambio entonces genero flanco:
@@ -436,7 +445,7 @@ class CreateSemaforo(Semaforo):
 			self.blueprint_semaforo.tiempoParaPeriodo = time.time()
 
 		self.blueprint_semaforo.ultimoPeriodo = time.time() - self.blueprint_semaforo.tiempoParaPeriodo
-		# Si el periodo excede los 1 minutos (normalmente 2, 1 para debug) entonces señalo que no hay semaforo
+		# Si el periodo excede los 2 minutos (normalmente 2, 1 para debug) entonces señalo que no hay semaforo
 		if self.blueprint_semaforo.ultimoPeriodo >self.maximoTiempoPeriodo:
 			flancoCorrecto = 1				# Flanco verde para guardar la información que se tenga
 			numerico = -2

@@ -17,7 +17,8 @@ import numpy as np
 class Shooter():
 	""" General PICAMERA DRIVER Prototipe
 	"""
-	directorioDeReporte = os.getenv('HOME')+'/casosReportados'
+	nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
+	directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
 	directorioDeNumpy = os.getenv('HOME')+'/trafficFlow/prototipo/installationFiles/'
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
@@ -57,7 +58,7 @@ class Shooter():
 		self.camera = picamera.PiCamera()
 		#self.camera.resolution = (self.width,self.height)
 		self.camera.resolution = self.camera.MAX_RESOLUTION
-		self.camera.framerate = 5
+		self.camera.framerate = 3
 
 		self.camera.zoom = (p0x, p0y, p1x, p1y)
 		#self.camera.shutter_speed = 190000
@@ -94,7 +95,7 @@ class Shooter():
 		#while not input_queue.empty:
 		self.frame_number = 0
 		while self.frame_number < self.maxCapturas:
-			print('GUARDADO en: '+ self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3], self.frame_number))
+			#print('GUARDADO en: '+ self.saveDir+'/{}-{}.jpg'.format(self.fechaInfraccion[:-3], self.frame_number))
 			#yield "image%02d.jpg" % frame
 			
 			yield self.saveDir+"/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
