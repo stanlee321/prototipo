@@ -25,7 +25,7 @@ class Shooter():
 	directorioWORKDIR = os.getenv('HOME')
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
-	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 3):
+	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 6):
 	#def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([10,10],[2592,1944]), capturas = 5):
 		
 		data = np.load(Shooter.directorioDeNumpy+'datos.npy')
@@ -113,17 +113,17 @@ class Shooter():
 
 		# Get by index  frame 0 ,1 ,3 or 4, example:
 
-		photo0 = self.circular_buff[-1]
+		photo0 = self.circular_buff[-2]
 		src0 = photo0
 		dst0 = self.save_in_file + '_0.jpg'
 
 
-		src_one = self.circular_buff[-2]
+		src_one = self.circular_buff[-3]
 		src_one = src_one
 		dst_one = self.save_in_file + '_1.jpg'
 
 
-		src_two = self.circular_buff[-3]
+		src_two = self.circular_buff[-4]
 		src_two = src_two
 		dst_two = self.save_in_file + '_-1.jpg'
 
