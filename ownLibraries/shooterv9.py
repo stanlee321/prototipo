@@ -123,7 +123,7 @@ class Shooter():
 		# CLEAN UNUSED IMAGES 
 		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
 		work_dir_len = len(files_in_work_dir)
-		print('FOLDER LE NIST', work_dir_len)
+		print('1 .- FOLDER LEN is:', work_dir_len)
 
 		if work_dir_len > 6:
 			for img_path in files_in_work_dir:
@@ -145,17 +145,18 @@ class Shooter():
 		#metadata.to_csv(path_to_metadata, index=False)
 
 	def move_relevant_files(self, frame_marcado):
-		print('FRAME MARCADO ISTTT:', frame_marcado)
+		print('2.- FRAME MARCADO IST:', frame_marcado)
 
 		if frame_marcado != None:
 			for image_route in self.circular_buff:
+				print('3.- image_route splited', image_route.split('i'))
 				if frame_marcado in image_route.split('i'):
 					marcado_tag = image_route.split('f')[-2]
-					print('FRAME MCARCADO IS:,', frame_marcado)
-					print('IMAGE ROUTE MARKED IS,', image_route)
-					print('TAG MCARCADO IST', marcado_tag)
+					print('4.- FRAME MCARCADO IS:,', frame_marcado)
+					print('5.- IMAGE ROUTE MARKED IS,', image_route)
+					print('6.- TAG MCARCADO IST', marcado_tag)
 
-			marcado_tag = frame_marcado
+			#marcado_tag = frame_marcado
 			if marcado_tag <= 2:
 				print('saving grupo B')
 

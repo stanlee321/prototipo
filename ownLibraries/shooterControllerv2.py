@@ -74,7 +74,7 @@ class ControladorCamara():
 			# Read metadata
 			metadata = pd.read_csv(path_to_metadata)
 			folder = metadata.SAVE_IMG_IN[0]
-			print('METADATA IS', metadata)
+			#print('METADATA IS', metadata)
 			index = metadata.INDEX[0]
 
 			# Read datetime
