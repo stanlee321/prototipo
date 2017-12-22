@@ -10,6 +10,7 @@ import threading
 import multiprocessing
 from shooterv9 import Shooter
 import os
+import pandas as pd
 
 class ControladorCamara():
 	def __init__(self):
@@ -26,25 +27,23 @@ class ControladorCamara():
 		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q,))
 		self.procesoParalelo.start()
 
-	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
-		self.capture = True
-		self.nombreFoldertoSave = nombreFoldertoSave
-		try:
-			os.makedirs(os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'PRUEBAS' + '/' + self.nombreFoldertoSave)
-			print('creadted auxiliar folder ... in : ', os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'PRUEBAS' + '/' + self.nombreFoldertoSave+'/')
-		except:
-			pass
-		#try:
-		#	self.aux_queue.put([self.ilive, self.nombreFoldertoSave])
-		#except Exception as e:
-		#	print('SLOT AVAILABLE!!! Size: '+str(self.aux_queue.qsize())+' '+str(e))
+		# Create initial dataframe
 
-		#try: 
-		#	self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave], False)
-		#except Exception as e:
-		#	print('SLOT AVAILABLE!!! Size: '+str(self.input_q.qsize())+' '+str(e))
-		#return self
-		#self.feed_queue(True, self.nombreFoldertoSave, self.input_q)
+		# Get WORDIR route
+		self.path_to_work = os.getenv('HOME')+'/'+ 'WORKDIR' + '/'
+		# Create Dataframe, setting None as init condition
+		frame = {'WORKDIR_IMG': 'WORKDIR', 'SAVE_IMG_IN': 'None'}
+		self.dataframe = pd.DataFrame(frame)	
+
+		# Save Dataframe to the WorkDir Route as metadata.csv
+		self.dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False)
+
+	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
+		self.nombreFoldertoSave = nombreFoldertoSave
+		self.dataframe.SAVE_IMG_IN = nombreFoldertoSave
+		self.dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False)
+
+		return self
 
 	def apagarCamara(self):
 		self.capture = False
@@ -53,38 +52,30 @@ class ControladorCamara():
 		programaPrincipalCorriendo = multiprocessing.Value('i',0)
 		self.procesoParalelo.join()
 
-	def feed_queue(self,ilive, nombredelFolder, input_q):
-
-		while True:
-			#if aux_queue.empty() != True:
-			#	data = aux_queue.get()
-			#	ilive , nombreFoldertoSave = data[0], data[1]
-			#	print('ilive:', ilive)
-			#	print('nobmreddelFolder is:', nombreFoldertoSave)
-			#	nombredelFolder = nombreFoldertoSave
-			#else:
-			#	pass
-
-			input_q.put(['WORKDIR', True, date, nombredelFolder])
-
 	def procesadoParalelo(self, input_q):
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
 		miCamara = Shooter()
-		#while self.programaPrincipalCorriendo.value == 1:
-		while True:
+		while self.programaPrincipalCorriendo.value == 1:
+		#while True:
 			# Capturing in workdir *.jpg's
 			miCamara.start()
 			#data = input_q.get()
 			#print('HI im in procesadoParalelo')
 			#folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
 
-			path = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'PRUEBAS' + '/'
-			folder = [os.path.join(root, name) for root, dirs, files in os.walk(path)][-1]
+			path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
+			
+			# Read metadata
+			metadata = pd.read_csv(path_to_metadata)
+			folder = metadata.SAVE_IMG_IN
+
+			# Read datetime
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+
 			print('folder is>>>>>', folder)
 			if folder != 'None':
 				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder)
-				folder = 'None'
+				metadata.SAVE_IMG_IN = 'None'
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
