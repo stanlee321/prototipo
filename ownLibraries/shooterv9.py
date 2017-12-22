@@ -181,7 +181,7 @@ class Shooter():
 		metadata = pd.read_csv(path_to_metadata)
 		metadata.SAVE_IMG_IN = 	'None'
 		metadata.INDEX = 'XX'
-		metadata.to_csv(path_to_metadata, index=False, delim_whitespace=True)
+		metadata.to_csv(path_to_metadata, index=False, sep=',')
 
 		self.frame_marcado = None
 
