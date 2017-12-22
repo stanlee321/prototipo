@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
 	while True:
 
-		cv2.putText(mask, 'press s to capture photos in ./Destiny folder', (10, mask.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+		cv2.putText(mask, 'press s to capture photos in ./Destiny folder', (10, mask.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 		cv2.imshow('mask for test', mask)
 
 		if cv2.waitKey(1) & 0xFF == ord("s"):

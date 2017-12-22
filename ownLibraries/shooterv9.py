@@ -108,11 +108,14 @@ class Shooter():
 			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
 
 			sv_in_file = self.save_in_file
+			
 			if sv_in_file != None:
 				# Marcar frame para luego ser guardado y su n - 1
 				self.frame_marcado = self.frame_number
 				# Reset if statement
 				sv_in_file = None
+			else:
+				pass
 
 			self.circular_buff.appendleft(save_in_work_dir)
 			self.frame_number += 1
