@@ -141,6 +141,7 @@ class Shooter():
 		marcados_list  = []
 		if frame_marcado != None:
 			for image_route in self.circular_buff:
+				print('3.- image ROUTE', image_route)
 				image_route_splited = image_route.split('i')
 				if frame_marcado in image_route_splited:
 					#marcado_tag = image_route.split('f')[-2]
