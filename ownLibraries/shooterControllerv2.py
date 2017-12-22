@@ -43,6 +43,7 @@ class ControladorCamara():
 		self.dataframe.SAVE_IMG_IN = nombreFoldertoSave
 		self.dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False)
 
+		print('Date time in encenderCarmara: ', datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
 		return self
 
 	def apagarCamara(self):
@@ -71,11 +72,14 @@ class ControladorCamara():
 
 			# Read datetime
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-
 			print('folder is>>>>>', folder)
+
 			if folder != 'None':
 				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder)
 				metadata.SAVE_IMG_IN[0] = 'None'
+				metadata.to_csv(path_to_metadata, index=False)
+
+
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 

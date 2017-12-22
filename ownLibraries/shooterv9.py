@@ -109,6 +109,8 @@ class Shooter():
 		self.frame_number = 0
 		
 		while self.frame_number < self.maxCapturas:
+			print('DATE TIME in Writter whilee loop is: ', datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
+
 			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
 
 			self.circular_buff.appendleft(save_in_work_dir)
