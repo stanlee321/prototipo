@@ -20,8 +20,8 @@ class ControladorCamara():
 		self.nombreFoldertoSave = None
 		self.date = None
 		self.ilive = True
-		self.input_q = multiprocessing.Queue(maxsize = 10)
-		self.aux_queue = multiprocessing.Queue(maxsize = 5)
+		self.input_q = multiprocessing.Queue(maxsize = 3)
+		self.aux_queue = multiprocessing.Queue(maxsize = 3)
 
 		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q,))
 		self.procesoParalelo2 = multiprocessing.Process(target = self.feed_queue, args = (self.ilive, self.nombreFoldertoSave, self.aux_queue, self.input_q,))
@@ -59,7 +59,7 @@ class ControladorCamara():
 				pass
 
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-			input_q.put(['WORKDIR', True, date, nombredelFolder], True)
+			input_q.put(['WORKDIR', True, date, nombredelFolder])
 
 	def procesadoParalelo(self, input_q):
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
@@ -71,7 +71,7 @@ class ControladorCamara():
 			data = input_q.get()
 			print('HI im in procesadoParalelo')
 			folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
-			print('folder is', folder)
+			print('folder is>>>>>', folder)
 
 			if capture == True:
 				miCamara.encenderCamaraEnSubDirectorio(folder_demo, date, folder)
