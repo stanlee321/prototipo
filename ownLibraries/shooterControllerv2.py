@@ -49,7 +49,7 @@ class ControladorCamara():
 		print('nobmreddelFolder is:', nombredelFolder)
 		while ilive:
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-			input_q.put(['WORKDIR', False, date, nombreFoldertoSave], True)
+			input_q.put(['WORKDIR', False, date, nombredelFolder], True)
 
 	def procesadoParalelo(self, input_q):
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
