@@ -108,7 +108,7 @@ class Shooter():
 			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
 
 			sv_in_file = self.save_in_file
-			
+
 			if sv_in_file != None:
 				# Marcar frame para luego ser guardado y su n - 1
 				self.frame_marcado = self.frame_number
@@ -267,9 +267,8 @@ class Shooter():
 
 
 	def start(self):
-		start = time.time()
+		print('here alive...')
 		self.camera.capture_sequence(self.writter(), format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
-		finish = time.time()
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
