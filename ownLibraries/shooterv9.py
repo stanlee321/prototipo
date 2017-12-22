@@ -99,6 +99,7 @@ class Shooter():
 				print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
 			
 			self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
+			self.frame_marcado = self.frame_number
 		else:
 			self.save_in_file = None
 	
@@ -111,23 +112,17 @@ class Shooter():
 
 			sv_in_file = self.save_in_file
 
-			if sv_in_file != None:
-				# Marcar frame para luego ser guardado y su n - 1
-				print('frame nubmer in writter is:', self.frame_number)
-				self.frame_marcado = self.frame_number
-				# Reset if statement
-				sv_in_file = None
-			else:
-				pass
 
 			self.circular_buff.appendleft(save_in_work_dir)
 			self.frame_number += 1
 			yield save_in_work_dir
 
 
+
 		# Once the while is finish move the files to his folders.
 		self.move_relevant_files(self.frame_marcado)
 		self.frame_marcado = None
+		self.save_in_file = None
 	def move_relevant_files(self, frame_marcado):
 
 		if frame_marcado != None:
