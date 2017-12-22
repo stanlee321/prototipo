@@ -153,11 +153,10 @@ class Shooter():
 				print('3.- image_route splited', image_route.split('i'))
 				if frame_marcado in image_route_splited:
 					marcado_tag = image_route.split('f')[-2]
-					print('4.- FRAME MCARCADO IS:,', frame_marcado)
-					print('5.- IMAGE ROUTE MARKED IS,', image_route)
-					print('6.- TAG MCARCADO IST', marcado_tag)
-
-			#marcado_tag = frame_marcado
+					#print('4.- FRAME MCARCADO IS:,', frame_marcado)
+					#print('5.- IMAGE ROUTE MARKED IS,', image_route)
+					#print('6.- TAG MCARCADO IST', marcado_tag)
+			marcado_tag = str(marcado_tag)
 			if marcado_tag <= 2:
 				print('saving grupo B')
 
