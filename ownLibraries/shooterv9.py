@@ -135,12 +135,6 @@ class Shooter():
 		# Once the while is finish move the files to his folders.
 		self.move_relevant_files(self.frame_marcado)
 
-		# CLEAN
-		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
-		metadata = pd.read_csv(path_to_metadata)
-		metadata.SAVE_IMG_IN[0] = 'None'
-		metadata.INDEX[0] = 'XX'
-		metadata.to_csv(path_to_metadata, index=False)
 
 	def move_relevant_files(self, frame_marcado):
 		print('2.- FRAME MARCADO IST:', frame_marcado)
@@ -265,6 +259,15 @@ class Shooter():
 						src_two = self.circular_buff[-3]
 						dst_two = self.save_in_file + '_-1.jpg'
 						self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)					
+			
+
+				# CLEAN
+				path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
+
+				metadata = pd.read_csv(path_to_metadata)
+				metadata.SAVE_IMG_IN = 	'None'
+				metadata.INDEX = 'XX'
+				metadata.to_csv(path_to_metadata, index=False)
 			else:
 				pass
 		else:
