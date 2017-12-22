@@ -146,7 +146,7 @@ class Shooter():
 					marcado_tag = image_route.split('f')[-2]
 					marcado_tag = int(marcado_tag)
 					marcados_list.append(marcado_tag)
-					print('FRAME MARCADOS,:', frame_marcado)
+					print('FRAME MARCADOS,:', image_route)
 			if len(marcados_list) != 0:
 				marcado_tag = marcados_list[-1]
 
@@ -263,20 +263,19 @@ class Shooter():
 						dst_two = self.save_in_file + '_-1.jpg'
 						self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)					
 			
+				# CLEANING Variables
+				path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
 
+				metadata = pd.read_csv(path_to_metadata)
+				metadata.SAVE_IMG_IN = 	'None'
+				metadata.INDEX = 'XX'
+				metadata.to_csv(path_to_metadata, index=False)
+
+				self.frame_marcado = None
 			
 			else:
 				pass
 
-			# CLEANING Variables
-			path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
-
-			metadata = pd.read_csv(path_to_metadata)
-			metadata.SAVE_IMG_IN = 	'None'
-			metadata.INDEX = 'XX'
-			metadata.to_csv(path_to_metadata, index=False)
-
-			self.frame_marcado = None
 		else:
 			pass
 
