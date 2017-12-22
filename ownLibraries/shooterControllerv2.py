@@ -29,8 +29,11 @@ class ControladorCamara():
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
 		self.capture = True
 		self.nombreFoldertoSave = nombreFoldertoSave
-		os.makedirs(os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'PRUEBAS' + '/' + self.nombreFoldertoSave)
-		print('creadted auxiliar folder ... in : ', os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'PRUEBAS' + '/' + self.nombreFoldertoSave)
+		try:
+			os.makedirs(os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'PRUEBAS' + '/' + self.nombreFoldertoSave)
+			print('creadted auxiliar folder ... in : ', os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'PRUEBAS' + '/' + self.nombreFoldertoSave+'/')
+		except:
+			pass
 		#try:
 		#	self.aux_queue.put([self.ilive, self.nombreFoldertoSave])
 		#except Exception as e:
