@@ -35,7 +35,7 @@ class ControladorCamara():
 		self.dataframe = pd.DataFrame(frame)	
 
 		# Save Dataframe to the WorkDir Route as metadata.csv
-		self.dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False, delimiter='\t')
+		self.dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False, delim_whitespace=True)
 
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
 		self.nombreFoldertoSave = nombreFoldertoSave
@@ -45,7 +45,7 @@ class ControladorCamara():
 
 		self.dataframe.INDEX = str(index)
 		self.dataframe.SAVE_IMG_IN = nombreFoldertoSave
-		self.dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False, delimiter='\t')
+		self.dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False, delim_whitespace=True)
 
 		return self
 
