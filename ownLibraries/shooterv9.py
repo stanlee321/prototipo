@@ -131,6 +131,7 @@ class Shooter():
 
 				# Grupo B
 				index = marcado_tag
+				print('DER INDEX IST VOM B ', index)
 				if index == 0:
 					# Get by index  frame 0 ,1 ,3 or 4, example:
 
@@ -186,6 +187,7 @@ class Shooter():
 
 				# Grupo C
 				index = marcado_tag
+				print('DER INDEX IST VOM C ', index)
 				if index == 0:
 					# Get by index  frame 0 ,1 ,3 or 4, example:
 
