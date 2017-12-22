@@ -261,13 +261,15 @@ class Shooter():
 						self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)					
 			
 
-				# CLEAN
+				# CLEANING Variables
 				path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
 
 				metadata = pd.read_csv(path_to_metadata)
 				metadata.SAVE_IMG_IN = 	'None'
 				metadata.INDEX = 'XX'
 				metadata.to_csv(path_to_metadata, index=False)
+
+				self.frame_marcado = None
 			else:
 				pass
 		else:
