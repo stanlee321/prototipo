@@ -32,7 +32,6 @@ class ControladorCamara():
 		self.capture = True
 		self.nombreFoldertoSave = nombreFoldertoSave
 		self.aux_queue.put([self.ilive, self.nombreFoldertoSave], False)
-		#self.feed_queue(aux_queue, input_q)
 
 		#try: 
 		#	self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave], False)
@@ -48,14 +47,16 @@ class ControladorCamara():
 		self.procesoParalelo.join()
 
 	def feed_queue(self,ilive, nombredelFolder, aux_queue, input_q):
-		if aux_queue.empty() != True:
-			data = aux_queue.get()
-			ilive , nombreFoldertoSave = data[0], data[1]
-			print('ilive:', ilive)
-			print('nobmreddelFolder is:', nombredelFolder)
-		else:
-			pass
-		while ilive:
+
+		while True:
+			if aux_queue.empty() != True:
+				data = aux_queue.get()
+				ilive , nombreFoldertoSave = data[0], data[1]
+				print('ilive:', ilive)
+				print('nobmreddelFolder is:', nombredelFolder)
+			else:
+				pass
+				
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 			input_q.put(['WORKDIR', False, date, nombredelFolder], True)
 
