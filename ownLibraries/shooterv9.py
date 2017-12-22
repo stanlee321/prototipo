@@ -188,7 +188,7 @@ class Shooter():
 				# Grupo C
 				index = marcado_tag
 				print('DER INDEX IST VOM C ', index)
-				if index == 0:
+				if index == 3:
 					# Get by index  frame 0 ,1 ,3 or 4, example:
 
 					src_0 = self.circular_buff[index] 
@@ -204,7 +204,7 @@ class Shooter():
 					dst_two = self.save_in_file + '_-1.jpg'
 
 					self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
-				if index == 1:
+				if index == 4:
 
 					# Get by index  frame 0 ,1 ,3 or 4, example:
 
@@ -220,7 +220,7 @@ class Shooter():
 					src_two = self.circular_buff[index-1]
 					dst_two = self.save_in_file + '_-1.jpg'
 					self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
-				if index == 2:
+				if index == 5:
 
 					# Get by index  frame 0 ,1 ,3 or 4, example:
 

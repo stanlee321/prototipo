@@ -54,7 +54,7 @@ if __name__ == '__main__':
 	counter = 0
 	while True:
 		counter +=1 
-		if counter == 4:
+		if counter == 3:
 			shoot.encenderCamaraEnSubDirectorio('Destiny')
 		if counter == 9:
 			shoot.encenderCamaraEnSubDirectorio('Destiny')
