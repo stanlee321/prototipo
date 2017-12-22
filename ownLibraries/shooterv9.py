@@ -129,7 +129,9 @@ class Shooter():
 			for image_route in self.circular_buff:
 				if frame_marcado in image_route.split('i'):
 					marcado_tag = image_route.split('f')[-2]
-					print(marcado_tag)
+					print('FRAME MCARCADO IS:,', frame_marcado)
+					print('IMAGE ROUTE MARKED IS,', image_route)
+					print('TAG MCARCADO IST', marcado_tag)
 
 			marcado_tag = frame_marcado
 			if marcado_tag <= 2:
