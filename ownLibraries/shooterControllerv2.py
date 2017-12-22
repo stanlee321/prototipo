@@ -67,7 +67,7 @@ class ControladorCamara():
 			
 			# Read metadata
 			metadata = pd.read_csv(path_to_metadata)
-			folder = metadata.SAVE_IMG_IN
+			folder = metadata.SAVE_IMG_IN[0]
 
 			# Read datetime
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
@@ -75,7 +75,7 @@ class ControladorCamara():
 			print('folder is>>>>>', folder)
 			if folder != 'None':
 				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder)
-				metadata.SAVE_IMG_IN = 'None'
+				metadata.SAVE_IMG_IN[0] = 'None'
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
