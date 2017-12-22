@@ -13,6 +13,7 @@ import time
 import numpy as np
 import shutil
 import collections
+import glob
 #from io import BytesIO
 #from skimage.io import imsave
 
@@ -118,7 +119,8 @@ class Shooter():
 			self.frame_number += 1
 			yield save_in_work_dir
 
-
+		folder_len = (glob.glob(self.saveDirWORK + '/*.jpg'))
+		print('FOLDER LE NIST', folder_len)
 
 		# Once the while is finish move the files to his folders.
 		self.move_relevant_files(self.frame_marcado)
