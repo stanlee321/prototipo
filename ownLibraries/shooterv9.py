@@ -25,7 +25,7 @@ class Shooter():
 	directorioWORKDIR = os.getenv('HOME')
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
-	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 6):
+	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 5):
 	#def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([10,10],[2592,1944]), capturas = 5):
 		
 		data = np.load(Shooter.directorioDeNumpy+'datos.npy')
@@ -69,7 +69,7 @@ class Shooter():
 		self.camera.start_preview()
 
 		# Create circular buff deque of len 6
-		self.circular_buff = collections.deque(maxlen=6)
+		self.circular_buff = collections.deque(maxlen=5)
 
 		# None paratemer for controll save files
 		self.save_in_file = None
@@ -106,7 +106,7 @@ class Shooter():
 	
 
 	def writter(self):
-		self.frame_number = -1
+		self.frame_number = 0
 		
 		while self.frame_number < self.maxCapturas:
 			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)

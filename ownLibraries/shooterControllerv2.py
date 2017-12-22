@@ -76,7 +76,7 @@ class ControladorCamara():
 			print('HI im in procesadoParalelo')
 			folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
 			print('folder is>>>>>', folder)
-			print('caputre is ,', caputure)
+			print('caputre is ,', capture)
 			if capture == True:
 				miCamara.encenderCamaraEnSubDirectorio(folder_demo, date, folder)
 
