@@ -54,8 +54,11 @@ if __name__ == '__main__':
 	counter = 0
 	while True:
 		counter +=1 
-		if counter == 10:
+		if counter == 4:
 			shoot.encenderCamaraEnSubDirectorio('Destiny')
+		if counter == 9:
+			shoot.encenderCamaraEnSubDirectorio('Destiny')
+		if counter == 10:
 			counter = 0
 		print(counter)
 		time.sleep(1)
