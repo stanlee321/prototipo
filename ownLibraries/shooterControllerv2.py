@@ -39,7 +39,8 @@ class ControladorCamara():
 	def procesadoParalelo(self,input_q):
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
 		miCamara = Shooter()
-		while self.programaPrincipalCorriendo.value == 1:
+		#while self.programaPrincipalCorriendo.value == 1:
+		while True:
 			# Capturing in workdir *.jpg's
 			miCamara.start()
 			data = input_q.get()
