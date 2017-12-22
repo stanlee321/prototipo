@@ -17,18 +17,25 @@ class ControladorCamara():
 		self.programaPrincipalCorriendo = multiprocessing.Value('i',1)
 		self.capture = False # Start saving to this from the creation of the object
 		self.nombreFolderWORKDIR = 'WORKDIR'
+		self.nombreFoldertoSave = None
+		self.date = None
+		self.ilive = True
 		self.input_q = multiprocessing.Queue(maxsize = 10)
 		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q,))
+		self.procesoParalelo2 = multiprocessing.Process(target = self.feed_queue, args = (self.ilive, self.nombreFoldertoSave,self.input_q,))
 		self.procesoParalelo.start()
-		self.feed_queue(True)
+		self.procesoParalelo2.start()
+
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
-		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		self.capture = True
-		try: 
-			self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave], False)
-		except Exception as e:
-			print('SLOT AVAILABLE!!! Size: '+str(self.input_q.qsize())+' '+str(e))
-		return self
+		self.nombreFoldertoSave = nombreFoldertoSave
+		self.feed_queue(True, self.nombreFoldertoSave)
+
+		#try: 
+		#	self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave], False)
+		#except Exception as e:
+		#	print('SLOT AVAILABLE!!! Size: '+str(self.input_q.qsize())+' '+str(e))
+		#return self
 
 	def apagarCamara(self):
 		self.capture = False
@@ -37,13 +44,14 @@ class ControladorCamara():
 		programaPrincipalCorriendo = multiprocessing.Value('i',0)
 		self.procesoParalelo.join()
 
-	def feed_queue(self, ilive):
+	def feed_queue(self, ilive, nombredelFolder, input_q):
+		print('ilive:', ilive)
+		print('nobmreddelFolder is:', nombredelFolder)
 		while ilive:
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-			nombreFoldertoSave = None
-			self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave], True)
+			input_q.put(['WORKDIR', False, date, nombreFoldertoSave], True)
 
-	def procesadoParalelo(self,input_q):
+	def procesadoParalelo(self, input_q):
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
 		miCamara = Shooter()
 		#while self.programaPrincipalCorriendo.value == 1:
@@ -68,6 +76,7 @@ if __name__ == '__main__':
 		cv2.putText(mask, 'press s to capture photos in ./Destiny folder', (10, mask.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 		cv2.imshow('mask for test', mask)
 
+		shoot.feed_queue(ilive = True)
 		if cv2.waitKey(1) & 0xFF == ord("s"):
 			shoot.encenderCamaraEnSubDirectorio('Destiny')
 		if cv2.waitKey(1) & 0xFF == ord("q"):
