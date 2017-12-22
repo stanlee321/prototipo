@@ -28,10 +28,10 @@ class ControladorCamara():
 		self.procesoParalelo.start()
 		self.procesoParalelo2.start()
 
-	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave, aux_queue, input_q):
+	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
 		self.capture = True
 		self.nombreFoldertoSave = nombreFoldertoSave
-		aux_queue.put([self.ilive, self.nombreFoldertoSave], False)
+		self.aux_queue.put([self.ilive, self.nombreFoldertoSave], False)
 		#self.feed_queue(aux_queue, input_q)
 
 		#try: 
@@ -47,7 +47,7 @@ class ControladorCamara():
 		programaPrincipalCorriendo = multiprocessing.Value('i',0)
 		self.procesoParalelo.join()
 
-	def feed_queue(self,ilive,nombreFoldertoSave, aux_queue, input_q):
+	def feed_queue(self,ilive, nombredelFolder, aux_queue, input_q):
 		if aux_queue.empty() != True:
 			data = aux_queue.get()
 			ilive , nombreFoldertoSave = data[0], data[1]
