@@ -21,27 +21,28 @@ class ControladorCamara():
 		self.date = None
 		self.ilive = True
 		self.input_q = multiprocessing.Queue(maxsize = 5)
-		self.aux_queue = multiprocessing.Queue()
+		#self.aux_queue = multiprocessing.Queue()
 
 		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q,))
-		self.procesoParalelo2 = multiprocessing.Process(target = self.feed_queue, args = (self.ilive, self.nombreFoldertoSave, self.aux_queue, self.input_q,))
+		#self.procesoParalelo2 = multiprocessing.Process(target = self.feed_queue, args = (self.ilive, self.nombreFoldertoSave, self.aux_queue, self.input_q,))
 		self.procesoParalelo.start()
-		self.procesoParalelo2.start()
+		#self.procesoParalelo2.start()
 
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
 		self.capture = True
 		self.nombreFoldertoSave = nombreFoldertoSave
-		try:
-			self.aux_queue.put([self.ilive, self.nombreFoldertoSave])
-		except Exception as e:
-			print('SLOT AVAILABLE!!! Size: '+str(self.aux_queue.qsize())+' '+str(e))
+		#try:
+		#	self.aux_queue.put([self.ilive, self.nombreFoldertoSave])
+		#except Exception as e:
+		#	print('SLOT AVAILABLE!!! Size: '+str(self.aux_queue.qsize())+' '+str(e))
 
 		#try: 
 		#	self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave], False)
 		#except Exception as e:
 		#	print('SLOT AVAILABLE!!! Size: '+str(self.input_q.qsize())+' '+str(e))
 		#return self
-
+		self.feed_queue(True, self.nombreFoldertoSave, self.input_q)
+		
 	def apagarCamara(self):
 		self.capture = False
 		return self
@@ -49,17 +50,17 @@ class ControladorCamara():
 		programaPrincipalCorriendo = multiprocessing.Value('i',0)
 		self.procesoParalelo.join()
 
-	def feed_queue(self,ilive, nombredelFolder, aux_queue, input_q):
+	def feed_queue(self,ilive, nombredelFolder, input_q):
 
 		while True:
-			if aux_queue.empty() != True:
-				data = aux_queue.get()
-				ilive , nombreFoldertoSave = data[0], data[1]
-				print('ilive:', ilive)
-				print('nobmreddelFolder is:', nombreFoldertoSave)
-				nombredelFolder = nombreFoldertoSave
-			else:
-				pass
+			#if aux_queue.empty() != True:
+			#	data = aux_queue.get()
+			#	ilive , nombreFoldertoSave = data[0], data[1]
+			#	print('ilive:', ilive)
+			#	print('nobmreddelFolder is:', nombreFoldertoSave)
+			#	nombredelFolder = nombreFoldertoSave
+			#else:
+			#	pass
 
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 			input_q.put(['WORKDIR', True, date, nombredelFolder])
