@@ -51,15 +51,15 @@ if __name__ == '__main__':
 	#DEMO DEMO DEMO 
 
 	shoot = ControladorCamara()
-	counter = 0
-	while True:
-		counter +=1 
-		if counter == 3:
-			shoot.encenderCamaraEnSubDirectorio('Destiny')
-		if counter == 9:
-			shoot.encenderCamaraEnSubDirectorio('Destiny')
-		if counter == 10:
-			counter = 0
-		print(counter)
-		time.sleep(1)
+	mask = np.zeros((320,240))
+	mask = mask.astype(np.uint8)
 
+	while True:
+
+		cv2.putText(mask, 'press s to capture photos in ./Destiny folder', (10, mask.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+		cv2.imshow('mask for test', mask)
+
+		if cv2.waitKey(1) & 0xFF == ord("s"):
+			shoot.encenderCamaraEnSubDirectorio('Destiny')
+		if cv2.waitKey(1) & 0xFF == ord("q"):
+			break
