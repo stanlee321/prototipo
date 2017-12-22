@@ -82,8 +82,8 @@ class ControladorCamara():
 
 			if folder != 'None':
 				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
-				frame = {'WORKDIR_IMG': 'WORKDIR', 'SAVE_IMG_IN': 'None', 'INDEX': 'XX'}
-				metadata = pd.DataFrame(frame)
+				dframe = {'WORKDIR_IMG': 'WORKDIR', 'SAVE_IMG_IN': 'None', 'INDEX': 'XX'}
+				metadata = pd.DataFrame(dframe, index=[0])
 				#metadata.SAVE_IMG_IN[0] = 'None'
 				#metadata.INDEX[0] = 'XX'
 				metadata.to_csv(path_to_metadata, index=False)

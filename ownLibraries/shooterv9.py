@@ -121,8 +121,16 @@ class Shooter():
 			yield save_in_work_dir
 
 		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
+		
 		work_dir_len = len(files_in_work_dir)
 		print('FOLDER LE NIST', work_dir_len)
+
+		if work_dir_len > 6:
+			for img_path in files_in_work_dir:
+				if img_path in self.circular_buff:
+					pass
+				else:
+					os.remove(img_path)
 
 		# Once the while is finish move the files to his folders.
 		self.move_relevant_files(self.frame_marcado)
