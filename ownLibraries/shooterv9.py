@@ -106,13 +106,10 @@ class Shooter():
 	
 
 	def writter(self):
-		self.frame_number = 0
+		self.frame_number = -1
 		
 		while self.frame_number < self.maxCapturas:
 			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
-
-			sv_in_file = self.save_in_file
-
 
 			self.circular_buff.appendleft(save_in_work_dir)
 			self.frame_number += 1

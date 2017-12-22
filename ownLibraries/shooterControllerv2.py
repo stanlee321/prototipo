@@ -42,7 +42,7 @@ class ControladorCamara():
 		#	print('SLOT AVAILABLE!!! Size: '+str(self.input_q.qsize())+' '+str(e))
 		#return self
 		self.feed_queue(True, self.nombreFoldertoSave, self.input_q)
-		
+
 	def apagarCamara(self):
 		self.capture = False
 		return self
@@ -76,7 +76,7 @@ class ControladorCamara():
 			print('HI im in procesadoParalelo')
 			folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
 			print('folder is>>>>>', folder)
-
+			print('caputre is ,', caputure)
 			if capture == True:
 				miCamara.encenderCamaraEnSubDirectorio(folder_demo, date, folder)
 
