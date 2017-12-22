@@ -54,9 +54,10 @@ class ControladorCamara():
 				ilive , nombreFoldertoSave = data[0], data[1]
 				print('ilive:', ilive)
 				print('nobmreddelFolder is:', nombreFoldertoSave)
+				nombredelFolder = nombreFoldertoSave
 			else:
 				pass
-				
+
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 			input_q.put(['WORKDIR', False, date, nombredelFolder], True)
 
