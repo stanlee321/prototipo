@@ -88,17 +88,19 @@ class Shooter():
 
 	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder ):
 		self.fechaInfraccion = fecha
-		self.saveDir = self.directorioDeGuardadoGeneral +"/" + folder
+		if folder != None:
+			self.saveDir = self.directorioDeGuardadoGeneral +"/" + folder
 
-		if not os.path.exists(self.saveDir):
-			os.makedirs(self.saveDir)
+			if not os.path.exists(self.saveDir):
+				os.makedirs(self.saveDir)
 
-		if not os.path.exists(self.saveDirWORK):
-			os.makedirs(self.saveDirWORK) 
-			print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
-		
-		self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
-
+			if not os.path.exists(self.saveDirWORK):
+				os.makedirs(self.saveDirWORK) 
+				print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
+			
+			self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
+		else:
+			self.save_in_file = None
 	
 
 	def writter(self):

@@ -20,11 +20,12 @@ class ControladorCamara():
 		self.input_q = multiprocessing.Queue(maxsize = 10)
 		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q,))
 		self.procesoParalelo.start()
+		self.feed_queue(True)
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		self.capture = True
 		try: 
-			self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave],False)
+			self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave], False)
 		except Exception as e:
 			print('SLOT AVAILABLE!!! Size: '+str(self.input_q.qsize())+' '+str(e))
 		return self
@@ -36,6 +37,12 @@ class ControladorCamara():
 		programaPrincipalCorriendo = multiprocessing.Value('i',0)
 		self.procesoParalelo.join()
 
+	def feed_queue(self, ilive):
+		while ilive:
+			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+			nombreFoldertoSave = None
+			self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave], False)
+
 	def procesadoParalelo(self,input_q):
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
 		miCamara = Shooter()
@@ -43,11 +50,10 @@ class ControladorCamara():
 		while True:
 			# Capturing in workdir *.jpg's
 			miCamara.start()
-			#data = input_q.get()
-			#folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
-			#capture = True
-			#if capture == True:
-			#	miCamara.encenderCamaraEnSubDirectorio(folder_demo, date, folder)
+			data = input_q.get()
+			folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
+			if capture == True:
+				miCamara.encenderCamaraEnSubDirectorio(folder_demo, date, folder)
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
