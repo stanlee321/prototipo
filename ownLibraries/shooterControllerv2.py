@@ -49,6 +49,7 @@ class ControladorCamara():
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
+	import numpy as np
 
 	shoot = ControladorCamara()
 	mask = np.zeros((320,240))
