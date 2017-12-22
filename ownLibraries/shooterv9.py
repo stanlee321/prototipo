@@ -151,7 +151,7 @@ class Shooter():
 
 				if marcado_tag <= 2:
 					print('saving grupo B')
-
+					print('Ciruclar_buferr ist das:', self.circular_buff)
 					# Grupo B
 					index = marcado_tag
 					print('DER INDEX IST VOM B ', index)
@@ -211,6 +211,8 @@ class Shooter():
 					# Grupo C
 					index = marcado_tag
 					print('DER INDEX IST VOM C ', index)
+					print('Ciruclar_buferr ist das:', self.circular_buff)
+
 					if index == 3:
 						# Get by index  frame 0 ,1 ,3 or 4, example:
 
