@@ -161,11 +161,11 @@ class Shooter():
 				dst_0 = self.save_in_file + '_0.jpg'
 
 
-				src_one = self.circular_buff[index+1]
+				src_one = self.circular_buff[indice+1]
 				dst_one = self.save_in_file + '_1.jpg'
 
 
-				src_two = self.circular_buff[index-1]
+				src_two = self.circular_buff[indice-1]
 				dst_two = self.save_in_file + '_-1.jpg'
 
 				self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
