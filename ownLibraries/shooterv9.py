@@ -139,14 +139,16 @@ class Shooter():
 	def move_relevant_files(self, frame_marcado):
 		print('2.- FRAME MARCADO IST:', frame_marcado)
 		marcados_list  = []
-		for image_route in self.circular_buff:
+		for i, image_route in enumerate(self.circular_buff):
 			print('3.- image ROUTE', image_route)
 			image_route_splited = image_route.split('i')
+
 			if frame_marcado in image_route_splited:
 				marcados_list.append(image_route)
 				print('FRAME MARCADOS,:', marcados_list[-1])
 			else:
-				pass
+				marcados_list.append(self.circular_buff[i-1])
+		
 		if len(marcados_list) != 0:
 			marcado_frame = marcados_list[-1]
 
