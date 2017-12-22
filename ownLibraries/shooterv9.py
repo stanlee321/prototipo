@@ -75,6 +75,9 @@ class Shooter():
 		self.save_in_file = None
 		folder_WORK = 'WORKDIR'
 		self.saveDirWORK = self.root + "/" + folder_WORK
+
+		# Variable para marcar paquete de frames
+		self.frame_marcado = None
 		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
 
 
@@ -100,39 +103,145 @@ class Shooter():
 
 	def writter(self):
 		self.frame_number = 0
+		
 		while self.frame_number < self.maxCapturas:
 			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
+
+			if self.save_in_file != None:
+				# Marcar frame para luego ser guardado y su n - 1
+				self.frame_marcado = self.frame_number
+				# Reset if statement
+				self.save_in_file = None
+
 			self.circular_buff.appendleft(save_in_work_dir)
 			self.frame_number += 1
 			yield save_in_work_dir
+
+
 		# Once the while is finish move the files to his folders.
-		if self.save_in_file != None:
-			self.move_relevant_files()
-			self.save_in_file = None
-	def move_relevant_files(self):
+		self.move_relevant_files(self.frame_marcado)
+		self.frame_marcado = None
+	def move_relevant_files(self, self.frame_marcado):
 
-		# Get by index  frame 0 ,1 ,3 or 4, example:
+		if self.frame_marcado != None:
+			marcado_tag = self.frame_marcado
+			if marcado_tag <= 2:
+				print('saving grupo B')
 
-		photo0 = self.circular_buff[-2]
-		src0 = photo0
-		dst0 = self.save_in_file + '_0.jpg'
+				# Grupo B
+				index = marcado_tag
+				if index == 0:
+					# Get by index  frame 0 ,1 ,3 or 4, example:
 
-
-		src_one = self.circular_buff[-3]
-		src_one = src_one
-		dst_one = self.save_in_file + '_1.jpg'
-
-
-		src_two = self.circular_buff[-4]
-		src_two = src_two
-		dst_two = self.save_in_file + '_-1.jpg'
+					src_0 = self.circular_buff[index] 
+					
+					dst_0 = self.save_in_file + '_0.jpg'
 
 
+					src_one = self.circular_buff[index+1]
+					dst_one = self.save_in_file + '_1.jpg'
+
+
+					src_two = self.circular_buff[-1]
+					dst_two = self.save_in_file + '_-1.jpg'
+
+					self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
+				if index == 1:
+
+					# Get by index  frame 0 ,1 ,3 or 4, example:
+
+					src_0 = self.circular_buff[index] 
+					
+					dst_0 = self.save_in_file + '_0.jpg'
+
+
+					src_one = self.circular_buff[index+1]
+					dst_one = self.save_in_file + '_1.jpg'
+
+
+					src_two = self.circular_buff[index-1]
+					dst_two = self.save_in_file + '_-1.jpg'
+					self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
+				if index == 2:
+
+
+					# Get by index  frame 0 ,1 ,3 or 4, example:
+
+					src_0 = self.circular_buff[index] 
+					
+					dst_0 = self.save_in_file + '_0.jpg'
+
+
+					src_one = self.circular_buff[-3]
+					dst_one = self.save_in_file + '_1.jpg'
+
+
+					src_two = self.circular_buff[index-1]
+					dst_two = self.save_in_file + '_-1.jpg'
+					self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
+
+			if marcado_tag > 2:
+				print('saving grupo C')
+
+				# Grupo C
+				index = marcado_tag
+				if index == 0:
+					# Get by index  frame 0 ,1 ,3 or 4, example:
+
+					src_0 = self.circular_buff[index] 
+					
+					dst_0 = self.save_in_file + '_0.jpg'
+
+
+					src_one = self.circular_buff[index+1]
+					dst_one = self.save_in_file + '_1.jpg'
+
+
+					src_two = self.circular_buff[2]
+					dst_two = self.save_in_file + '_-1.jpg'
+
+					self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
+				if index == 1:
+
+					# Get by index  frame 0 ,1 ,3 or 4, example:
+
+					src_0 = self.circular_buff[index] 
+					
+					dst_0 = self.save_in_file + '_0.jpg'
+
+
+					src_one = self.circular_buff[index+1]
+					dst_one = self.save_in_file + '_1.jpg'
+
+
+					src_two = self.circular_buff[index-1]
+					dst_two = self.save_in_file + '_-1.jpg'
+					self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
+				if index == 2:
+
+					# Get by index  frame 0 ,1 ,3 or 4, example:
+
+					src_0 = self.circular_buff[index] 
+					
+					dst_0 = self.save_in_file + '_0.jpg'
+
+
+					src_one = self.circular_buff[-2]
+					dst_one = self.save_in_file + '_1.jpg'
+
+
+					src_two = self.circular_buff[-3]
+					dst_two = self.save_in_file + '_-1.jpg'
+					self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)					
+		else:
+			pass
+
+	def copiar_las_imagenes(self, src_0,dst_0,src_one, dst_one, src_two, dst_two):
 		try:
-			shutil.copy(src0, dst0)
+			shutil.copy(src_0, dst_0)
 		except:
-			print('DELETION WARNING for {}, delering source {}'.format(dst0, src0))
-			os.remove(src0)
+			print('DELETION WARNING for {}, delering source {}'.format(dst_0, src_0))
+			os.remove(src_0)
 
 		try:
 			shutil.copy(src_one, dst_one)
@@ -145,6 +254,7 @@ class Shooter():
 			print('DELETION WARNING for {}, delering source {}'.format(dst_two, src_two))
 			os.remove(src_two)
 		print('Capturado posible infractor!')
+
 
 	def start(self):
 		start = time.time()

@@ -8,14 +8,14 @@ import ctypes
 import datetime
 import threading
 import multiprocessing
-from .shooterv9 import Shooter
+from shooterv9 import Shooter
 
 
 class ControladorCamara():
 	def __init__(self):
 		# Se declaran las variables de control con el proceso paralelo
 		self.programaPrincipalCorriendo = multiprocessing.Value('i',1)
-		self.capture = False
+		self.capture = False # Start saving to this from the creation of the object
 		self.nombreFolderWORKDIR = 'WORKDIR'
 		self.input_q = multiprocessing.Queue(maxsize = 10)
 		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q,))
@@ -40,10 +40,10 @@ class ControladorCamara():
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
 		miCamara = Shooter()
 		while self.programaPrincipalCorriendo.value == 1:
-			#print('inside while the value is', self.programaPrincipalCorriendo.value )
+			# Capturing in workdir *.jpg's
+			miCamara.start()
 			data = input_q.get()
 			folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
-			miCamara.start()
 			if capture == True:
 				miCamara.encenderCamaraEnSubDirectorio(folder_demo, date, folder)
 
