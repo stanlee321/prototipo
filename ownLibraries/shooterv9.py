@@ -155,7 +155,7 @@ class Shooter():
 					marcado_tag = image_route.split('f')[-2]
 					#print('4.- FRAME MCARCADO IS:,', frame_marcado)
 					#print('5.- IMAGE ROUTE MARKED IS,', image_route)
-					print('6.- TAG MCARCADO IST', marcado_tag, dype(marcado_tag))
+					print('6.- TAG MCARCADO IST', marcado_tag, dtype(marcado_tag))
 			marcado_tag = str(marcado_tag)
 			print('type is', dtype(marcado_tag))
 			print('marcdotag is:', marcado_tag)
