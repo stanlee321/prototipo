@@ -44,6 +44,7 @@ class ControladorCamara():
 			miCamara.start()
 			data = input_q.get()
 			folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
+			capture = True
 			if capture == True:
 				miCamara.encenderCamaraEnSubDirectorio(folder_demo, date, folder)
 
