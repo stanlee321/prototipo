@@ -99,6 +99,7 @@ class Shooter():
 				print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
 			
 			self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
+			print('self frame number is', self.frame_number)
 			self.frame_marcado = self.frame_number
 		else:
 			self.save_in_file = None
