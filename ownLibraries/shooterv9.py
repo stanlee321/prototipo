@@ -68,8 +68,8 @@ class Shooter():
 		#self.camera.iso = 800
 		self.camera.start_preview()
 
-		# Create circular buff deque of len 5
-		self.circular_buff = collections.deque(maxlen=5)
+		# Create circular buff deque of len 6
+		self.circular_buff = collections.deque(maxlen=6)
 
 		# None paratemer for controll save files
 		self.save_in_file = None
