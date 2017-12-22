@@ -136,7 +136,8 @@ class Shooter():
 		self.move_relevant_files(self.frame_marcado)
 		self.frame_marcado = None
 	def move_relevant_files(self, frame_marcado):
-
+		print('FRAME MARCADO IS:', frame_marcado)
+		
 		if frame_marcado != None:
 			for image_route in self.circular_buff:
 				if frame_marcado in image_route.split('i'):
