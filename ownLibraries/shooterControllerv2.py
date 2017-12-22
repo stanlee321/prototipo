@@ -53,7 +53,7 @@ class ControladorCamara():
 				data = aux_queue.get()
 				ilive , nombreFoldertoSave = data[0], data[1]
 				print('ilive:', ilive)
-				print('nobmreddelFolder is:', nombredelFolder)
+				print('nobmreddelFolder is:', nombreFoldertoSave)
 			else:
 				pass
 				
