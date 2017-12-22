@@ -144,15 +144,16 @@ class Shooter():
 			image_route_splited = image_route.split('i')
 
 			if frame_marcado in image_route_splited:
-				marcados_list.append(image_route)
-				print('FRAME MARCADOS,:', marcados_list[-1])
+				marcados_list.append(i)
+				print('FRAME MARCADOS,:', image_route)
 			else:
-				marcados_list.append(self.circular_buff[i-1])
+				marcados_list.append(i-1)
 		
 		if len(marcados_list) != 0:
 			marcado_frame = marcados_list[-1]
 
-			indice = self.circular_buff.index(marcado_frame)
+			#indice = self.circular_buff.index(marcado_frame)
+			indice = marcado_frame
 
 			print('DER INDEX IST VOM B ', indice)
 
