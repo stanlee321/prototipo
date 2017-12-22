@@ -143,13 +143,34 @@ class Shooter():
 			for image_route in self.circular_buff:
 				image_route_splited = image_route.split('i')
 				if frame_marcado in image_route_splited:
-					marcado_tag = image_route.split('f')[-2]
-					marcado_tag = int(marcado_tag)
-					marcados_list.append(marcado_tag)
-					print('FRAME MARCADOS,:', image_route)
+					#marcado_tag = image_route.split('f')[-2]
+					#marcado_tag = int(marcado_tag)
+					#marcados_list.append(marcado_tag)
+					marcados_list.append(image_route)
+					print('FRAME MARCADOS,:', marcados_list[-1])
 			if len(marcados_list) != 0:
-				marcado_tag = marcados_list[-1]
+				#marcado_tag = marcados_list[-1]
+				#marcado_frame = marcados_list[-1]
 
+				indice = self.circular_buff.index(marcado_frame)
+
+				print('DER INDEX IST VOM B ', indice)
+
+				src_0 = self.circular_buff[indice] 
+					
+				dst_0 = self.save_in_file + '_0.jpg'
+
+
+				src_one = self.circular_buff[index+1]
+				dst_one = self.save_in_file + '_1.jpg'
+
+
+				src_two = self.circular_buff[index-1]
+				dst_two = self.save_in_file + '_-1.jpg'
+
+				self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
+
+				"""
 				if marcado_tag <= 2:
 					print('saving grupo B')
 					print('Ciruclar_buferr ist das:', self.circular_buff)
@@ -262,7 +283,7 @@ class Shooter():
 						src_two = self.circular_buff[-3]
 						dst_two = self.save_in_file + '_-1.jpg'
 						self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)					
-			
+				"""
 				# CLEANING Variables
 				path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
 
