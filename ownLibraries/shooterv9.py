@@ -116,12 +116,13 @@ class Shooter():
 			save_in_work_dir = 	self.saveDirWORK+"/_f{}f_i{}i_.jpg".format(self.frame_number, index)
 
 			self.circular_buff.appendleft(save_in_work_dir)
-			print('CIRUCLAR BUFF iost', self.circular_buff)
+			#print('CIRUCLAR BUFF iost', self.circular_buff)
 			self.frame_number += 1
 			yield save_in_work_dir
 
-		folder_len = (glob.glob(self.saveDirWORK + '/*.jpg'))
-		print('FOLDER LE NIST', folder_len)
+		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
+		work_dir_len = len(files_in_work_dir)
+		print('FOLDER LE NIST', work_dir_len)
 
 		# Once the while is finish move the files to his folders.
 		self.move_relevant_files(self.frame_marcado)
