@@ -116,7 +116,6 @@ class Shooter():
 			save_in_work_dir = 	self.saveDirWORK+"/_f{}f_i{}i_.jpg".format(self.frame_number, index)
 
 			self.circular_buff.appendleft(save_in_work_dir)
-			#print('CIRUCLAR BUFF iost', self.circular_buff)
 			self.frame_number += 1
 			yield save_in_work_dir
 
@@ -135,14 +134,13 @@ class Shooter():
 
 		# Once the while is finish move the files to his folders.
 		self.move_relevant_files(self.frame_marcado)
-		self.frame_marcado = None
 
-		##path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
-		#dframe = {'WORKDIR_IMG': 'WORKDIR', 'SAVE_IMG_IN': 'None', 'INDEX': 'XX'}
-		#metadata = pd.DataFrame(dframe, index=[0])
-		#metadata.SAVE_IMG_IN[0] = 'None'
-		#metadata.INDEX[0] = 'XX'
-		#metadata.to_csv(path_to_metadata, index=False)
+		# CLEAN
+		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
+		metadata = pd.read_csv(path_to_metadata)
+		metadata.SAVE_IMG_IN[0] = 'None'
+		metadata.INDEX[0] = 'XX'
+		metadata.to_csv(path_to_metadata, index=False)
 
 	def move_relevant_files(self, frame_marcado):
 		print('2.- FRAME MARCADO IST:', frame_marcado)
@@ -150,12 +148,8 @@ class Shooter():
 		if frame_marcado != None:
 			for image_route in self.circular_buff:
 				image_route_splited = image_route.split('i')
-				print('3.- image_route splited', image_route.split('i'))
 				if frame_marcado in image_route_splited:
 					marcado_tag = image_route.split('f')[-2]
-					#print('4.- FRAME MCARCADO IS:,', frame_marcado)
-					#print('5.- IMAGE ROUTE MARKED IS,', image_route)
-					print('6.- TAG MCARCADO IST', marcado_tag, type(marcado_tag))
 					marcado_tag = int(marcado_tag)
 					marcados_list.append(marcado_tag)
 			if len(marcados_list) != 0:

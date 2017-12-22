@@ -48,7 +48,6 @@ class ControladorCamara():
 		self.dataframe.SAVE_IMG_IN = nombreFoldertoSave
 		self.dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False)
 
-
 		return self
 
 	def apagarCamara(self):
@@ -62,24 +61,18 @@ class ControladorCamara():
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
 		miCamara = Shooter()
 		while self.programaPrincipalCorriendo.value == 1:
-		#while True:
-			# Capturing in workdir *.jpg's
 			miCamara.start()
-			#data = input_q.get()
-			#print('HI im in procesadoParalelo')
-			#folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
+
 
 			path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
-			
 			# Read metadata
 			metadata = pd.read_csv(path_to_metadata)
 			folder = metadata.SAVE_IMG_IN[0]
-			#print('METADATA IS', metadata)
 			index = str(metadata.INDEX[0])
-
 			# Read datetime
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-			print('folder is>>>>>', folder)
+			print('folder is >>>>>', folder)
+			print('Index is >>>>>', index )
 
 			if folder != 'None':
 				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
