@@ -102,8 +102,7 @@ class Shooter():
 				print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
 			
 			self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
-			print('self frame number is', self.frame_number)
-			self.frame_marcado = self.frame_number
+			print('self frame MARCADO is', self.frame_marcado)
 		else:
 			self.save_in_file = None
 	
@@ -121,6 +120,7 @@ class Shooter():
 			self.frame_number += 1
 			yield save_in_work_dir
 
+		# CLEAN UNUSED IMAGES 
 		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
 		work_dir_len = len(files_in_work_dir)
 		print('FOLDER LE NIST', work_dir_len)
@@ -131,6 +131,7 @@ class Shooter():
 					pass
 				else:
 					os.remove(img_path)
+
 
 		# Once the while is finish move the files to his folders.
 		self.move_relevant_files(self.frame_marcado)
@@ -144,7 +145,7 @@ class Shooter():
 		#metadata.to_csv(path_to_metadata, index=False)
 
 	def move_relevant_files(self, frame_marcado):
-		print('FRAME MARCADO IS:', frame_marcado)
+		print('FRAME MARCADO ISTTT:', frame_marcado)
 
 		if frame_marcado != None:
 			for image_route in self.circular_buff:
