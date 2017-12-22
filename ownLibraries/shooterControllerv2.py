@@ -21,7 +21,7 @@ class ControladorCamara():
 		self.date = None
 		self.ilive = True
 		self.input_q = multiprocessing.Queue(maxsize = 5)
-		self.aux_queue = multiprocessing.Queue(maxsize = 5)
+		self.aux_queue = multiprocessing.Queue()
 
 		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q,))
 		self.procesoParalelo2 = multiprocessing.Process(target = self.feed_queue, args = (self.ilive, self.nombreFoldertoSave, self.aux_queue, self.input_q,))
@@ -32,7 +32,7 @@ class ControladorCamara():
 		self.capture = True
 		self.nombreFoldertoSave = nombreFoldertoSave
 		try:
-			self.aux_queue.put([self.ilive, self.nombreFoldertoSave], False)
+			self.aux_queue.put([self.ilive, self.nombreFoldertoSave])
 		except Exception as e:
 			print('SLOT AVAILABLE!!! Size: '+str(self.aux_queue.qsize())+' '+str(e))
 
