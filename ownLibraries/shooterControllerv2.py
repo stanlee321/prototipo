@@ -33,7 +33,7 @@ class ControladorCamara():
 		self.path_to_work = os.getenv('HOME')+'/'+ 'WORKDIR' + '/'
 		# Create Dataframe, setting None as init condition
 		frame = {'WORKDIR_IMG': 'WORKDIR', 'SAVE_IMG_IN': 'None'}
-		self.dataframe = pd.DataFrame(frame)	
+		self.dataframe = pd.DataFrame(frame, index=[0])	
 
 		# Save Dataframe to the WorkDir Route as metadata.csv
 		self.dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False)
