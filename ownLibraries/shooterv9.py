@@ -150,7 +150,7 @@ class Shooter():
 					print('FRAME MARCADOS,:', marcados_list[-1])
 			if len(marcados_list) != 0:
 				#marcado_tag = marcados_list[-1]
-				#marcado_frame = marcados_list[-1]
+				marcado_frame = marcados_list[-1]
 
 				indice = self.circular_buff.index(marcado_frame)
 
