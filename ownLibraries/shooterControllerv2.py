@@ -59,7 +59,7 @@ class ControladorCamara():
 				pass
 
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-			input_q.put(['WORKDIR', False, date, nombredelFolder], True)
+			input_q.put(['WORKDIR', True, date, nombredelFolder], True)
 
 	def procesadoParalelo(self, input_q):
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
@@ -69,6 +69,8 @@ class ControladorCamara():
 			# Capturing in workdir *.jpg's
 			miCamara.start()
 			data = input_q.get()
+			print('HI im in procesadoParalelo')
+			print('folder is', folder)
 			folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
 			if capture == True:
 				miCamara.encenderCamaraEnSubDirectorio(folder_demo, date, folder)
