@@ -159,7 +159,7 @@ class Shooter():
 					marcado_tag = int(marcado_tag)
 					marcados_list.append(marcado_tag)
 			if len(marcados_list) != 0:
-				marcado_tag = marcados_listc[-1]
+				marcado_tag = marcados_list[-1]
 
 				if marcado_tag <= 2:
 					print('saving grupo B')
