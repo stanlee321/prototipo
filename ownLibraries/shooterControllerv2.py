@@ -21,15 +21,18 @@ class ControladorCamara():
 		self.date = None
 		self.ilive = True
 		self.input_q = multiprocessing.Queue(maxsize = 10)
+		self.aux_queue = multiprocessing.Queue(maxsize = 5)
+
 		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q,))
-		self.procesoParalelo2 = multiprocessing.Process(target = self.feed_queue, args = (self.ilive, self.nombreFoldertoSave,self.input_q,))
+		self.procesoParalelo2 = multiprocessing.Process(target = self.feed_queue, args = (self.aux_queue, self.input_q,))
 		self.procesoParalelo.start()
 		self.procesoParalelo2.start()
 
-	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
+	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave, aux_queue, input_q):
 		self.capture = True
 		self.nombreFoldertoSave = nombreFoldertoSave
-		self.feed_queue(True, self.nombreFoldertoSave)
+		aux_queue.put([self.ilive, self.nombreFoldertoSave], False)
+		#self.feed_queue(aux_queue, input_q)
 
 		#try: 
 		#	self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave], False)
@@ -44,9 +47,11 @@ class ControladorCamara():
 		programaPrincipalCorriendo = multiprocessing.Value('i',0)
 		self.procesoParalelo.join()
 
-	def feed_queue(self, ilive, nombredelFolder, input_q):
+	def feed_queue(self, aux_queue, input_q):
 		print('ilive:', ilive)
 		print('nobmreddelFolder is:', nombredelFolder)
+		data = aux_queue.get(False)
+		ilive , nombreFoldertoSave = data[0], data[1]
 		while ilive:
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 			input_q.put(['WORKDIR', False, date, nombredelFolder], True)
