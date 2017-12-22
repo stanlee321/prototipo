@@ -102,7 +102,7 @@ class Shooter():
 			print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
 		
 		self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
-		print('self frame MARCADO is', self.frame_marcado)
+		#print('self frame MARCADO is', self.frame_marcado)
 		#else:
 		#	self.save_in_file = None
 	
@@ -122,7 +122,7 @@ class Shooter():
 		# CLEAN UNUSED IMAGES 
 		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
 		work_dir_len = len(files_in_work_dir)
-		print('1 .- FOLDER LEN is:', work_dir_len)
+		#print('1 .- FOLDER LEN is:', work_dir_len)
 
 		if work_dir_len > 12:
 			for img_path in files_in_work_dir:
@@ -137,15 +137,15 @@ class Shooter():
 
 
 	def move_relevant_files(self, frame_marcado):
-		print('2.- FRAME MARCADO IST:', frame_marcado)
+		#print('2.- FRAME MARCADO IST:', frame_marcado)
 		marcados_list  = []
 		for i, image_route in enumerate(self.circular_buff):
-			print('3.- image ROUTE', image_route)
+			#print('3.- image ROUTE', image_route)
 			image_route_splited = image_route.split('i')
 
 			if frame_marcado in image_route_splited:
 				marcados_list.append(i)
-				print('FRAME MARCADOS,:', image_route)
+				#print('FRAME MARCADOS,:', image_route)
 			else:
 				marcados_list.append(i-1)
 		
@@ -155,7 +155,7 @@ class Shooter():
 			#indice = self.circular_buff.index(marcado_frame)
 			indice = marcado_frame
 
-			print('DER INDEX IST VOM B ', indice)
+			#print('DER INDEX IST VOM B ', indice)
 
 			src_0 = self.circular_buff[indice] 
 				
@@ -210,7 +210,7 @@ class Shooter():
 
 
 	def start(self):
-		print('here alive...')
+		#print('here alive...')
 		self.camera.capture_sequence(self.writter(), format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
 
 if __name__ == '__main__':

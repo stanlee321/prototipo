@@ -8,7 +8,7 @@ import ctypes
 import datetime
 import threading
 import multiprocessing
-from shooterv9 import Shooter
+from .shooterv9 import Shooter
 import os
 import pandas as pd
 
@@ -71,8 +71,8 @@ class ControladorCamara():
 
 			# Read datetime
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-			print('folder is >>>>>', folder)
-			print('Index is >>>>>', index )
+			#print('folder is >>>>>', folder)
+			#print('Index is >>>>>', index )
 
 			if folder != 'None':
 				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
