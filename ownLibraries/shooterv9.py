@@ -71,7 +71,7 @@ class Shooter():
 		self.camera.start_preview()
 
 		# Create circular buff deque of len 6
-		self.circular_buff = collections.deque(maxlen=6)
+		self.circular_buff = collections.deque(maxlen=12)
 
 		# None paratemer for controll save files
 		self.save_in_file = None
@@ -125,7 +125,7 @@ class Shooter():
 		work_dir_len = len(files_in_work_dir)
 		print('1 .- FOLDER LEN is:', work_dir_len)
 
-		if work_dir_len > 6:
+		if work_dir_len > 12:
 			for img_path in files_in_work_dir:
 				if img_path in self.circular_buff:
 					pass
@@ -149,8 +149,9 @@ class Shooter():
 
 		if frame_marcado != None:
 			for image_route in self.circular_buff:
+				image_route_splited = image_route.split('i')
 				print('3.- image_route splited', image_route.split('i'))
-				if frame_marcado in image_route.split('i'):
+				if frame_marcado in image_route_splited:
 					marcado_tag = image_route.split('f')[-2]
 					print('4.- FRAME MCARCADO IS:,', frame_marcado)
 					print('5.- IMAGE ROUTE MARKED IS,', image_route)
