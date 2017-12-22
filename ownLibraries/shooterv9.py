@@ -14,6 +14,7 @@ import numpy as np
 import shutil
 import collections
 import glob
+import pandas as pd
 #from io import BytesIO
 #from skimage.io import imsave
 
@@ -121,7 +122,6 @@ class Shooter():
 			yield save_in_work_dir
 
 		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
-		
 		work_dir_len = len(files_in_work_dir)
 		print('FOLDER LE NIST', work_dir_len)
 
@@ -135,9 +135,17 @@ class Shooter():
 		# Once the while is finish move the files to his folders.
 		self.move_relevant_files(self.frame_marcado)
 		self.frame_marcado = None
+
+		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
+		dframe = {'WORKDIR_IMG': 'WORKDIR', 'SAVE_IMG_IN': 'None', 'INDEX': 'XX'}
+		metadata = pd.DataFrame(dframe, index=[0])
+		#metadata.SAVE_IMG_IN[0] = 'None'
+		#metadata.INDEX[0] = 'XX'
+		metadata.to_csv(path_to_metadata, index=False)
+
 	def move_relevant_files(self, frame_marcado):
 		print('FRAME MARCADO IS:', frame_marcado)
-		
+
 		if frame_marcado != None:
 			for image_route in self.circular_buff:
 				if frame_marcado in image_route.split('i'):
