@@ -24,9 +24,9 @@ class ControladorCamara():
 		#self.aux_queue = multiprocessing.Queue()
 
 		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q,))
-		#self.procesoParalelo2 = multiprocessing.Process(target = self.feed_queue, args = (self.ilive, self.nombreFoldertoSave, self.aux_queue, self.input_q,))
+		self.procesoParalelo2 = multiprocessing.Process(target = self.feed_queue, args = (self.ilive, self.nombreFoldertoSave, self.input_q,))
 		self.procesoParalelo.start()
-		#self.procesoParalelo2.start()
+		self.procesoParalelo2.start()
 
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
 		self.capture = True
