@@ -131,64 +131,56 @@ class Shooter():
 				else:
 					os.remove(img_path)
 
-
-		# Once the while is finish move the files to his folders.
-		self.move_relevant_files(self.frame_marcado)
+		if self.frame_marcado != None:
+			# Once the while is finish move the files to his folders.
+			self.move_relevant_files(self.frame_marcado)
 
 
 	def move_relevant_files(self, frame_marcado):
 		print('2.- FRAME MARCADO IST:', frame_marcado)
 		marcados_list  = []
-		if frame_marcado != None:
-			for image_route in self.circular_buff:
-				print('3.- image ROUTE', image_route)
-				image_route_splited = image_route.split('i')
-				if frame_marcado in image_route_splited:
-					#marcado_tag = image_route.split('f')[-2]
-					#marcado_tag = int(marcado_tag)
-					#marcados_list.append(marcado_tag)
-					marcados_list.append(image_route)
-					print('FRAME MARCADOS,:', marcados_list[-1])
-				else:
-					pass
-			if len(marcados_list) != 0:
-				#marcado_tag = marcados_list[-1]
-				marcado_frame = marcados_list[-1]
-
-				indice = self.circular_buff.index(marcado_frame)
-
-				print('DER INDEX IST VOM B ', indice)
-
-				src_0 = self.circular_buff[indice] 
-					
-				dst_0 = self.save_in_file + '_0.jpg'
-
-
-				src_one = self.circular_buff[indice+1]
-				dst_one = self.save_in_file + '_1.jpg'
-
-
-				src_two = self.circular_buff[indice-1]
-				dst_two = self.save_in_file + '_-1.jpg'
-
-				self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
-
-				
-				# CLEANING Variables
-				path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
-
-				metadata = pd.read_csv(path_to_metadata)
-				metadata.SAVE_IMG_IN = 	'None'
-				metadata.INDEX = 'XX'
-				metadata.to_csv(path_to_metadata, index=False)
-
-				self.frame_marcado = None
-			
+		for image_route in self.circular_buff:
+			print('3.- image ROUTE', image_route)
+			image_route_splited = image_route.split('i')
+			if frame_marcado in image_route_splited:
+				marcados_list.append(image_route)
+				print('FRAME MARCADOS,:', marcados_list[-1])
 			else:
 				pass
+		if len(marcados_list) != 0:
+			marcado_frame = marcados_list[-1]
 
+			indice = self.circular_buff.index(marcado_frame)
+
+			print('DER INDEX IST VOM B ', indice)
+
+			src_0 = self.circular_buff[indice] 
+				
+			dst_0 = self.save_in_file + '_0.jpg'
+
+
+			src_one = self.circular_buff[indice+1]
+			dst_one = self.save_in_file + '_1.jpg'
+
+
+			src_two = self.circular_buff[indice-1]
+			dst_two = self.save_in_file + '_-1.jpg'
+
+			self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
+
+				
 		else:
 			pass
+
+		# CLEANING Variables
+		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
+
+		metadata = pd.read_csv(path_to_metadata)
+		metadata.SAVE_IMG_IN = 	'None'
+		metadata.INDEX = 'XX'
+		metadata.to_csv(path_to_metadata, index=False)
+
+		self.frame_marcado = None
 
 	def copiar_las_imagenes(self, src_0,dst_0,src_one, dst_one, src_two, dst_two):
 		try:

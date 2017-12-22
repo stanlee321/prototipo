@@ -21,10 +21,9 @@ class ControladorCamara():
 		self.nombreFoldertoSave = None
 		self.date = None
 		self.ilive = True
-		self.input_q = multiprocessing.Queue(maxsize = 5)
 		#self.aux_queue = multiprocessing.Queue()
 
-		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q,))
+		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.ilive,))
 		self.procesoParalelo.start()
 
 		# Create initial dataframe
@@ -57,21 +56,21 @@ class ControladorCamara():
 		programaPrincipalCorriendo = multiprocessing.Value('i',0)
 		self.procesoParalelo.join()
 
-	def procesadoParalelo(self, input_q):
+	def procesadoParalelo(self, ilive):
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
 		miCamara = Shooter()
 		while self.programaPrincipalCorriendo.value == 1:
 
-			path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
+			miCamara.start()
+
 			# Read metadata
+			path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
 			metadata = pd.read_csv(path_to_metadata)
 			folder = metadata.SAVE_IMG_IN[0]
 			index = str(metadata.INDEX[0])
+
 			# Read datetime
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-			
-			miCamara.start()
-			
 			print('folder is >>>>>', folder)
 			print('Index is >>>>>', index )
 
