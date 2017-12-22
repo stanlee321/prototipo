@@ -32,7 +32,7 @@ class ControladorCamara():
 		# Get WORDIR route
 		self.path_to_work = os.getenv('HOME')+'/'+ 'WORKDIR' + '/'
 		# Create Dataframe, setting None as init condition
-		frame = {'WORKDIR_IMG': 'WORKDIR', 'SAVE_IMG_IN': 'None'}
+		frame = {'WORKDIR_IMG': 'WORKDIR', 'SAVE_IMG_IN': 'None', 'INDEX': 'XX'}
 		self.dataframe = pd.DataFrame(frame, index=[0])	
 
 		# Save Dataframe to the WorkDir Route as metadata.csv
@@ -40,10 +40,15 @@ class ControladorCamara():
 
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
 		self.nombreFoldertoSave = nombreFoldertoSave
+
+		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+		index = date.split(':')[-1]
+
+		self.dataframe.INDEX = str(index)
 		self.dataframe.SAVE_IMG_IN = nombreFoldertoSave
 		self.dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False)
 
-		print('Date time in encenderCarmara: ', datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
+
 		return self
 
 	def apagarCamara(self):
@@ -69,13 +74,14 @@ class ControladorCamara():
 			# Read metadata
 			metadata = pd.read_csv(path_to_metadata)
 			folder = metadata.SAVE_IMG_IN[0]
+			index = metadata.INDEX[0]
 
 			# Read datetime
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 			print('folder is>>>>>', folder)
 
 			if folder != 'None':
-				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder)
+				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
 				metadata.SAVE_IMG_IN[0] = 'None'
 				metadata.to_csv(path_to_metadata, index=False)
 

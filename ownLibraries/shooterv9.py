@@ -86,8 +86,9 @@ class Shooter():
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
 		self.segundoPunto = self.cutPoly[1]
 
-	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder ):
+	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder, index ):
 		self.fechaInfraccion = fecha
+		self.frame_marcado = index
 		if folder != None:
 			self.saveDir = self.directorioDeGuardadoGeneral +"/" + folder
 
@@ -109,9 +110,9 @@ class Shooter():
 		self.frame_number = 0
 		
 		while self.frame_number < self.maxCapturas:
-			print('DATE TIME in Writter whilee loop is: ', datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
+			index =  (datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')).split(':')[-1]
 
-			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
+			save_in_work_dir = 	self.saveDirWORK+"/_f{}f_i{}i_.jpg".format(self.frame_number, index)
 
 			self.circular_buff.appendleft(save_in_work_dir)
 			self.frame_number += 1
@@ -122,10 +123,14 @@ class Shooter():
 		# Once the while is finish move the files to his folders.
 		self.move_relevant_files(self.frame_marcado)
 		self.frame_marcado = None
-		self.save_in_file = None
 	def move_relevant_files(self, frame_marcado):
 
 		if frame_marcado != None:
+			for image_route in self.circular_buff:
+				if frame_marcado in image_route.split('i'):
+					marcado_tag = image_route.split('f')[-2]
+					print(marcado_tag)
+
 			marcado_tag = frame_marcado
 			if marcado_tag <= 2:
 				print('saving grupo B')
