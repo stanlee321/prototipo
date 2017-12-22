@@ -121,10 +121,10 @@ class Shooter():
 		# Once the while is finish move the files to his folders.
 		self.move_relevant_files(self.frame_marcado)
 		self.frame_marcado = None
-	def move_relevant_files(self, self.frame_marcado):
+	def move_relevant_files(self, frame_marcado):
 
-		if self.frame_marcado != None:
-			marcado_tag = self.frame_marcado
+		if frame_marcado != None:
+			marcado_tag = frame_marcado
 			if marcado_tag <= 2:
 				print('saving grupo B')
 
