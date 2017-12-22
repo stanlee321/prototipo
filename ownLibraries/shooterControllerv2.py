@@ -61,8 +61,6 @@ class ControladorCamara():
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
 		miCamara = Shooter()
 		while self.programaPrincipalCorriendo.value == 1:
-			miCamara.start()
-
 
 			path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
 			# Read metadata
@@ -71,6 +69,9 @@ class ControladorCamara():
 			index = str(metadata.INDEX[0])
 			# Read datetime
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+			
+			miCamara.start()
+			
 			print('folder is >>>>>', folder)
 			print('Index is >>>>>', index )
 

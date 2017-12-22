@@ -91,20 +91,20 @@ class Shooter():
 	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder, index ):
 		self.fechaInfraccion = fecha
 		self.frame_marcado = index
-		if folder != None:
-			self.saveDir = self.directorioDeGuardadoGeneral +"/" + folder
+		#if folder != None:
+		self.saveDir = self.directorioDeGuardadoGeneral +"/" + folder
 
-			if not os.path.exists(self.saveDir):
-				os.makedirs(self.saveDir)
+		if not os.path.exists(self.saveDir):
+			os.makedirs(self.saveDir)
 
-			if not os.path.exists(self.saveDirWORK):
-				os.makedirs(self.saveDirWORK) 
-				print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
-			
-			self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
-			print('self frame MARCADO is', self.frame_marcado)
-		else:
-			self.save_in_file = None
+		if not os.path.exists(self.saveDirWORK):
+			os.makedirs(self.saveDirWORK) 
+			print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
+		
+		self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
+		print('self frame MARCADO is', self.frame_marcado)
+		#else:
+		#	self.save_in_file = None
 	
 
 	def writter(self):
@@ -148,6 +148,8 @@ class Shooter():
 					#marcados_list.append(marcado_tag)
 					marcados_list.append(image_route)
 					print('FRAME MARCADOS,:', marcados_list[-1])
+				else:
+					pass
 			if len(marcados_list) != 0:
 				#marcado_tag = marcados_list[-1]
 				marcado_frame = marcados_list[-1]
@@ -170,120 +172,7 @@ class Shooter():
 
 				self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
 
-				"""
-				if marcado_tag <= 2:
-					print('saving grupo B')
-					print('Ciruclar_buferr ist das:', self.circular_buff)
-					# Grupo B
-					index = marcado_tag
-					print('DER INDEX IST VOM B ', index)
-					if index == 0:
-						# Get by index  frame 0 ,1 ,3 or 4, example:
-
-						src_0 = self.circular_buff[index] 
-						
-						dst_0 = self.save_in_file + '_0.jpg'
-
-
-						src_one = self.circular_buff[index+1]
-						dst_one = self.save_in_file + '_1.jpg'
-
-
-						src_two = self.circular_buff[-1]
-						dst_two = self.save_in_file + '_-1.jpg'
-
-						self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
-					if index == 1:
-
-						# Get by index  frame 0 ,1 ,3 or 4, example:
-
-						src_0 = self.circular_buff[index] 
-						
-						dst_0 = self.save_in_file + '_0.jpg'
-
-
-						src_one = self.circular_buff[index+1]
-						dst_one = self.save_in_file + '_1.jpg'
-
-
-						src_two = self.circular_buff[index-1]
-						dst_two = self.save_in_file + '_-1.jpg'
-						self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
-					if index == 2:
-
-
-						# Get by index  frame 0 ,1 ,3 or 4, example:
-
-						src_0 = self.circular_buff[index] 
-						
-						dst_0 = self.save_in_file + '_0.jpg'
-
-
-						src_one = self.circular_buff[-3]
-						dst_one = self.save_in_file + '_1.jpg'
-
-
-						src_two = self.circular_buff[index-1]
-						dst_two = self.save_in_file + '_-1.jpg'
-						self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
-
-				if marcado_tag > 2:
-					print('saving grupo C')
-
-					# Grupo C
-					index = marcado_tag
-					print('DER INDEX IST VOM C ', index)
-					print('Ciruclar_buferr ist das:', self.circular_buff)
-
-					if index == 3:
-						# Get by index  frame 0 ,1 ,3 or 4, example:
-
-						src_0 = self.circular_buff[index] 
-						
-						dst_0 = self.save_in_file + '_0.jpg'
-
-
-						src_one = self.circular_buff[index+1]
-						dst_one = self.save_in_file + '_1.jpg'
-
-
-						src_two = self.circular_buff[2]
-						dst_two = self.save_in_file + '_-1.jpg'
-
-						self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
-					if index == 4:
-
-						# Get by index  frame 0 ,1 ,3 or 4, example:
-
-						src_0 = self.circular_buff[index] 
-						
-						dst_0 = self.save_in_file + '_0.jpg'
-
-
-						src_one = self.circular_buff[index+1]
-						dst_one = self.save_in_file + '_1.jpg'
-
-
-						src_two = self.circular_buff[index-1]
-						dst_two = self.save_in_file + '_-1.jpg'
-						self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
-					if index == 5:
-
-						# Get by index  frame 0 ,1 ,3 or 4, example:
-
-						src_0 = self.circular_buff[index] 
-						
-						dst_0 = self.save_in_file + '_0.jpg'
-
-
-						src_one = self.circular_buff[-2]
-						dst_one = self.save_in_file + '_1.jpg'
-
-
-						src_two = self.circular_buff[-3]
-						dst_two = self.save_in_file + '_-1.jpg'
-						self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)					
-				"""
+				
 				# CLEANING Variables
 				path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
 
