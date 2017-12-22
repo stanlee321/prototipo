@@ -116,6 +116,7 @@ class Shooter():
 			save_in_work_dir = 	self.saveDirWORK+"/_f{}f_i{}i_.jpg".format(self.frame_number, index)
 
 			self.circular_buff.appendleft(save_in_work_dir)
+			print('CIRUCLAR BUFF iost', self.circular_buff)
 			self.frame_number += 1
 			yield save_in_work_dir
 
