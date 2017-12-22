@@ -9,7 +9,7 @@ import datetime
 import threading
 import multiprocessing
 from shooterv9 import Shooter
-
+import os
 
 class ControladorCamara():
 	def __init__(self):
@@ -31,6 +31,8 @@ class ControladorCamara():
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
 		self.capture = True
 		self.nombreFoldertoSave = nombreFoldertoSave
+		os.makedirs(os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'PRUEBAS' + '/' + self.nombreFoldertoSave)
+		print('creadted auxiliar folder ... in : ', os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'PRUEBAS' + '/' + self.nombreFoldertoSave)
 		#try:
 		#	self.aux_queue.put([self.ilive, self.nombreFoldertoSave])
 		#except Exception as e:
@@ -41,7 +43,7 @@ class ControladorCamara():
 		#except Exception as e:
 		#	print('SLOT AVAILABLE!!! Size: '+str(self.input_q.qsize())+' '+str(e))
 		#return self
-		self.feed_queue(True, self.nombreFoldertoSave, self.input_q)
+		#self.feed_queue(True, self.nombreFoldertoSave, self.input_q)
 
 	def apagarCamara(self):
 		self.capture = False
@@ -62,7 +64,6 @@ class ControladorCamara():
 			#else:
 			#	pass
 
-			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 			input_q.put(['WORKDIR', True, date, nombredelFolder])
 
 	def procesadoParalelo(self, input_q):
@@ -72,13 +73,17 @@ class ControladorCamara():
 		while True:
 			# Capturing in workdir *.jpg's
 			miCamara.start()
-			data = input_q.get()
-			print('HI im in procesadoParalelo')
-			folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
+			#data = input_q.get()
+			#print('HI im in procesadoParalelo')
+			#folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
+
+			path = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'PRUEBAS' + '/'
+			folder = [os.path.join(root, name) for root, dirs, files in os.walk(path)][-1]
+			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 			print('folder is>>>>>', folder)
-			print('caputre is ,', capture)
-			if capture == True:
-				miCamara.encenderCamaraEnSubDirectorio(folder_demo, date, folder)
+			if folder != 'None':
+				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder)
+				folder = 'None'
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
