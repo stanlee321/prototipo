@@ -20,8 +20,8 @@ class ControladorCamara():
 		self.nombreFoldertoSave = None
 		self.date = None
 		self.ilive = True
-		self.input_q = multiprocessing.Queue(maxsize = 3)
-		self.aux_queue = multiprocessing.Queue(maxsize = 3)
+		self.input_q = multiprocessing.Queue(maxsize = 1)
+		self.aux_queue = multiprocessing.Queue(maxsize = 1)
 
 		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q,))
 		self.procesoParalelo2 = multiprocessing.Process(target = self.feed_queue, args = (self.ilive, self.nombreFoldertoSave, self.aux_queue, self.input_q,))
