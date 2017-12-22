@@ -136,12 +136,12 @@ class Shooter():
 		self.move_relevant_files(self.frame_marcado)
 		self.frame_marcado = None
 
-		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
-		dframe = {'WORKDIR_IMG': 'WORKDIR', 'SAVE_IMG_IN': 'None', 'INDEX': 'XX'}
-		metadata = pd.DataFrame(dframe, index=[0])
+		##path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
+		#dframe = {'WORKDIR_IMG': 'WORKDIR', 'SAVE_IMG_IN': 'None', 'INDEX': 'XX'}
+		#metadata = pd.DataFrame(dframe, index=[0])
 		#metadata.SAVE_IMG_IN[0] = 'None'
 		#metadata.INDEX[0] = 'XX'
-		metadata.to_csv(path_to_metadata, index=False)
+		#metadata.to_csv(path_to_metadata, index=False)
 
 	def move_relevant_files(self, frame_marcado):
 		print('FRAME MARCADO IS:', frame_marcado)
