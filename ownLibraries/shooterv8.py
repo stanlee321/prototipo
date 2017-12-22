@@ -166,17 +166,17 @@ class Shooter():
 		src_two, dst_two = src_two[0], src_two[1]
 
 		try:
-			shutil.move(src0, dst0)
+			shutil.copy(src0, dst0)
 		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst0, src0))
 			os.remove(src0)
 		try:
-			shutil.move(src_one, dst_one)
+			shutil.copy(src_one, dst_one)
 		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_one, src_one))
 			os.remove(src_one)
 		try:
-			shutil.move(src_two, dst_two)
+			shutil.copy(src_two, dst_two)
 		except Exception as e:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_two, src_two))
 			os.remove(src_two)

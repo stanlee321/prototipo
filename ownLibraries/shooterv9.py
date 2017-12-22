@@ -113,6 +113,7 @@ class Shooter():
 
 			if sv_in_file != None:
 				# Marcar frame para luego ser guardado y su n - 1
+				print('frame nubmer in writter is:', self.frame_number)
 				self.frame_marcado = self.frame_number
 				# Reset if statement
 				sv_in_file = None
