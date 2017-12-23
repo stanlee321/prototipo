@@ -87,6 +87,7 @@ class ControladorCamara():
 
 			if  status != 'CLOSED':
 				print('STATUS of the last entry is', status)
+				print('folder is ', folder)
 				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
 
 

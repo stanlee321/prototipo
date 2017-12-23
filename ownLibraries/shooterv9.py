@@ -91,7 +91,7 @@ class Shooter():
 	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder, index ):
 		self.fechaInfraccion = fecha
 		self.frame_marcado = index
-		self.saveDir = self.directorioDeGuardadoGeneral +"/" + folder
+		self.saveDir = self.directorioDeGuardadoGeneral +"/" + str(folder)
 
 		if not os.path.exists(self.saveDir):
 			os.makedirs(self.saveDir)
