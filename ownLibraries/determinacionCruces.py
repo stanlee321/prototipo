@@ -12,7 +12,7 @@ import matplotlib.pyplot as graficaActual
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.analisisonda import AnalisisOnda
 if os.uname()[1] == 'raspberrypi':
-	from ownLibraries.shooterController import ControladorCamara
+	from ownLibraries.shooterControllerv2 import ControladorCamara
 
 nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
 directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
