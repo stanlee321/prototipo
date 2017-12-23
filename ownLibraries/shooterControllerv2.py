@@ -80,6 +80,7 @@ class ControladorCamara():
 				metadata = pd.DataFrame(dframe)
 			
 
+			print('meta head', metadata)
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 			folder = metadata.SAVE_IMG_IN.values[-1]
 			index = str(metadata.INDEX.values[-1])
