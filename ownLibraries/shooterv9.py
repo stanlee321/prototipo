@@ -191,20 +191,20 @@ class Shooter():
 
 	def copiar_las_imagenes(self, src_0,dst_0,src_one, dst_one, src_two, dst_two):
 		try:
-			print('copying to:', src_0, 'from:', dst_0)
+			print('copying from:', src_0, 'to:', dst_0)
 			shutil.copy(src_0, dst_0)
 		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_0, src_0))
 			os.remove(src_0)
 
 		try:
-			print('copying to:', src_one, 'from:', dst_one)
+			print('copying from:', src_one, 'to:', dst_one)
 			shutil.copy(src_one, dst_one)
 		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_one, src_one))
 			os.remove(src_one)
 		try:
-			print('copying to:', src_two, 'from:', dst_two)
+			print('copying from:', src_two, 'to:', dst_two)
 
 			shutil.copy(src_two, dst_two)
 		except:
