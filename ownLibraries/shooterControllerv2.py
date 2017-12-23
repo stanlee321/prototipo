@@ -58,7 +58,6 @@ class ControladorCamara():
 		new_metadata = pd.concat([old_metadata, new_row])
 		new_metadata.to_csv(path_to_metadata, index=False, sep=',')
 
-		print('METADATA LISTO PARA SER GURADADO', new_metadata.head())
 		return self
 
 	def apagarCamara(self):
