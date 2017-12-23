@@ -107,7 +107,6 @@ if __name__ == '__main__':
 		date =  datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		#folder_raiz = date.split('_')[0]
 		#folder = date.split('_')
-		print('folder isss')
 		#path = folder_raiz + '/' + folder
 		cv2.putText(mask, 'press s to capture photos in ./Destiny folder', (10, mask.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 		cv2.imshow('mask for test', mask)
