@@ -69,6 +69,7 @@ class ControladorCamara():
 			try:
 				metadata = pd.read_csv(path_to_metadata)
 			except:
+				print('io prblem in read_csv, creating default dframe')
 				dframe = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': ['None'], 'INDEX': ['XX']}
 				metadata = pd.DataFrame(dframe)
 
