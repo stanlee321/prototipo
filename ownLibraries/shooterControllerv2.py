@@ -22,6 +22,7 @@ class ControladorCamara():
 		self.date = None
 		self.ilive = True
 		#self.aux_queue = multiprocessing.Queue()
+		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 
 		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.ilive,))
 		self.procesoParalelo.start()
@@ -31,7 +32,7 @@ class ControladorCamara():
 		# Get WORDIR route
 		self.path_to_work = os.getenv('HOME')+'/'+ 'WORKDIR' + '/'
 		# Create Dataframe, setting None as init condition
-		frame = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': ['None'], 'INDEX': ['XX'], 'STATUS':['CLOSED']}
+		frame = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': [date], 'INDEX': ['XX'], 'STATUS':['CLOSED']}
 		dataframe = pd.DataFrame(frame)	
 
 		# Save Dataframe to the WorkDir Route as metadata.csv
