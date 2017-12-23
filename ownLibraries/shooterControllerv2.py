@@ -49,7 +49,7 @@ class ControladorCamara():
 
 
 		# Create new row
-		row = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': [self.nombreFoldertoSave], 'INDEX': [str(index)], 'STATUS':['OPEN']}
+		row = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': [nombreFoldertoSave], 'INDEX': [str(index)], 'STATUS':['OPEN']}
 		new_row = pd.DataFrame(row)
 
 		# Append new row to old metadata
