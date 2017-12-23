@@ -80,7 +80,7 @@ class Shooter():
 
 		# Variable para marcar paquete de frames
 		self.frame_marcado = None
-		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
+		print('EXITOSAMENTE CREE LA CLASE SHOOTERv9')
 
 
 	def establecerRegionInteres(self,cutPoly):
