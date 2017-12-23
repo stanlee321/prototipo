@@ -8,7 +8,7 @@ import ctypes
 import datetime
 import threading
 import multiprocessing
-from shooterv9 import Shooter
+from .shooterv9 import Shooter
 import os
 import pandas as pd
 
