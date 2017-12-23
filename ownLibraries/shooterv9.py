@@ -166,7 +166,7 @@ class Shooter():
 				src_one = self.circular_buff[indice+1]
 				dst_one = self.save_in_file + '_1.jpg'
 			except:
-				src_one = self.circular_buff[indice]
+				src_one = self.circular_buff[0]
 				dst_one = self.save_in_file + '_1.jpg'
 
 
