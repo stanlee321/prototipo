@@ -45,6 +45,7 @@ class ControladorCamara():
 		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
 		old_metadata = pd.read_csv(path_to_metadata)
 
+		# For get the frame inside of the yield loop
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		index = date.split(':')[-1]
 
@@ -83,15 +84,12 @@ class ControladorCamara():
 				metadata = pd.DataFrame(dframe)
 			
 
-			print('meta head', metadata)
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 			folder = metadata.SAVE_IMG_IN.values[-1]
 			index = str(metadata.INDEX.values[-1])
 			status = metadata.STATUS.values[-1]
 
 			if  status != 'CLOSED':
-				print('STATUS of the last entry is', status)
-				print('folder is ', folder)
 				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
 
 
