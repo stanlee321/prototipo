@@ -27,7 +27,7 @@ class Shooter():
 	directorioWORKDIR = os.getenv('HOME')
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
-	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 6):
+	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 3):
 	#def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([10,10],[2592,1944]), capturas = 5):
 		
 		data = np.load(Shooter.directorioDeNumpy+'datos.npy')
@@ -71,7 +71,7 @@ class Shooter():
 		self.camera.start_preview()
 
 		# Create circular buff deque of len 6
-		self.circular_buff = collections.deque(maxlen=12)
+		self.circular_buff = collections.deque(maxlen=6)
 
 		# None paratemer for controll save files
 		self.save_in_file = None
@@ -102,6 +102,7 @@ class Shooter():
 			print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
 		
 		self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
+		print('1.- Save in file is::', self.save_in_file)
 		#print('self frame MARCADO is', self.frame_marcado)
 		#else:
 		#	self.save_in_file = None
@@ -124,7 +125,7 @@ class Shooter():
 		work_dir_len = len(files_in_work_dir)
 		#print('1 .- FOLDER LEN is:', work_dir_len)
 
-		if work_dir_len > 12:
+		if work_dir_len > 6:
 			for img_path in files_in_work_dir:
 				if img_path in self.circular_buff:
 					pass
@@ -161,9 +162,12 @@ class Shooter():
 				
 			dst_0 = self.save_in_file + '_0.jpg'
 
-
-			src_one = self.circular_buff[indice+1]
-			dst_one = self.save_in_file + '_1.jpg'
+			try:
+				src_one = self.circular_buff[indice+1]
+				dst_one = self.save_in_file + '_1.jpg'
+			except:
+				src_one = self.circular_buff[indice]
+				dst_one = self.save_in_file + '_1.jpg'
 
 
 			src_two = self.circular_buff[indice-1]
