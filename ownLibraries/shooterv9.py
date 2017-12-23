@@ -101,8 +101,8 @@ class Shooter():
 			os.makedirs(self.saveDirWORK) 
 			print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
 		
-		#self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
-		self.save_in_file = self.saveDir
+		self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
+		#self.save_in_file = self.saveDir
 
 		print('1.- Tengo que guardar Frames en::', self.save_in_file)
 		#print('self frame MARCADO is', self.frame_marcado)
