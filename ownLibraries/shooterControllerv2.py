@@ -8,7 +8,7 @@ import ctypes
 import datetime
 import threading
 import multiprocessing
-from .shooterv9 import Shooter
+from shooterv9 import Shooter
 import os
 import pandas as pd
 
@@ -31,23 +31,30 @@ class ControladorCamara():
 		# Get WORDIR route
 		self.path_to_work = os.getenv('HOME')+'/'+ 'WORKDIR' + '/'
 		# Create Dataframe, setting None as init condition
-		frame = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': ['None'], 'INDEX': ['XX']}
-		self.dataframe = pd.DataFrame(frame)	
+		frame = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': ['None'], 'INDEX': ['XX'], 'STATUS':['CLOSED']}
+		dataframe = pd.DataFrame(frame)	
 
 		# Save Dataframe to the WorkDir Route as metadata.csv
-		self.dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False, sep=',')
+		dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False, sep=',')
 
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
-		self.nombreFoldertoSave = nombreFoldertoSave
+		print('En ShooterControllerv2 resivo nombre de archivo : ', nombreFoldertoSave)
 
-		print('En ShooterControllerv2 resivo nombre de archivo : ', self.nombreFoldertoSave)
+		# Read old metadata
+		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
+		old_metadata = pd.read_csv(path_to_metadata)
+
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		index = date.split(':')[-1]
 
-		self.dataframe.INDEX = str(index)
-		self.dataframe.SAVE_IMG_IN = self.nombreFoldertoSave
-		self.dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False, sep=',')
 
+		# Create new row
+		row = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': [self.nombreFoldertoSave], 'INDEX': [str(index)], 'STATUS':['OPEN']}
+		new_row = pd.DataFrame(row)
+
+		# Append new row to old metadata
+		new_metadata = old_metadata.append(new_row)
+		new_metadata.to_csv(path_to_metadata, index=False, sep=',')
 		return self
 
 	def apagarCamara(self):
@@ -63,42 +70,42 @@ class ControladorCamara():
 		while self.programaPrincipalCorriendo.value == 1:
 
 			miCamara.start()
-
 			# Read metadata
 			path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
-
 			try:
 				metadata = pd.read_csv(path_to_metadata)
 			except:
 				print('io prblem in read_csv, creating default dframe')
-				dframe = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': ['None'], 'INDEX': ['XX']}
+				dframe = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': ['None'], 'INDEX': ['XX'],'STATUS':['OPEN']}
 				metadata = pd.DataFrame(dframe)
+			
 
-			folder = metadata.SAVE_IMG_IN[0]
-			index = str(metadata.INDEX[0])
-
-			# Read datetime
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-			#print('folder is >>>>>', folder)
-			#print('Index is >>>>>', index )
+			folder = metadata.SAVE_IMG_IN.tail(1)
+			index = str(metadata.INDEX.tail(1))
+			status = metadata.STATUS.tail(1)
 
-			if folder != 'None':
+			if  status != 'CLOSED':
+				print('STATUS of the last entry is', status)
 				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
 
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
 	import numpy as np
-
+	import datetime
 	shoot = ControladorCamara()
 	mask = np.zeros((320,320))
 	mask = mask.astype(np.uint8)
 
 	while True:
 
+		date =  datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+		folder = date.split('_')[0]
+		print('folder to save is: ', folder)
 		cv2.putText(mask, 'press s to capture photos in ./Destiny folder', (10, mask.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 		cv2.imshow('mask for test', mask)
 		if cv2.waitKey(1) & 0xFF == ord("s"):
-			shoot.encenderCamaraEnSubDirectorio('Destiny')
+			shoot.encenderCamaraEnSubDirectorio(folder)
 		if cv2.waitKey(1) & 0xFF == ord("q"):
 			break

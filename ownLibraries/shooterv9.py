@@ -91,7 +91,6 @@ class Shooter():
 	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder, index ):
 		self.fechaInfraccion = fecha
 		self.frame_marcado = index
-		#if folder != None:
 		self.saveDir = self.directorioDeGuardadoGeneral +"/" + folder
 
 		if not os.path.exists(self.saveDir):
@@ -104,7 +103,7 @@ class Shooter():
 		self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
 		#self.save_in_file = self.saveDir
 
-		print('1.- Tengo que guardar Frames en::', self.save_in_file)
+		print('1.- Tengo que guardar Frames en::', self.save_in_file,'*.jpg')
 		#print('self frame MARCADO is', self.frame_marcado)
 		#else:
 	
@@ -124,7 +123,6 @@ class Shooter():
 		# CLEAN UNUSED IMAGES 
 		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
 		work_dir_len = len(files_in_work_dir)
-		#print('1 .- FOLDER LEN is:', work_dir_len)
 
 		if work_dir_len > 6:
 			for img_path in files_in_work_dir:
@@ -184,8 +182,8 @@ class Shooter():
 		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
 
 		metadata = pd.read_csv(path_to_metadata)
-		metadata.SAVE_IMG_IN = 	'None'
-		metadata.INDEX = 'XX'
+
+		metadata.STATUS.tail(1) = 'CLOSED'
 		metadata.to_csv(path_to_metadata, index=False, sep=',')
 
 		self.frame_marcado = None
