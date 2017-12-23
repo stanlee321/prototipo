@@ -81,9 +81,9 @@ class ControladorCamara():
 			
 
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-			folder = metadata.SAVE_IMG_IN.tail(1)
-			index = str(metadata.INDEX.tail(1))
-			status = metadata.STATUS.tail(1)
+			folder = metadata.SAVE_IMG_IN.values[-1]
+			index = str(metadata.INDEX.values[-1])
+			status = metadata.STATUS.values[-1]
 
 			if  status != 'CLOSED':
 				print('STATUS of the last entry is', status)
