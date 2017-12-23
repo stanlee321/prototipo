@@ -65,7 +65,13 @@ class ControladorCamara():
 
 			# Read metadata
 			path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
-			metadata = pd.read_csv(path_to_metadata, delim_whitespace=True)
+
+			try:
+				metadata = pd.read_csv(path_to_metadata)
+			except:
+				dframe = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': ['None'], 'INDEX': ['XX']}
+				metadata = pd.DataFrame(dframe)
+
 			folder = metadata.SAVE_IMG_IN[0]
 			index = str(metadata.INDEX[0])
 
