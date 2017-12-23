@@ -40,11 +40,12 @@ class ControladorCamara():
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
 		self.nombreFoldertoSave = nombreFoldertoSave
 
+		print('En ShooterControllerv2 resivo nombre de archivo : ', self.nombreFoldertoSave)
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		index = date.split(':')[-1]
 
 		self.dataframe.INDEX = str(index)
-		self.dataframe.SAVE_IMG_IN = nombreFoldertoSave
+		self.dataframe.SAVE_IMG_IN = self.nombreFoldertoSave
 		self.dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False, sep=',')
 
 		return self
