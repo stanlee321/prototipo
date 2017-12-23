@@ -102,7 +102,7 @@ class Shooter():
 			print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
 		
 		self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
-		print('1.- Save in file is::', self.save_in_file)
+		print('1.- Tengo que guardar Frames en::', self.save_in_file)
 		#print('self frame MARCADO is', self.frame_marcado)
 		#else:
 		#	self.save_in_file = None
@@ -191,21 +191,20 @@ class Shooter():
 
 	def copiar_las_imagenes(self, src_0,dst_0,src_one, dst_one, src_two, dst_two):
 		try:
-			print('copying from:', src_0, 'to:', dst_0)
+			#print('copying from:', src_0, 'to:', dst_0)
 			shutil.copy(src_0, dst_0)
 		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_0, src_0))
 			os.remove(src_0)
 
 		try:
-			print('copying from:', src_one, 'to:', dst_one)
+			#print('copying from:', src_one, 'to:', dst_one)
 			shutil.copy(src_one, dst_one)
 		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_one, src_one))
 			os.remove(src_one)
 		try:
-			print('copying from:', src_two, 'to:', dst_two)
-
+			#print('copying from:', src_two, 'to:', dst_two)
 			shutil.copy(src_two, dst_two)
 		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_two, src_two))
