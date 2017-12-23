@@ -183,7 +183,7 @@ class Shooter():
 
 		metadata = pd.read_csv(path_to_metadata)
 
-		metadata.STATUS.tail(1) = 'CLOSED'
+		metadata.STATUS.iloc[-1] = 'CLOSED'
 		metadata.to_csv(path_to_metadata, index=False, sep=',')
 
 		self.frame_marcado = None
