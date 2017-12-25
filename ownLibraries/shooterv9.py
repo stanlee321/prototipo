@@ -181,11 +181,15 @@ class Shooter():
 		# CLEANING Variables
 		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
 
-		metadata = pd.read_csv(path_to_metadata)
-
-		metadata.STATUS.iloc[-1] = 'CLOSED'
-		metadata.to_csv(path_to_metadata, index=False, sep=',')
-
+		try:
+			metadata = pd.read_csv(path_to_metadata)
+			metadata.STATUS.iloc[-1] = 'CLOSED'
+			metadata.to_csv(path_to_metadata, index=False, sep=',')
+		except:
+			print('io prblem in read_csv, creating default dframe')
+			dframe = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': ['None'], 'INDEX': ['XX'],'STATUS':['CLOSED']}
+			metadata = pd.DataFrame(dframe)
+			metadata.to_csv(path_to_metadata, index=False, sep=',')
 		self.frame_marcado = None
 
 	def copiar_las_imagenes(self, src_0,dst_0,src_one, dst_one, src_two, dst_two):
