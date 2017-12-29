@@ -1,0 +1,66 @@
+nohup: ignoring input
+Programa iniciado exitosamente con ingreso de senal video en tiempo real  con semaforo real 0, corriendo a 8 Frames por Segundo
+Creando reporte desde cero
+Generando infracciones unicamente (No debug video)
+Pantalla de muestra de funcionamiento en tiempo real apagada
+Datos de Instalacion de: /home/pi/trafficFlow/prototipo/installationFiles/datos.npy
+Cargado exitosamente parametros de instalacion 
+Activada Exitosamente cámara en tiempo real
+/usr/lib/python3/dist-packages/sklearn/base.py:315: UserWarning: Trying to unpickle estimator LinearSVC from version 0.19.0 when using version 0.18. This might lead to breaking code or invalid results. Use at your own risk.
+  UserWarning)
+SEMAFORO EN ROJO
+	Confirmado en hora 07:01:56 (459-494)
+	Confirmado en hora 07:01:59 (484-515)
+	Confirmado en hora 07:02:13 (599-620)
+	[f620] Periodo Excedido 4.976799[s]
+SEMAFORO EN VERDE, EL PERIODO ES 111.5158269405365
+INICIANDO REPORTE DE: 3 INFRACCIONES
+Recuperado 1
+Recuperado 0
+Recuperado 2
+Generada infr de: 2017-12-12_07:02:13 de 594 a 625 fecha: 2017-12-12_07:02:13
+	[f854] Periodo Excedido 0.727999[s]
+Recuperado 1
+Recuperado 2
+Recuperado 0
+Generada infr de: 2017-12-12_07:01:59 de 479 a 520 fecha: 2017-12-12_07:01:59
+	[f855] Periodo Excedido 0.910989[s]
+Recuperado 1
+Recuperado 2
+Recuperado 0
+Generada infr de: 2017-12-12_07:01:56 de 454 a 499 fecha: 2017-12-12_07:01:56
+	[f856] Periodo Excedido 1.001498[s]
+	[f1] Periodo Excedido 0.133883[s]
+SEMAFORO EN ROJO
+SEMAFORO EN VERDE, EL PERIODO ES 5.779512166976929
+INICIANDO REPORTE DE: 0 INFRACCIONES
+SEMAFORO EN ROJO
+SEMAFORO EN VERDE, EL PERIODO ES 0.37661075592041016
+INICIANDO REPORTE DE: 0 INFRACCIONES
+SEMAFORO EN ROJO
+SEMAFORO EN VERDE, EL PERIODO ES 0.750279426574707
+INICIANDO REPORTE DE: 0 INFRACCIONES
+SEMAFORO EN ROJO
+SEMAFORO EN VERDE, EL PERIODO ES 0.24881815910339355
+INICIANDO REPORTE DE: 0 INFRACCIONES
+	[f0] Periodo Excedido 1.002203[s]
+SEMAFORO EN ROJO
+SEMAFORO EN VERDE, EL PERIODO ES 5.630953311920166
+INICIANDO REPORTE DE: 0 INFRACCIONES
+SEMAFORO EN ROJO
+SEMAFORO EN VERDE, EL PERIODO ES 3.9959819316864014
+INICIANDO REPORTE DE: 0 INFRACCIONES
+SEMAFORO EN ROJO
+SEMAFORO EN VERDE, EL PERIODO ES 6.255817651748657
+INICIANDO REPORTE DE: 0 INFRACCIONES
+SEMAFORO EN ROJO
+SEMAFORO EN VERDE, EL PERIODO ES 2.6204748153686523
+INICIANDO REPORTE DE: 0 INFRACCIONES
+SEMAFORO EN ROJO
+SEMAFORO EN VERDE, EL PERIODO ES 0.2485215663909912
+INICIANDO REPORTE DE: 0 INFRACCIONES
+SEMAFORO EN ROJO
+SEMAFORO EN VERDE, EL PERIODO ES 2.123721122741699
+INICIANDO REPORTE DE: 0 INFRACCIONES
+SEMAFORO EN ROJO
+	Confirmado en hora 07:03:47 (224-243)
