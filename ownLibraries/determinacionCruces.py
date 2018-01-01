@@ -26,10 +26,11 @@ class PoliciaInfractor():
 	Tambien se encarga de crear los objetos Vehiculos que pueden estar en estado cruce o infraccion
 	También se encarga de proveer el estado actual del infractor
 	"""
-	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada,mifps = 8):
+	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada,mifps = 8,debug = False):
 		# Tomo la imagen de inicialización y obtengo algunas caracteristicas de la misma
 		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)
 		self.miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,False)
+		self.reportarDebug = debug
 
 		# Se cargan las variables de creación de la clase
 		self.imagenAuxiliar = cv2.cvtColor(imagenParaInicializar, cv2.COLOR_BGR2GRAY)
@@ -179,8 +180,10 @@ class PoliciaInfractor():
 				NoneType = type(None)
 				if type(nuevaPosicionVehiculo) == NoneType:
 					infraccion['estado'] = 'Giro'
-					infraccion['infraccion'] = ''
-					self.eliminoCarpetaDeSerNecesario(infraccion)
+					if infraccion['infraccion'] == 'candidato':
+						infraccion['infraccion'] = ''
+						self.eliminoCarpetaDeSerNecesario(infraccion)
+						# VALIDO SOLO PARA GIRO CONTROLADO POR SEMAFORO A PARTE
 					self.estadoActual['giro'] += 1
 					break
 				# DESCARTE INDIVIDUAL POR PUNTO
@@ -194,6 +197,7 @@ class PoliciaInfractor():
 				if (numeroDeFrame - infraccion['frameInicial']) > self.maximoNumeroFramesParaDescarte:
 					infraccion['estado'] = 'Ruido'
 					infraccion['infraccion'] = ''
+					print('Excedio tiempo')
 					self.eliminoCarpetaDeSerNecesario(infraccion)
 				# Si es candidato y algun punto llego al final se confirma
 				indicesValidos = []
@@ -278,16 +282,16 @@ class PoliciaInfractor():
 
 	def reportarPasoAPaso(self,historial):
 		listaInfracciones = [infraccion for infraccion in self.listaVehiculos if infraccion['infraccion']=='CAPTURADO']
-		#if listaInfracciones:
 
 		# Los cruces siguen evolucionando
 		# Las infracciones en calidad de 'CAPTURADO' son generadas en video
-
 		# Los cruces en ruido son eliminados	
 		if len(listaInfracciones)>0:
-			infraccionActual = self.listaVehiculos[self.listaVehiculos.index(listaInfracciones[0])]
+			# Como python optimiza el copiado de listas de diccionarios la siguiente figura modifica la lista original
+			infraccionActual = listaInfracciones[0]
+			#infraccionActual = self.listaVehiculos[self.listaVehiculos.index(listaInfracciones[0])]
 			infraccionActual['infraccion'] = 'REPORTADO'
-			self.miGrabadora.generarReporteInfraccion(historial, infraccionActual)
+			self.miGrabadora.generarReporteInfraccion(historial, infraccionActual,debug = self.reportarDebug)
 
 		"""
 			#Si no hay infracciones a reportar me fijo el estado del filtro:
@@ -300,21 +304,6 @@ class PoliciaInfractor():
 
 	def reportarTodasInfraccionesEnUno(self):
 		listaInfracciones = [infraccion for infraccion in self.listaVehiculos if infraccion['infraccion']=='CAPTURADO']
-
-
-	def purgarInfraccionesRemanentes(self):
-		# Se borran todos los candidatos sueltos
-		"""
-		for indiceInfraccion in range(len(self.listaVehiculos)):
-			infraccion = self.listaVehiculos[indiceInfraccion]
-			print('Checking: ',infraccion['name'],' con ',infraccion['infraccion'])
-			if (infraccion['estado'] == 'Previo')|(infraccion['estado'] == 'Ruido'):
-				self.estadoActual['ruido']+=1
-			if (infraccion['infraccion'] == ''):
-				self.eliminoCarpetaDeSerNecesario(infraccion)
-		"""		
-		self.inicializarAgente()
-		# Itero sobre las infracciones
 
 	def eliminoCarpetaDeSerNecesario(self,infraccion):
 		try: 

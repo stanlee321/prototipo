@@ -163,7 +163,7 @@ def __main_function__():
 		trabajoConPiCamara = True
 	else:
 		trabajoConPiCamara = False
-	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada)
+	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,mifps,generarArchivosDebug)
 	
 	miFiltro = IRSwitch()
 	miAcetatoInformativo = Acetato()
@@ -207,20 +207,6 @@ def __main_function__():
 			senalSemaforo, semaforoLiteral, flanco, periodo = miSemaforo.obtenerColorEnSemaforo(pixeles)
 			frameFlujo = cv2.resize(frameVideo,(320,240))
 			
-
-			if periodo != 0:
-				miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(periodo))
-				miReporte.info('DateTime '+datetime.datetime.now().strftime('%Y%m%d_%H%M'))
-				cruce = miPoliciaReportando.estadoActual['cruzo']
-				giro = miPoliciaReportando.estadoActual['giro']
-				infraccion = miPoliciaReportando.estadoActual['infraccion']
-				otro = miPoliciaReportando.estadoActual['ruido']
-				vectorDeInicio = [[datetime.datetime.now(),periodo,cruce,giro,infraccion,otro]]
-				np.save(reporteDiario,np.append(np.load(reporteDiario),vectorDeInicio,0))
-			else:
-				pass
-			# Si tengo infracciones pendientes las evoluciono
-			
 			velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear = miPoliciaReportando.seguirImagen(frame_number,frameFlujo,colorSemaforo = senalSemaforo)
 			
 			if senalSemaforo >= 1 :							# Si estamos en rojo, realizamos una accion
@@ -229,7 +215,7 @@ def __main_function__():
 	
 			if senalSemaforo == 0:							# Si estamos en verde realizamos otra accion
 				if flanco == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
-					miReporte.info('SEMAFORO EN VERDE')
+					miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(periodo)+' a '+datetime.datetime.now().strftime('%Y%m%d_%H%M'))
 					#miPoliciaReportando.reportarTodasInfraccionesEnUno()
 				miPoliciaReportando.reportarPasoAPaso(historial)
 			if len(historial)> 2*60*mifps:	# Si es mayor a dos minutos en el pasado
@@ -262,8 +248,8 @@ def __main_function__():
 				cv2.imshow('Visual',frameFlujo)
 			if generarArchivosDebug:
 				historial[frame_number]['frame'] = frameFlujo.copy()
-			else:
-				historial[frame_number]['frame'] = historial[frame_number]['captura']
+			#else:
+			#	historial[frame_number]['frame'] = historial[frame_number]['captura']
 			historial[frame_number]['data'] = [velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear]
 			miAcetatoInformativo.inicializar()
 			

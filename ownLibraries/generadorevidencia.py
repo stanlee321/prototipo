@@ -19,9 +19,6 @@ class GeneradorEvidencia():
 	def __init__(self, carpetaReporte,mifps = 10,guardoRecortados = True):
 		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)
 		self.carpetaDeReporteActual = carpetaReporte
-		self.carpetaParaEntrega = carpetaReporte+'Oficial'
-		if not os.path.exists(self.carpetaParaEntrega):
-			os.makedirs(self.carpetaParaEntrega)
 		self.framesPorSegundoEnVideo = mifps
 		self.ventana = 5
 		self.height, self.width = 240, 320
@@ -31,35 +28,30 @@ class GeneradorEvidencia():
 	def inicializarEnCarpeta(self,carpetaReporte):
 		self.carpetaDeReporteActual = carpetaReporte
 
-	def generarReporteInfraccion(self, informacionTotal, infraccion = True, numero = 0):
+	def generarReporteInfraccion(self, informacionTotal, infraccion = True, numero = 0,debug = False):
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
-		generandoDebug = False
+		generandoDebugGlobal = False
+		generarDobleVideo = debug
 		try:
 			nombreInfraccion = infraccion['name']
-			generandoDebug = False
+			generandoDebugGlobal = False
 		except:
 			nombreInfraccion = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')+'_{}i'.format(numero)
 			if (numero == 0)&(len(informacionTotal)<20):
 				return 0
-			generandoDebug = True
+			generandoDebugGlobal = True
 
 		directorioActual = self.carpetaDeReporteActual + '/'+nombreInfraccion
-		directorioActualOficial = self.carpetaParaEntrega + '/'+nombreInfraccion
+		
 		if not os.path.exists(directorioActual):
 			os.makedirs(directorioActual) 
 		
-		if generandoDebug==False:
-			if not os.path.exists(directorioActualOficial):
-				os.makedirs(directorioActualOficial) 
+		if generandoDebugGlobal==False:
 			frameInferior = infraccion['frameInicial'] - self.ventana
 			frameSuperior = infraccion['frameFinal'] + self.ventana
-			archivosEnCarpeta = glob.glob(directorioActual+'/*')
-			for imagenACopiar in archivosEnCarpeta:
-				shutil.copy(imagenACopiar,directorioActualOficial+'/'+nombreInfraccion+imagenACopiar[-6:])
-				self.miReporte.debug('Recuperado '+imagenACopiar[-5])
-			
-			prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
-			entrega = cv2.VideoWriter(directorioActualOficial+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
+			if generarDobleVideo:
+				prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'_debug.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
+			entrega = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
 			
 			# Check valid frame 
 			if frameInferior < 1:
@@ -77,9 +69,11 @@ class GeneradorEvidencia():
 				if not os.path.exists(directorioRecorte):
 					os.makedirs(directorioRecorte) 
 			for indiceVideo in range(inicio, final):
-				prueba.write(informacionTotal[indiceVideo]['frame'])
+				if generarDobleVideo:
+					prueba.write(informacionTotal[indiceVideo]['frame'])
 				entrega.write(informacionTotal[indiceVideo]['captura'])
-			prueba.release()
+			if generarDobleVideo:
+				prueba.release()
 			entrega.release()
 
 			# Vuelvo a iterar por la imagen mas grande:
