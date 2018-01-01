@@ -71,7 +71,7 @@ class GeneradorEvidencia():
 				final = len(informacionTotal)
 			else:
 				final = frameSuperior
-			self.miReporte.info('Generada infr de: '+nombreInfraccion+' de '+str(inicio)+' a '+str(final)+' fecha: ' + nombreInfraccion)
+			self.miReporte.info('\t\t'+'Generada infr de: '+nombreInfraccion+' de '+str(inicio)+' a '+str(final))
 			if self.guardoRecortados:
 				directorioRecorte = directorioActual+'/recorte'
 				if not os.path.exists(directorioRecorte):

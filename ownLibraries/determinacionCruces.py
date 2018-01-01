@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as graficaActual
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.analisisonda import AnalisisOnda
+from ownLibraries.generadorevidencia import GeneradorEvidencia
 if os.uname()[1] == 'raspberrypi':
 	from ownLibraries.shooterControllerv2 import ControladorCamara
 
@@ -25,9 +26,10 @@ class PoliciaInfractor():
 	Tambien se encarga de crear los objetos Vehiculos que pueden estar en estado cruce o infraccion
 	También se encarga de proveer el estado actual del infractor
 	"""
-	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada):
+	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada,mifps = 8):
 		# Tomo la imagen de inicialización y obtengo algunas caracteristicas de la misma
 		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)
+		self.miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,False)
 
 		# Se cargan las variables de creación de la clase
 		self.imagenAuxiliar = cv2.cvtColor(imagenParaInicializar, cv2.COLOR_BGR2GRAY)
@@ -43,7 +45,6 @@ class PoliciaInfractor():
 
 		# la linea de referencia para tamanio sera del largo del paso de cebra, su longitud servira para descartar puntos que se alejen del resto
 		self.maximaDistanciaEntrePuntos = self.tamanoVector(np.array(poligonoPartida[0])-np.array(poligonoPartida[1]))
-
 
 		# Se crea la clase correspondiente
 		self.miFiltro = AnalisisOnda()
@@ -69,28 +70,23 @@ class PoliciaInfractor():
 		self.lineaDeResguardoDelantera = self.crearLineaDeResguardo()
 		self.lineaDeResguardoAlteradaDelantera = self.lineaDeResguardoDelantera
 		
-		self.listaDeInfracciones = []
+		self.listaVehiculos = []
 		"""
 		Estados de vehiculos
-		1. Cruce, cruce normal, cuando el vehiculo cruzo en el sentido de control del semaforo, un carril solamente para la versión actual
-		2. Confirmado, cuando se verifico que el vehiculo cruzo en Rojo
-		3. Giro, cuando el automovil giro a otro carril que el de interés
-		4. Ruido, cuando se da alguna condicion de descarte por ruido
-		5. Candidato, posible a llegar al estado 2 como infraccion confirmada, de lo contrario, 3, 4
-		6. Candidato a Cruce, cuando no puede llegar a ser infraccion, puede evolucionar a estado 1 o de lo contrario ser descartado
-		7. Descartado, no se descarta que sea un vehiculo, pero excedio el tiempo maximo
+		1. Previo
+		2. Cruce
+		3. Giro
+		4. Ruido
 		"""
-		self.estadoActual =   { 'cruce':0,
-								'infraccion':0,
+
+		self.estadoActual =   { 'previo':0,
+								'cruzo':0,
 								'giro':0,
-								'otro':0,
 								'ruido':0,
-								'candidato':0,
-								'candidatoACruce':0,
-								'descartes':0,
+								'infraccion':0,
+								'infraccionAmarillo':0,
 								'colorSemaforo':'Verde'}
 
-		self.ultimaCarpetaGuardado = ''
 		if os.uname()[1] == 'raspberrypi':
 			self.camaraAlta = ControladorCamara()
 
@@ -134,8 +130,8 @@ class PoliciaInfractor():
 		"""
 		Resets the starting line to get ready to the next frame
 		"""
-		del self.listaDeInfracciones
-		self.listaDeInfracciones = []
+		del self.listaVehiculos
+		self.listaVehiculos = []
 
 	def crearLineaDeResguardo(self):
 		"""
@@ -165,74 +161,48 @@ class PoliciaInfractor():
 		else:
 			self.estadoActual['colorSemaforo'] = 'No hay semaforo'
 
-		nuevoObjeto = False
-		momentumAEmplear = False
 		imagenActualEnGris = cv2.cvtColor(imagenActual, cv2.COLOR_BGR2GRAY)
 		arrayAuxiliarParaVelocidad, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaFijaDelantera, None, **self.lk_params)
 		self.lineaDeResguardoAlteradaDelantera = arrayAuxiliarParaVelocidad
-		#print('>> 02 optical LK good')
-		velocidadEnBruto = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
-		#print('>> 03 magnitud good')
-		velocidadFiltrada, pulsoVehiculos = self.miFiltro.obtenerOndaFiltrada(velocidadEnBruto)
-		if pulsoVehiculos == 1:
-			nuevoObjeto = True
 		
-		if nuevoObjeto:
-			#print('>> 04 inside new')
-			# Se determina los mejores puntos para seguir para ser parte del objeto Vehiculo
-			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad,informacion)
-			#print('>> 05 obtener puntos good')
-			# Cada vehiculo tiene un numbre que biene a xer ela fecja y hora de la infracción en cuestion
-			nombreInfraccionYFolder = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-			# Si el semaforo esta en rojo o amarillo entonces se encendera la camara de alta y se creara un vehiculo con el estado Candidato
-			if colorSemaforo >=1:
-				miEstado = 'Candidato'
-				if os.uname()[1] == 'raspberrypi':
-					self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder)
-				#print('>> 06 encenci camara en')
-			else:
-				miEstado = 'Candidato a Cruce'
-			nuevoVehiculo = {'name':nombreInfraccionYFolder,'momentum':numeroDeFrame,'frameInicial':numeroDeFrame,'frameFinal':0,'desplazamiento':puntosMasMoviles,'estado':miEstado,'foto':False}
-			
-			self.ultimaCarpetaGuardado = directorioDeReporte+'/'+nombreInfraccionYFolder
-			momentumAEmplear = True
-			self.listaDeInfracciones.append(nuevoVehiculo)
+		velocidadEnBruto = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
+		velocidadFiltrada, pulsoVehiculos = self.miFiltro.obtenerOndaFiltrada(velocidadEnBruto)
 
-		# Se evoluciona el resto de vehiculos solo si son Candidatos o Candidatos a Cruce
-		for infraccion in self.listaDeInfracciones:
-			#print('>> 07 inside for')
+		# Se evoluciona el resto de vehiculos solo si son 'Previo'
+		for infraccion in self.listaVehiculos:
 			# Si es candidato evoluciona:
-			if (infraccion['estado'] == 'Candidato')|(infraccion['estado'] == 'Candidato a Cruce'):
+			if infraccion['estado'] == 'Previo':
 				# Al principio descarto los puntos negativos o en los bordes (0,0), -(x,y)
 				nuevaPosicionVehiculo, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
-				#print('>> 08 nuevo punto calculado good')
+				
 				# Si ya no hay puntos que seguir el anterior retorna NoneType, se determina como Giro,
 				NoneType = type(None)
 				if type(nuevaPosicionVehiculo) == NoneType:
 					infraccion['estado'] = 'Giro'
+					infraccion['infraccion'] = ''
+					self.eliminoCarpetaDeSerNecesario(infraccion)
 					self.estadoActual['giro'] += 1
 					break
 				# DESCARTE INDIVIDUAL POR PUNTO
 				# Se descarta puntos individualmente, si un punto esta en el borde del frame o fuera de el entonces se lo mantiene congelado
 				# PELIGRO, los frames congelados estan ingresando al calcOpticalFlow arriba, revisar
-				#for otroIndice in range(len(infraccion['desplazamiento'])):
+				# for otroIndice in range(len(infraccion['desplazamiento'])):
 				#	controlVector = infraccion['desplazamiento'][otroIndice]
 				#	if not self.puntoEstaEnRectangulo((controlVector[0][0],controlVector[0][1]),(0,0,320,240)):
 				#		nuevaPosicionVehiculo[otroIndice] = infraccion['desplazamiento'][otroIndice]
 				# DESCARTE POR TIEMPO, POR VEHICULO
 				if (numeroDeFrame - infraccion['frameInicial']) > self.maximoNumeroFramesParaDescarte:
-					infraccion['estado']='Descartado'
-					self.estadoActual['descartes'] += 1
-					self.estadoActual['otro']+=1
+					infraccion['estado'] = 'Ruido'
+					infraccion['infraccion'] = ''
+					self.eliminoCarpetaDeSerNecesario(infraccion)
 				# Si es candidato y algun punto llego al final se confirma
 				indicesValidos = []
 				puntosQueLlegaron = 0
 
 				for indiceVector in range(len(nuevaPosicionVehiculo)):
-					#print('>> 09 inside for puntos good')
 					# Para cada indice
 					vector = nuevaPosicionVehiculo[indiceVector]
-					#print('>> 10 after new')
+					
 					xTest, yTest = vector[0][0], vector[0][1]
 					# hago una lista de los indices que aun son validos
 					if cv2.pointPolygonTest(self.carrilValido,(xTest, yTest),True)>=0:	# Si esta dentro del carril valido se mantiene el punto
@@ -240,53 +210,109 @@ class PoliciaInfractor():
 					# Confirmo la llegada de uno
 					if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:	# Si esta dentro del espacio de llegada se confirma
 						puntosQueLlegaron += 1
-					#print('>> 11 after poligons')
+					
 					if puntosQueLlegaron >= 2:
-						if infraccion['estado'] == 'Candidato':
-							infraccion['estado'] = 'Confirmado'
-							self.estadoActual['infraccion'] += 1
-						if infraccion['estado'] == 'Candidato a Cruce':
-							infraccion['estado'] = 'Cruzo'
-							self.estadoActual['cruce'] += 1
-						momentumAEmplear = True
+						# Si llego al otro extremo, entonces cruzo:
+						infraccion['estado'] = 'Cruzo'
+						self.estadoActual['cruzo'] += 1
 						infraccion['frameFinal'] = numeroDeFrame
-						self.miReporte.info('\t'+infraccion['estado']+' en hora '+infraccion['name'][-8:]+' ('+str(infraccion['frameInicial'])+'-'+str(infraccion['frameFinal'])+')')
+						# Si era candidato y esta llegando en rojo o amarillo
+						# ESTO DESCARTA LAS LLEGADAS EN VERDE # Anulado por mala intensión
+						if (infraccion['infraccion'] == 'candidato'):#&(colorSemaforo>=1):
+							infraccion['infraccion'] = 'CAPTURADO'
+							self.estadoActual['infraccion'] += 1
+						
+						self.miReporte.info(infraccion['infraccion']+'\t'+infraccion['estado']+' en hora '+infraccion['name'][-8:]+' ('+str(infraccion['frameInicial'])+'-'+str(infraccion['frameFinal'])+')')
 						break
 				# Se continuara solamente con los puntos validos
 				infraccion['desplazamiento'] = nuevaPosicionVehiculo[indicesValidos]
+
+		if pulsoVehiculos == 1:
+			# Se determina los mejores puntos para seguir para ser parte del objeto Vehiculo
+			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad,informacion)
+			
+			# Cada vehiculo tiene un numbre que biene a xer ela fecja y hora de la infracción en cuestion
+			nombreInfraccionYFolder = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
+			# CREACION NUEVO VEHICULO
+			nuevoVehiculo = {	'name':nombreInfraccionYFolder,
+								'frameInicial':numeroDeFrame,
+								'frameFinal':0,
+								'desplazamiento':puntosMasMoviles,
+								'estado':'Previo',
+								'infraccion':''}
+
+			# CREACION NUEVO CANDIDATO
+			if colorSemaforo >=1:
+				nuevoVehiculo['infraccion'] = 'candidato'
+
+				direccionDeGuardadoFotos = directorioDeReporte + '/' + nombreInfraccionYFolder
+				if not os.path.exists(direccionDeGuardadoFotos):
+					os.makedirs(direccionDeGuardadoFotos)
+				print('Creado ',direccionDeGuardadoFotos)
+
+				if os.uname()[1] == 'raspberrypi':
+					self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder)
+			
+			self.listaVehiculos.append(nuevoVehiculo)
+
 		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
-		#print('>> 13 final good')
 
 		self.imagenAuxiliar = imagenActualEnGris
 		#print(self.estadoActual)
 		#sys.stdout.write("\033[F") # Cursor up one line
-		return velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear
+		return velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, 0
 
 	def numeroInfraccionesConfirmadas(self):
 		contadorInfraccionesConfirmadas = 0
-		for infraccion in self.listaDeInfracciones:
-			if infraccion['estado'] == 'Confirmado':
+		for infraccion in self.listaVehiculos:
+			if infraccion['estado'] == 'Cruzo':
 				contadorInfraccionesConfirmadas += 1
 		return contadorInfraccionesConfirmadas
 
 	def numeroInfraccionesTotales(self):
 		contadorInfracciones = 0
-		for infraccion in self.listaDeInfracciones:
+		for infraccion in self.listaVehiculos:
 			contadorInfracciones += 1
 		return contadorInfracciones
 
+	def reportarPasoAPaso(self,historial):
+		listaInfracciones = [infraccion for infraccion in self.listaVehiculos if infraccion['infraccion']=='CAPTURADO']
+		#if listaInfracciones:
+
+		# Los cruces siguen evolucionando
+		# Las infracciones en calidad de 'CAPTURADO' son generadas en video
+
+		# Los cruces en ruido son eliminados	
+		if len(listaInfracciones)>0:
+			infraccionActual = self.listaVehiculos[self.listaVehiculos.index(listaInfracciones[0])]
+			infraccionActual['infraccion'] = 'REPORTADO'
+			self.miGrabadora.generarReporteInfraccion(historial, infraccionActual)
+
+		"""
+			#Si no hay infracciones a reportar me fijo el estado del filtro:
+			tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
+			if (tiempoAhora > amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Activado'):
+				miFiltro.colocarFiltroIR()
+			if (tiempoAhora < amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Desactivado'):
+				miFiltro.quitarFiltroIR()
+		"""
+
+	def reportarTodasInfraccionesEnUno(self):
+		listaInfracciones = [infraccion for infraccion in self.listaVehiculos if infraccion['infraccion']=='CAPTURADO']
+
+
 	def purgarInfraccionesRemanentes(self):
 		# Se borran todos los candidatos sueltos
-		for indiceInfraccion in range(len(self.listaDeInfracciones)):
-			infraccion = self.listaDeInfracciones[indiceInfraccion]
-			if infraccion['estado'] == 'Candidato':
-				#self.miReporte.info('Purgando infraccion con estado y fecha: '+infraccion['estado']+' at '+infraccion['name'])
-				#self.eliminoCarpetaDeSerNecesario(infraccion)
-				self.estadoActual['candidato']+=1
-				self.estadoActual['otro']+=1
-			if infraccion['estado'] == 'Candidato a Cruce':
-				self.estadoActual['candidatoACruce']+=1
-				self.estadoActual['otro']+=1
+		"""
+		for indiceInfraccion in range(len(self.listaVehiculos)):
+			infraccion = self.listaVehiculos[indiceInfraccion]
+			print('Checking: ',infraccion['name'],' con ',infraccion['infraccion'])
+			if (infraccion['estado'] == 'Previo')|(infraccion['estado'] == 'Ruido'):
+				self.estadoActual['ruido']+=1
+			if (infraccion['infraccion'] == ''):
+				self.eliminoCarpetaDeSerNecesario(infraccion)
+		"""		
 		self.inicializarAgente()
 		# Itero sobre las infracciones
 
@@ -300,9 +326,9 @@ class PoliciaInfractor():
 
 	def popInfraccion(self):
 		if self.numeroInfraccionesConfirmadas() != 0:
-			variableARetornar = self.listaDeInfracciones.pop()
-			while variableARetornar['estado'] != 'Confirmado':
-				variableARetornar = self.listaDeInfracciones.pop()
+			variableARetornar = self.listaVehiculos.pop()
+			while variableARetornar['estado'] != 'Cruzo':
+				variableARetornar = self.listaVehiculos.pop()
 			return variableARetornar
 		else:
 			return {}
@@ -310,10 +336,10 @@ class PoliciaInfractor():
 
 	def reporteActual(self):
 		self.miReporte.info('Infracciones Sospechosas:')
-		for infraccion in self.listaDeInfracciones:
+		for infraccion in self.listaVehiculos:
 			self.miReporte.info(infraccion['frameInicial']+' a '+str(infraccion['frameFinal'])+' con estado: '+infraccion['estado'])
 		self.miReporte.info('Infracciones Confirmadas:')
-		for infraccion in self.listaDeInfracciones:
+		for infraccion in self.listaVehiculos:
 			self.miReporte.info(infraccion['name']+' de '+str(infraccion['frameInicial'])+' a '+str(infraccion['frameFinal'])+' con estado: '+infraccion['estado'])
 
 	def obtenerLinea(self):
@@ -321,8 +347,8 @@ class PoliciaInfractor():
 		Returns the starting line in tuple format, ready to read or plot with opencv
 		"""
 		aDevolver = []
-		for infraccion in self.listaDeInfracciones:
-			if infraccion['estado']=='Candidato':
+		for infraccion in self.listaVehiculos:
+			if infraccion['estado']=='Previo':
 				for punto in infraccion['desplazamiento']:
 					aDevolver.append(tuple(punto[0]))
 		return aDevolver

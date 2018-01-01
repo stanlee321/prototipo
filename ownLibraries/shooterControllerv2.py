@@ -7,10 +7,9 @@ import time
 import ctypes
 import datetime
 import threading
+import pandas as pd
 import multiprocessing
 from .shooterv9 import Shooter
-import os
-import pandas as pd
 
 class ControladorCamara():
 	def __init__(self):

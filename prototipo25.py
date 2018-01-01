@@ -17,7 +17,6 @@ from ownLibraries.herramientas import total_size
 from ownLibraries.videostream import VideoStream
 from ownLibraries.semaforov2 import CreateSemaforo
 from ownLibraries.determinacionCruces import PoliciaInfractor
-from ownLibraries.generadorevidencia import GeneradorEvidencia
 
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
@@ -50,7 +49,6 @@ amaneciendo = 7*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
 maximoMemoria = 200
 conVideoGrabado = False
-
 
 gamma = 1.0
 noDraw = False
@@ -166,7 +164,7 @@ def __main_function__():
 	else:
 		trabajoConPiCamara = False
 	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada)
-	miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,False)
+	
 	miFiltro = IRSwitch()
 	miAcetatoInformativo = Acetato()
 	miSemaforo = CreateSemaforo(periodoDeSemaforo)
@@ -177,6 +175,7 @@ def __main_function__():
 
 	# El historial sera una lista de la siguiente forma:
 	# {numeroFrame: {'frame':np.array((320,240)),'data':{"info"}}}
+	global historial
 	historial = {}
 	frame_number  = 0
 	tiempoAuxiliar = time.time()
@@ -230,39 +229,14 @@ def __main_function__():
 	
 			if senalSemaforo == 0:							# Si estamos en verde realizamos otra accion
 				if flanco == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
-					miReporte.info('INICIANDO REPORTE DE: '+str(miPoliciaReportando.numeroInfraccionesConfirmadas())+' INFRACCIONES')
-					acaboDeIniciarNuevoCiclo = True
-					ultimoNumeroInfraccion = miPoliciaReportando.numeroInfraccionesConfirmadas()
-				
-				if acaboDeIniciarNuevoCiclo:	
-					if miPoliciaReportando.numeroInfraccionesConfirmadas() > 0:
-						tuveInfracciones = True
-						infraccionEnRevision = miPoliciaReportando.popInfraccion()
-						miGrabadora.generarReporteInfraccion(historial, infraccionEnRevision)
-						
-					else:
-						if (tuveInfracciones):
-							if generarArchivosDebug:
-								miGrabadora.generarReporteInfraccion(historial, False,ultimoNumeroInfraccion)
-							tuveInfracciones = False
-						miPoliciaReportando.purgarInfraccionesRemanentes()
-						
-						del historial
-						historial = {}
-						frame_number = 0	
-						acaboDeIniciarNuevoCiclo = False
-				else:
-					#Si no hay infracciones a reportar me fijo el estado del filtro:
-					tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
-					if (tiempoAhora > amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Activado'):
-						miFiltro.colocarFiltroIR()
-					if (tiempoAhora < amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Desactivado'):
-						miFiltro.quitarFiltroIR()
-						
+					miReporte.info('SEMAFORO EN VERDE')
+					#miPoliciaReportando.reportarTodasInfraccionesEnUno()
+				miPoliciaReportando.reportarPasoAPaso(historial)
+			if len(historial)> 2*60*mifps:	# Si es mayor a dos minutos en el pasado
+				del historial[min(historial)]				
 
 			# Draw frame number into image on top
-			for infraction in miPoliciaReportando.listaVehiculos:
-				
+			for infraction in miPoliciaReportando.listaVehiculos:	
 				for puntos in infraction['desplazamiento']:
 					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
 					miAcetatoInformativo.colocarObjeto(puntosExtraidos,infraction['estado'])
