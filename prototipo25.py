@@ -47,6 +47,11 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 anocheciendo =  17*60+15														# Tiempo 17:30 am + 4 GMT
 amaneciendo = 7*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
+
+horaInicioInfraccion = 6*60
+horaFinalInfraccion = 22*60
+
+
 maximoMemoria = 200
 conVideoGrabado = False
 
@@ -84,6 +89,8 @@ def __main_function__():
 	tuveInfracciones = False
 	global tiempoEnPuntoParaNormalVideo
 	tiempoEnPuntoParaNormalVideo = 7
+	global minuto
+	minuto = 0
 
 	# Creamos el reporte inicial
 	miReporte = MiReporte(levelLogging=logging.INFO,nombre=__name__)			# Se crea por defecto con nombre de la fecha y hora actual
@@ -167,6 +174,7 @@ def __main_function__():
 	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,mifps,generarArchivosDebug)
 	
 	miFiltro = IRSwitch()
+	miFiltro.paralelizar()
 	miAcetatoInformativo = Acetato()
 	miSemaforo = CreateSemaforo(periodoDeSemaforo)
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
@@ -205,7 +213,15 @@ def __main_function__():
 			wtf = pixeles.reshape((24,8,3))
 			#cv2.imshow('Semaforo', cv2.resize(wtf, (240,320)))
 			#print('La longitud pixels: ',pixeles.shape)
-			senalSemaforo, semaforoLiteral, flanco, periodo = miSemaforo.obtenerColorEnSemaforo(pixeles)
+			tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
+			if (tiempoAhora > horaInicioInfraccion) & (tiempoAhora < horaFinalInfraccion):
+				senalSemaforo, semaforoLiteral, flanco, periodo = miSemaforo.obtenerColorEnSemaforo(pixeles)
+			else:
+				senalSemaforo, semaforoLiteral, flanco, periodo = 0,'MODO CONTEO',0,60
+				if datetime.datetime.now().minute>minuto:
+					minuto = datetime.datetime.now().minute
+					flanco = -1
+
 			frameFlujo = cv2.resize(frameVideo,(320,240))
 			
 			velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear = miPoliciaReportando.seguirImagen(frame_number,frameFlujo,colorSemaforo = senalSemaforo)
@@ -223,6 +239,7 @@ def __main_function__():
 					otro = miPoliciaReportando.estadoActual['ruido']
 					vectorDeInicio = [[datetime.datetime.now(),periodo,cruce,giro,infraccion,otro]]
 					np.save(reporteDiario,np.append(np.load(reporteDiario),vectorDeInicio,0))
+					miPoliciaReportando.reestablecerEstado()
 					#miPoliciaReportando.reportarTodasInfraccionesEnUno()
 				miPoliciaReportando.reportarPasoAPaso(historial)
 
@@ -231,10 +248,16 @@ def __main_function__():
 					tiempoEnPuntoParaNormalVideo = datetime.datetime.now().hour
 				if tiempoEnPuntoParaNormalVideo>22:
 					tiempoEnPuntoParaNormalVideo = 7
-			#try:
-			#	print(max(historial),'<<<max_len>>>',len(historial))
-			#except:
-			#	pass
+
+			# Si el tiempo es el adecuado y el filtro no esta actualizado se actualiza
+			tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
+			if (tiempoAhora > amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Activado'):
+				miFiltro.colocarFiltroIR()
+				miReporte.info('Active Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
+			if (tiempoAhora < anocheciendo) & (miFiltro.ultimoEstado != 'Filtro Desactivado'):
+				miFiltro.quitarFiltroIR()
+				miReporte.info('Desactive Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
+
 			if len(historial)> 3*60*mifps:	# Si es mayor a dos minutos en el pasado
 				del historial[min(historial)]				
 
@@ -280,8 +303,7 @@ def __main_function__():
 			tiempoAuxiliar = time.time()
 
 			porcentajeDeMemoria = psutil.virtual_memory()[2]
-			
-			
+				
 			if (porcentajeDeMemoria > 80)&(os.uname()[1] == 'raspberrypi'):
 				miReporte.info('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
 			"""

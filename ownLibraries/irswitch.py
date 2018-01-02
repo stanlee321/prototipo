@@ -33,6 +33,9 @@ class IRSwitch():
 			GPIO.setup(self.forwardPin,GPIO.OUT)
 			GPIO.setup(self.backwardPin,GPIO.OUT)
 			self.ultimoEstado = 'Inicializado'
+
+	def paralelizar(self):
+		pass
 		
 	def colocarFiltroIR(self):
 		"""

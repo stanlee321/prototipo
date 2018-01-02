@@ -81,13 +81,7 @@ class PoliciaInfractor():
 		4. Ruido
 		"""
 
-		self.estadoActual =   { 'previo':0,
-								'cruzo':0,
-								'giro':0,
-								'ruido':0,
-								'infraccion':0,
-								'infraccionAmarillo':0,
-								'colorSemaforo':'Verde'}
+		self.reestablecerEstado()
 
 		if os.uname()[1] == 'raspberrypi':
 			self.camaraAlta = ControladorCamara()
@@ -266,9 +260,19 @@ class PoliciaInfractor():
 		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
 
 		self.imagenAuxiliar = imagenActualEnGris
-		print(self.estadoActual)
-		sys.stdout.write("\033[F") # Cursor up one line
+		#print(self.estadoActual)
+		#sys.stdout.write("\033[F") # Cursor up one line
 		return velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, 0
+
+	def reestablecerEstado(self):
+		self.estadoActual =   { 'previo':0,
+								'cruzo':0,
+								'giro':0,
+								'ruido':0,
+								'infraccion':0,
+								'infraccionAmarillo':0,
+								'colorSemaforo':'Verde'}
+
 
 	def numeroInfraccionesConfirmadas(self):
 		contadorInfraccionesConfirmadas = 0
