@@ -3,6 +3,7 @@ ownLibraries/__pycache__/
 casosDebug/
 casosReportados/
 VideoCapture/
+installationFiles/datos.npy
 *.py~
 \?*
 ownLibraries/*.py~
