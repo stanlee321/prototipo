@@ -303,6 +303,12 @@ def __main_function__():
 			tiempoAuxiliar = time.time()
 
 			porcentajeDeMemoria = psutil.virtual_memory()[2]
+
+			#miReporte.info('python3 '+ str(__file__)+' '+str( *sys.argv[1:]))
+
+			if (int(nombreCarpeta[8:10]) != datetime.datetime.now().day):
+				miReporte.info('Reiniciando el script por cambio de día')
+				os.execl(sys.executable, 'python3', __file__, *sys.argv[1:])
 				
 			if (porcentajeDeMemoria > 80)&(os.uname()[1] == 'raspberrypi'):
 				miReporte.info('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
