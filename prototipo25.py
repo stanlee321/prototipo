@@ -242,19 +242,19 @@ def __main_function__():
 					miPoliciaReportando.reestablecerEstado()
 					#miPoliciaReportando.reportarTodasInfraccionesEnUno()
 				miPoliciaReportando.reportarPasoAPaso(historial)
-
+	
 				if datetime.datetime.now().hour>tiempoEnPuntoParaNormalVideo:
 					miPoliciaReportando.generarVideoMuestra(historial)
 					tiempoEnPuntoParaNormalVideo = datetime.datetime.now().hour
-				if tiempoEnPuntoParaNormalVideo>22:
+				if datetime.datetime.now().hour == 7:
 					tiempoEnPuntoParaNormalVideo = 7
 
 			# Si el tiempo es el adecuado y el filtro no esta actualizado se actualiza
 			tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
-			if (tiempoAhora < amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Activado'):
+			if (tiempoAhora > amaneciendo) & (tiempoAhora < anocheciendo) & (miFiltro.ultimoEstado == 'Filtro Desactivado'):
 				miFiltro.colocarFiltroIR()
 				miReporte.info('Active Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
-			if (tiempoAhora > anocheciendo) & (miFiltro.ultimoEstado != 'Filtro Desactivado'):
+			elif (miFiltro.ultimoEstado == 'Filtro Activado')|(miFiltro.ultimoEstado =='Inicializado'):
 				miFiltro.quitarFiltroIR()
 				miReporte.info('Desactive Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
 
