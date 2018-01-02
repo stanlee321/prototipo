@@ -80,8 +80,8 @@ class GeneradorEvidencia():
 			return 1
 		else:
 			prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
-			inicio = 0
-			final = len(informacionTotal)
+			inicio = min(informacionTotal)
+			final = max(informacionTotal)
 			self.miReporte.info('Generado DEBUG de: '+nombreInfraccion+' de '+str(inicio)+' '+str(final)+' total lista: '+str(len(informacionTotal)))
 			for indiceVideo in range(inicio,final):
 				try:

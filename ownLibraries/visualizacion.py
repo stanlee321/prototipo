@@ -41,7 +41,7 @@ class Acetato(object):
 			frameNP = cv2.polylines(frameNP,np.int32([poligono]),1,(160,160,160))
 		for ind in range(len(self.misPuntos)):
 			puntoInformacion = self.misPuntos[ind]
-			punto = puntoInformacion[0]
+			punto = (int(puntoInformacion[0][0]),int(puntoInformacion[0][1]))
 			color = puntoInformacion[1]
 			frameNP = cv2.circle(frameNP, punto, 1, color, -1)
 

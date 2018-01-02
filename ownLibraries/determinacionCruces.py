@@ -31,6 +31,7 @@ class PoliciaInfractor():
 		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)
 		self.miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,False)
 		self.reportarDebug = debug
+		self.minimosFramesVideoNormalDebug = 5*mifps # minimo 5 segundos de debug
 
 		# Se cargan las variables de creación de la clase
 		self.imagenAuxiliar = cv2.cvtColor(imagenParaInicializar, cv2.COLOR_BGR2GRAY)
@@ -197,8 +198,10 @@ class PoliciaInfractor():
 				if (numeroDeFrame - infraccion['frameInicial']) > self.maximoNumeroFramesParaDescarte:
 					infraccion['estado'] = 'Ruido'
 					infraccion['infraccion'] = ''
+					self.estadoActual['ruido'] += 1
 					print('Excedio tiempo')
 					self.eliminoCarpetaDeSerNecesario(infraccion)
+					break
 				# Si es candidato y algun punto llego al final se confirma
 				indicesValidos = []
 				puntosQueLlegaron = 0
@@ -263,14 +266,14 @@ class PoliciaInfractor():
 		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
 
 		self.imagenAuxiliar = imagenActualEnGris
-		#print(self.estadoActual)
-		#sys.stdout.write("\033[F") # Cursor up one line
+		print(self.estadoActual)
+		sys.stdout.write("\033[F") # Cursor up one line
 		return velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, 0
 
 	def numeroInfraccionesConfirmadas(self):
 		contadorInfraccionesConfirmadas = 0
 		for infraccion in self.listaVehiculos:
-			if infraccion['estado'] == 'Cruzo':
+			if infraccion['estado'] == 'Cruzo':	
 				contadorInfraccionesConfirmadas += 1
 		return contadorInfraccionesConfirmadas
 
@@ -281,26 +284,21 @@ class PoliciaInfractor():
 		return contadorInfracciones
 
 	def reportarPasoAPaso(self,historial):
+		self.listaVehiculos = [vehiculosPendientes for vehiculosPendientes in self.listaVehiculos if vehiculosPendientes['estado']=='Previo' or vehiculosPendientes['infraccion']=='CAPTURADO']
 		listaInfracciones = [infraccion for infraccion in self.listaVehiculos if infraccion['infraccion']=='CAPTURADO']
-
 		# Los cruces siguen evolucionando
 		# Las infracciones en calidad de 'CAPTURADO' son generadas en video
 		# Los cruces en ruido son eliminados	
 		if len(listaInfracciones)>0:
-			# Como python optimiza el copiado de listas de diccionarios la siguiente figura modifica la lista original
+			# Como python optimiza el copiado de listas de diccionarios la siguiente figura modifica la lista originalself.es
 			infraccionActual = listaInfracciones[0]
 			#infraccionActual = self.listaVehiculos[self.listaVehiculos.index(listaInfracciones[0])]
 			infraccionActual['infraccion'] = 'REPORTADO'
 			self.miGrabadora.generarReporteInfraccion(historial, infraccionActual,debug = self.reportarDebug)
 
-		"""
-			#Si no hay infracciones a reportar me fijo el estado del filtro:
-			tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
-			if (tiempoAhora > amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Activado'):
-				miFiltro.colocarFiltroIR()
-			if (tiempoAhora < amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Desactivado'):
-				miFiltro.quitarFiltroIR()
-		"""
+	def generarVideoMuestra(self,historial):
+		if len(historial)> self.minimosFramesVideoNormalDebug:
+			self.miGrabadora.generarReporteInfraccion(historial, True,debug = self.reportarDebug)
 
 	def reportarTodasInfraccionesEnUno(self):
 		listaInfracciones = [infraccion for infraccion in self.listaVehiculos if infraccion['infraccion']=='CAPTURADO']

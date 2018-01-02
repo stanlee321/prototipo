@@ -223,7 +223,7 @@ def __main_function__():
 					tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
 					if (tiempoAhora > amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Activado'):
 						miFiltro.colocarFiltroIR()
-					if (tiempoAhora < amaneciendo) & (miFiltro.ultimoEstado != 'Filtro Desactivado'):
+					if (tiempoAhora < anocheciendo) & (miFiltro.ultimoEstado != 'Filtro Desactivado'):
 						miFiltro.quitarFiltroIR()
 				pass
 
