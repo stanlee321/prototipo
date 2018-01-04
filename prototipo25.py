@@ -251,10 +251,10 @@ def __main_function__():
 
 			# Si el tiempo es el adecuado y el filtro no esta actualizado se actualiza
 			tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
-			if (tiempoAhora > amaneciendo) & (tiempoAhora < anocheciendo) & (miFiltro.ultimoEstado == 'Filtro Desactivado'):
+			if (tiempoAhora > amaneciendo) & (tiempoAhora < anocheciendo) & ((miFiltro.ultimoEstado == 'Filtro Desactivado')|(miFiltro.ultimoEstado =='Inicializado')):
 				miFiltro.colocarFiltroIR()
 				miReporte.info('Active Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
-			elif (miFiltro.ultimoEstado == 'Filtro Activado')|(miFiltro.ultimoEstado =='Inicializado'):
+			if (tiempoAhora < amaneciendo) & (tiempoAhora > anocheciendo) & ((miFiltro.ultimoEstado == 'Filtro Activado')|(miFiltro.ultimoEstado =='Inicializado')):
 				miFiltro.quitarFiltroIR()
 				miReporte.info('Desactive Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
 
