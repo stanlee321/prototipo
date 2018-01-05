@@ -24,12 +24,49 @@ class GeneradorEvidencia():
 		self.height, self.width = 240, 320
 		self.guardoRecortados = guardoRecortados
 		self.dicts_by_name = defaultdict(list)
+		self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
 
 	def inicializarEnCarpeta(self,carpetaReporte):
 		self.carpetaDeReporteActual = carpetaReporte
 
+	def generarVideo(self, informacionTotal, nombreInfraccion,directorioActual, nombreFrame, inicio, final,observacion = ''):
+		aEntregar = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'_'+nombreFrame+'_'+observacion+'.avi',self.fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
+		excepcion = ''
+		for indiceVideo in range(inicio, final):
+			conteoErrores = 0
+			try:
+				aEntregar.write(informacionTotal[indiceVideo][nombreFrame])
+			except Exception as e:
+				conteoErrores +=1
+				excepcion = e
+		if conteoErrores>=1:
+			self.miReporte.warning('Tuve '+str(conteoErrores)+' missing al generar el video '+str(excepcion))
+
+		aEntregar.release()
+		self.miReporte.info('\t\t'+'Generada infr de: '+nombreInfraccion+' de '+str(inicio)+' a '+str(final))
+
+	def generarReporteEnVideoDe(self,informacionTotal,infraccion,debug = False):
+		nombreInfraccion = infraccion['name']
+		directorioActual = self.carpetaDeReporteActual + '/'+nombreInfraccion
+		if not os.path.exists(directorioActual):
+			os.makedirs(directorioActual)
+		inicio = infraccion['frameInicial'] - self.ventana
+		final = infraccion['frameFinal'] + self.ventana
+		self.generarVideo(informacionTotal,infraccion['name'],directorioActual,'video',inicio,final,infraccion['observacion'])
+		if debug:
+			self.generarVideo(informacionTotal,infraccion['name'],directorioActual,'debug',inicio,final,infraccion['observacion'])
+
+	def generarVideoDebugParaPruebas(self,informacionTotal):
+		nombreInfraccion = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+		directorioActual = self.carpetaDeReporteActual + '/'+nombreInfraccion
+		if not os.path.exists(directorioActual):
+			os.makedirs(directorioActual)
+		inicio = min(informacionTotal)
+		final = max(informacionTotal)
+		self.generarVideo(informacionTotal,nombreInfraccion,directorioActual,'video',inicio,final,'debug')
+		
+
 	def generarReporteInfraccion(self, informacionTotal, infraccion = True, numero = 0,debug = False):
-		fourcc = cv2.VideoWriter_fourcc(*'XVID')
 		generandoDebugGlobal = False
 		generarDobleVideo = debug
 		try:
@@ -50,8 +87,8 @@ class GeneradorEvidencia():
 			frameInferior = infraccion['frameInicial'] - self.ventana
 			frameSuperior = infraccion['frameFinal'] + self.ventana
 			if generarDobleVideo:
-				prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'_debug.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
-			entrega = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
+				prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'_debug.avi',self.fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
+			entrega = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',self.fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
 			
 			# Check valid frame 
 			if frameInferior < 1:
@@ -70,8 +107,8 @@ class GeneradorEvidencia():
 					os.makedirs(directorioRecorte) 
 			for indiceVideo in range(inicio, final):
 				if generarDobleVideo:
-					prueba.write(informacionTotal[indiceVideo]['frame'])
-				entrega.write(informacionTotal[indiceVideo]['captura'])
+					prueba.write(informacionTotal[indiceVideo]['debug'])
+				entrega.write(informacionTotal[indiceVideo]['video'])
 			if generarDobleVideo:
 				prueba.release()
 			entrega.release()
@@ -79,13 +116,13 @@ class GeneradorEvidencia():
 			# Vuelvo a iterar por la imagen mas grande:
 			return 1
 		else:
-			prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
+			prueba = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'.avi',self.fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
 			inicio = min(informacionTotal)
 			final = max(informacionTotal)
 			self.miReporte.info('Generado DEBUG de: '+nombreInfraccion+' de '+str(inicio)+' '+str(final)+' total lista: '+str(len(informacionTotal)))
 			for indiceVideo in range(inicio,final):
 				try:
-					prueba.write(informacionTotal[indiceVideo]['frame'])
+					prueba.write(informacionTotal[indiceVideo]['debug'])
 				except:
 					self.miReporte.error('No pude guardar frame: '+str(indiceVideo))
 			prueba.release()

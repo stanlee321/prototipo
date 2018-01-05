@@ -168,6 +168,8 @@ class PoliciaInfractor():
 		for infraccion in self.listaVehiculos:
 			# Si es candidato evoluciona:
 			if infraccion['estado'] == 'Previo':
+				if (infraccion['infraccion'] == 'candidato')&(colorSemaforo==0):
+					infraccion['observacion'] = 'LlegoEnVerde'
 				# Al principio descarto los puntos negativos o en los bordes (0,0), -(x,y)
 				nuevaPosicionVehiculo, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
 				
@@ -241,7 +243,8 @@ class PoliciaInfractor():
 								'frameFinal':0,
 								'desplazamiento':puntosMasMoviles,
 								'estado':'Previo',
-								'infraccion':''}
+								'infraccion':'',
+								'observacion':''}
 
 			# CREACION NUEVO CANDIDATO
 			if colorSemaforo >=1:
@@ -298,11 +301,13 @@ class PoliciaInfractor():
 			infraccionActual = listaInfracciones[0]
 			#infraccionActual = self.listaVehiculos[self.listaVehiculos.index(listaInfracciones[0])]
 			infraccionActual['infraccion'] = 'REPORTADO'
-			self.miGrabadora.generarReporteInfraccion(historial, infraccionActual,debug = self.reportarDebug)
+			#self.miGrabadora.generarReporteInfraccion(historial, infraccionActual,debug = self.reportarDebug)
+			self.miGrabadora.generarReporteEnVideoDe(historial,infraccionActual,debug = self.reportarDebug)
 
 	def generarVideoMuestra(self,historial):
 		if len(historial)> self.minimosFramesVideoNormalDebug:
-			self.miGrabadora.generarReporteInfraccion(historial, True,debug = self.reportarDebug)
+			#self.miGrabadora.generarReporteInfraccion(historial, True,debug = self.reportarDebug)
+			self.miGrabadora.generarVideoDebugParaPruebas(historial)
 
 	def reportarTodasInfraccionesEnUno(self):
 		listaInfracciones = [infraccion for infraccion in self.listaVehiculos if infraccion['infraccion']=='CAPTURADO']
