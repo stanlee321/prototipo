@@ -2,8 +2,8 @@ import os
 import logging
 import datetime
 
-nombreCarpetaDeReporte = '/casosReportados'
-directorioDeReporte = os.getenv('HOME')+nombreCarpetaDeReporte
+nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
+directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
 
 class MiReporte():
 	"""
