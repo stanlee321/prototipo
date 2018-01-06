@@ -79,7 +79,7 @@ class ControladorCamara():
 	def procesadoParalelo(self, ilive):
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
 		miCamara = Shooter()
-		#while self.programaPrincipalCorriendo.value == 1:
+		run_camera = np.load(path_to_run)
 		while run_camera == 1:
 			miCamara.start()
 			# Read metadata
