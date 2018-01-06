@@ -169,7 +169,9 @@ class PoliciaInfractor():
 			# Si es candidato evoluciona:
 			if infraccion['estado'] == 'Previo':
 				if (infraccion['infraccion'] == 'candidato')&(colorSemaforo==0):
-					infraccion['observacion'] = 'LlegoEnVerde'
+					#infraccion['observacion'] = 'LlegoEnVerde'
+					self.miReporte.info('Infraccion Descartada Por Llegar En Verde')
+					infraccion['infraccion'] = ''
 				# Al principio descarto los puntos negativos o en los bordes (0,0), -(x,y)
 				nuevaPosicionVehiculo, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
 				
@@ -247,18 +249,19 @@ class PoliciaInfractor():
 								'observacion':''}
 
 			# CREACION NUEVO CANDIDATO
+			direccionDeGuardadoFotos = 'None'
 			if colorSemaforo >=1:
 				nuevoVehiculo['infraccion'] = 'candidato'
-
 				direccionDeGuardadoFotos = directorioDeReporte + '/' + nombreInfraccionYFolder
 				if not os.path.exists(direccionDeGuardadoFotos):
 					os.makedirs(direccionDeGuardadoFotos)
-				print('Creado ',direccionDeGuardadoFotos)
+				self.miReporte('Creado '+direccionDeGuardadoFotos)
 
 				if os.uname()[1] == 'raspberrypi':
 					self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder)
 			
 			self.listaVehiculos.append(nuevoVehiculo)
+			self.miReporte.info('\t\t\tCreado vehiculo '+nuevoVehiculo['name']+' en frame '+nuevoVehiculo['frameInicial']+' con nivel'+nuevoVehiculo['infraccion']+' guardado en '+direccionDeGuardadoFotos)
 
 		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
 

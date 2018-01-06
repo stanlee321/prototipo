@@ -64,7 +64,6 @@ class GeneradorEvidencia():
 		inicio = min(informacionTotal)
 		final = max(informacionTotal)
 		self.generarVideo(informacionTotal,nombreInfraccion,directorioActual,'video',inicio,final,'debug')
-		
 
 	def generarReporteInfraccion(self, informacionTotal, infraccion = True, numero = 0,debug = False):
 		generandoDebugGlobal = False
