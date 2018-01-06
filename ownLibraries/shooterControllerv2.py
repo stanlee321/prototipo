@@ -9,14 +9,18 @@ import datetime
 import threading
 import pandas as pd
 import multiprocessing
+import numpy as np
 from .shooterv9 import Shooter
 
 class ControladorCamara():
 	def __init__(self):
 		# Se declaran las variables de control con el proceso paralelo
-		self.programaPrincipalCorriendo = multiprocessing.Value('i',1)
+		#self.programaPrincipalCorriendo = multiprocessing.Value('i',1)
 		self.capture = False # Start saving to this from the creation of the object
 		self.nombreFolderWORKDIR = 'WORKDIR'
+		# Path for run the while loop, values  0 or 1
+		self.path_to_run_camera = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
+		np.save(self.path_to_run_camera, 1)
 		self.nombreFoldertoSave = None
 		self.date = None
 		self.ilive = True
@@ -30,6 +34,8 @@ class ControladorCamara():
 
 		# Get WORDIR route
 		self.path_to_work = os.getenv('HOME')+'/'+ 'WORKDIR' + '/'
+
+
 		# Create Dataframe, setting None as init condition
 		frame = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': [date], 'INDEX': ['XX'], 'STATUS':['CLOSED']}
 		dataframe = pd.DataFrame(frame)	
@@ -65,19 +71,20 @@ class ControladorCamara():
 		return self
 	def apagarControlador(self):
 		print('2.- Estoy dentro del apagarControlador, el estado es:')
-		self.programaPrincipalCorriendo = multiprocessing.Value('i',0)
-		print(self.programaPrincipalCorriendo.value)
 		self.procesoParalelo.join()
+		# Order to stop the while loop process
+		np.save(self.path_to_run_camera, 0)
 		return self
 
 	def procesadoParalelo(self, ilive):
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
 		miCamara = Shooter()
-		while self.programaPrincipalCorriendo.value == 1:
-			print('1.- Estado del While programaPrincipalCorriendo,', self.programaPrincipalCorriendo.value)
+		#while self.programaPrincipalCorriendo.value == 1:
+		while run_camera == 1:
 			miCamara.start()
 			# Read metadata
 			path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
+			path_to_run = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
 			try:
 				metadata = pd.read_csv(path_to_metadata)
 			except:
@@ -93,6 +100,15 @@ class ControladorCamara():
 
 			if  status != 'CLOSED':
 				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
+
+			# Load status to run the camera or exit from this while loop
+			try:
+				run_camera = np.load(path_to_run)
+				print('Signal to run is', run_camera)
+			except Exception as e:
+				print('I cant read exit by this reason:', e)
+
+
 		print('EXITING FROM WHILE LOOP IN ShooterControllerv2')
 
 if __name__ == '__main__':
