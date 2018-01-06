@@ -98,12 +98,12 @@ class Shooter():
 
 		if not os.path.exists(self.saveDirWORK):
 			os.makedirs(self.saveDirWORK) 
-			print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
+			#print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
 		
 		self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
 		#self.save_in_file = self.saveDir
 
-		print('1.- Tengo que guardar Frames en::', self.save_in_file,'*.jpg')
+		#print('1.- Tengo que guardar Frames en::', self.save_in_file,'*.jpg')
 		#print('self frame MARCADO is', self.frame_marcado)
 		#else:
 	

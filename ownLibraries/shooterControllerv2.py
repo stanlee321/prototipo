@@ -38,7 +38,7 @@ class ControladorCamara():
 		dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False, sep=',')
 
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
-		print('En ShooterControllerv2 resivo nombre de archivo : ', nombreFoldertoSave)
+		#print('En ShooterControllerv2 resivo nombre de archivo : ', nombreFoldertoSave)
 
 		# Read old metadata
 		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
@@ -61,10 +61,12 @@ class ControladorCamara():
 
 	def apagarCamara(self):
 		self.capture = False
+		self.procesoParalelo.join()
 		return self
 	def apagarControlador(self):
-		programaPrincipalCorriendo = multiprocessing.Value('i',0)
+		self.programaPrincipalCorriendo = multiprocessing.Value('i',0)
 		self.procesoParalelo.join()
+		return self
 
 	def procesadoParalelo(self, ilive):
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
