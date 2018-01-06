@@ -404,8 +404,6 @@ class PoliciaInfractor():
 
 	def apagarCamara(self):
 		self.camaraAlta.apagarControlador()
-		self.camaraAlta.procesoParalelo.join()
-		self.camaraAlta.programaPrincipalCorriendo = multiprocessing.Value('i',0)
 
 
 

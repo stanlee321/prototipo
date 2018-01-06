@@ -64,8 +64,10 @@ class ControladorCamara():
 		self.procesoParalelo.join()
 		return self
 	def apagarControlador(self):
+		print('2.- Estoy dentro del apagarControlador, el estado es:')
+		self.programaPrincipalCorriendo.value = multiprocessing.Value('i',0)
+		print(self.programaPrincipalCorriendo.value)
 		self.procesoParalelo.join()
-		self.programaPrincipalCorriendo = multiprocessing.Value('i',0)
 		return self
 
 	def procesadoParalelo(self, ilive):
