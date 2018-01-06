@@ -239,7 +239,12 @@ def __main_function__():
 					otro = miPoliciaReportando.estadoActual['ruido']
 					vectorDeInicio = [[datetime.datetime.now(),periodo,cruce,giro,infraccion,otro]]
 					np.save(reporteDiario,np.append(np.load(reporteDiario),vectorDeInicio,0))
+					miReporte.info(	'GLOBAL STATE: p:'+str(miPoliciaReportando.estadoActual['previo'])+
+									', c:'+str(miPoliciaReportando.estadoActual['cruzo'])+
+									', g:'+str(miPoliciaReportando.estadoActual['giro'])+
+									', i:'+str(miPoliciaReportando.estadoActual['infraccion']))
 					miPoliciaReportando.reestablecerEstado()
+
 					#miPoliciaReportando.reportarTodasInfraccionesEnUno()
 				miPoliciaReportando.reportarPasoAPaso(historial)
 	

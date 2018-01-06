@@ -194,10 +194,9 @@ class PoliciaInfractor():
 				#		nuevaPosicionVehiculo[otroIndice] = infraccion['desplazamiento'][otroIndice]
 				# DESCARTE POR TIEMPO, POR VEHICULO
 				if (numeroDeFrame - infraccion['frameInicial']) > self.maximoNumeroFramesParaDescarte:
-					infraccion['estado'] = 'Ruido'
+					infraccion['estado'] = 'TimeOut'
 					infraccion['infraccion'] = ''
 					self.estadoActual['ruido'] += 1
-					print('Excedio tiempo')
 					self.eliminoCarpetaDeSerNecesario(infraccion)
 					break
 				# Si es candidato y algun punto llego al final se confirma
@@ -227,7 +226,7 @@ class PoliciaInfractor():
 							infraccion['infraccion'] = 'CAPTURADO'
 							self.estadoActual['infraccion'] += 1
 						
-						self.miReporte.info(infraccion['infraccion']+'\t'+infraccion['estado']+' en hora '+infraccion['name'][-8:]+' ('+str(infraccion['frameInicial'])+'-'+str(infraccion['frameFinal'])+')')
+						self.miReporte.info(infraccion['infraccion']+'\t'+infraccion['estado']+' con nombre '+infraccion['name']+' ('+str(infraccion['frameInicial'])+'-'+str(infraccion['frameFinal'])+')')
 						break
 				# Se continuara solamente con los puntos validos
 				infraccion['desplazamiento'] = nuevaPosicionVehiculo[indicesValidos]
@@ -255,13 +254,13 @@ class PoliciaInfractor():
 				direccionDeGuardadoFotos = directorioDeReporte + '/' + nombreInfraccionYFolder
 				if not os.path.exists(direccionDeGuardadoFotos):
 					os.makedirs(direccionDeGuardadoFotos)
-				self.miReporte('Creado '+direccionDeGuardadoFotos)
+				#self.miReporte.debug('Creado '+direccionDeGuardadoFotos)
 
 				if os.uname()[1] == 'raspberrypi':
 					self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder)
 			
 			self.listaVehiculos.append(nuevoVehiculo)
-			self.miReporte.info('\t\t\tCreado vehiculo '+nuevoVehiculo['name']+' en frame '+nuevoVehiculo['frameInicial']+' con nivel'+nuevoVehiculo['infraccion']+' guardado en '+direccionDeGuardadoFotos)
+			self.miReporte.info('\t\tCreado vehiculo '+nuevoVehiculo['name']+' en frame '+str(nuevoVehiculo['frameInicial'])+' con nivel '+nuevoVehiculo['infraccion']+' guardado en '+direccionDeGuardadoFotos[19:])
 
 		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
 
@@ -318,10 +317,10 @@ class PoliciaInfractor():
 	def eliminoCarpetaDeSerNecesario(self,infraccion):
 		try: 
 			carpetaABorrar = directorioDeReporte+'/'+infraccion['name']
-			self.miReporte.info('> Borrando: '+carpetaABorrar)
+			self.miReporte.info('\t\t> Borrando: '+carpetaABorrar+' con estado '+infraccion['estado'])
 			shutil.rmtree(carpetaABorrar)
 		except Exception as e:
-			self.miReporte.warning('No pude borrar carpeta fantasma: '+infraccion['name']+' por '+str(e))
+			self.miReporte.warning('\t\t\tNo pude borrar carpeta fantasma: '+infraccion['name']+' por '+str(e))
 
 	def popInfraccion(self):
 		if self.numeroInfraccionesConfirmadas() != 0:
