@@ -70,8 +70,9 @@ class ControladorCamara():
 		self.procesoParalelo.join()
 		return self
 	def apagarControlador(self):
-		print('2.- Estoy dentro del apagarControlador, el estado es:')
+		#print('2.- Estoy dentro del apagarControlador, el estado es:')
 		# Order to stop the while loop process
+		print('Resived Signal to Shutdown the picamera...')
 		np.save(self.path_to_run_camera, 0)
 		self.procesoParalelo.join()
 		return self
@@ -106,12 +107,12 @@ class ControladorCamara():
 			# Load status to run the camera or exit from this while loop
 			try:
 				run_camera = np.load(path_to_run)
-				print('Signal to run is', run_camera)
+				#print('Signal to run is', run_camera)
 			except Exception as e:
 				print('I cant read exit by this reason:', e)
 
-
-		print('EXITING FROM WHILE LOOP IN ShooterControllerv2')
+		print('Saliendo del While Loop en ShooterControllerv2')
+		print('>>Picamera OFF<<')
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
