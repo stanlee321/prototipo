@@ -72,7 +72,7 @@ class ControladorCamara():
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
 		miCamara = Shooter()
 		while self.programaPrincipalCorriendo.value == 1:
-
+			print('1.- Estado del While programaPrincipalCorriendo,', self.programaPrincipalCorriendo.value)
 			miCamara.start()
 			# Read metadata
 			path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
@@ -91,7 +91,7 @@ class ControladorCamara():
 
 			if  status != 'CLOSED':
 				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
-
+		print('EXITING FROM WHILE LOOP IN ShooterControllerv2')
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
