@@ -78,7 +78,9 @@ class ControladorCamara():
 
 	def procesadoParalelo(self, ilive):
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
+		print('Aqui solo entro una sola vez')
 		miCamara = Shooter()
+		path_to_run = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
 		run_camera = np.load(path_to_run)
 		while run_camera == 1:
 			miCamara.start()
