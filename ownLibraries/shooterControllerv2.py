@@ -71,9 +71,9 @@ class ControladorCamara():
 		return self
 	def apagarControlador(self):
 		print('2.- Estoy dentro del apagarControlador, el estado es:')
-		self.procesoParalelo.join()
 		# Order to stop the while loop process
 		np.save(self.path_to_run_camera, 0)
+		self.procesoParalelo.join()
 		return self
 
 	def procesadoParalelo(self, ilive):
