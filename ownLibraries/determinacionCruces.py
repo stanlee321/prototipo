@@ -7,6 +7,7 @@ import shutil
 import logging
 import datetime
 import numpy as np
+import multiprocessing
 
 import matplotlib.pyplot as graficaActual
 from ownLibraries.mireporte import MiReporte
@@ -403,6 +404,9 @@ class PoliciaInfractor():
 
 	def apagarCamara(self):
 		self.camaraAlta.apagarControlador()
+		self.camaraAlta.procesoParalelo.join()
+		self.camaraAlta.programaPrincipalCorriendo = multiprocessing.Value('i',0)
+
 
 
 if __name__ == '__main__':
