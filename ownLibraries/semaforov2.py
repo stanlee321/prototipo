@@ -282,7 +282,7 @@ class Real(Semaforo):
 		###########################
 		# END SVM PART (CLASSIFICATION) ML PROCESS
 		###########################
-
+		print('PREDICTION IS:', prediction)
 		# Return prediction from SVM
 		if prediction == 'green':
 			return 0
