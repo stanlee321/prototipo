@@ -276,7 +276,7 @@ class Real(Semaforo):
   
 		x = x.reshape(1, -1)
 
-		#cv2.imshow('Semaforo before in ..', cv2.resize(np.reshape(x,(8,24,3)),(8*6,24*6)))
+		cv2.imshow('Semaforo before in ..', cv2.resize(np.reshape(x,(8,24,3)),(8*6,24*6)))
 
 		prediction = self.svm.predict(x)[0]
 		###########################
