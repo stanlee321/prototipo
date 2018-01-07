@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 class Detector():
-    """this class need begin the user with the polygon data, and have two methods, both methods need the frame 
+    """this class need begin the user with the polygon data, and have two methods, both methods need a frame 
        and are called "cutRegion" and "findCar", the first return a image cut in basis to polygon and the second
        return the coordinates of the box from the car detected"""
 
