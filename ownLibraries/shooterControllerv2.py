@@ -8,25 +8,47 @@ import ctypes
 import datetime
 import threading
 import multiprocessing
-from .shooterv9 import Shooter
-
+from shooterv9 import Shooter
+import os
+import pandas as pd
 
 class ControladorCamara():
 	def __init__(self):
 		# Se declaran las variables de control con el proceso paralelo
 		self.programaPrincipalCorriendo = multiprocessing.Value('i',1)
-		self.capture = False
+		self.capture = False # Start saving to this from the creation of the object
 		self.nombreFolderWORKDIR = 'WORKDIR'
-		self.input_q = multiprocessing.Queue(maxsize = 10)
+		self.nombreFoldertoSave = None
+		self.date = None
+		self.ilive = True
+		self.input_q = multiprocessing.Queue(maxsize = 5)
+		#self.aux_queue = multiprocessing.Queue()
+
 		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.input_q,))
 		self.procesoParalelo.start()
+
+		# Create initial dataframe
+
+		# Get WORDIR route
+		self.path_to_work = os.getenv('HOME')+'/'+ 'WORKDIR' + '/'
+		# Create Dataframe, setting None as init condition
+		frame = {'WORKDIR_IMG': 'WORKDIR', 'SAVE_IMG_IN': 'None', 'INDEX': 'XX'}
+		self.dataframe = pd.DataFrame(frame, index=[0])	
+
+		# Save Dataframe to the WorkDir Route as metadata.csv
+		self.dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False)
+
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
+		self.nombreFoldertoSave = nombreFoldertoSave
+
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-		self.capture = True
-		try: 
-			self.input_q.put([self.nombreFolderWORKDIR, self.capture, date, nombreFoldertoSave],False)
-		except Exception as e:
-			print('SLOT AVAILABLE!!! Size: '+str(self.input_q.qsize())+' '+str(e))
+		index = date.split(':')[-1]
+
+		self.dataframe.INDEX = str(index)
+		self.dataframe.SAVE_IMG_IN = nombreFoldertoSave
+		self.dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False)
+
+
 		return self
 
 	def apagarCamara(self):
@@ -36,27 +58,46 @@ class ControladorCamara():
 		programaPrincipalCorriendo = multiprocessing.Value('i',0)
 		self.procesoParalelo.join()
 
-	def procesadoParalelo(self,input_q):
+	def procesadoParalelo(self, input_q):
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
 		miCamara = Shooter()
 		while self.programaPrincipalCorriendo.value == 1:
-			#print('inside while the value is', self.programaPrincipalCorriendo.value )
-			data = input_q.get()
-			folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
+		#while True:
+			# Capturing in workdir *.jpg's
 			miCamara.start()
-			if capture == True:
-				miCamara.encenderCamaraEnSubDirectorio(folder_demo, date, folder)
+			#data = input_q.get()
+			#print('HI im in procesadoParalelo')
+			#folder_demo, capture, date, folder = data[0], data[1], data[2], data[3]
+
+			path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
+			
+			# Read metadata
+			metadata = pd.read_csv(path_to_metadata)
+			folder = metadata.SAVE_IMG_IN[0]
+			#print('METADATA IS', metadata)
+			index = metadata.INDEX[0]
+
+			# Read datetime
+			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+			print('folder is>>>>>', folder)
+
+			if folder != 'None':
+				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
+
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
+	import numpy as np
 
 	shoot = ControladorCamara()
-	counter = 0
-	while True:
-		counter +=1 
-		if counter == 10:
-			shoot.encenderCamaraEnSubDirectorio('Destiny')
-			counter = 0
-		print(counter)
-		time.sleep(1)
+	mask = np.zeros((320,320))
+	mask = mask.astype(np.uint8)
 
+	while True:
+
+		cv2.putText(mask, 'press s to capture photos in ./Destiny folder', (10, mask.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+		cv2.imshow('mask for test', mask)
+		if cv2.waitKey(1) & 0xFF == ord("s"):
+			shoot.encenderCamaraEnSubDirectorio('Destiny')
+		if cv2.waitKey(1) & 0xFF == ord("q"):
+			break

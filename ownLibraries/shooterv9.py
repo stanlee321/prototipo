@@ -13,6 +13,8 @@ import time
 import numpy as np
 import shutil
 import collections
+import glob
+import pandas as pd
 #from io import BytesIO
 #from skimage.io import imsave
 
@@ -25,7 +27,7 @@ class Shooter():
 	directorioWORKDIR = os.getenv('HOME')
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
-	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 3):
+	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 6):
 	#def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([10,10],[2592,1944]), capturas = 5):
 		
 		data = np.load(Shooter.directorioDeNumpy+'datos.npy')
@@ -68,13 +70,16 @@ class Shooter():
 		#self.camera.iso = 800
 		self.camera.start_preview()
 
-		# Create circular buff deque of len 5
-		self.circular_buff = collections.deque(maxlen=5)
+		# Create circular buff deque of len 6
+		self.circular_buff = collections.deque(maxlen=12)
 
 		# None paratemer for controll save files
 		self.save_in_file = None
 		folder_WORK = 'WORKDIR'
 		self.saveDirWORK = self.root + "/" + folder_WORK
+
+		# Variable para marcar paquete de frames
+		self.frame_marcado = None
 		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
 
 
@@ -83,73 +88,216 @@ class Shooter():
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
 		self.segundoPunto = self.cutPoly[1]
 
-	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder ):
+	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder, index ):
 		self.fechaInfraccion = fecha
-		self.saveDir = self.directorioDeGuardadoGeneral +"/" + folder
+		self.frame_marcado = index
+		if folder != None:
+			self.saveDir = self.directorioDeGuardadoGeneral +"/" + folder
 
-		if not os.path.exists(self.saveDir):
-			os.makedirs(self.saveDir)
+			if not os.path.exists(self.saveDir):
+				os.makedirs(self.saveDir)
 
-		if not os.path.exists(self.saveDirWORK):
-			os.makedirs(self.saveDirWORK) 
-			print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
-		
-		self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
-
+			if not os.path.exists(self.saveDirWORK):
+				os.makedirs(self.saveDirWORK) 
+				print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
+			
+			self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
+			print('self frame MARCADO is', self.frame_marcado)
+		else:
+			self.save_in_file = None
 	
 
 	def writter(self):
 		self.frame_number = 0
+		
 		while self.frame_number < self.maxCapturas:
-			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
+			index =  (datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')).split(':')[-1]
+
+			save_in_work_dir = 	self.saveDirWORK+"/_f{}f_i{}i_.jpg".format(self.frame_number, index)
+
 			self.circular_buff.appendleft(save_in_work_dir)
+			#print('CIRUCLAR BUFF iost', self.circular_buff)
 			self.frame_number += 1
 			yield save_in_work_dir
+
+		# CLEAN UNUSED IMAGES 
+		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
+		work_dir_len = len(files_in_work_dir)
+		print('1 .- FOLDER LEN is:', work_dir_len)
+
+		if work_dir_len > 12:
+			for img_path in files_in_work_dir:
+				if img_path in self.circular_buff:
+					pass
+				else:
+					os.remove(img_path)
+
+
 		# Once the while is finish move the files to his folders.
-		if self.save_in_file != None:
-			self.move_relevant_files()
-			self.save_in_file = None
-	def move_relevant_files(self):
+		self.move_relevant_files(self.frame_marcado)
+		self.frame_marcado = None
 
-		# Get by index  frame 0 ,1 ,3 or 4, example:
+		##path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
+		#dframe = {'WORKDIR_IMG': 'WORKDIR', 'SAVE_IMG_IN': 'None', 'INDEX': 'XX'}
+		#metadata = pd.DataFrame(dframe, index=[0])
+		#metadata.SAVE_IMG_IN[0] = 'None'
+		#metadata.INDEX[0] = 'XX'
+		#metadata.to_csv(path_to_metadata, index=False)
 
-		photo0 = self.circular_buff[-1]
-		src0 = photo0
-		dst0 = self.save_in_file + '_0.jpg'
+	def move_relevant_files(self, frame_marcado):
+		print('2.- FRAME MARCADO IST:', frame_marcado)
+
+		if frame_marcado != None:
+			for image_route in self.circular_buff:
+				image_route_splited = image_route.split('i')
+				print('3.- image_route splited', image_route.split('i'))
+				if frame_marcado in image_route_splited:
+					marcado_tag = image_route.split('f')[-2]
+					print('4.- FRAME MCARCADO IS:,', frame_marcado)
+					print('5.- IMAGE ROUTE MARKED IS,', image_route)
+					print('6.- TAG MCARCADO IST', marcado_tag)
+
+			#marcado_tag = frame_marcado
+			if marcado_tag <= 2:
+				print('saving grupo B')
+
+				# Grupo B
+				index = marcado_tag
+				print('DER INDEX IST VOM B ', index)
+				if index == 0:
+					# Get by index  frame 0 ,1 ,3 or 4, example:
+
+					src_0 = self.circular_buff[index] 
+					
+					dst_0 = self.save_in_file + '_0.jpg'
 
 
-		src_one = self.circular_buff[-2]
-		src_one = src_one
-		dst_one = self.save_in_file + '_1.jpg'
+					src_one = self.circular_buff[index+1]
+					dst_one = self.save_in_file + '_1.jpg'
 
 
-		src_two = self.circular_buff[-3]
-		src_two = src_two
-		dst_two = self.save_in_file + '_-1.jpg'
+					src_two = self.circular_buff[-1]
+					dst_two = self.save_in_file + '_-1.jpg'
+
+					self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
+				if index == 1:
+
+					# Get by index  frame 0 ,1 ,3 or 4, example:
+
+					src_0 = self.circular_buff[index] 
+					
+					dst_0 = self.save_in_file + '_0.jpg'
 
 
+					src_one = self.circular_buff[index+1]
+					dst_one = self.save_in_file + '_1.jpg'
+
+
+					src_two = self.circular_buff[index-1]
+					dst_two = self.save_in_file + '_-1.jpg'
+					self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
+				if index == 2:
+
+
+					# Get by index  frame 0 ,1 ,3 or 4, example:
+
+					src_0 = self.circular_buff[index] 
+					
+					dst_0 = self.save_in_file + '_0.jpg'
+
+
+					src_one = self.circular_buff[-3]
+					dst_one = self.save_in_file + '_1.jpg'
+
+
+					src_two = self.circular_buff[index-1]
+					dst_two = self.save_in_file + '_-1.jpg'
+					self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
+
+			if marcado_tag > 2:
+				print('saving grupo C')
+
+				# Grupo C
+				index = marcado_tag
+				print('DER INDEX IST VOM C ', index)
+				if index == 3:
+					# Get by index  frame 0 ,1 ,3 or 4, example:
+
+					src_0 = self.circular_buff[index] 
+					
+					dst_0 = self.save_in_file + '_0.jpg'
+
+
+					src_one = self.circular_buff[index+1]
+					dst_one = self.save_in_file + '_1.jpg'
+
+
+					src_two = self.circular_buff[2]
+					dst_two = self.save_in_file + '_-1.jpg'
+
+					self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
+				if index == 4:
+
+					# Get by index  frame 0 ,1 ,3 or 4, example:
+
+					src_0 = self.circular_buff[index] 
+					
+					dst_0 = self.save_in_file + '_0.jpg'
+
+
+					src_one = self.circular_buff[index+1]
+					dst_one = self.save_in_file + '_1.jpg'
+
+
+					src_two = self.circular_buff[index-1]
+					dst_two = self.save_in_file + '_-1.jpg'
+					self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
+				if index == 5:
+
+					# Get by index  frame 0 ,1 ,3 or 4, example:
+
+					src_0 = self.circular_buff[index] 
+					
+					dst_0 = self.save_in_file + '_0.jpg'
+
+
+					src_one = self.circular_buff[-2]
+					dst_one = self.save_in_file + '_1.jpg'
+
+
+					src_two = self.circular_buff[-3]
+					dst_two = self.save_in_file + '_-1.jpg'
+					self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)					
+		else:
+			pass
+
+	def copiar_las_imagenes(self, src_0,dst_0,src_one, dst_one, src_two, dst_two):
 		try:
-			shutil.copy(src0, dst0)
+			print('copying to:', src_0, 'from:', dst_0)
+			shutil.copy(src_0, dst_0)
 		except:
-			print('DELETION WARNING for {}, delering source {}'.format(dst0, src0))
-			os.remove(src0)
+			print('DELETION WARNING for {}, delering source {}'.format(dst_0, src_0))
+			os.remove(src_0)
 
 		try:
+			print('copying to:', src_one, 'from:', dst_one)
 			shutil.copy(src_one, dst_one)
 		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_one, src_one))
 			os.remove(src_one)
 		try:
+			print('copying to:', src_two, 'from:', dst_two)
+
 			shutil.copy(src_two, dst_two)
 		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_two, src_two))
 			os.remove(src_two)
 		print('Capturado posible infractor!')
 
+
 	def start(self):
-		start = time.time()
+		print('here alive...')
 		self.camera.capture_sequence(self.writter(), format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
-		finish = time.time()
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
