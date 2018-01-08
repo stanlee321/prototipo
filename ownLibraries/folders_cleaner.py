@@ -93,6 +93,6 @@ if __name__ == '__main__':
 
 	# Create Object
 
-	limpiador  = CleanFolders()
+	limpiador  = FoldersCleaner()
 	limpiador.delete_folders(path_to_clean)
 
