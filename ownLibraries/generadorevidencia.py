@@ -57,7 +57,7 @@ class GeneradorEvidencia():
 			self.generarVideo(informacionTotal,infraccion['name'],directorioActual,'debug',inicio,final,infraccion['observacion'])
 
 	def generarVideoDebugParaPruebas(self,informacionTotal):
-		nombreInfraccion = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+		nombreInfraccion = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 		directorioActual = self.carpetaDeReporteActual + '/'+nombreInfraccion
 		if not os.path.exists(directorioActual):
 			os.makedirs(directorioActual)
@@ -72,7 +72,7 @@ class GeneradorEvidencia():
 			nombreInfraccion = infraccion['name']
 			generandoDebugGlobal = False
 		except:
-			nombreInfraccion = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')+'_{}i'.format(numero)
+			nombreInfraccion = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')+'_{}i'.format(numero)
 			if (numero == 0)&(len(informacionTotal)<20):
 				return 0
 			generandoDebugGlobal = True
