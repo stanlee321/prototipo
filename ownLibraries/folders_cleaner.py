@@ -4,10 +4,9 @@
 import os
 import glob
 import shutil
-
+import logging
 
 class FoldersCleaner():
-
 	"""
 		Class to clean single folders in a absolute folder
 		Expected use:
@@ -19,6 +18,14 @@ class FoldersCleaner():
 		# Not need to acces to atributes
 		self.folders_to_clean = []
 		self.total_folders = []
+	
+	def rerun_logger_module(self, path):
+		print('saving log in', path)
+		LOG_FORMAT = "%(levelname)s %(asctime)s - %(message)s"
+		logging.basicConfig(filename = path + 'clean_folder_log.log', level= logging.DEBUG,
+							format = LOG_FORMAT)
+		self.logger = logging.getLogger()
+
 	def get_files(self, path_to_clean):
 		"""
 			Get a list of the clean folders (usefull)
@@ -38,38 +45,48 @@ class FoldersCleaner():
 				number_files = len(files_in)
 				# If number of files in dir is <4 , append to the list of folders_to_clean
 				if number_files < 4:
-					print('Number of files in this folder {} : '. format(folder), number_files)
+					print('Number of files in this folder {} : '.format(folder), number_files)
+					self.logger.info('Number of files in this folder {} : '.format(folder) +  str(number_files))
 					self.folders_to_clean.append(folder)
 				else:
 					pass
 			except Exception as e:
 				print('U are a log or something else:', e)
+				self.logger.info('U are a log or something else:'+ str(e))
+
 		return  self.folders_to_clean
 
 	def delete_folders(self, path_to_clean):
 
 		# Get the  folders to delete
+		self.folder_to_save_log = path_to_clean.split('*')[0]
+		self.rerun_logger_module(self.folder_to_save_log)
+
 		clean = self.get_files(path_to_clean)
 		usefull_folders = list(set(self.total_folders) - set(clean))
 		
 		print('TOTAL FOLDERS:', len(self.total_folders))
 		print('FOLDERS TO DELET: ', len(clean))
 		print('USEFULL FOLDERS: ', len(usefull_folders ))
+
+		self.logger.info('TOTAL FOLDERS:'+ str(len(self.total_folders)))
+		self.logger.info('FOLDERS TO DELET: '+ str(len(clean)))
+		self.logger.info('USEFULL FOLDERS: '+ str(len(usefull_folders )))
 		
 		for i,c in enumerate(clean):
 			print('{}/{}'.format(i+1, len(clean)))
 			try:
 				print('removing ...', c)
+				self.logger.info('removing ...' +  str(c))
 				shutil.rmtree(c)
 			except:
-				print('this is a log or something else passing...')
-				print(c)
+				print('this is a log or something else passing...', c)
+				self.logger.info('this is a log or something else passing...' + str(c))
 				#os.remove(c)
 			print('DONE!')
 
 
 if __name__ == '__main__':
-	
 	import argparse
 	import datetime
 
@@ -94,7 +111,6 @@ if __name__ == '__main__':
 		path_to_clean =  home_dir + '/' + today_date + '_reporte' + '/*'
 
 	# Create Object
-
 	limpiador  = FoldersCleaner()
 	limpiador.delete_folders(path_to_clean)
 
