@@ -102,7 +102,7 @@ if __name__ == '__main__':
 		frame2=frame.copy()
 		fram=frame.copy() 
 	except:
-		print('Error Al cargar la camara de flujo')
+		print('Accediendo cámara en tiempo real')
 		try:
 			if sys.argv[1] == 'picam':
 				cap=cv2.VideoCapture(1)
