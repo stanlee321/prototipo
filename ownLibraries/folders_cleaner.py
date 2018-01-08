@@ -33,15 +33,17 @@ class FoldersCleaner():
 			self.total_folders.append(folder)
 
 			# Count for the elements in this folder
-			files_in = os.listdir(folder) # folder is your directory path to look
-			number_files = len(files_in)
-			# If number of files in dir is <4 , append to the list of folders_to_clean
-			if number_files < 4:
-				print('Number of files in this folder {} : '. format(folder), number_files)
-				self.folders_to_clean.append(folder)
-			else:
-				pass
-
+			try:
+				files_in = os.listdir(folder) # folder is your directory path to look
+				number_files = len(files_in)
+				# If number of files in dir is <4 , append to the list of folders_to_clean
+				if number_files < 4:
+					print('Number of files in this folder {} : '. format(folder), number_files)
+					self.folders_to_clean.append(folder)
+				else:
+					pass
+			except Exception as e:
+				print('U are a log or something else:', e)
 		return  self.folders_to_clean
 
 	def delete_folders(self, path_to_clean):
