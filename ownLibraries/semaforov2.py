@@ -448,9 +448,7 @@ class CreateSemaforo(Semaforo):
 		self.blueprint_semaforo.ultimoPeriodo = time.time() - self.blueprint_semaforo.tiempoParaPeriodo
 		# Si el periodo excede los 2 minutos (normalmente 2, 1 para debug) entonces señalo que no hay semaforo
 		if self.blueprint_semaforo.ultimoPeriodo >self.maximoTiempoPeriodo:
-			flancoCorrecto = 1				# Flanco verde para guardar la información que se tenga
-			numerico = -2
-		
+			flancoCorrecto = -1				# Flanco verde para guardar la información que se tenga		
 
 		return numerico, literal, flancoCorrecto, periodoAMostrar
 
