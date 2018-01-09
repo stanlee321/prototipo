@@ -195,15 +195,15 @@ class Real(Semaforo):
 		# SOME COLORS
 		#
 		# YELLOW /(Orangen) range
-		self.lower_yellow = np.array([18,40,190], dtype=np.uint8)
+		self.lower_yellow = np.array([18,40,190], dtype=np.uint8) # 18,40,190
 		self.upper_yellow = np.array([27,255,255], dtype=np.uint8)
 
 		# RED range
-		self.lower_red = np.array([140,70,0], dtype=np.uint8) #_,100,_
+		self.lower_red = np.array([255,255,255], dtype=np.uint8) #_,100,_ # 140,70,_
 		self.upper_red = np.array([180,255,255], dtype=np.uint8)
 
 		# GREEN range
-		self.lower_green = np.array([70,50,0], dtype=np.uint8) #_,0,_
+		self.lower_green = np.array([70,10,0], dtype=np.uint8) #_,0,_ , _,50,_
 		self.upper_green = np.array([90,255,255], dtype=np.uint8)
 
 		# SOME VARIABLES for SVM, if retrain the SVM in another
@@ -270,25 +270,26 @@ class Real(Semaforo):
 		#img = img.flatten()
 		# Some numerical corrections
 		feature_img = img/(np.mean(img)+0.0001)
+		#feature_img = img/255
 		x = feature_img
 		#x = np.asarray(feature_img)
   
 		x = x.reshape(1, -1)
 
-		cv2.imshow('Semaforo before in ..', cv2.resize(np.reshape(x,(8,24,3)),(8*6,24*6)))
+		#cv2.imshow('Semaforo before in ..', cv2.resize(np.reshape(x,(8,24,3)),(8*20,24*15)))
 
 		prediction = self.svm.predict(x)[0]
 		###########################
 		# END SVM PART (CLASSIFICATION) ML PROCESS
 		###########################
-
+		#print('PREDICTION IS:', prediction)
 		# Return prediction from SVM
 		if prediction == 'green':
 			return 0
 		elif prediction == 'red':
 			return 1
 		elif prediction == 'black':
-			return -1
+			return 1
 		else:
 			pass
 
@@ -396,6 +397,7 @@ class CreateSemaforo(Semaforo):
 	
 	def obtenerColorEnSemaforo(self, imagenUnidimensional):
 		numerico, literal, flancoErrado = self.blueprint_semaforo.encontrarSemaforoObtenerColor(imagen = imagenUnidimensional )
+		#print('COLOR EN BRUTO: '+literal)
 		periodoAMostrar = 0
 		if self.periodoSemaforo == 0 :
 			self.littleFilter[11] = self.littleFilter[10]
