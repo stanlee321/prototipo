@@ -230,7 +230,7 @@ def __main_function__():
 				if flanco == 1:							# esto se inicia al principio de este estado
 					miReporte.info('SEMAFORO EN ROJO')
 	
-			if senalSemaforo == 0:							# Si estamos en verde realizamos otra accion
+			if senalSemaforo <= 0:							# Si estamos en verde realizamos otra accion
 				if flanco == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
 					miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(periodo)+' a '+datetime.datetime.now().strftime('%Y%m%d_%H%M'))
 					cruce = miPoliciaReportando.estadoActual['cruzo']
@@ -312,11 +312,11 @@ def __main_function__():
 			#miReporte.info('python3 '+ str(__file__)+' '+str( *sys.argv[1:]))
 
 			if (int(nombreCarpeta[8:10]) != datetime.datetime.now().day):
-				miReporte.info('Reiniciando el computador por cambio de día')
+				miReporte.info('Reiniciando el script por cambio de día')
 				miPoliciaReportando.apagarCamara()
-				#os.execl(sys.executable, 'python3', __file__, *sys.argv[1:])
+				os.execl(sys.executable, 'python3', __file__, *sys.argv[1:])
 				# As bug continues we reboot the system:
-				os.system('sudo reboot')
+				#os.system('sudo reboot')
 				
 			if (porcentajeDeMemoria > 80)&(os.uname()[1] == 'raspberrypi'):
 				miReporte.info('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
@@ -333,9 +333,7 @@ def __main_function__():
 				miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por indice de auto acabado predeterminado')
 				miPoliciaReportando.apagarCamara()
 				break
-			if senalSemaforo == -2:
-				miReporte.critical('ABANDONANDO LA EJECUCION DE PROGRAMA El semaforo ya no obtuvo señal, necesito recalibrar, abandonando la ejecución del programa')
-				break
+
 			ch = 0xFF & cv2.waitKey(5)
 			if ch == ord('q'):
 				miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por salida manual')
