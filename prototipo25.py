@@ -312,11 +312,11 @@ def __main_function__():
 			#miReporte.info('python3 '+ str(__file__)+' '+str( *sys.argv[1:]))
 
 			if (int(nombreCarpeta[8:10]) != datetime.datetime.now().day):
-				miReporte.info('Reiniciando el computador por cambio de día')
+				miReporte.info('Reiniciando el script por cambio de día')
 				miPoliciaReportando.apagarCamara()
-				#os.execl(sys.executable, 'python3', __file__, *sys.argv[1:])
+				os.execl(sys.executable, 'python3', __file__, *sys.argv[1:])
 				# As bug continues we reboot the system:
-				os.system('sudo reboot')
+				#os.system('sudo reboot')
 				
 			if (porcentajeDeMemoria > 80)&(os.uname()[1] == 'raspberrypi'):
 				miReporte.info('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
