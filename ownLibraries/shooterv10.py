@@ -190,9 +190,9 @@ class Shooter():
 			metadata = aux_list[-1]
 			print('DB2 metadata is', metadata)
 			# Read data for the new row 
-			date   = metadata[0][0]
-			folder = metadata[0][1]
-			index  = metadata[0][2]
+			date   = metadata[0]
+			folder = metadata[1]
+			index  = metadata[2]
 			status = 'CLOSED' # Changed value to Close once the function finish to move
 			# Update the DB
 			self.dynamic_data_entry(c, conn, 'WORKDIR', folder, index, status)
