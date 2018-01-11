@@ -83,8 +83,9 @@ class Shooter():
 		# Variable para marcar paquete de frames
 		self.frame_marcado = None
 		print('EXITOSAMENTE CREE LA CLASE SHOOTERv10!!!')
+		self.folder = str
 
-
+		
 	def establecerRegionInteres(self,cutPoly):
 		self.cutPoly = cutPoly
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
@@ -93,7 +94,8 @@ class Shooter():
 	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder, index ):
 		self.fechaInfraccion = fecha
 		self.frame_marcado = index
-		self.saveDir = self.directorioDeGuardadoGeneral +"/" + str(folder)
+		self.folder = folder
+		self.saveDir = self.directorioDeGuardadoGeneral +"/" + str(self.folder)
 
 		if not os.path.exists(self.saveDir):
 			os.makedirs(self.saveDir)
@@ -181,7 +183,8 @@ class Shooter():
 			print('>>>>>>>>>>>> DEBUG  2  CLOSSSINGG THE CONECTION')
 			conn = sqlite3.connect(path_to_metadata)
 			c =  conn.cursor()
-			c.execute('UPDATE shooter_table SET Status = "CLOSED" WHERE Status = "OPEN"')
+			#c.execute('UPDATE shooter_table SET Status = "CLOSED" WHERE Status = "OPEN"')
+		    c.execute("UPDATE shooter_table SET Status = ? WHERE Save_img_in = ? ", ('CLOSED', self.folder ))
 			conn.commit()
 
 			# Close coneccions
