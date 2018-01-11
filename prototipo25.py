@@ -169,7 +169,7 @@ def __main_function__():
 		trabajoConPiCamara = True
 	else:
 		trabajoConPiCamara = False
-	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,mifps,generarArchivosDebug)
+	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,mifps,directorioDeReporte,generarArchivosDebug)
 	
 	miFiltro = IRSwitch()
 	miFiltro.paralelizar()
