@@ -187,7 +187,7 @@ class Shooter():
 				aux_list.append(row)
 				print('DB2 row is', row)
 				#metadata = list(data)
-			metadata = aux_list[-1]
+			metadata = aux_list[0]
 			print('DB2 metadata is', metadata)
 			# Read data for the new row 
 			date   = metadata[0]
