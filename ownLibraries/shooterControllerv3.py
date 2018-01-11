@@ -152,12 +152,14 @@ class ControladorCamara():
 				#print('io prblem in read_csv, creating default dframe')
 				#dframe = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': ['None'], 'INDEX': ['XX'],'STATUS':['OPEN']}
 				#metadata = pd.DataFrame(dframe)
-			
-
-			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-			folder = metadata[1]
-			index  = metadata[2]
-			status = metadata[3]
+			try:
+				date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+				folder = metadata[1]
+				index  = metadata[2]
+				status = metadata[3]
+			except Exception as e:
+				print('First run , no info in DB , passing', e)
+				
 			if  status != 'CLOSED':
 				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
 	
