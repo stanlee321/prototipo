@@ -86,8 +86,11 @@ class PoliciaInfractor():
 		if os.uname()[1] == 'raspberrypi':
 			self.camaraAlta = ControladorCamara()
 
-	def nuevoDia(self):
+	def nuevoDia(self,directorioDeReporte):
 		self.directorioDeReporte = directorioDeReporte
+		self.miReporte.setDirectory(directorioDeReporte)
+		self.miGrabadora.nuevoDia()
+		self.reestablecerEstado()
 
 	def ensancharCarrilValido(self, carrilValido):
 		# Input type: self.carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
@@ -257,12 +260,11 @@ class PoliciaInfractor():
 				direccionDeGuardadoFotos = self.directorioDeReporte + '/' + nombreInfraccionYFolder
 				if not os.path.exists(direccionDeGuardadoFotos):
 					os.makedirs(direccionDeGuardadoFotos)
-				#self.miReporte.debug('Creado '+direccionDeGuardadoFotos)
 
 				if os.uname()[1] == 'raspberrypi':
 					# AQUI!
-					#self.camaraAlta.encenderCamaraEnSubDirectorio(direccionDeGuardadoFotos)
-					self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder)
+					self.camaraAlta.encenderCamaraEnSubDirectorio(direccionDeGuardadoFotos)
+					#self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder)
 			
 			self.listaVehiculos.append(nuevoVehiculo)
 			self.miReporte.info('\t\tCreado vehiculo '+nuevoVehiculo['name']+' en frame '+str(nuevoVehiculo['frameInicial'])+' con nivel '+nuevoVehiculo['infraccion']+' guardado en '+direccionDeGuardadoFotos[19:])

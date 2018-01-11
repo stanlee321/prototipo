@@ -26,6 +26,10 @@ class GeneradorEvidencia():
 		self.dicts_by_name = defaultdict(list)
 		self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
 
+	def nuevoDia(self,carpetaReporte):
+		self.carpetaDeReporteActual = carpetaReporte
+		self.miReporte.setDirectory(directorioDeReporte)
+
 	def inicializarEnCarpeta(self,carpetaReporte):
 		self.carpetaDeReporteActual = carpetaReporte
 

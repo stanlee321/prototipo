@@ -82,6 +82,7 @@ def nuevoDia():
 	directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
 	reporteDiario = directorioDeReporte+'/reporteDiario.npy'
 	miReporte.setDirectory(directorioDeReporte)
+	miPoliciaReportando.nuevoDia(directorioDeReporte)
 
 def __main_function__():
 	# Import some global varialbes
