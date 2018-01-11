@@ -204,6 +204,9 @@ class Shooter():
 		SAVE_IMG_IN = save_img_in
 		INDEX = str(index)
 		STATUS = status
+		print('WORKDIR TO RESET', WORKDIR)
+		print('SAVE_IMG_IN', SAVE_IMG_IN)
+		print('INDEX', INDEX)
 		print('SAVING STATUS FROM DB2, status is', STATUS)
 		c.execute("INSERT INTO  shooter_table(WorkDir, Save_img_in, Idx, Status) VALUES (?,?,?,?)",\
 					(WORKDIR, SAVE_IMG_IN, INDEX, STATUS))

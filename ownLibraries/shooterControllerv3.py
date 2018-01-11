@@ -95,7 +95,7 @@ class ControladorCamara():
 		# Init DB
 		conn = sqlite3.connect(path_to_metadata)
 		c =  conn.cursor()
-		self.create_table(c)
+		#self.create_table(c)
 
 		# UPDATE NEW ROW
 		# Append new row to old metadata and close connection
