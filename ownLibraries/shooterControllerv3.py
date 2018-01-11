@@ -154,6 +154,13 @@ class ControladorCamara():
 			folder = metadata[0][1]
 			index  = metadata[0][2]
 			status = metadata[0][3]
+
+			print('>>>>>>>>>>>>>>>DEBUG 1')
+			print('FOLDER is:', metadata[0][1])
+
+			print('INDEX is:', metadata[0][2])
+
+			print('STATUS is:', metadata[0][3])
 			if  status != 'CLOSED':
 				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)		
 	

@@ -177,6 +177,8 @@ class Shooter():
 		# Read old metadata
 		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}.db'.format(date_for_db)
 		try:
+
+			print('>>>>>>>>>>>> DEBUG  2  CLOSSSINGG THE CONECTION')
 			conn = sqlite3.connect(path_to_metadata)
 			c =  conn.cursor()
 			c.execute('UPDATE shooter_table SET Status = "CLOSED" WHERE Status = "OPEN"')
