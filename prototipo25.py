@@ -95,6 +95,7 @@ def __main_function__():
 	tiempoEnPuntoParaNormalVideo = 7
 	global minuto
 	global miReporte
+	
 	minuto = 0
 
 	if not os.path.exists(directorioDeReporte):
@@ -103,7 +104,7 @@ def __main_function__():
 	# Creamos el reporte inicial
 	miReporte = MiReporte(levelLogging=logging.INFO,nombre=__name__,directorio=directorioDeReporte)			# Se crea por defecto con nombre de la fecha y hora actual
 	miReporte.info('Programa iniciado exitosamente con ingreso de senal video '+archivoDeVideo+entradaReal+' con semaforo '+semaforoSimuladoTexto+str(periodoDeSemaforo) +', corriendo a '+str(mifps)+' Frames por Segundo')
-	nuevoDia()
+	
 	vectorDeInicio = [[datetime.datetime.now(),0,0,0,0,0]]
 	if os.path.isfile(reporteDiario):
 		miReporte.info('Continuando reporte')
