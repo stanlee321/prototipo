@@ -191,14 +191,14 @@ class Shooter():
 			index  = metadata[2]
 			status = 'CLOSED' # Changed value to Close once the function finish to move
 			# Update the DB
-			self.dynamic_data_entry(c, cnn, workdir, save_img_in, index, status)
+			self.dynamic_data_entry(c, conn, workdir, save_img_in, index, status)
 		except Exception as e:
 			print('<<DB 2 ERROR>> I cant open or read the DB by this erro:', e)
 
 		self.frame_marcado = None
 
 
-	def dynamic_data_entry(self, c, cnn, workdir, save_img_in, index, status):
+	def dynamic_data_entry(self, c, conn, workdir, save_img_in, index, status):
 
 		WORKDIR = workdir
 		SAVE_IMG_IN = save_img_in

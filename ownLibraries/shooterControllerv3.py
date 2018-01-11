@@ -49,7 +49,7 @@ class ControladorCamara():
 		c =  conn.cursor()
 
 		self.create_table(c)
-		self.dynamic_data_entry(c, cnn, 'WORKDIR', str(date), 'XX', 'CLOSED')
+		self.dynamic_data_entry(c, conn, 'WORKDIR', str(date), 'XX', 'CLOSED')
 
 
 	def create_table(self, c):
@@ -61,7 +61,7 @@ class ControladorCamara():
 		# STATUS, took pictures or not status
 		c.execute('CREATE TABLE IF NOT EXISTS shooter_table(WorkDir TEXT,Save_img_in TEXT,Idx TEXT,Status TEXT)')
 
-	def dynamic_data_entry(self, c, cnn, workdir, save_img_in, index, status):
+	def dynamic_data_entry(self, c, conn, workdir, save_img_in, index, status):
 
 		WORKDIR = workdir
 		SAVE_IMG_IN = save_img_in
@@ -99,7 +99,7 @@ class ControladorCamara():
 
 		# UPDATE NEW ROW
 		# Append new row to old metadata and close connection
-		self.dynamic_data_entry(c, cnn, workdir, save_img_in, index, status)
+		self.dynamic_data_entry(c, conn, workdir, save_img_in, index, status)
 
 
 		return self
