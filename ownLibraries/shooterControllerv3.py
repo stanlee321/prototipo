@@ -52,7 +52,7 @@ class ControladorCamara():
 		self.dynamic_data_entry(c, cnn, 'WORKDIR', str(date), 'XX', 'CLOSED')
 
 
-	def create_table(self, c):
+	#def create_table(self, c):
 		# Create table with default values as:
 
 		# WORKDIR, dir where to start to work
