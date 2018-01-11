@@ -186,9 +186,9 @@ class Shooter():
 				metadata = list(data)
 
 			# Read data for the new row 
-			date   = metadata[0]
-			folder = metadata[1]
-			index  = metadata[2]
+			date   = metadata[0][0]
+			folder = metadata[0][1]
+			index  = metadata[0][2]
 			status = 'CLOSED' # Changed value to Close once the function finish to move
 			# Update the DB
 			self.dynamic_data_entry(c, conn, workdir, save_img_in, index, status)
