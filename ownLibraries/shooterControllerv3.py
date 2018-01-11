@@ -140,6 +140,7 @@ class ControladorCamara():
 				data = c.fetchall()
 				for row in data:
 					print(row)
+					print(type(data))
 					metadata = list(data)
 					print('metadatta is', metadata)
 				c.close()
