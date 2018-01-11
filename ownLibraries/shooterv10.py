@@ -13,8 +13,12 @@ import time
 import numpy as np
 import shutil
 import collections
+import glob
+import pandas as pd
 #from io import BytesIO
 #from skimage.io import imsave
+import sqlite3
+
 
 class Shooter():
 	""" General PICAMERA DRIVER Prototipe
@@ -25,7 +29,7 @@ class Shooter():
 	directorioWORKDIR = os.getenv('HOME')
 	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 
-	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 5):
+	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 3):
 	#def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([10,10],[2592,1944]), capturas = 5):
 		
 		data = np.load(Shooter.directorioDeNumpy+'datos.npy')
@@ -61,18 +65,24 @@ class Shooter():
 		self.camera = picamera.PiCamera()
 		#self.camera.resolution = (self.width,self.height)
 		self.camera.resolution = self.camera.MAX_RESOLUTION
-		self.camera.framerate = 5
+		self.camera.framerate = 2 # original 1
 
 		self.camera.zoom = (p0x, p0y, p1x, p1y)
 		#self.camera.shutter_speed = 190000
 		#self.camera.iso = 800
 		self.camera.start_preview()
 
-		# Create circular buff deque of len 5
-		self.circular_buff = collections.deque(maxlen=5)
-		self.start()
+		# Create circular buff deque of len 6
+		self.circular_buff = collections.deque(maxlen=6)
 
-		print('EXITOSAMENTE CREE LA CLASE SHOOTER')
+		# None paratemer for controll save files
+		self.save_in_file = None
+		folder_WORK = 'WORKDIR'
+		self.saveDirWORK = self.root + "/" + folder_WORK
+
+		# Variable para marcar paquete de frames
+		self.frame_marcado = None
+		print('EXITOSAMENTE CREE LA CLASE SHOOTERv9')
 
 
 	def establecerRegionInteres(self,cutPoly):
@@ -80,122 +90,155 @@ class Shooter():
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
 		self.segundoPunto = self.cutPoly[1]
 
-	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder ):
-		#self.miReporte.moverRegistroACarpeta(fecha)
+	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder, index ):
 		self.fechaInfraccion = fecha
-		self.saveDirWORK = self.root + "/" + folder_WORK
-		self.saveDir = self.directorioDeGuardadoGeneral +"/" + folder
+		self.frame_marcado = index
+		self.saveDir = self.directorioDeGuardadoGeneral +"/" + str(folder)
 
 		if not os.path.exists(self.saveDir):
 			os.makedirs(self.saveDir)
 
 		if not os.path.exists(self.saveDirWORK):
 			os.makedirs(self.saveDirWORK) 
-			print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
-		#print('Encendi Camara de Forma Exitosa en ' + self.saveDir)
+			#print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
 		
+		self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
 
-	
 
 	def writter(self):
 		self.frame_number = 0
+		
 		while self.frame_number < self.maxCapturas:
+			index =  (datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')).split(':')[-1]
 
-			save_in_file = self.saveDir+"/{}-{}.jpg".format(self.fechaInfraccion, self.frame_number)
-			save_in_work_dir = 	self.saveDirWORK+"/{}.jpg".format(self.frame_number)
-			self.circular_buff.appendleft([save_in_work_dir, save_in_file])
-			#print('GUARDADO en: '+ self.saveDirWORK+'/{}.jpg'.format(self.frame_number))
-			#yield "image%02d.jpg" % frame
-			yield save_in_work_dir
-			#yield "./imagen_{}.jpg".format(self.frame_number)
+			save_in_work_dir = 	self.saveDirWORK+"/_f{}f_i{}i_.jpg".format(self.frame_number, index)
+
+			self.circular_buff.appendleft(save_in_work_dir)
 			self.frame_number += 1
+			yield save_in_work_dir
 
-		# Once the while is finish move the files to his folders.
-		self.move_relevant_files()
+		# CLEAN UNUSED IMAGES 
+		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
+		work_dir_len = len(files_in_work_dir)
 
+		if work_dir_len > 6:
+			for img_path in files_in_work_dir:
+				if img_path in self.circular_buff:
+					pass
+				else:
+					os.remove(img_path)
 
-
-	def move_relevant_files(self):
-
-		# Get by index  frame 0 ,1 ,3 or 4, example:
-		"""
-		photo0 = self.circular_buff[0]
-		photo1 = self.circular_buff[1]
-
-		photo3 = self.circular_buff[3]
-		photo4 = self.circular_buff[4]
-
-
-		src0, dest0 = photo0[0], photo0[1]
-		src1, dest1 = photo1[0], photo1[1]
-
-		src3, dest3 = photo3[0], photo3[1]
-		src4, dest4 = photo4[0], photo4[1]
+		if self.frame_marcado != None:
+			# Once the while is finish move the files to his folders.
+			self.move_relevant_files(self.frame_marcado)
 
 
-		shutil.move(src0, dest0)
-		shutil.move(src1, dest1)
+	def move_relevant_files(self, frame_marcado):
 
-		shutil.move(src3, dest3)
-		shutil.move(src4, dest4)
-		"""
+		marcados_list  = []
+		for i, image_route in enumerate(self.circular_buff):
+			#print('3.- image ROUTE', image_route)
+			image_route_splited = image_route.split('i')
 
-		"""
-		# Get by last value in past: get the last two photos
+			if frame_marcado in image_route_splited:
+				marcados_list.append(i)
+				#print('FRAME MARCADOS,:', image_route)
+			else:
+				marcados_list.append(i-1)
+		
+		if len(marcados_list) != 0:
+			marcado_frame = marcados_list[-1]
 
-		photo0 = self.circular_buff.popleft()
-		#photo1 = self.circular_buff.popleft()
+			#indice = self.circular_buff.index(marcado_frame)
+			indice = marcado_frame
 
-		photo_zero_present = self.circular_buff.pop()
-		photo_two_present = self.circular_buff.pop()
+			src_0 = self.circular_buff[indice] 
+				
+			dst_0 = self.save_in_file + '_0.jpg'
 
-		src0, dest0 = photo0[0], photo0[1]
-		#src1, dest1 = photo1[0], photo1[1]
+			try:
+				src_one = self.circular_buff[indice+1]
+				dst_one = self.save_in_file + '_1.jpg'
+			except:
+				src_one = self.circular_buff[indice-2]
+				dst_one = self.save_in_file + '_1.jpg'
 
-		src_zero, dest_zero = photo_zero_present[0], photo_zero_present[1]
-		src_two, dest_two = photo_two_present[0], photo_two_present[1]
-		"""
 
-		photo0 = self.circular_buff[-1]
-		src0, dst0 = photo0[0], photo0[1]
+			src_two = self.circular_buff[indice-1]
+			dst_two = self.save_in_file + '_-1.jpg'
 
-		src_one = self.circular_buff[-2]
-		src_one, dst_one = src_one[0], src_one[1]
+			self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
 
-		src_two = self.circular_buff[-3]
-		src_two, dst_two = src_two[0], src_two[1]
+				
+		else:
+			pass
 
+		# CLEANING Variables
+		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database.db'
+		
 		try:
-			shutil.move(src0, dst0)
+			conn = sqlite3.connect(path_to_metadata)
+			c =  conn.cursor()
+			c.execute("SELECT * FROM stufftoPlot ORDER BY SAVE_IMG_IN DESC LIMIT 1")
+			data = c.fetchall()
+
+			for row in data:
+				metadata = list(data)
+
+			# Read data for the new row 
+			date   = metadata[0]
+			folder = metadata[1]
+			index  = metadata[2]
+			status = 'CLOSED' # Changed value to Close once the function finish to move
+			# Update the DB
+			self.dynamic_data_entry(c, cnn, workdir, save_img_in, index, status)
+		except Exception as e:
+			print('<<DB 2 ERROR>> I cant open or read the DB by this erro:', e)
+
+		self.frame_marcado = None
+
+
+	def dynamic_data_entry(self, c, cnn, workdir, save_img_in, index, status):
+
+		WORKDIR = workdir
+		SAVE_IMG_IN = save_img_in
+		INDEX = index
+		STATUS = status
+		c.execute("INSERT INTO  shooter_table(WORKDIR, SAVE_IMG_IN, INDEX, STATUS) VALUES (?,?,?,?)",\
+					(WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
+		conn.commit()
+
+
+		# Close coneccions
+		c.close()
+		conn.close()
+
+	def copiar_las_imagenes(self, src_0,dst_0,src_one, dst_one, src_two, dst_two):
+		try:
+			#print('copying from:', src_0, 'to:', dst_0)
+			shutil.copy(src_0, dst_0)
 		except:
-			print('DELETION WARNING for {}, delering source {}'.format(dst0, src0))
-			os.remove(src0)
+			print('DELETION WARNING for {}, delering source {}'.format(dst_0, src_0))
+			os.remove(src_0)
+
 		try:
-			shutil.move(src_one, dst_one)
+			#print('copying from:', src_one, 'to:', dst_one)
+			shutil.copy(src_one, dst_one)
 		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_one, src_one))
 			os.remove(src_one)
 		try:
-			shutil.move(src_two, dst_two)
-		except Exception as e:
+			#print('copying from:', src_two, 'to:', dst_two)
+			shutil.copy(src_two, dst_two)
+		except:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_two, src_two))
 			os.remove(src_two)
-
 		print('Capturado posible infractor!')
 
 
-		# Get present photo
-
-
-
-
-
-
 	def start(self):
-		start = time.time()
+		#print('here alive...')
 		self.camera.capture_sequence(self.writter(), format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
-		finish = time.time()
-		#print("Captured %d frames at %.2ffps" % (self.maxCapturas,self.maxCapturas / (finish - start)))
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 

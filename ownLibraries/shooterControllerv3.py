@@ -11,6 +11,9 @@ import pandas as pd
 import multiprocessing
 import numpy as np
 from .shooterv9 import Shooter
+import csv
+
+import sqlite3
 
 class ControladorCamara():
 	def __init__(self):
@@ -35,33 +38,72 @@ class ControladorCamara():
 		# Get WORDIR route
 		self.path_to_work = os.getenv('HOME')+'/'+ 'WORKDIR' + '/'
 
-
 		# Create Dataframe, setting None as init condition
-		frame = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': [date], 'INDEX': ['XX'], 'STATUS':['CLOSED']}
-		dataframe = pd.DataFrame(frame)	
+		#frame = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': [date], 'INDEX': [], 'STATUS':['CLOSED']}
+		#dataframe = pd.DataFrame(frame)	
 
 		# Save Dataframe to the WorkDir Route as metadata.csv
-		dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False, sep=',')
+		#dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False, sep=',')
+
+
+		# Create Initial SQLITE3 database
+		conn = sqlite3.connect(self.path_to_work + 'shooter_database.db')
+		c =  conn.cursor()
+
+		self.create_table(c)
+		self.dynamic_data_entry(c, cnn, 'WORKDIR', str(date), 'XX', 'CLOSED')
+
+
+	def create_table(self, c):
+		# Create table with default values as:
+
+		# WORKDIR, dir where to start to work
+		# SAVE_IMG_IN, dir where to copy the images from WORKDIR
+		# INDEX, don't remember xD
+		# STATUS, took pictures or not status
+
+	    c.execute('CREATE TABLE IF NOT EXISTS shooter_table(WORKDIR TEXT, SAVE_IMG_IN TEXT, INDEX TEXT, STATUS TEXT)')
+
+	def dynamic_data_entry(self, c, cnn, workdir, save_img_in, index, status):
+
+		WORKDIR = workdir
+		SAVE_IMG_IN = save_img_in
+		INDEX = index
+		STATUS = status
+		c.execute("INSERT INTO  shooter_table(WORKDIR, SAVE_IMG_IN, INDEX, STATUS) VALUES (?,?,?,?)",\
+			(WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
+		conn.commit()
+		
+
+		# Close coneccions
+		c.close()
+    	conn.close()
+
 
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
 		#print('En ShooterControllerv2 resivo nombre de archivo : ', nombreFoldertoSave)
 
 		# Read old metadata
-		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
-		old_metadata = pd.read_csv(path_to_metadata)
+		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database.db'
+		workdir = 'WORKDIR'
+		save_img_in = nombreFoldertoSave
 
 		# For get the frame inside of the yield loop
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-		index = date.split(':')[-1]
+		index = str(date.split(':')[-1]) # MOST IMPORTANT FOR SYNC WITH THE PARALLEL PROCESS
 
+		# Took or not captures from pi camera
+		status = 'OPEN'
 
-		# Create new row
-		row = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': [nombreFoldertoSave], 'INDEX': [str(index)], 'STATUS':['OPEN']}
-		new_row = pd.DataFrame(row)
+		# Init DB
+		conn = sqlite3.connect(path_to_metadata)
+		c =  conn.cursor()
+		self.create_table(c)
 
-		# Append new row to old metadata
-		new_metadata = pd.concat([old_metadata, new_row])
-		new_metadata.to_csv(path_to_metadata, index=False, sep=',')
+		# UPDATE NEW ROW
+		# Append new row to old metadata and close connection
+		self.dynamic_data_entry(c, cnn, workdir, save_img_in, index, status)
+
 
 		return self
 
@@ -81,26 +123,44 @@ class ControladorCamara():
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
 		print('Aqui solo entro una sola vez')
 		miCamara = Shooter()
+
+		# Load the state of the While loop
 		path_to_run = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
 		run_camera = np.load(path_to_run)
 		while run_camera == 1:
 			miCamara.start()
 			# Read metadata
-			path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
+			path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database.db'
 			path_to_run = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
 			try:
-				metadata = pd.read_csv(path_to_metadata)
-			except:
-				print('io prblem in read_csv, creating default dframe')
-				dframe = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': ['None'], 'INDEX': ['XX'],'STATUS':['OPEN']}
-				metadata = pd.DataFrame(dframe)
+				# Init DB
+				conn = sqlite3.connect(path_to_metadata)
+				c =  conn.cursor()
+			    #c.execute("SELECT * FROM stufftoPlot WHERE value=3 AND keyword='Python'")
+			    #c.execute("SELECT keyword,unix,value FROM stufftoPlot WHERE unix >1515634491")
+			    c.execute("SELECT * FROM stufftoPlot ORDER BY SAVE_IMG_IN DESC LIMIT 1")
+			    #data = c.fetchone()
+			    data = c.fetchall()
+			    for row in data:
+			        metadata = list(data)
+        		c.close()
+				conn.close()
+
+
+				#with open(path_to_metadata) as f:
+				#    metadata = csv.reader(f)
+				    #metadata = pd.read_csv(path_to_metadata)
+			except Exception as e:
+				print('<<DB 1 ERROR>> I cant open or read the DB by this erro:', e)
+				#print('io prblem in read_csv, creating default dframe')
+				#dframe = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': ['None'], 'INDEX': ['XX'],'STATUS':['OPEN']}
+				#metadata = pd.DataFrame(dframe)
 			
 
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-			folder = metadata.SAVE_IMG_IN.values[-1]
-			index = str(metadata.INDEX.values[-1])
-			status = metadata.STATUS.values[-1]
-
+			folder = metadata[1]
+			index  = metadata[2]
+			status = metadata[3]
 			if  status != 'CLOSED':
 				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
 
