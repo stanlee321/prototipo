@@ -185,9 +185,10 @@ class Shooter():
 			aux_list = []
 			for row in data:
 				aux_list.append(row)
-				print('DB2 row is', row)
+				#print('DB2 row is', row)
 				#metadata = list(data)
-			metadata = aux_list[0]
+			metadata = aux_list[1]
+			print('Aux list,', aux_list)
 			print('DB2 metadata is', metadata)
 			# Read data for the new row 
 			date   = metadata[0]

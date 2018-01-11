@@ -118,7 +118,6 @@ class ControladorCamara():
 
 	def procesadoParalelo(self, ilive):
 		#if os.uname()[1] == 'alvarohurtado-305V4A':
-		print('Aqui solo entro una sola vez')
 		miCamara = Shooter()
 
 		# Load the state of the While loop
