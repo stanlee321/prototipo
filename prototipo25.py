@@ -102,7 +102,13 @@ def __main_function__():
 		os.makedirs(directorioDeReporte)
 
 	# Creamos el reporte inicial
-	miReporte = MiReporte(levelLogging=logging.INFO,nombre=__name__,directorio=directorioDeReporte)			# Se crea por defecto con nombre de la fecha y hora actual
+	if generarArchivosDebug:
+		miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__,directorio=directorioDeReporte)			# Se crea por defecto con nombre de la fecha y hora actual
+		miReporte.info('Generando DEBUG')
+	else:
+		miReporte = MiReporte(levelLogging=logging.INFO,nombre=__name__,directorio=directorioDeReporte)			# Se crea por defecto con nombre de la fecha y hora actual
+		
+	
 	miReporte.info('Programa iniciado exitosamente con ingreso de senal video '+archivoDeVideo+entradaReal+' con semaforo '+semaforoSimuladoTexto+str(periodoDeSemaforo) +', corriendo a '+str(mifps)+' Frames por Segundo')
 	
 	vectorDeInicio = [[datetime.datetime.now(),0,0,0,0,0]]
@@ -112,13 +118,7 @@ def __main_function__():
 	else:
 		miReporte.info('Creando reporte desde cero')
 		#np.save(reporteDiario,vectorDeInicio)
-	
-	# Is statements
-	if generarArchivosDebug:
-		miReporte.info('Generando Archivos de Debug')
-	else:
-		miReporte.info('Generando infracciones unicamente (No debug video)')
-	
+
 	# If mostrar Imagenes
 	if mostrarImagen:
 		miReporte.info('Pantalla de muestra de funcionamiento en tiempo real encendida')
@@ -243,9 +243,10 @@ def __main_function__():
 					#miPoliciaReportando.reportarTodasInfraccionesEnUno()
 				miPoliciaReportando.reportarPasoAPaso(historial)
 	
-				if datetime.datetime.now().hour>tiempoEnPuntoParaNormalVideo:
-					miPoliciaReportando.generarVideoMuestra(historial)
-					tiempoEnPuntoParaNormalVideo = datetime.datetime.now().hour
+				if generarArchivosDebug:
+					if datetime.datetime.now().hour>tiempoEnPuntoParaNormalVideo:
+						miPoliciaReportando.generarVideoMuestra(historial)
+						tiempoEnPuntoParaNormalVideo = datetime.datetime.now().hour
 				if datetime.datetime.now().hour == 7:
 					tiempoEnPuntoParaNormalVideo = 7
 
@@ -258,7 +259,7 @@ def __main_function__():
 				miFiltro.quitarFiltroIR()
 				miReporte.info('Desactive Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
 
-			if len(historial)> 3*60*mifps:	# Si es mayor a dos minutos en el pasado
+			if len(historial)> 2*60*mifps:	# Si es mayor a dos minutos en el pasado
 				del historial[min(historial)]				
 
 			# Draw frame number into image on top

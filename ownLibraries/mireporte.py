@@ -7,8 +7,14 @@ class MiReporte():
 	Crea un archivo de logging de nombre especificado con por defecto con un nivel de logging.
 	Al cambiar el reporte este se traspasa a una carpeta dentro del directorio de trabajo con el mismo nombre del directorio
 	"""
-	def __init__(self, levelLogging=logging.INFO, nombre = __name__,directorio=os.getenv('HOME')+'/'+datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'):
-		
+	level = logging.INFO
+	def __init__(self, levelLogging, nombre = __name__,directorio=os.getenv('HOME')+'/'+datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'):
+		try:
+			levelLogging
+		except:
+			levelLogging = level
+		else:
+			MiReporte.level = levelLogging
 		self.logger = logging.getLogger(nombre)
 		self.logger.setLevel(levelLogging)
 		self.formatter = logging.Formatter('%(levelname)s:%(name)s:%(asctime)s\t\t%(message)s')
@@ -21,6 +27,7 @@ class MiReporte():
 
 		self.logger.addHandler(self.fileHandlerActual)
 		self.logger.addHandler(self.stream_handler)
+		self.info('Started Reporte with level '+str(MiReporte.level))
 		
 	def moverRegistroACarpeta(self,nombreDeCarpeta = datetime.datetime.now().strftime('%m-%d_%H:%M')):
 		self.logger.removeHandler(self.fileHandlerActual)
@@ -41,6 +48,8 @@ class MiReporte():
 		self.logger.removeHandler(self.fileHandlerActual)
 		self.initDirectory(directorio)
 		
+	def setLevel(self):
+		MiReporte.level = 'info'
 
 
 	def trace(self,mensaje):
