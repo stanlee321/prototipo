@@ -191,7 +191,7 @@ class Shooter():
 			index  = metadata[0][2]
 			status = 'CLOSED' # Changed value to Close once the function finish to move
 			# Update the DB
-			self.dynamic_data_entry(c, conn, workdir, save_img_in, index, status)
+			self.dynamic_data_entry(c, conn, 'WORKDIR', save_img_in, index, status)
 		except Exception as e:
 			print('<<DB 2 ERROR>> I cant open or read the DB by this erro:', e)
 
