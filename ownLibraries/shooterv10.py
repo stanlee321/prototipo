@@ -179,10 +179,11 @@ class Shooter():
 		try:
 			conn = sqlite3.connect(path_to_metadata)
 			c =  conn.cursor()
-			c.execute("SELECT * FROM shooter_table ORDER BY Save_img_in DESC LIMIT 1")
+			c.execute("SELECT * FROM shooter_table ORDER BY Save_img_in DESC LIMIT 0")
 			data = c.fetchall()
 
 			for row in data:
+				print('DB2 row is', row)
 				metadata = list(data)
 
 			# Read data for the new row 
@@ -204,10 +205,13 @@ class Shooter():
 		SAVE_IMG_IN = save_img_in
 		INDEX = str(index)
 		STATUS = status
+		print('WORKDIR TO RESET', WORKDIR)
+		print('SAVE_IMG_IN', SAVE_IMG_IN)
+		print('INDEX', INDEX)
+		print('SAVING STATUS FROM DB2, status is', STATUS)
 		c.execute("INSERT INTO  shooter_table(WorkDir, Save_img_in, Idx, Status) VALUES (?,?,?,?)",\
 					(WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
 		conn.commit()
-
 
 		# Close coneccions
 		c.close()

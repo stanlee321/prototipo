@@ -95,7 +95,7 @@ class ControladorCamara():
 		# Init DB
 		conn = sqlite3.connect(path_to_metadata)
 		c =  conn.cursor()
-		self.create_table(c)
+		#self.create_table(c)
 
 		# UPDATE NEW ROW
 		# Append new row to old metadata and close connection
@@ -141,6 +141,12 @@ class ControladorCamara():
 				for row in data:
 					print(row)
 					metadata = list(data)
+
+				#c.execute("SELECT * FROM shooter_table")
+				#d = c.fetchall()
+				#for r in d:
+				#	print('ALLis', r)
+
 				c.close()
 				conn.close()
 
