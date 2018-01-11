@@ -139,7 +139,9 @@ class ControladorCamara():
 				#data = c.fetchone()
 				data = c.fetchall()
 				for row in data:
-						metadata = list(data)
+					print(row)
+					metadata = list(data)
+					print('metadatta is', metadata)
 				c.close()
 				conn.close()
 
@@ -152,17 +154,12 @@ class ControladorCamara():
 				#print('io prblem in read_csv, creating default dframe')
 				#dframe = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': ['None'], 'INDEX': ['XX'],'STATUS':['OPEN']}
 				#metadata = pd.DataFrame(dframe)
-			try:
-				date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-				folder = metadata[1]
-				index  = metadata[2]
-				status = metadata[3]
-				if  status != 'CLOSED':
-					miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
-			except Exception as e:
-				print('First run , no info in DB , passing', e)
-
-			
+			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+			folder = metadata[1]
+			index  = metadata[2]
+			status = metadata[3]
+			if  status != 'CLOSED':
+				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)		
 	
 			# Load status to run the camera or exit from this while loop
 			try:
