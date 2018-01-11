@@ -10,9 +10,7 @@ import threading
 import pandas as pd
 import multiprocessing
 import numpy as np
-from .shooterv9 import Shooter
-import csv
-
+from .shooterv10 import Shooter
 import sqlite3
 
 class ControladorCamara():
