@@ -179,7 +179,7 @@ class Shooter():
 		try:
 			conn = sqlite3.connect(path_to_metadata)
 			c =  conn.cursor()
-			c.execute("SELECT * FROM stufftoPlot ORDER BY Save_img_in DESC LIMIT 1")
+			c.execute("SELECT * FROM shooter_table ORDER BY Save_img_in DESC LIMIT 1")
 			data = c.fetchall()
 
 			for row in data:
@@ -202,7 +202,7 @@ class Shooter():
 
 		WORKDIR = workdir
 		SAVE_IMG_IN = save_img_in
-		INDEX = index
+		INDEX = str(index)
 		STATUS = status
 		c.execute("INSERT INTO  shooter_table(WorkDir, Save_img_in, Index, Status) VALUES (?,?,?,?)",\
 					(WORKDIR, SAVE_IMG_IN, INDEX, STATUS))

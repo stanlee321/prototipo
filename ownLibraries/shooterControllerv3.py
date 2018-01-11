@@ -66,7 +66,7 @@ class ControladorCamara():
 
 		WORKDIR = workdir
 		SAVE_IMG_IN = save_img_in
-		INDEX = index
+		INDEX = str(index)
 		STATUS = status
 		c.execute("INSERT INTO  shooter_table(WorkDir, Save_img_in, Index, Status) VALUES (?,?,?,?)",\
 			(WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
@@ -136,7 +136,7 @@ class ControladorCamara():
 				c =  conn.cursor()
 				#c.execute("SELECT * FROM stufftoPlot WHERE value=3 AND keyword='Python'")
 				#c.execute("SELECT keyword,unix,value FROM stufftoPlot WHERE unix >1515634491")
-				c.execute("SELECT * FROM stufftoPlot ORDER BY Save_img_in DESC LIMIT 1")
+				c.execute("SELECT * FROM shooter_table ORDER BY Save_img_in DESC LIMIT 1")
 				#data = c.fetchone()
 				data = c.fetchall()
 				for row in data:
