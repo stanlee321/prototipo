@@ -60,7 +60,7 @@ class ControladorCamara():
 		# INDEX, don't remember xD
 		# STATUS, took pictures or not status
 
-	    c.execute('CREATE TABLE IF NOT EXISTS shooter_table(WORKDIR TEXT, SAVE_IMG_IN TEXT, INDEX TEXT, STATUS TEXT)')
+	    c.execute('CREATE TABLE IF NOT EXISTS shooter_table(WorkDir TEXT, Save_img_in TEXT, Index TEXT, Status TEXT)')
 
 	def dynamic_data_entry(self, c, cnn, workdir, save_img_in, index, status):
 
@@ -68,7 +68,7 @@ class ControladorCamara():
 		SAVE_IMG_IN = save_img_in
 		INDEX = index
 		STATUS = status
-		c.execute("INSERT INTO  shooter_table(WORKDIR, SAVE_IMG_IN, INDEX, STATUS) VALUES (?,?,?,?)",\
+		c.execute("INSERT INTO  shooter_table(WorkDir, Save_img_in, Index, Status) VALUES (?,?,?,?)",\
 			(WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
 		conn.commit()
 		
@@ -136,11 +136,11 @@ class ControladorCamara():
 				c =  conn.cursor()
 				#c.execute("SELECT * FROM stufftoPlot WHERE value=3 AND keyword='Python'")
 				#c.execute("SELECT keyword,unix,value FROM stufftoPlot WHERE unix >1515634491")
-				c.execute("SELECT * FROM stufftoPlot ORDER BY SAVE_IMG_IN DESC LIMIT 1")
+				c.execute("SELECT * FROM stufftoPlot ORDER BY Save_img_in DESC LIMIT 1")
 				#data = c.fetchone()
 				data = c.fetchall()
 				for row in data:
-					metadata = list(data)
+						metadata = list(data)
 				c.close()
 				conn.close()
 
@@ -161,7 +161,7 @@ class ControladorCamara():
 			status = metadata[3]
 			if  status != 'CLOSED':
 				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
-
+	
 			# Load status to run the camera or exit from this while loop
 			try:
 				run_camera = np.load(path_to_run)
