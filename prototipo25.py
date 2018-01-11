@@ -269,11 +269,6 @@ def __main_function__():
 				for puntos in infraction['desplazamiento']:
 					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
 					miAcetatoInformativo.colocarObjeto(puntosExtraidos,infraction['estado'])
-					#for punto in puntosExtraidos:
-					#	if infraction['estado'] == 'Confirmado':
-					#		miAcetatoInformativo.colocarPunto(tuple(punto),0)
-					#	else:
-					#		miAcetatoInformativo.colocarPunto(tuple(punto),1)
 
 			#for puntoResguardo in miPoliciaReportando.obtenerLineasDeResguardo(False):
 			miAcetatoInformativo.colocarObjeto(miPoliciaReportando.obtenerLineasDeResguardo(True),'Referencia')

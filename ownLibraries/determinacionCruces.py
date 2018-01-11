@@ -16,8 +16,6 @@ from ownLibraries.generadorevidencia import GeneradorEvidencia
 if os.uname()[1] == 'raspberrypi':
 	from ownLibraries.shooterControllerv2 import ControladorCamara
 
-nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
-directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
 
@@ -27,10 +25,11 @@ class PoliciaInfractor():
 	Tambien se encarga de crear los objetos Vehiculos que pueden estar en estado cruce o infraccion
 	También se encarga de proveer el estado actual del infractor
 	"""
-	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada,mifps = 8,debug = False):
+	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada,mifps = 8,directorioDeReporte=os.getenv('HOME')+'/'+datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte',debug = False):
 		# Tomo la imagen de inicialización y obtengo algunas caracteristicas de la misma
+		self.directorioDeReporte = directorioDeReporte
 		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)
-		self.miGrabadora = GeneradorEvidencia(directorioDeReporte,mifps,False)
+		self.miGrabadora = GeneradorEvidencia(self.directorioDeReporte,mifps,False)
 		self.reportarDebug = debug
 		self.minimosFramesVideoNormalDebug = 5*mifps # minimo 5 segundos de debug
 
@@ -86,6 +85,9 @@ class PoliciaInfractor():
 
 		if os.uname()[1] == 'raspberrypi':
 			self.camaraAlta = ControladorCamara()
+
+	def nuevoDia(self):
+		self.directorioDeReporte = directorioDeReporte
 
 	def ensancharCarrilValido(self, carrilValido):
 		# Input type: self.carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
@@ -252,7 +254,7 @@ class PoliciaInfractor():
 			direccionDeGuardadoFotos = 'None'
 			if colorSemaforo >=1:
 				nuevoVehiculo['infraccion'] = 'candidato'
-				direccionDeGuardadoFotos = directorioDeReporte + '/' + nombreInfraccionYFolder
+				direccionDeGuardadoFotos = self.directorioDeReporte + '/' + nombreInfraccionYFolder
 				if not os.path.exists(direccionDeGuardadoFotos):
 					os.makedirs(direccionDeGuardadoFotos)
 				#self.miReporte.debug('Creado '+direccionDeGuardadoFotos)
@@ -317,7 +319,7 @@ class PoliciaInfractor():
 
 	def eliminoCarpetaDeSerNecesario(self,infraccion):
 		try: 
-			carpetaABorrar = directorioDeReporte+'/'+infraccion['name']
+			carpetaABorrar = self.directorioDeReporte+'/'+infraccion['name']
 			self.miReporte.info('\t\t> Borrando: '+carpetaABorrar+' con estado '+infraccion['estado'])
 			shutil.rmtree(carpetaABorrar)
 		except Exception as e:
