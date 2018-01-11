@@ -10,7 +10,7 @@ import threading
 import pandas as pd
 import multiprocessing
 import numpy as np
-from .shooterv10 import Shooter
+from shooterv10 import Shooter
 import sqlite3
 
 class ControladorCamara():
@@ -49,7 +49,7 @@ class ControladorCamara():
 		c =  conn.cursor()
 
 		self.create_table(c)
-		self.dynamic_data_entry(c, cnn, 'WORKDIR', str(date), 'XX', 'CLOSED')
+		self.dynamic_data_entry(c, conn, 'WORKDIR', str(date), 'XX', 'CLOSED')
 
 
 	def create_table(self, c):
@@ -59,23 +59,22 @@ class ControladorCamara():
 		# SAVE_IMG_IN, dir where to copy the images from WORKDIR
 		# INDEX, don't remember xD
 		# STATUS, took pictures or not status
+		c.execute('CREATE TABLE IF NOT EXISTS shooter_table(WorkDir TEXT,Save_img_in TEXT,Idx TEXT,Status TEXT)')
 
-	    c.execute('CREATE TABLE IF NOT EXISTS shooter_table(WORKDIR TEXT, SAVE_IMG_IN TEXT, INDEX TEXT, STATUS TEXT)')
-
-	def dynamic_data_entry(self, c, cnn, workdir, save_img_in, index, status):
+	def dynamic_data_entry(self, c, conn, workdir, save_img_in, index, status):
 
 		WORKDIR = workdir
 		SAVE_IMG_IN = save_img_in
-		INDEX = index
+		INDEX = str(index)
 		STATUS = status
-		c.execute("INSERT INTO  shooter_table(WORKDIR, SAVE_IMG_IN, INDEX, STATUS) VALUES (?,?,?,?)",\
+		c.execute("INSERT INTO  shooter_table(WorkDir, Save_img_in, Idx, Status) VALUES (?,?,?,?)",\
 			(WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
 		conn.commit()
 		
 
 		# Close coneccions
 		c.close()
-    	conn.close()
+		conn.close()
 
 
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
@@ -100,7 +99,7 @@ class ControladorCamara():
 
 		# UPDATE NEW ROW
 		# Append new row to old metadata and close connection
-		self.dynamic_data_entry(c, cnn, workdir, save_img_in, index, status)
+		self.dynamic_data_entry(c, conn, workdir, save_img_in, index, status)
 
 
 		return self
@@ -134,14 +133,16 @@ class ControladorCamara():
 				# Init DB
 				conn = sqlite3.connect(path_to_metadata)
 				c =  conn.cursor()
-			    #c.execute("SELECT * FROM stufftoPlot WHERE value=3 AND keyword='Python'")
-			    #c.execute("SELECT keyword,unix,value FROM stufftoPlot WHERE unix >1515634491")
-			    c.execute("SELECT * FROM stufftoPlot ORDER BY SAVE_IMG_IN DESC LIMIT 1")
-			    #data = c.fetchone()
-			    data = c.fetchall()
-			    for row in data:
-			        metadata = list(data)
-        		c.close()
+				#c.execute("SELECT * FROM stufftoPlot WHERE value=3 AND keyword='Python'")
+				#c.execute("SELECT keyword,unix,value FROM stufftoPlot WHERE unix >1515634491")
+				c.execute("SELECT * FROM shooter_table ORDER BY Save_img_in DESC LIMIT 1")
+				#data = c.fetchone()
+				data = c.fetchall()
+				for row in data:
+					print(row)
+					metadata = list(data)
+					print('metadatta is', metadata)
+				c.close()
 				conn.close()
 
 
@@ -153,15 +154,13 @@ class ControladorCamara():
 				#print('io prblem in read_csv, creating default dframe')
 				#dframe = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': ['None'], 'INDEX': ['XX'],'STATUS':['OPEN']}
 				#metadata = pd.DataFrame(dframe)
-			
-
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 			folder = metadata[1]
 			index  = metadata[2]
 			status = metadata[3]
 			if  status != 'CLOSED':
-				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
-
+				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)		
+	
 			# Load status to run the camera or exit from this while loop
 			try:
 				run_camera = np.load(path_to_run)

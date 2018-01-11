@@ -179,7 +179,7 @@ class Shooter():
 		try:
 			conn = sqlite3.connect(path_to_metadata)
 			c =  conn.cursor()
-			c.execute("SELECT * FROM stufftoPlot ORDER BY SAVE_IMG_IN DESC LIMIT 1")
+			c.execute("SELECT * FROM shooter_table ORDER BY Save_img_in DESC LIMIT 1")
 			data = c.fetchall()
 
 			for row in data:
@@ -191,20 +191,20 @@ class Shooter():
 			index  = metadata[2]
 			status = 'CLOSED' # Changed value to Close once the function finish to move
 			# Update the DB
-			self.dynamic_data_entry(c, cnn, workdir, save_img_in, index, status)
+			self.dynamic_data_entry(c, conn, workdir, save_img_in, index, status)
 		except Exception as e:
 			print('<<DB 2 ERROR>> I cant open or read the DB by this erro:', e)
 
 		self.frame_marcado = None
 
 
-	def dynamic_data_entry(self, c, cnn, workdir, save_img_in, index, status):
+	def dynamic_data_entry(self, c, conn, workdir, save_img_in, index, status):
 
 		WORKDIR = workdir
 		SAVE_IMG_IN = save_img_in
-		INDEX = index
+		INDEX = str(index)
 		STATUS = status
-		c.execute("INSERT INTO  shooter_table(WORKDIR, SAVE_IMG_IN, INDEX, STATUS) VALUES (?,?,?,?)",\
+		c.execute("INSERT INTO  shooter_table(WorkDir, Save_img_in, Idx, Status) VALUES (?,?,?,?)",\
 					(WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
 		conn.commit()
 
