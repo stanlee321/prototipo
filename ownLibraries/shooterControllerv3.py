@@ -13,6 +13,9 @@ import numpy as np
 from .shooterv10 import Shooter
 import sqlite3
 
+
+
+
 class ControladorCamara():
 	def __init__(self):
 		# Se declaran las variables de control con el proceso paralelo
