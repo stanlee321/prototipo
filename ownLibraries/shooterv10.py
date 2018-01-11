@@ -204,7 +204,7 @@ class Shooter():
 		SAVE_IMG_IN = save_img_in
 		INDEX = str(index)
 		STATUS = status
-		c.execute("INSERT INTO  shooter_table(WorkDir, Save_img_in, Index, Status) VALUES (?,?,?,?)",\
+		c.execute("INSERT INTO  shooter_table(WorkDir, Save_img_in, Idx, Status) VALUES (?,?,?,?)",\
 					(WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
 		conn.commit()
 

@@ -48,17 +48,18 @@ class ControladorCamara():
 		conn = sqlite3.connect(self.path_to_work + 'shooter_database.db')
 		c =  conn.cursor()
 
-		c.execute('CREATE TABLE IF NOT EXISTS shooter_table(WorkDir TEXT, Save_img_in TEXT, Index TEXT, Status TEXT)')
+		self.create_table(c)
 		self.dynamic_data_entry(c, cnn, 'WORKDIR', str(date), 'XX', 'CLOSED')
 
 
-	#def create_table(self, c):
+	def create_table(self, c):
 		# Create table with default values as:
 
 		# WORKDIR, dir where to start to work
 		# SAVE_IMG_IN, dir where to copy the images from WORKDIR
 		# INDEX, don't remember xD
 		# STATUS, took pictures or not status
+		c.execute('CREATE TABLE IF NOT EXISTS shooter_table(WorkDir TEXT,Save_img_in TEXT,Idx TEXT,Status TEXT)')
 
 	def dynamic_data_entry(self, c, cnn, workdir, save_img_in, index, status):
 
@@ -66,7 +67,7 @@ class ControladorCamara():
 		SAVE_IMG_IN = save_img_in
 		INDEX = str(index)
 		STATUS = status
-		c.execute("INSERT INTO  shooter_table(WorkDir, Save_img_in, Index, Status) VALUES (?,?,?,?)",\
+		c.execute("INSERT INTO  shooter_table(WorkDir, Save_img_in, Idx, Status) VALUES (?,?,?,?)",\
 			(WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
 		conn.commit()
 		
@@ -94,7 +95,7 @@ class ControladorCamara():
 		# Init DB
 		conn = sqlite3.connect(path_to_metadata)
 		c =  conn.cursor()
-		c.execute('CREATE TABLE IF NOT EXISTS shooter_table(WorkDir TEXT, Save_img_in TEXT, Index TEXT, Status TEXT)')
+		self.create_table(c)
 
 		# UPDATE NEW ROW
 		# Append new row to old metadata and close connection
