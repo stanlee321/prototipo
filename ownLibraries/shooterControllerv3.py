@@ -157,11 +157,12 @@ class ControladorCamara():
 				folder = metadata[1]
 				index  = metadata[2]
 				status = metadata[3]
+				if  status != 'CLOSED':
+					miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
 			except Exception as e:
 				print('First run , no info in DB , passing', e)
-				
-			if  status != 'CLOSED':
-				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
+
+			
 	
 			# Load status to run the camera or exit from this while loop
 			try:
