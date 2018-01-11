@@ -59,8 +59,7 @@ class ControladorCamara():
 		# SAVE_IMG_IN, dir where to copy the images from WORKDIR
 		# INDEX, don't remember xD
 		# STATUS, took pictures or not status
-
-	    c.execute('CREATE TABLE IF NOT EXISTS shooter_table(WorkDir TEXT, Save_img_in TEXT, Index TEXT, Status TEXT)')
+		c.execute('CREATE TABLE IF NOT EXISTS shooter_table(WorkDir TEXT, Save_img_in TEXT, Index TEXT, Status TEXT)')
 
 	def dynamic_data_entry(self, c, cnn, workdir, save_img_in, index, status):
 
