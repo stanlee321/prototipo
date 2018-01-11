@@ -179,13 +179,16 @@ class Shooter():
 		try:
 			conn = sqlite3.connect(path_to_metadata)
 			c =  conn.cursor()
-			c.execute("SELECT * FROM shooter_table ORDER BY Save_img_in DESC LIMIT 0")
+			c.execute("SELECT * FROM shooter_table ORDER BY Save_img_in DESC LIMIT 2")
 			data = c.fetchall()
 
+			aux_list = []
 			for row in data:
+				aux_list.append(row)
 				print('DB2 row is', row)
-				metadata = list(data)
-
+				#metadata = list(data)
+			metadata = aux_list[-1]
+			print('DB2 metadata is', metadata)
 			# Read data for the new row 
 			date   = metadata[0][0]
 			folder = metadata[0][1]
