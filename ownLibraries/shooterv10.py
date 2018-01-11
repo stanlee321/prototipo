@@ -179,24 +179,31 @@ class Shooter():
 		try:
 			conn = sqlite3.connect(path_to_metadata)
 			c =  conn.cursor()
-			c.execute("SELECT * FROM shooter_table ORDER BY Save_img_in DESC LIMIT 2")
-			data = c.fetchall()
+			#c.execute("SELECT Status FROM shooter_table WHERE Save_img_in = ")
+		    c.execute('UPDATE shooter_table SET Status = "CLOSED" WHERE Status = "OPEN"')
+		    conn.commit()
 
-			aux_list = []
-			for row in data:
-				aux_list.append(row)
-				#print('DB2 row is', row)
-				#metadata = list(data)
-			metadata = aux_list[1]
-			print('Aux list,', aux_list)
-			print('DB2 metadata is', metadata)
-			# Read data for the new row 
-			date   = metadata[0]
-			folder = metadata[1]
-			index  = metadata[2]
-			status = 'CLOSED' # Changed value to Close once the function finish to move
+			# Close coneccions
+			c.close()
+			conn.close()
+
+			#data = c.fetchall()
+
+			#aux_list = []
+			#for row in data:
+			#	aux_list.append(row)
+			#	#print('DB2 row is', row)
+			#	#metadata = list(data)
+			#metadata = aux_list[1]
+			#print('Aux list,', aux_list)
+			#print('DB2 metadata is', metadata)
+			## Read data for the new row 
+			#date   = metadata[0]
+			#folder = metadata[1]
+			#index  = metadata[2]
+			#status = 'CLOSED' # Changed value to Close once the function finish to move
 			# Update the DB
-			self.dynamic_data_entry(c, conn, 'WORKDIR', folder, index, status)
+			#self.dynamic_data_entry(c, conn, 'WORKDIR', folder, index, status)
 		except Exception as e:
 			print('<<DB 2 ERROR>> I cant open or read the DB by this erro:', e)
 
