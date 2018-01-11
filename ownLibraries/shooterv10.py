@@ -212,7 +212,6 @@ class Shooter():
 					(WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
 		conn.commit()
 
-
 		# Close coneccions
 		c.close()
 		conn.close()
