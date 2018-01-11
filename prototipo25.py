@@ -21,10 +21,11 @@ from ownLibraries.determinacionCruces import PoliciaInfractor
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos  = os.getenv('HOME')+'/trafficFlow/trialVideos'
+folderDeInstalacion = directorioDeTrabajo+'/installationFiles'
+
+# Variables diarias:
 nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
 directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
-folderDeInstalacion = directorioDeTrabajo+'/installationFiles'
-# Archivos
 reporteDiario = directorioDeReporte+'/reporteDiario.npy'
 
 ### PARAMETROS DE CONTROL DE EJECUCIÓN DE PROGRAMA
@@ -51,12 +52,7 @@ tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
 horaInicioInfraccion = 6*60
 horaFinalInfraccion = 22*60
 
-
-maximoMemoria = 200
 conVideoGrabado = False
-
-gamma = 1.0
-noDraw = False
 
 # Función principal
 def obtenerIndicesSemaforo(poligono640):
@@ -80,6 +76,12 @@ def obtenerIndicesSemaforo(poligono640):
 	indices = [[round(x[0]),round(x[1])] for x in indices]
 	return indices
 
+def cambioDeDia():
+	nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
+	directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
+	reporteDiario = directorioDeReporte+'/reporteDiario.npy'
+	miReporte.setDirectory(directorioDeReporte)
+
 def __main_function__():
 	# Import some global varialbes
 	global archivoDeVideo
@@ -92,21 +94,20 @@ def __main_function__():
 	global minuto
 	minuto = 0
 
-	# Creamos el reporte inicial
-	miReporte = MiReporte(levelLogging=logging.INFO,nombre=__name__)			# Se crea por defecto con nombre de la fecha y hora actual
-	miReporte.info('Programa iniciado exitosamente con ingreso de senal video '+archivoDeVideo+entradaReal+' con semaforo '+semaforoSimuladoTexto+str(periodoDeSemaforo) +', corriendo a '+str(mifps)+' Frames por Segundo')
-	# Si no existe el directorio de reporte lo creo
 	if not os.path.exists(directorioDeReporte):
 		os.makedirs(directorioDeReporte)
-	# Vector de inicio:
-	# vector de inicio = [tiempo, periodo semaforo, cruce, giro, infraccion, otros]
+
+	# Creamos el reporte inicial
+	miReporte = MiReporte(levelLogging=logging.INFO,nombre=__name__,directorio=directorioDeReporte)			# Se crea por defecto con nombre de la fecha y hora actual
+	miReporte.info('Programa iniciado exitosamente con ingreso de senal video '+archivoDeVideo+entradaReal+' con semaforo '+semaforoSimuladoTexto+str(periodoDeSemaforo) +', corriendo a '+str(mifps)+' Frames por Segundo')
+	
 	vectorDeInicio = [[datetime.datetime.now(),0,0,0,0,0]]
 	if os.path.isfile(reporteDiario):
 		miReporte.info('Continuando reporte')
-		np.save(reporteDiario,np.append(np.load(reporteDiario),vectorDeInicio,0))
+		#np.save(reporteDiario,np.append(np.load(reporteDiario),vectorDeInicio,0))
 	else:
 		miReporte.info('Creando reporte desde cero')
-		np.save(reporteDiario,vectorDeInicio)
+		#np.save(reporteDiario,vectorDeInicio)
 	
 	# Is statements
 	if generarArchivosDebug:
@@ -119,13 +120,6 @@ def __main_function__():
 		miReporte.info('Pantalla de muestra de funcionamiento en tiempo real encendida')
 	else:
 		miReporte.info('Pantalla de muestra de funcionamiento en tiempo real apagada')
-
-	# El directorio de reporte debe crearse al inicio del programa
-	# Variables de control:
-	
-	numeroDeFrame = 0
-	maximoInfraccionesPorFrame = 20
-	#colores = np.random.randint(0,100,(maximoInfraccionesPorFrame,3))
 
 	# Cargando los parametros de instalacion:
 	# El archivo de video debe tener como minimo 5 caracteres para estar trnajando en modo simulado, de lo contrario estamos trabajando en modo real
@@ -238,7 +232,10 @@ def __main_function__():
 					infraccion = miPoliciaReportando.estadoActual['infraccion']
 					otro = miPoliciaReportando.estadoActual['ruido']
 					vectorDeInicio = [[datetime.datetime.now(),periodo,cruce,giro,infraccion,otro]]
-					np.save(reporteDiario,np.append(np.load(reporteDiario),vectorDeInicio,0))
+					if os.path.isfile(reporteDiario):
+						np.save(reporteDiario,np.append(np.load(reporteDiario),vectorDeInicio,0))
+					else:
+						np.save(reporteDiario,vectorDeInicio)
 					miReporte.info(	'GLOBAL STATE: p:'+str(miPoliciaReportando.estadoActual['previo'])+
 									', c:'+str(miPoliciaReportando.estadoActual['cruzo'])+
 									', g:'+str(miPoliciaReportando.estadoActual['giro'])+
@@ -312,9 +309,10 @@ def __main_function__():
 			#miReporte.info('python3 '+ str(__file__)+' '+str( *sys.argv[1:]))
 
 			if (int(nombreCarpeta[8:10]) != datetime.datetime.now().day):
-				miReporte.info('Reiniciando el script por cambio de día')
-				miPoliciaReportando.apagarCamara()
-				os.execl(sys.executable, 'python3', __file__, *sys.argv[1:])
+				miReporte.info('Cambiando variables Dependientes del día')# el script por cambio de día')
+				cambioDeDia()
+				#miPoliciaReportando.apagarCamara()
+				#os.execl(sys.executable, 'python3', __file__, *sys.argv[1:])
 				# As bug continues we reboot the system:
 				#os.system('sudo reboot')
 				
@@ -365,9 +363,5 @@ if __name__ == '__main__':
 			mifps = int(input[:-3])
 		if input =='Kill':
 			topeEjecucion = int(input[:-1])
-		if 'gamma' in input:
-			gamma = float(input[:-5])
-		if input == 'noDraw':
-			noDraw = True
 
 	__main_function__()
