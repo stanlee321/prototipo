@@ -135,14 +135,12 @@ class ControladorCamara():
 				c =  conn.cursor()
 				#c.execute("SELECT * FROM stufftoPlot WHERE value=3 AND keyword='Python'")
 				#c.execute("SELECT keyword,unix,value FROM stufftoPlot WHERE unix >1515634491")
-				c.execute("SELECT * FROM shooter_table ORDER BY Save_img_in DESC LIMIT 1")
+				c.execute("SELECT * FROM shooter_table ORDER BY Save_img_in DESC LIMIT 1 ")
 				#data = c.fetchone()
 				data = c.fetchall()
 				for row in data:
 					print(row)
-					print(type(data))
 					metadata = list(data)
-					print('metadatta is', metadata)
 				c.close()
 				conn.close()
 
@@ -156,9 +154,9 @@ class ControladorCamara():
 				#dframe = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': ['None'], 'INDEX': ['XX'],'STATUS':['OPEN']}
 				#metadata = pd.DataFrame(dframe)
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-			folder = metadata[1]
-			index  = metadata[2]
-			status = metadata[3]
+			folder = metadata[0][1]
+			index  = metadata[0][2]
+			status = metadata[0][3]
 			if  status != 'CLOSED':
 				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)		
 	
