@@ -198,17 +198,11 @@ def __main_function__():
 			
 			pixeles = np.array([frameVideo[indicesSemaforo[0][1],indicesSemaforo[0][0]]])
 			
-			#print('IndicesPixel: ',indicesSemaforo[0][0],indicesSemaforo[0][1])
-			#print('La longitud semaforo: ',len(indicesSemaforo),' inicial ',pixeles.shape)
-			#print('La longitud interna: ',len(indicesSemaforo[0]),' inicial ',pixeles.shape)
 			for indiceSemaforo in indicesSemaforo[1:]:
 				pixeles = np.append(pixeles,[frameVideo[indiceSemaforo[1],indiceSemaforo[0]]], axis=0)
 				
-				#cv2.circle(frameVideo, (indiceSemaforo[0],indiceSemaforo[1]), 1, (100,100,100), -1)
-			#print('Pixeles: ',pixeles)
 			wtf = pixeles.reshape((24,8,3))
-			#cv2.imshow('Semaforo', cv2.resize(wtf, (240,320)))
-			#print('La longitud pixels: ',pixeles.shape)
+
 			tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
 			if (tiempoAhora > horaInicioInfraccion) & (tiempoAhora < horaFinalInfraccion):
 				senalSemaforo, semaforoLiteral, flanco, periodo = miSemaforo.obtenerColorEnSemaforo(pixeles)
@@ -301,8 +295,6 @@ def __main_function__():
 				True
 			tiempoAuxiliar = time.time()
 
-			porcentajeDeMemoria = psutil.virtual_memory()[2]
-
 			#miReporte.info('python3 '+ str(__file__)+' '+str( *sys.argv[1:]))
 
 			if (int(nombreCarpeta[8:10]) != datetime.datetime.now().day):
@@ -313,6 +305,8 @@ def __main_function__():
 				#os.execl(sys.executable, 'python3', __file__, *sys.argv[1:])
 				# As bug continues we reboot the system:
 				#os.system('sudo reboot')
+
+			porcentajeDeMemoria = psutil.virtual_memory()[2]
 				
 			if (porcentajeDeMemoria > 80)&(os.uname()[1] == 'raspberrypi'):
 				miReporte.info('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
