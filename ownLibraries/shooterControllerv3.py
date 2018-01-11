@@ -134,14 +134,14 @@ class ControladorCamara():
 				# Init DB
 				conn = sqlite3.connect(path_to_metadata)
 				c =  conn.cursor()
-			    #c.execute("SELECT * FROM stufftoPlot WHERE value=3 AND keyword='Python'")
-			    #c.execute("SELECT keyword,unix,value FROM stufftoPlot WHERE unix >1515634491")
-			    c.execute("SELECT * FROM stufftoPlot ORDER BY SAVE_IMG_IN DESC LIMIT 1")
-			    #data = c.fetchone()
-			    data = c.fetchall()
-			    for row in data:
-			        metadata = list(data)
-        		c.close()
+				#c.execute("SELECT * FROM stufftoPlot WHERE value=3 AND keyword='Python'")
+				#c.execute("SELECT keyword,unix,value FROM stufftoPlot WHERE unix >1515634491")
+				c.execute("SELECT * FROM stufftoPlot ORDER BY SAVE_IMG_IN DESC LIMIT 1")
+				#data = c.fetchone()
+				data = c.fetchall()
+				for row in data:
+					metadata = list(data)
+				c.close()
 				conn.close()
 
 
