@@ -179,7 +179,7 @@ class Shooter():
 		try:
 			conn = sqlite3.connect(path_to_metadata)
 			c =  conn.cursor()
-			c.execute("SELECT * FROM shooter_table ORDER BY Save_img_in DESC LIMIT 1")
+			c.execute("SELECT * FROM shooter_table ORDER BY Save_img_in DESC LIMIT 2")
 			data = c.fetchall()
 
 			for row in data:
