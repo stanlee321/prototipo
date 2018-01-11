@@ -37,7 +37,11 @@ class ControladorCamara():
 		self.path_to_work = os.getenv('HOME')+'/'+ 'WORKDIR' + '/'
 
 		# Create Initial SQLITE3 database
-		conn = sqlite3.connect(self.path_to_work + 'shooter_database.db')
+
+		date_for_db = datetime.datetime.now().strftime('%Y-%m-%d')
+		db_name = self.path_to_work + 'shooter_database_{}.db'.format(date_for_db)
+
+		conn = sqlite3.connect(db_name)
 		c =  conn.cursor()
 
 		self.create_table(c)
@@ -75,8 +79,13 @@ class ControladorCamara():
 		print('En ShooterControllerv3 resivo la ruta : ', rutahaciaFoldertoSave)
 		print('Se esta guardando la imagen en :',nombreFoldertoSave )
 
+
+
+
+		date_for_db = datetime.datetime.now().strftime('%Y-%m-%d')
 		# Read old metadata
-		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database.db'
+		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}.db'.format(date_for_db)
+
 		workdir = 'WORKDIR'
 		save_img_in = nombreFoldertoSave
 
@@ -121,7 +130,9 @@ class ControladorCamara():
 		while run_camera == 1:
 			miCamara.start()
 			# Read metadata
-			path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database.db'
+			date_for_db = datetime.datetime.now().strftime('%Y-%m-%d')
+			# Read old metadata
+			path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}.db'.format(date_for_db)
 			path_to_run = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
 			try:
 				# Init DB

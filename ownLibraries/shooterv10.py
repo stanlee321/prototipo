@@ -173,8 +173,9 @@ class Shooter():
 			pass
 
 		# CLEANING Variables
-		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database.db'
-		
+		date_for_db = datetime.datetime.now().strftime('%Y-%m-%d')
+		# Read old metadata
+		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}.db'.format(date_for_db)
 		try:
 			conn = sqlite3.connect(path_to_metadata)
 			c =  conn.cursor()
