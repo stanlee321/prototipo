@@ -79,9 +79,6 @@ class ControladorCamara():
 		print('En ShooterControllerv3 resivo la ruta : ', rutahaciaFoldertoSave)
 		print('Se esta guardando la imagen en :',nombreFoldertoSave )
 
-
-
-
 		date_for_db = datetime.datetime.now().strftime('%Y-%m-%d')
 		# Read old metadata
 		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}.db'.format(date_for_db)
@@ -144,7 +141,7 @@ class ControladorCamara():
 				#data = c.fetchone()
 				data = c.fetchall()
 				for row in data:
-					print(row)
+					#print(row)
 					metadata = list(data)
 
 				c.close()
