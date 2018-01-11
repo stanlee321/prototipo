@@ -75,7 +75,7 @@ class ControladorCamara():
 
 		# Close coneccions
 		c.close()
-    	conn.close()
+		conn.close()
 
 
 	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
