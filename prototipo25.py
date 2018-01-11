@@ -17,6 +17,7 @@ from ownLibraries.herramientas import total_size
 from ownLibraries.videostream import VideoStream
 from ownLibraries.semaforov2 import CreateSemaforo
 from ownLibraries.determinacionCruces import PoliciaInfractor
+from obtenerHistogramaHorario import exportarInformacionDeHoyO
 
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
@@ -305,7 +306,8 @@ def __main_function__():
 			#miReporte.info('python3 '+ str(__file__)+' '+str( *sys.argv[1:]))
 
 			if (int(nombreCarpeta[8:10]) != datetime.datetime.now().day):
-				miReporte.info('Cambiando variables Dependientes del día')# el script por cambio de día')
+				miReporte.info('Actualizando por cambio de dia a '+str(datetime.datetime.now().day))# el script por cambio de día')
+				exportarInformacionDeHoyO(-1)
 				nuevoDia()
 				#miPoliciaReportando.apagarCamara()
 				#os.execl(sys.executable, 'python3', __file__, *sys.argv[1:])

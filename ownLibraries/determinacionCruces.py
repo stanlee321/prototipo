@@ -260,6 +260,8 @@ class PoliciaInfractor():
 				#self.miReporte.debug('Creado '+direccionDeGuardadoFotos)
 
 				if os.uname()[1] == 'raspberrypi':
+					# AQUI!
+					#self.camaraAlta.encenderCamaraEnSubDirectorio(direccionDeGuardadoFotos)
 					self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder)
 			
 			self.listaVehiculos.append(nuevoVehiculo)
