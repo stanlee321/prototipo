@@ -76,7 +76,7 @@ def obtenerIndicesSemaforo(poligono640):
 	indices = [[round(x[0]),round(x[1])] for x in indices]
 	return indices
 
-def cambioDeDia():
+def nuevoDia():
 	nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
 	directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
 	reporteDiario = directorioDeReporte+'/reporteDiario.npy'
@@ -92,6 +92,7 @@ def __main_function__():
 	global tiempoEnPuntoParaNormalVideo
 	tiempoEnPuntoParaNormalVideo = 7
 	global minuto
+	global miReporte
 	minuto = 0
 
 	if not os.path.exists(directorioDeReporte):
@@ -100,7 +101,7 @@ def __main_function__():
 	# Creamos el reporte inicial
 	miReporte = MiReporte(levelLogging=logging.INFO,nombre=__name__,directorio=directorioDeReporte)			# Se crea por defecto con nombre de la fecha y hora actual
 	miReporte.info('Programa iniciado exitosamente con ingreso de senal video '+archivoDeVideo+entradaReal+' con semaforo '+semaforoSimuladoTexto+str(periodoDeSemaforo) +', corriendo a '+str(mifps)+' Frames por Segundo')
-	
+	nuevoDia()
 	vectorDeInicio = [[datetime.datetime.now(),0,0,0,0,0]]
 	if os.path.isfile(reporteDiario):
 		miReporte.info('Continuando reporte')
@@ -310,7 +311,7 @@ def __main_function__():
 
 			if (int(nombreCarpeta[8:10]) != datetime.datetime.now().day):
 				miReporte.info('Cambiando variables Dependientes del día')# el script por cambio de día')
-				cambioDeDia()
+				nuevoDia()
 				#miPoliciaReportando.apagarCamara()
 				#os.execl(sys.executable, 'python3', __file__, *sys.argv[1:])
 				# As bug continues we reboot the system:
