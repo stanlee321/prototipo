@@ -142,10 +142,10 @@ class ControladorCamara():
 					print(row)
 					metadata = list(data)
 
-				c.execute("SELECT * FROM shooter_table")
-				d = c.fetchall()
-				for r in d:
-					print('ALLis', r)
+				#c.execute("SELECT * FROM shooter_table")
+				#d = c.fetchall()
+				#for r in d:
+				#	print('ALLis', r)
 
 				c.close()
 				conn.close()
