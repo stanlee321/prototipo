@@ -183,6 +183,7 @@ class Shooter():
 			data = c.fetchall()
 
 			for row in data:
+				print('DB2 row is', row)
 				metadata = list(data)
 
 			# Read data for the new row 
