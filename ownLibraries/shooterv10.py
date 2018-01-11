@@ -180,8 +180,8 @@ class Shooter():
 			conn = sqlite3.connect(path_to_metadata)
 			c =  conn.cursor()
 			#c.execute("SELECT Status FROM shooter_table WHERE Save_img_in = ")
-		    c.execute('UPDATE shooter_table SET Status = "CLOSED" WHERE Status = "OPEN"')
-		    conn.commit()
+			c.execute('UPDATE shooter_table SET Status = "CLOSED" WHERE Status = "OPEN"')
+			conn.commit()
 
 			# Close coneccions
 			c.close()
