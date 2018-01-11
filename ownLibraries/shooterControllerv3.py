@@ -36,14 +36,6 @@ class ControladorCamara():
 		# Get WORDIR route
 		self.path_to_work = os.getenv('HOME')+'/'+ 'WORKDIR' + '/'
 
-		# Create Dataframe, setting None as init condition
-		#frame = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': [date], 'INDEX': [], 'STATUS':['CLOSED']}
-		#dataframe = pd.DataFrame(frame)	
-
-		# Save Dataframe to the WorkDir Route as metadata.csv
-		#dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False, sep=',')
-
-
 		# Create Initial SQLITE3 database
 		conn = sqlite3.connect(self.path_to_work + 'shooter_database.db')
 		c =  conn.cursor()
@@ -77,8 +69,11 @@ class ControladorCamara():
 		conn.close()
 
 
-	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
-		#print('En ShooterControllerv2 resivo nombre de archivo : ', nombreFoldertoSave)
+	def encenderCamaraEnSubDirectorio(self, rutahaciaFoldertoSave):
+
+		nombreFoldertoSave = rutahaciaFoldertoSave.split('/')[-1]
+		print('En ShooterControllerv3 resivo la ruta : ', rutahaciaFoldertoSave)
+		print('Se esta guardando la imagen en :',nombreFoldertoSave )
 
 		# Read old metadata
 		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database.db'
@@ -141,23 +136,12 @@ class ControladorCamara():
 					print(row)
 					metadata = list(data)
 
-				#c.execute("SELECT * FROM shooter_table")
-				#d = c.fetchall()
-				#for r in d:
-				#	print('ALLis', r)
-
 				c.close()
 				conn.close()
 
 
-				#with open(path_to_metadata) as f:
-				#    metadata = csv.reader(f)
-				    #metadata = pd.read_csv(path_to_metadata)
 			except Exception as e:
 				print('<<DB 1 ERROR>> I cant open or read the DB by this erro:', e)
-				#print('io prblem in read_csv, creating default dframe')
-				#dframe = {'WORKDIR_IMG': ['WORKDIR'], 'SAVE_IMG_IN': ['None'], 'INDEX': ['XX'],'STATUS':['OPEN']}
-				#metadata = pd.DataFrame(dframe)
 			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 			folder = metadata[0][1]
 			index  = metadata[0][2]
@@ -168,7 +152,6 @@ class ControladorCamara():
 			# Load status to run the camera or exit from this while loop
 			try:
 				run_camera = np.load(path_to_run)
-				#print('Signal to run is', run_camera)
 			except Exception as e:
 				print('I cant read exit by this reason:', e)
 

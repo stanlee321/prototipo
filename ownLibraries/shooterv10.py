@@ -165,11 +165,10 @@ class Shooter():
 
 
 			src_two = self.circular_buff[indice-1]
-			dst_two = self.save_in_file + '_-1.jpg'
+			dst_two = self.save_in_file + '_2.jpg' # -1
 
 			self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
 
-				
 		else:
 			pass
 
@@ -179,7 +178,6 @@ class Shooter():
 		try:
 			conn = sqlite3.connect(path_to_metadata)
 			c =  conn.cursor()
-			#c.execute("SELECT Status FROM shooter_table WHERE Save_img_in = ")
 			c.execute('UPDATE shooter_table SET Status = "CLOSED" WHERE Status = "OPEN"')
 			conn.commit()
 
@@ -187,23 +185,6 @@ class Shooter():
 			c.close()
 			conn.close()
 
-			#data = c.fetchall()
-
-			#aux_list = []
-			#for row in data:
-			#	aux_list.append(row)
-			#	#print('DB2 row is', row)
-			#	#metadata = list(data)
-			#metadata = aux_list[1]
-			#print('Aux list,', aux_list)
-			#print('DB2 metadata is', metadata)
-			## Read data for the new row 
-			#date   = metadata[0]
-			#folder = metadata[1]
-			#index  = metadata[2]
-			#status = 'CLOSED' # Changed value to Close once the function finish to move
-			# Update the DB
-			#self.dynamic_data_entry(c, conn, 'WORKDIR', folder, index, status)
 		except Exception as e:
 			print('<<DB 2 ERROR>> I cant open or read the DB by this erro:', e)
 
@@ -216,10 +197,6 @@ class Shooter():
 		SAVE_IMG_IN = save_img_in
 		INDEX = str(index)
 		STATUS = status
-		print('WORKDIR TO RESET', WORKDIR)
-		print('SAVE_IMG_IN', SAVE_IMG_IN)
-		print('INDEX', INDEX)
-		print('SAVING STATUS FROM DB2, status is', STATUS)
 		c.execute("INSERT INTO  shooter_table(WorkDir, Save_img_in, Idx, Status) VALUES (?,?,?,?)",\
 					(WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
 		conn.commit()

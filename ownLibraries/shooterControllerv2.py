@@ -43,9 +43,12 @@ class ControladorCamara():
 		# Save Dataframe to the WorkDir Route as metadata.csv
 		dataframe.to_csv(self.path_to_work + 'metadata.csv', index=False, sep=',')
 
-	def encenderCamaraEnSubDirectorio(self, nombreFoldertoSave):
+	def encenderCamaraEnSubDirectorio(self, rutahaciaFoldertoSave):
 		#print('En ShooterControllerv2 resivo nombre de archivo : ', nombreFoldertoSave)
-
+		nombreFoldertoSave = rutahaciaFoldertoSave.split('/')[-1]
+		print('En ShooterControllerv3 resivo la ruta : ', rutahaciaFoldertoSave)
+		print('Se esta guardando la imagen en :',nombreFoldertoSave )
+		
 		# Read old metadata
 		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'metadata.csv'
 		old_metadata = pd.read_csv(path_to_metadata)
