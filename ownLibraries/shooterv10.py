@@ -74,9 +74,6 @@ class Shooter():
 		#self.camera.iso = 800
 		self.camera.start_preview()
 
-		# Create circular buff deque of len 6
-		self.circular_buff = collections.deque(maxlen=6)
-
 		# None paratemer for controll save files
 		self.save_in_file = None
 		folder_WORK = 'WORKDIR'
@@ -86,7 +83,8 @@ class Shooter():
 		self.frame_marcado = None
 		self.folder = str
 		self.ilive = True
-		self.procesoParaleloDos = multiprocessing.Process(target = self.processo_paraleloDos, args = (self.ilive,))
+		self.input_q = multiprocessing.Queue()
+		self.procesoParaleloDos = multiprocessing.Process(target = self.processo_paraleloDos, args = (self.input_q,))
 		self.procesoParaleloDos.start()
 		print('EXITOSAMENTE CREE LA CLASE SHOOTERv10!!!')
 
@@ -95,6 +93,140 @@ class Shooter():
 		self.cutPoly = cutPoly
 		self.primerPunto = self.cutPoly[0] 				# Array like [p0,p1]
 		self.segundoPunto = self.cutPoly[1]
+
+
+	def writter(self):
+		self.frame_number = 0
+		
+		while self.frame_number < self.maxCapturas:
+			index =  (datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')).split(':')[-1]
+
+			save_in_work_dir = 	self.saveDirWORK+"/_f{}f_i{}i_.jpg".format(self.frame_number, index)
+			self.input_q.put(save_in_work_dir)
+			self.frame_number += 1
+			yield save_in_work_dir
+
+	def apagar_pi(self):
+		self.procesoParaleloDos.join()
+		return self
+
+	def start(self):
+		#print('here alive...')
+		self.camera.capture_sequence(self.writter(), format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
+		
+		# CLEAN UNUSED IMAGES 
+		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
+		work_dir_len = len(files_in_work_dir)
+
+		if work_dir_len > 6: #increased size of images to save in dir from 6
+			for img_path in files_in_work_dir:
+				if img_path in self.circular_buff:
+					pass
+				else:
+					os.remove(img_path)
+
+	def processo_paraleloDos(self, input_queue):
+
+		# Get the WaterMarker
+		nombreCarpeta = Shooter.nombreCarpeta
+		directorioDeReporte = Shooter.directorioDeReporte
+		path_to_logo = Shooter.path_to_logo
+		path_to_run = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
+
+		watermarker = WaterMarker(path_to_logo)
+		observador = Observer()
+		# Load the state of the While loop
+		run_camera = np.load(path_to_run)
+		while run_camera == 1:
+
+			save_in_work_dir = input_queue.get()
+			observador.circular_buff.appendleft(save_in_work_dir)
+
+			# Read Homework
+			homework = observador.leer_DB()
+			if len(homework) > 0: # infracciones en DB:
+				for work in homework:
+					print('WORK', work)
+					date   = work[0][1]
+					folder = work[0][1]
+					index  = work[0][2]
+				saveDir = directorioDeReporte + '/' + folder
+				# copy captures
+				observador.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
+				observador.move_captures()
+				watermarker.put_watermark(saveDir)
+			else:
+				pass
+
+			try:
+				# Load status to run the camera or exit from this while loop
+				run_camera = np.load(path_to_run)
+			except Exception as e:
+				print('I cant read exit by this reason:', e)
+
+		print('Saliendo del While Loop en ShooterControllerv2')
+		print('>>Picamera OFF<<')
+
+
+
+class Observer():
+
+	nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
+	directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
+	directorioDeNumpy = os.getenv('HOME')+'/trafficFlow/prototipo/installationFiles/'
+	directorioWORKDIR = os.getenv('HOME')
+	date_hour_string = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
+	path_to_logo = 	os.getenv('HOME')+'/'+ 'trafficFlow' +'/' +'prototipo/'+ 'watermark'+ '/dems.png'
+
+	def __init__(self):
+
+		# Dir where to save images
+
+		self.directorioDeGuardadoGeneral = Observer.directorioDeReporte
+		self.root = Observer.directorioWORKDIR
+		self.fechaInfraccion = str
+		self.saveDir = str
+		self.frame_number = 0
+
+		self.frame_marcado = str
+		self.folder = str
+		folder_WORK = 'WORKDIR'
+		self.saveDirWORK = self.root + "/" + folder_WORK
+
+		# Create circular buff deque of len 6
+		self.circular_buff = collections.deque(maxlen=6)
+
+	@staticmethod
+	def leer_DB():
+		# Read old metadata
+		date_for_db = str(datetime.datetime.now().strftime('%Y-%m-%d'))
+		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}_cache.db'.format(date_for_db)
+		# Init DB
+		conn = sqlite3.connect(path_to_metadata,timeout=1)
+		c =  conn.cursor()
+		#c.execute("SELECT * FROM stufftoPlot WHERE value=3 AND keyword='Python'")
+		#c.execute("SELECT keyword,unix,value FROM stufftoPlot WHERE unix >1515634491")
+		c.execute("SELECT * FROM shooter_table WHERE Status = 'OPEN'")
+		#data = c.fetchone()
+		data = c.fetchall()
+
+		homework = []
+		for row in data:
+			metadata = data
+			homework.append(metadata)
+		print('HOMEWORK', homework)
+		c.execute("UPDATE shooter_table SET Status = ? WHERE Status = ?", ('CLOSED','OPEN'))
+		conn.commit()
+
+		c.close()
+		conn.close()
+		return homework
+
+	def move_captures(self):
+		#print('debug 1', self.circular_buff)
+		if self.frame_marcado != None:
+			# Once the while is finish move the files to his folders.
+			self.move_relevant_files(self.frame_marcado)
 
 	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder, index ):
 		self.fechaInfraccion = fecha
@@ -110,21 +242,6 @@ class Shooter():
 			#print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
 		
 		self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
-
-
-	def writter(self):
-		self.frame_number = 0
-		
-		while self.frame_number < self.maxCapturas:
-			index =  (datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')).split(':')[-1]
-
-			save_in_work_dir = 	self.saveDirWORK+"/_f{}f_i{}i_.jpg".format(self.frame_number, index)
-
-			self.circular_buff.appendleft(save_in_work_dir)
-			self.frame_number += 1
-			yield save_in_work_dir
-
-
 
 	def move_relevant_files(self, frame_marcado):
 
@@ -190,103 +307,6 @@ class Shooter():
 			print('DELETION WARNING for {}, delering source {}'.format(dst_two, src_two))
 			os.remove(src_two)
 		print('Capturado posible infractor!')
-
-
-	def apagar_pi(self):
-		self.procesoParaleloDos.join()
-		return self
-
-	def start(self):
-		#print('here alive...')
-		self.camera.capture_sequence(self.writter(), format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
-		
-		# CLEAN UNUSED IMAGES 
-		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
-		work_dir_len = len(files_in_work_dir)
-
-		if work_dir_len > 6: #increased size of images to save in dir from 6
-			for img_path in files_in_work_dir:
-				if img_path in self.circular_buff:
-					pass
-				else:
-					os.remove(img_path)
-	def move_captures(self):
-
-		#print('debug 1', self.circular_buff)
-		if self.frame_marcado != None:
-			# Once the while is finish move the files to his folders.
-			self.move_relevant_files(self.frame_marcado)
-
-
-	def processo_paraleloDos(self, ilive):
-
-		# Get the WaterMarker
-		nombreCarpeta = Shooter.nombreCarpeta
-		directorioDeReporte = Shooter.directorioDeReporte
-		path_to_logo = Shooter.path_to_logo
-		path_to_run = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
-
-		watermarker = WaterMarker(path_to_logo)
-		observador = Observer()
-		# Load the state of the While loop
-		run_camera = np.load(path_to_run)
-		while run_camera == 1:
-			# Read Homework
-			homework = observador.leer_DB()
-			if len(homework) > 0: # infracciones en DB:
-				for work in homework:
-					print('WORK', work)
-					date   = work[0][1]
-					folder = work[0][1]
-					index  = work[0][2]
-				saveDir = directorioDeReporte + '/' + folder
-				# copy captures
-				Shooter.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
-				Shooter.move_captures()
-				watermarker.put_watermark(saveDir)
-			else:
-				pass
-
-			try:
-				# Load status to run the camera or exit from this while loop
-				run_camera = np.load(path_to_run)
-			except Exception as e:
-				print('I cant read exit by this reason:', e)
-
-		print('Saliendo del While Loop en ShooterControllerv2')
-		print('>>Picamera OFF<<')
-
-
-class Observer():
-	def __init__(self):
-		pass
-	@staticmethod
-	def leer_DB():
-		# Read old metadata
-		date_for_db = str(datetime.datetime.now().strftime('%Y-%m-%d'))
-		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}_cache.db'.format(date_for_db)
-		# Init DB
-		conn = sqlite3.connect(path_to_metadata,timeout=1)
-		c =  conn.cursor()
-		#c.execute("SELECT * FROM stufftoPlot WHERE value=3 AND keyword='Python'")
-		#c.execute("SELECT keyword,unix,value FROM stufftoPlot WHERE unix >1515634491")
-		c.execute("SELECT * FROM shooter_table WHERE Status = 'OPEN'")
-		#data = c.fetchone()
-		data = c.fetchall()
-
-		homework = []
-		for row in data:
-			metadata = data
-			homework.append(metadata)
-		print('HOMEWORK', homework)
-		c.execute("UPDATE shooter_table SET Status = ? WHERE Status = ?", ('CLOSED','OPEN'))
-		conn.commit()
-
-		c.close()
-		conn.close()
-		return homework
-
-
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
 
