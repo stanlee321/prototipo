@@ -63,7 +63,6 @@ class WaterMarker():
 		# loop over the input images
 		print('PATH TO IMAGES,', path_to_images)
 		for imagePath in paths.list_images(path_to_images):
-			time.slee(0.2)
 
 			#print('for of images', imagePath)
 
@@ -93,7 +92,7 @@ class WaterMarker():
 			# write the output image to disk
 			filename = imagePath[imagePath.rfind(os.path.sep) + 1:]
 			p = output_folder #os.path.sep.join((output_folder, filename))
-
+			time.sleep(0.05)
 			cv2.imwrite(p, output)
 
 
