@@ -161,6 +161,13 @@ class Shooter():
 				observador.encenderCamaraEnSubDirectorio('WORKDIR', date, folder)
 				observador.move_captures(index_real)
 				watermarker.put_watermark(saveDir, timestamp)
+				#delete old files without watermwark
+				for old_image in paths.list_images(path_to_images):
+					try:
+						os.remove(old_image)
+					except:
+						print('this file does not exist:', old_image)
+
 				
 			else:
 				pass

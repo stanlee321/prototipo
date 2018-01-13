@@ -103,8 +103,6 @@ class WaterMarker():
 
 			except Exception as e:
 				print('This error trying to make watermark:', e)
-			for old_image in to_delete:
-				os.remove(old_image)
 
 
 if __name__ == '__main__':
