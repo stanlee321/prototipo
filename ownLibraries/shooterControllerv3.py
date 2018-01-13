@@ -76,8 +76,8 @@ class ControladorCamara():
 		SAVE_IMG_IN = save_img_in
 		INDEX = str(index)
 		STATUS = status
-		c.execute("INSERT INTO  shooter_table(ts, WorkDir, Save_img_in, Idx, Status) VALUES (?,?,?,?,?)",\
-			(WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
+		c.execute("INSERT INTO  shooter_table(datestamp, WorkDir, Save_img_in, Idx, Status) VALUES (?,?,?,?,?)",\
+			(ts,WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
 		conn.commit()
 		
 
