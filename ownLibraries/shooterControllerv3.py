@@ -40,6 +40,8 @@ class ControladorCamara():
 		# Create Initial SQLITE3 database
 
 		date_for_db = datetime.datetime.now().strftime('%Y-%m-%d')
+
+		path_to_cache = self.path_to_work + 'shooter_database_{}_cache.db'.format(date_for_db)
 		db_name = self.path_to_work + 'shooter_database_{}.db'.format(date_for_db)
 
 
@@ -49,6 +51,12 @@ class ControladorCamara():
 		self.create_table(c)
 		self.dynamic_data_entry(c, conn, 'WORKDIR', str(date), 'XX', 'CLOSED')
 
+
+		conn = sqlite3.connect(path_to_cache)
+		c =  conn.cursor()
+
+		self.create_table(c)
+		self.dynamic_data_entry(c, conn, 'WORKDIR', str(date), 'XX', 'CLOSED')
 
 	def create_table(self, c):
 		# Create table with default values as:
