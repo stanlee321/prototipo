@@ -230,8 +230,8 @@ class Shooter():
 			for work in homework:
 				print('WORK', work)
 				date   = work[0][1]
-				folder = work[0][2]
-				index  = work[0][3]
+				folder = work[0][1]
+				index  = work[0][2]
 			# copy captures
 			self.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
 			self.move_captures()
