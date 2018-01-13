@@ -65,8 +65,6 @@ class WaterMarker():
 		to_delete = []
 		for imagePath in paths.list_images(path_to_images):
 			try:
-
-				to_delete.append(imagePath)
 				#print('for of images', imagePath)
 
 				route =imagePath.split('.')[0] 
@@ -91,8 +89,9 @@ class WaterMarker():
 				
 				bottomLeftCornerOfText = (int(0.1*w),int(0.9*h))
 				#text = str(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
-				timestamp = datetime.datetime.now()
-				text = timestamp.strftime("%A %d %B %Y %I:%M:%S%p:%f")
+				#timestamp = datetime.datetime.now()
+				#text = timestamp.strftime("%A %d %B %Y %I:%M:%S%p:%f")
+				text = date
 				cv2.putText(output, text, bottomLeftCornerOfText,\
 							 self.font, self.fontScale,self.fontColor,self.lineType)
 				# write the output image to disk
@@ -100,11 +99,12 @@ class WaterMarker():
 				p = output_folder #os.path.sep.join((output_folder, filename))
 				cv2.imwrite(p, output)
 
-				for old_image in to_delete:
-					os.remove(old_image)
+				to_delete.append(imagePath)
+
 			except Exception as e:
 				print('This error trying to make watermark:', e)
-
+			for old_image in to_delete:
+				os.remove(old_image)
 
 
 if __name__ == '__main__':

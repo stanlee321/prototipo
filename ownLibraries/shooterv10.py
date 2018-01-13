@@ -255,7 +255,7 @@ class Observer():
 		self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
 
 	def move_relevant_files(self, frame_marcado):
-		print('CIRCUALR BUFF IS', self.circular_buff)
+		#print('CIRCUALR BUFF IS', self.circular_buff)
 		marcados_list  = []
 		for i, image_route in enumerate(self.circular_buff):
 			#print('3.- image ROUTE', image_route)
