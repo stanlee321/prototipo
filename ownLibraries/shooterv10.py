@@ -244,11 +244,10 @@ class Observer():
 	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder):
 		self.fechaInfraccion = fecha
 		self.folder = folder
-		self.saveDir = self.directorioDeGuardadoGeneral +"/" + str(self.folder)
-
+		self.saveDir = Observer.directorioDeReporte +"/" + str(self.folder)
+		print('TIENE QUE CREARSE ESTA CARPETA:', self.saveDir)
 		if not os.path.exists(self.saveDir):
 			os.makedirs(self.saveDir)
-
 		if not os.path.exists(self.saveDirWORK):
 			os.makedirs(self.saveDirWORK) 
 			#print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
