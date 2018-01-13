@@ -264,7 +264,8 @@ class Observer():
 				marcados_list.append(i)
 				#print('FRAME MARCADOS,:', image_route)
 			else:
-				marcados_list.append(i-1)
+				#marcados_list.append(i-1)
+				pass
 		print('mARCADOS LIST IST :', marcados_list)
 		if len(marcados_list) != 0:
 			marcado_frame = marcados_list[-1]
