@@ -264,14 +264,14 @@ class Observer():
 				#print('FRAME MARCADOS,:', image_route)
 			else:
 				marcados_list.append(i-1)
-		
+		print('mARCADOS LIST IST :', marcados_list)
 		if len(marcados_list) != 0:
 			marcado_frame = marcados_list[-1]
 
 			#indice = self.circular_buff.index(marcado_frame)
 			indice = marcado_frame
 
-			src_0 = self.circular_buff[indice] 
+			src_0 = self.circular_buff[indice+1] 
 				
 			dst_0 = self.save_in_file + '_0.jpg'
 
@@ -301,9 +301,9 @@ class Observer():
 	def copiar_las_imagenes(self, src_0,dst_0,src_one, dst_one, src_two, dst_two):
 
 		print('COPIAR A :')
-		print('0:',src_0, dst_0)
-		print('1:',src_one, dst_one)
-		print('2:', src_two, dst_two)
+		print('0:',src_0, ">>>>>>",dst_0)
+		print('1:',src_one,">>>>>>", dst_one)
+		print('2:', src_two, ">>>>>>", dst_two)
 		try:
 			#print('copying from:', src_0, 'to:', dst_0)
 			shutil.copy(src_0, dst_0)
