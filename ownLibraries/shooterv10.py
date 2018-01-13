@@ -19,6 +19,7 @@ import pandas as pd
 #from skimage.io import imsave
 import sqlite3
 
+from .watermarker import WaterMarker
 
 class Shooter():
 	""" General PICAMERA DRIVER Prototipe
@@ -82,8 +83,13 @@ class Shooter():
 
 		# Variable para marcar paquete de frames
 		self.frame_marcado = None
-		print('EXITOSAMENTE CREE LA CLASE SHOOTERv10!!!')
 		self.folder = str
+
+		# Get the WaterMarker
+		path_to_logo = 	os.getenv('HOME')+'/'+ 'trafficFlow' +'/' +'prototipo/'+ 'watermark'+ '/dems.png'
+		print("path_to_logo", path_to_logo)
+		self.watermarker = WaterMarker(path_to_logo)
+		print('EXITOSAMENTE CREE LA CLASE SHOOTERv10!!!')
 
 		
 	def establecerRegionInteres(self,cutPoly):
@@ -118,6 +124,34 @@ class Shooter():
 			self.circular_buff.appendleft(save_in_work_dir)
 			self.frame_number += 1
 			yield save_in_work_dir
+
+
+	def leer_DB(self):
+		# Read old metadata
+		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}.db'.format(date_for_db)
+		# Init DB
+		conn = sqlite3.connect(path_to_metadata)
+		c =  conn.cursor()
+		#c.execute("SELECT * FROM stufftoPlot WHERE value=3 AND keyword='Python'")
+		#c.execute("SELECT keyword,unix,value FROM stufftoPlot WHERE unix >1515634491")
+		c.execute("SELECT * FROM shooter_table ORDER BY Save_img_in WHERE Status = 'OPEN'")
+		#data = c.fetchone()
+		data = c.fetchall()
+
+		homework = []
+		for row in data:
+			#print(row)
+			metadata = list(data)
+			homework.append(metadata)
+
+		c.execute("UPDATE shooter_table SET Status = ? WHERE Status = ? ", ('CLOSED', 'OPEN'))
+		conn.commit()
+
+		c.close()
+		conn.close()
+
+
+		return homework
 
 
 	def move_relevant_files(self, frame_marcado):
@@ -159,42 +193,9 @@ class Shooter():
 		else:
 			pass
 
-		# CLEANING Variables
-		date_for_db = datetime.datetime.now().strftime('%Y-%m-%d')
-		# Read old metadata
-		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}.db'.format(date_for_db)
-		try:
-
-			print('>>>>>>>>>>>> DEBUG  2  CLOSSSINGG THE CONECTION')
-			conn = sqlite3.connect(path_to_metadata)
-			c =  conn.cursor()
-			#c.execute('UPDATE shooter_table SET Status = "CLOSED" WHERE Status = "OPEN"')
-			c.execute("UPDATE shooter_table SET Status = ? WHERE Save_img_in = ? ", ('CLOSED', self.folder ))
-			conn.commit()
-
-			# Close coneccions
-			c.close()
-			conn.close()
-
-		except Exception as e:
-			print('<<DB 2 ERROR>> I cant open or read the DB by this erro:', e)
 
 		self.frame_marcado = None
 
-
-	def dynamic_data_entry(self, c, conn, workdir, save_img_in, index, status):
-
-		WORKDIR = workdir
-		SAVE_IMG_IN = save_img_in
-		INDEX = str(index)
-		STATUS = status
-		c.execute("INSERT INTO  shooter_table(WorkDir, Save_img_in, Idx, Status) VALUES (?,?,?,?)",\
-					(WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
-		conn.commit()
-
-		# Close coneccions
-		c.close()
-		conn.close()
 
 	def copiar_las_imagenes(self, src_0,dst_0,src_one, dst_one, src_two, dst_two):
 		try:
@@ -222,11 +223,25 @@ class Shooter():
 	def start(self):
 		#print('here alive...')
 		self.camera.capture_sequence(self.writter(), format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
-		
-		# copy captures
-		self.move_captures()
+		t1  = time.time()
+		print('tic:', t1)
+		homework = self.leer_DB()
 
+		if len(homework) > 0: # infracciones en DB:
+			for work in homework:
+				date   = work[0]
+				folder = work[1]
+				index  = work[2]
+			# copy captures
+			self.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
+			self.move_captures()
+			self.watermarker.put_watermark(self.saveDir)
+		else:
+			pass
+		t2 = time.time()
+		print('tac:', t2-t1)
 	def move_captures(self):
+
 		# CLEAN UNUSED IMAGES 
 		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
 		work_dir_len = len(files_in_work_dir)
@@ -237,7 +252,7 @@ class Shooter():
 					pass
 				else:
 					os.remove(img_path)
-		print('debug 1', self.circular_buff)
+		#print('debug 1', self.circular_buff)
 		if self.frame_marcado != None:
 			# Once the while is finish move the files to his folders.
 			self.move_relevant_files(self.frame_marcado)

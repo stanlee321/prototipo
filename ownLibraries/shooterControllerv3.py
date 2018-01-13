@@ -14,8 +14,6 @@ from shooterv10 import Shooter
 import sqlite3
 
 
-
-
 class ControladorCamara():
 	def __init__(self):
 		# Se declaran las variables de control con el proceso paralelo
@@ -127,45 +125,9 @@ class ControladorCamara():
 		run_camera = np.load(path_to_run)
 		while run_camera == 1:
 			miCamara.start()
-			# Read metadata
-			date_for_db = datetime.datetime.now().strftime('%Y-%m-%d')
-			# Read old metadata
-			path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}.db'.format(date_for_db)
-			path_to_run = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
-			try:
-				# Init DB
-				conn = sqlite3.connect(path_to_metadata)
-				c =  conn.cursor()
-				#c.execute("SELECT * FROM stufftoPlot WHERE value=3 AND keyword='Python'")
-				#c.execute("SELECT keyword,unix,value FROM stufftoPlot WHERE unix >1515634491")
-				c.execute("SELECT * FROM shooter_table ORDER BY Save_img_in DESC LIMIT 1 ")
-				#data = c.fetchone()
-				data = c.fetchall()
-				for row in data:
-					#print(row)
-					metadata = list(data)
-
-				c.close()
-				conn.close()
-
-
-			except Exception as e:
-				print('<<DB 1 ERROR>> I cant open or read the DB by this erro:', e)
-			date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-			folder = metadata[0][1]
-			index  = metadata[0][2]
-			status = metadata[0][3]
-
-			print('>>>>>>>>>>>>>>>DEBUG 1')
-			print('FOLDER is:', metadata[0][1])
-
-			print('INDEX is:', metadata[0][2])
-
-			print('STATUS is:', metadata[0][3])
-			if  status != 'CLOSED':
-				miCamara.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)		
 	
 			# Load status to run the camera or exit from this while loop
+			path_to_run = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
 			try:
 				run_camera = np.load(path_to_run)
 			except Exception as e:
