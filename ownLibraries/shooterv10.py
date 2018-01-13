@@ -157,6 +157,7 @@ class Shooter():
 					index  = work[0][3]
 				saveDir = directorioDeReporte + '/' + folder
 				# copy captures
+				timestamp = timestamp+' index:'+index
 				observador.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
 				observador.move_captures()
 				watermarker.put_watermark(saveDir, timestamp)

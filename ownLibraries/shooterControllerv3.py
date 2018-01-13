@@ -70,22 +70,6 @@ class ControladorCamara():
 		# STATUS, took pictures or not status
 		c.execute('CREATE TABLE IF NOT EXISTS shooter_table(datestamp TEXT, WorkDir TEXT, Save_img_in TEXT,Idx TEXT,Status TEXT)')
 
-	def dynamic_data_entry(self, c, conn, ts,workdir, save_img_in, index, status):
-		ts = str(ts)
-		WORKDIR = workdir
-		SAVE_IMG_IN = save_img_in
-		INDEX = str(index)
-		STATUS = status
-		c.execute("INSERT INTO  shooter_table(datestamp, WorkDir, Save_img_in, Idx, Status) VALUES (?,?,?,?,?)",\
-			(ts,WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
-		conn.commit()
-		
-
-		# Close coneccions
-		c.close()
-		conn.close()
-
-
 	def encenderCamaraEnSubDirectorio(self, rutahaciaFoldertoSave):
 
 		nombreFoldertoSave = rutahaciaFoldertoSave.split('/')[-1]
@@ -119,6 +103,23 @@ class ControladorCamara():
 		self.dynamic_data_entry(c, conn, ts, workdir, save_img_in, index, status)
 		shutil.copy(path_to_db, path_to_cache)
 		return self
+
+
+	def dynamic_data_entry(self, c, conn, ts,workdir, save_img_in, index, status):
+		ts = str(ts)
+		WORKDIR = workdir
+		SAVE_IMG_IN = save_img_in
+		INDEX = str(index)
+		STATUS = status
+		c.execute("INSERT INTO  shooter_table(datestamp, WorkDir, Save_img_in, Idx, Status) VALUES (?,?,?,?,?)",\
+			(ts,WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
+		conn.commit()
+		
+
+		# Close coneccions
+		c.close()
+		conn.close()
+
 
 	def apagarCamara(self):
 		self.capture = False
