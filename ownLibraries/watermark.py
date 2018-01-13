@@ -61,7 +61,9 @@ class WaterMarker():
 
 	def put_watermark(self, path_to_images):
 		# loop over the input images
+		print('PATH TO IMAGES,', path_to_images)
 		for imagePath in paths.list_images(path_to_images):
+
 			output_folder = imagePath.split('/')[-2]
 			# load the input image, then add an extra dimension to the
 			# image (i.e., the alpha transparency)
