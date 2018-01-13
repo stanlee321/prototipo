@@ -67,8 +67,9 @@ class WaterMarker():
 			to_delete.append(imagePath)
 			#print('for of images', imagePath)
 
-			namen = path_to_images.split('/')[-1]
-			output_folder = path_to_images + '/'+namen + 'wm.jpg'
+			route =imagePath.split('.')[0] 
+			jpg = imagePath.split('.')[-1]
+			output_folder = route + 'wm.'+ jpg
 			# load the input image, then add an extra dimension to the
 			# image (i.e., the alpha transparency)
 			image = cv2.imread(imagePath)
