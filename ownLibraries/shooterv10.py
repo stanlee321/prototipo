@@ -83,7 +83,7 @@ class Shooter():
 		self.frame_marcado = None
 		self.folder = str
 		self.ilive = True
-		self.circular_buff_shooter = collections.deque(maxlen=6)
+		self.circular_buff_shooter = collections.deque(maxlen=12)
 		self.input_q = multiprocessing.Queue()
 
 		self.procesoParaleloDos = multiprocessing.Process(target = self.processo_paraleloDos, args = (self.input_q,))
@@ -203,7 +203,7 @@ class Observer():
 		self.saveDirWORK = self.root + "/" + folder_WORK
 
 		# Create circular buff deque of len 6
-		self.circular_buff = collections.deque(maxlen=6)
+		self.circular_buff = collections.deque(maxlen=12)
 
 	@staticmethod
 	def leer_DB():
