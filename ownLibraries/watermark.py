@@ -90,7 +90,8 @@ class WaterMarker():
 						 self.font, self.fontScale,self.fontColor,self.lineType)
 			# write the output image to disk
 			filename = imagePath[imagePath.rfind(os.path.sep) + 1:]
-			p = os.path.sep.join((output_folder, filename))
+			p = output_folder #os.path.sep.join((output_folder, filename))
+
 			cv2.imwrite(p, output)
 
 
