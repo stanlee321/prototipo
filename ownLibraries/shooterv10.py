@@ -229,9 +229,9 @@ class Shooter():
 		if len(homework) > 0: # infracciones en DB:
 			for work in homework:
 				print('WORK', work)
-				date   = work[0][0][1]
-				folder = work[0][0][2]
-				index  = work[0][0][3]
+				date   = work[0][1]
+				folder = work[0][2]
+				index  = work[0][3]
 			# copy captures
 			self.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
 			self.move_captures()
