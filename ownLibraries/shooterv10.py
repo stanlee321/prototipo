@@ -18,7 +18,7 @@ import pandas as pd
 #from io import BytesIO
 #from skimage.io import imsave
 import sqlite3
-
+from imutils import paths
 from watermark import WaterMarker
 import multiprocessing
 class Shooter():
