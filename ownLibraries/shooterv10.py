@@ -19,7 +19,7 @@ import pandas as pd
 #from skimage.io import imsave
 import sqlite3
 
-from watermarker import WaterMarker
+from watermark import WaterMarker
 
 class Shooter():
 	""" General PICAMERA DRIVER Prototipe
