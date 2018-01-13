@@ -135,7 +135,7 @@ class Shooter():
 		c =  conn.cursor()
 		#c.execute("SELECT * FROM stufftoPlot WHERE value=3 AND keyword='Python'")
 		#c.execute("SELECT keyword,unix,value FROM stufftoPlot WHERE unix >1515634491")
-		c.execute("SELECT * FROM shooter_table ORDER BY Save_img_in WHERE Status = 'OPEN'")
+		c.execute("SELECT * FROM shooter_table WHERE Status = 'OPEN'")
 		#data = c.fetchone()
 		data = c.fetchall()
 
