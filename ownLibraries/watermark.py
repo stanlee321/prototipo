@@ -64,42 +64,46 @@ class WaterMarker():
 		print('PATH TO IMAGES,', path_to_images)
 		to_delete = []
 		for imagePath in paths.list_images(path_to_images):
-			to_delete.append(imagePath)
-			#print('for of images', imagePath)
+			try:
 
-			route =imagePath.split('.')[0] 
-			jpg = imagePath.split('.')[-1]
-			output_folder = route + 'wm.'+ jpg	
-			# load the input image, then add an extra dimension to the
-			# image (i.e., the alpha transparency)
-			image = cv2.imread(imagePath)
-			(h, w) = image.shape[:2]
-			image = np.dstack([image, np.ones((h, w), dtype="uint8") * 255])
-		 
-			# construct an overlay that is the same size as the input
-			# image, (using an extra dimension for the alpha transparency),
-			# then add the watermark to the overlay in the bottom-right
-			# corner
-			overlay = np.zeros((h, w, 4), dtype="uint8")
-			overlay[h - self.wH - 10:h - 10, w - self.wW - 10:w - 10] = self.watermark
-		 
-			# blend the two images together using transparent overlays
-			output = image.copy()
-			cv2.addWeighted(overlay, self.alpha, output, 1.0, 0, output)
-			
-			bottomLeftCornerOfText = (int(0.1*w),int(0.9*h))
-			#text = str(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
-			text = date
-			cv2.putText(output, text, bottomLeftCornerOfText,\
-						 self.font, self.fontScale,self.fontColor,self.lineType)
-			# write the output image to disk
-			filename = imagePath[imagePath.rfind(os.path.sep) + 1:]
-			p = output_folder #os.path.sep.join((output_folder, filename))
-			cv2.imwrite(p, output)
+				to_delete.append(imagePath)
+				#print('for of images', imagePath)
 
-		for old_image in to_delete:
-			os.remove(old_image)
+				route =imagePath.split('.')[0] 
+				jpg = imagePath.split('.')[-1]
+				output_folder = route + 'wm.'+ jpg	
+				# load the input image, then add an extra dimension to the
+				# image (i.e., the alpha transparency)
+				image = cv2.imread(imagePath)
+				(h, w) = image.shape[:2]
+				image = np.dstack([image, np.ones((h, w), dtype="uint8") * 255])
+			 
+				# construct an overlay that is the same size as the input
+				# image, (using an extra dimension for the alpha transparency),
+				# then add the watermark to the overlay in the bottom-right
+				# corner
+				overlay = np.zeros((h, w, 4), dtype="uint8")
+				overlay[h - self.wH - 10:h - 10, w - self.wW - 10:w - 10] = self.watermark
+			 
+				# blend the two images together using transparent overlays
+				output = image.copy()
+				cv2.addWeighted(overlay, self.alpha, output, 1.0, 0, output)
+				
+				bottomLeftCornerOfText = (int(0.1*w),int(0.9*h))
+				#text = str(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
+				timestamp = datetime.datetime.now()
+				text = timestamp.strftime("%A %d %B %Y %I:%M:%S%p:%f")
+				cv2.putText(output, text, bottomLeftCornerOfText,\
+							 self.font, self.fontScale,self.fontColor,self.lineType)
+				# write the output image to disk
+				filename = imagePath[imagePath.rfind(os.path.sep) + 1:]
+				p = output_folder #os.path.sep.join((output_folder, filename))
+				cv2.imwrite(p, output)
 
+				for old_image in to_delete:
+					os.remove(old_image)
+			except Exception as e:
+				print('This error trying to make watermark:', e)
 
 
 
