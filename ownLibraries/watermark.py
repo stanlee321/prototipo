@@ -19,7 +19,7 @@ class WaterMarker():
 		# For text
 		self.font                   = cv2.FONT_HERSHEY_SIMPLEX
 		self.fontScale              = 1
-		self.fontColor              = (255,255,255)
+		self.fontColor              = (0,0,0)#(255,255,255)
 		self.lineType               = 2
 		self.alpha = 0.25
 		 
@@ -39,7 +39,7 @@ class WaterMarker():
 
 	@staticmethod
 	def create_watermark(path_to_watermark):
-		print(path_to_watermark)
+		#print(path_to_watermark)
 		# load the watermark image, making sure we retain the 4th channel
 		# which contains the alpha transparency
 		watermark = cv2.imread(path_to_watermark, cv2.IMREAD_UNCHANGED)
@@ -59,7 +59,7 @@ class WaterMarker():
 		watermark = cv2.merge([B, G, R, A])
 		return watermark, wH, wW
 
-	def put_watermark(self, path_to_images):
+	def put_watermark(self, path_to_images, date):
 		# loop over the input images
 		print('PATH TO IMAGES,', path_to_images)
 		for imagePath in paths.list_images(path_to_images):
@@ -84,8 +84,8 @@ class WaterMarker():
 			cv2.addWeighted(overlay, self.alpha, output, 1.0, 0, output)
 			
 			bottomLeftCornerOfText = (int(0.1*w),int(0.9*h))
-			text = str(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
-
+			#text = str(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
+			text = date
 			cv2.putText(output, text, bottomLeftCornerOfText,\
 						 self.font, self.fontScale,self.fontColor,self.lineType)
 			# write the output image to disk

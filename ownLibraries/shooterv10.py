@@ -148,7 +148,7 @@ class Shooter():
 			# Read Homework
 			homework = observador.leer_DB()
 			if len(homework) > 0: # infracciones en DB:
-				print('FOUND HOMEWORK', homework)
+				#print('FOUND HOMEWORK', homework)
 				for work in homework:
 					print('WORK', work)
 					date   = work[0][1]
