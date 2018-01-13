@@ -222,7 +222,11 @@ class Shooter():
 	def start(self):
 		#print('here alive...')
 		self.camera.capture_sequence(self.writter(), format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
+		
+		# copy captures
+		self.move_captures()
 
+	def move_captures(self):
 		# CLEAN UNUSED IMAGES 
 		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
 		work_dir_len = len(files_in_work_dir)
@@ -233,7 +237,7 @@ class Shooter():
 					pass
 				else:
 					os.remove(img_path)
-
+		print('debug 1', self.circular_buff)
 		if self.frame_marcado != None:
 			# Once the while is finish move the files to his folders.
 			self.move_relevant_files(self.frame_marcado)
