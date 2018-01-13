@@ -63,6 +63,8 @@ class WaterMarker():
 		# loop over the input images
 		print('PATH TO IMAGES,', path_to_images)
 		for imagePath in paths.list_images(path_to_images):
+			time.slee(0.2)
+
 			#print('for of images', imagePath)
 
 			output_folder = imagePath#.split('/')[-2]

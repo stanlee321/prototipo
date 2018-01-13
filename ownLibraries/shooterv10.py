@@ -271,36 +271,37 @@ class Observer():
 				pass
 		print('mARCADOS LIST IST :', marcados_list)
 		if len(marcados_list) != 0:
-			marcado_frame = marcados_list[-1]
+			#marcado_frame = marcados_list[-1]
+			for marcado_frame in marcados_list:
 
-			#indice = self.circular_buff.index(marcado_frame)
-			indice = marcado_frame
+				#indice = self.circular_buff.index(marcado_frame)
+				indice = marcado_frame
 
-			src_0 = self.circular_buff[indice] 
-				
-			dst_0 = self.save_in_file + '_0.jpg'
+				src_0 = self.circular_buff[indice] 
+					
+				dst_0 = self.save_in_file + '_0.jpg'
 
-			try:
-				src_one = self.circular_buff[indice+1]
-				dst_one = self.save_in_file + '_1.jpg'
-			except:
-				src_one = self.circular_buff[indice-2]
-				dst_one = self.save_in_file + '_1.jpg'
+				try:
+					src_one = self.circular_buff[indice+1]
+					dst_one = self.save_in_file + '_1.jpg'
+				except:
+					src_one = self.circular_buff[indice-2]
+					dst_one = self.save_in_file + '_1.jpg'
 
-			try:
-				src_two = self.circular_buff[indice-2]
-				dst_two = self.save_in_file + '_2.jpg' # -1
-			except Exception as e:
-				print('src two cant move by this:', e)
-				src_two = self.circular_buff[indice]
-				dst_two = self.save_in_file + '_2.jpg' # -1
-			self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
+				try:
+					src_two = self.circular_buff[indice-2]
+					dst_two = self.save_in_file + '_2.jpg' # -1
+				except Exception as e:
+					print('src two cant move by this:', e)
+					src_two = self.circular_buff[indice]
+					dst_two = self.save_in_file + '_2.jpg' # -1
+				self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
 
-		else:
-			pass
+			else:
+				pass
 
 
-		self.frame_marcado = None
+			self.frame_marcado = None
 
 
 	def copiar_las_imagenes(self, src_0,dst_0,src_one, dst_one, src_two, dst_two):
