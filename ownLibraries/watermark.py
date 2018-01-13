@@ -11,7 +11,7 @@ import datetime
 
 
 
-class WaterMarks():
+class WaterMarker():
 	def __init__(self, path_to_watermark):
 
 		self.path_to_watermark = path_to_watermark
@@ -97,5 +97,5 @@ class WaterMarks():
 if __name__ == '__main__':
 	path_to_watermark = os.getenv('HOME')+'/'+ 'trafficFlow' +'/' + 'watermark'+ '/dems.png'
 	path_to_images = './test'
-	make_watermarks = WaterMarks(path_to_watermark)
+	make_watermarks = WaterMarker(path_to_watermark)
 	make_watermarks.put_watermark(path_to_images)
