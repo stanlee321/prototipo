@@ -24,7 +24,7 @@ class WaterMarker():
 		self.alpha = 0.25
 		 
 
-		self.watermark, self.wH, self.wW = WaterMarks.create_watermark(self.path_to_watermark)
+		self.watermark, self.wH, self.wW = WaterMarker.create_watermark(self.path_to_watermark)
 	@staticmethod
 	def convert_to_4channel(path_to_logo):
 		file_name = path_to_logo
