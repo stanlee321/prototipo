@@ -282,10 +282,11 @@ class Observer():
 				src_one = self.circular_buff[indice-2]
 				dst_one = self.save_in_file + '_1.jpg'
 
-
-			src_two = self.circular_buff[indice-1]
-			dst_two = self.save_in_file + '_2.jpg' # -1
-
+			try:
+				src_two = self.circular_buff[indice-1]
+				dst_two = self.save_in_file + '_2.jpg' # -1
+			except Exception as e:
+				print('src two cant move by this:', e)
 			self.copiar_las_imagenes(src_0,dst_0,src_one, dst_one, src_two, dst_two)
 
 		else:
