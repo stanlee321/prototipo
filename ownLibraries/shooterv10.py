@@ -225,14 +225,13 @@ class Shooter():
 		#print('here alive...')
 		self.camera.capture_sequence(self.writter(), format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
 		t1  = time.time()
-		print('tic:', t1)
 		homework = self.leer_DB()
-
 		if len(homework) > 0: # infracciones en DB:
 			for work in homework:
-				date   = work[0]
-				folder = work[1]
-				index  = work[2]
+				print('WORK', work)
+				date   = work[0][0]
+				folder = work[0][1]
+				index  = work[0][2]
 			# copy captures
 			self.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
 			self.move_captures()
