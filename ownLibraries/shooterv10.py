@@ -273,7 +273,7 @@ class Observer():
 			#indice = self.circular_buff.index(marcado_frame)
 			indice = marcado_frame
 
-			src_0 = self.circular_buff[indice+1] 
+			src_0 = self.circular_buff[indice] 
 				
 			dst_0 = self.save_in_file + '_0.jpg'
 
@@ -312,7 +312,7 @@ class Observer():
 		except Exception as e:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_0, src_0))
 			print('OR:', e)
-			os.remove(src_0)
+			#os.remove(src_0)
 
 		try:
 			#print('copying from:', src_one, 'to:', dst_one)
@@ -320,7 +320,7 @@ class Observer():
 		except Exception as e:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_one, src_one))
 			print('OR:', e)
-			os.remove(src_one)
+			#os.remove(src_one)
 
 		try:
 			#print('copying from:', src_two, 'to:', dst_two)
@@ -328,7 +328,7 @@ class Observer():
 		except Exception as e:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_two, src_two))
 			print('OR:', e)
-			os.remove(src_two)
+			#os.remove(src_two)
 		print('Capturado posible infractor!')
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
