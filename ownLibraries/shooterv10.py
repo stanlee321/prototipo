@@ -150,7 +150,7 @@ class Shooter():
 			if len(homework) > 0: # infracciones en DB:
 				#print('FOUND HOMEWORK', homework)
 				for work in homework:
-					print('WORK', work)
+					#print('WORK', work)
 					timestamp = work[0][0]
 					date   = work[0][2]
 					folder = work[0][2]
