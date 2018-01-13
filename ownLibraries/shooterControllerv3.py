@@ -116,7 +116,7 @@ class ControladorCamara():
 		#self.create_table(c)
 
 		# UPDATE NEW ROW
-		self.dynamic_data_entry(c, conn, ts, workdir,timestamp, save_img_in, index, status)
+		self.dynamic_data_entry(c, conn, ts, workdir, save_img_in, index, status)
 		shutil.copy(path_to_db, path_to_cache)
 		return self
 
