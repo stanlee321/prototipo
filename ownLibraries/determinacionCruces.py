@@ -14,7 +14,7 @@ from ownLibraries.mireporte import MiReporte
 from ownLibraries.analisisonda import AnalisisOnda
 from ownLibraries.generadorevidencia import GeneradorEvidencia
 if os.uname()[1] == 'raspberrypi':
-	from ownLibraries.shooterControllerv2 import ControladorCamara # Downgraded for tests
+	from ownLibraries.shooterControllerv3 import ControladorCamara # Downgraded for tests
 
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'

@@ -19,7 +19,7 @@ import pandas as pd
 #from skimage.io import imsave
 import sqlite3
 from imutils import paths
-from watermark import WaterMarker
+from .watermark import WaterMarker
 import multiprocessing
 class Shooter():
 	""" General PICAMERA DRIVER Prototipe
@@ -162,8 +162,6 @@ class Shooter():
 				observador.move_captures(index_real)
 				watermarker.put_watermark(saveDir, timestamp)
 				#delete old files without watermwark
-
-
 				
 			else:
 				pass

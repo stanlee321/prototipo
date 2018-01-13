@@ -107,7 +107,8 @@ class WaterMarker():
 			try:
 				os.remove(old_image)
 			except:
-				print('this file does not exist:', old_image)
+				#print('this file does not exist:', old_image)
+				pass
 
 if __name__ == '__main__':
 	path_to_watermark = os.getenv('HOME')+'/'+ 'trafficFlow' +'/' + 'watermark'+ '/dems.png'
