@@ -121,7 +121,7 @@ class Shooter():
 		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
 		work_dir_len = len(files_in_work_dir)
 
-		if work_dir_len > 12: #increased size of images to save in dir from 6
+		if work_dir_len > 24: #increased size of images to save in dir from 6
 			for img_path in files_in_work_dir:
 				if img_path in self.circular_buff_shooter:
 					pass

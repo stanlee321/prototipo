@@ -63,7 +63,7 @@ class WaterMarker():
 		# loop over the input images
 		print('PATH TO IMAGES,', path_to_images)
 		for imagePath in paths.list_images(path_to_images):
-			print('for of images', imagePath)
+			#print('for of images', imagePath)
 
 			output_folder = imagePath#.split('/')[-2]
 			# load the input image, then add an extra dimension to the
