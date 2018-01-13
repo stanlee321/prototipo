@@ -69,7 +69,7 @@ class WaterMarker():
 
 			route =imagePath.split('.')[0] 
 			jpg = imagePath.split('.')[-1]
-			output_folder = route + 'wm.'+ jpg
+			output_folder = route + 'wm.'+ jpg	
 			# load the input image, then add an extra dimension to the
 			# image (i.e., the alpha transparency)
 			image = cv2.imread(imagePath)
