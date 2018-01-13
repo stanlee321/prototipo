@@ -129,7 +129,7 @@ class Shooter():
 	def leer_DB(self):
 		# Read old metadata
 		date_for_db = str(datetime.datetime.now().strftime('%Y-%m-%d'))
-		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}.db'.format(date_for_db)
+		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}_cache.db'.format(date_for_db)
 		# Init DB
 		conn = sqlite3.connect(path_to_metadata,timeout=1)
 		c =  conn.cursor()
@@ -151,7 +151,7 @@ class Shooter():
 		c.close()
 		conn.close()
 
-
+		
 		return homework
 
 

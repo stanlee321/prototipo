@@ -12,7 +12,7 @@ import multiprocessing
 import numpy as np
 from shooterv10 import Shooter
 import sqlite3
-
+import shutil
 
 class ControladorCamara():
 	def __init__(self):
@@ -41,6 +41,7 @@ class ControladorCamara():
 
 		date_for_db = datetime.datetime.now().strftime('%Y-%m-%d')
 		db_name = self.path_to_work + 'shooter_database_{}.db'.format(date_for_db)
+
 
 		conn = sqlite3.connect(db_name)
 		c =  conn.cursor()
@@ -79,9 +80,13 @@ class ControladorCamara():
 		nombreFoldertoSave = rutahaciaFoldertoSave.split('/')[-1]
 		print('En ShooterControllerv3 resivo la ruta : ', rutahaciaFoldertoSave)
 		print('Se esta guardando la imagen en :',nombreFoldertoSave )
+		path_to_cache = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}_cache.db'.format(date_for_db)
+		path_to_db = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}.db'.format(date_for_db)
+
+		shutil.copy(path_to_cache, path_to_db)
+
 
 		date_for_db = datetime.datetime.now().strftime('%Y-%m-%d')
-		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}.db'.format(date_for_db)
 		workdir = 'WORKDIR'
 		save_img_in = nombreFoldertoSave
 
@@ -93,7 +98,7 @@ class ControladorCamara():
 		status = 'OPEN'
 
 		# Init DB
-		conn = sqlite3.connect(path_to_metadata)
+		conn = sqlite3.connect(path_to_db)
 		c =  conn.cursor()
 		#self.create_table(c)
 
@@ -102,6 +107,7 @@ class ControladorCamara():
 		self.dynamic_data_entry(c, conn, workdir, save_img_in, index, status)
 
 
+		shutil.copy(path_to_db, path_to_cache)
 		return self
 
 	def apagarCamara(self):
