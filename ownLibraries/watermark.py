@@ -66,7 +66,7 @@ class WaterMarker():
 		for imagePath in paths.list_images(path_to_images):
 			try:
 				#print('for of images', imagePath)
-				imagePath.append(to_delete)
+				to_delete.append(to_delete)
 				route =imagePath.split('.')[0] 
 				jpg = imagePath.split('.')[-1]
 				output_folder = route + 'wm.'+ jpg	
