@@ -142,7 +142,7 @@ class Shooter():
 		homework = []
 		for row in data:
 			#print(row)
-			metadata = list(data)
+			metadata = data
 			homework.append(metadata)
 		print('HOMEWORK', homework)
 		c.execute("UPDATE shooter_table SET Status = ? WHERE Status = ?", ('CLOSED','OPEN'))
