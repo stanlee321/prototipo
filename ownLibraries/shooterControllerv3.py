@@ -148,7 +148,7 @@ class ControladorCamara():
 				run_camera = np.load(path_to_run)
 			except Exception as e:
 				print('I cant read exit by this reason:', e)
-		miCamara.apagar_pi()
+		miCamara.self.procesoParaleloDos.join()
 		print('Saliendo del While Loop en ShooterControllerv2')
 		print('>>Picamera OFF<<')
 
