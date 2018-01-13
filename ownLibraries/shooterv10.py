@@ -304,21 +304,25 @@ class Observer():
 		try:
 			#print('copying from:', src_0, 'to:', dst_0)
 			shutil.copy(src_0, dst_0)
-		except:
+		except Exception as e:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_0, src_0))
+			print('OR:', e)
 			os.remove(src_0)
 
 		try:
 			#print('copying from:', src_one, 'to:', dst_one)
 			shutil.copy(src_one, dst_one)
-		except:
+		except Exception as e:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_one, src_one))
+			print('OR:', e)
 			os.remove(src_one)
+
 		try:
 			#print('copying from:', src_two, 'to:', dst_two)
 			shutil.copy(src_two, dst_two)
-		except:
+		except Exception as e:
 			print('DELETION WARNING for {}, delering source {}'.format(dst_two, src_two))
+			print('OR:', e)
 			os.remove(src_two)
 		print('Capturado posible infractor!')
 if __name__ == '__main__':
