@@ -145,7 +145,7 @@ class Shooter():
 			metadata = list(data)
 			homework.append(metadata)
 
-		c.execute("UPDATE shooter_table SET Status = ? WHERE Status = ? ", ('CLOSED', 'OPEN'))
+		c.execute("UPDATE shooter_table SET Status = ? WHERE Status = 'OPEN'", ('CLOSED'))
 		conn.commit()
 
 		c.close()
