@@ -296,6 +296,11 @@ class Observer():
 
 
 	def copiar_las_imagenes(self, src_0,dst_0,src_one, dst_one, src_two, dst_two):
+
+		print('COPIAR A :')
+		print('0:',src_0, dst_0)
+		print('1:',src_one, dst_one)
+		print('2:', src_two, dst_two)
 		try:
 			#print('copying from:', src_0, 'to:', dst_0)
 			shutil.copy(src_0, dst_0)
