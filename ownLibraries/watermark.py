@@ -66,7 +66,7 @@ class WaterMarker():
 		for imagePath in paths.list_images(path_to_images):
 			try:
 				#print('for of images', imagePath)
-
+				imagePath.append(to_delete)
 				route =imagePath.split('.')[0] 
 				jpg = imagePath.split('.')[-1]
 				output_folder = route + 'wm.'+ jpg	
@@ -103,7 +103,11 @@ class WaterMarker():
 
 			except Exception as e:
 				print('This error trying to make watermark:', e)
-
+		for old_image in to_delete:
+			try:
+				os.remove(old_image)
+			except:
+				print('this file does not exist:', old_image)
 
 if __name__ == '__main__':
 	path_to_watermark = os.getenv('HOME')+'/'+ 'trafficFlow' +'/' + 'watermark'+ '/dems.png'
