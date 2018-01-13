@@ -62,11 +62,13 @@ class WaterMarker():
 	def put_watermark(self, path_to_images, date):
 		# loop over the input images
 		print('PATH TO IMAGES,', path_to_images)
+		to_delete = []
 		for imagePath in paths.list_images(path_to_images):
-
+			to_delete.append(imagePath)
 			#print('for of images', imagePath)
 
-			output_folder = imagePath#.split('/')[-2]
+			namen = path_to_images.split('/')[-1]
+			output_folder = path_to_images + '/'+namen + 'wm.jpg'
 			# load the input image, then add an extra dimension to the
 			# image (i.e., the alpha transparency)
 			image = cv2.imread(imagePath)
@@ -92,9 +94,10 @@ class WaterMarker():
 			# write the output image to disk
 			filename = imagePath[imagePath.rfind(os.path.sep) + 1:]
 			p = output_folder #os.path.sep.join((output_folder, filename))
-			time.sleep(0.05)
 			cv2.imwrite(p, output)
 
+		for old_image in to_delete:
+			os.remove(old_image)
 
 
 
