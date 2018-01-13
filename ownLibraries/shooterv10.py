@@ -154,12 +154,12 @@ class Shooter():
 					timestamp = work[0][0]
 					date   = work[0][2]
 					folder = work[0][2]
-					index  = work[0][3]
+					index_real  = work[0][3]
 				saveDir = directorioDeReporte + '/' + folder
 				# copy captures
 				timestamp = timestamp+' index:'+index
-				observador.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
-				observador.move_captures()
+				observador.encenderCamaraEnSubDirectorio('WORKDIR', date, folder)
+				observador.move_captures(index_real)
 				watermarker.put_watermark(saveDir, timestamp)
 			else:
 				pass
@@ -231,15 +231,16 @@ class Observer():
 		conn.close()
 		return homework
 
-	def move_captures(self):
+	def move_captures(self, index_real):
+		self.frame_marcado = index_real
 		#print('debug 1', self.circular_buff)
 		if self.frame_marcado != None:
 			# Once the while is finish move the files to his folders.
 			self.move_relevant_files(self.frame_marcado)
-
-	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder, index ):
+		else:
+			pass
+	def encenderCamaraEnSubDirectorio(self, folder_WORK, fecha, folder):
 		self.fechaInfraccion = fecha
-		self.frame_marcado = index
 		self.folder = folder
 		self.saveDir = self.directorioDeGuardadoGeneral +"/" + str(self.folder)
 
@@ -253,7 +254,7 @@ class Observer():
 		self.save_in_file = self.saveDir+"/{}".format(self.fechaInfraccion)
 
 	def move_relevant_files(self, frame_marcado):
-
+		pritn('CIRCUALR BUFF IS', self.circular_buff)
 		marcados_list  = []
 		for i, image_route in enumerate(self.circular_buff):
 			#print('3.- image ROUTE', image_route)

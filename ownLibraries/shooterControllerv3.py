@@ -90,7 +90,7 @@ class ControladorCamara():
 
 		# time stamp
 		timestamp = datetime.datetime.now()
-		ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
+		ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p:%f")
 		# Took or not captures from pi camera
 		status = 'OPEN'
 
