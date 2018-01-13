@@ -40,25 +40,27 @@ class ControladorCamara():
 
 		path_to_cache = self.path_to_work + 'shooter_database_{}_cache.db'.format(date_for_db)
 		db_name = self.path_to_work + 'shooter_database_{}.db'.format(date_for_db)
-
+		
+		timestamp = datetime.datetime.now()
+		ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
 
 		conn = sqlite3.connect(db_name)
 		c =  conn.cursor()
 
 		self.create_table(c)
-		self.dynamic_data_entry(c, conn, 'WORKDIR', str(date), 'XX', 'CLOSED')
+		self.dynamic_data_entry(c, conn, ts, 'WORKDIR', str(date), 'XX', 'CLOSED')
 
 
 		conn = sqlite3.connect(path_to_cache)
 		c =  conn.cursor()
 
 		self.create_table(c)
-		self.dynamic_data_entry(c, conn, 'WORKDIR', str(date), 'XX', 'CLOSED')
+		self.dynamic_data_entry(c, conn, ts, 'WORKDIR', str(date), 'XX', 'CLOSED')
 
 		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.ilive,))
 		self.procesoParalelo.start()
 
-		
+
 	def create_table(self, c):
 		# Create table with default values as:
 
@@ -66,15 +68,15 @@ class ControladorCamara():
 		# SAVE_IMG_IN, dir where to copy the images from WORKDIR
 		# INDEX, don't remember xD
 		# STATUS, took pictures or not status
-		c.execute('CREATE TABLE IF NOT EXISTS shooter_table(WorkDir TEXT,Save_img_in TEXT,Idx TEXT,Status TEXT)')
+		c.execute('CREATE TABLE IF NOT EXISTS shooter_table(datestamp TEXT, WorkDir TEXT, Save_img_in TEXT,Idx TEXT,Status TEXT)')
 
-	def dynamic_data_entry(self, c, conn, workdir, save_img_in, index, status):
-
+	def dynamic_data_entry(self, c, conn, ts,workdir, save_img_in, index, status):
+		ts = str(ts)
 		WORKDIR = workdir
 		SAVE_IMG_IN = save_img_in
 		INDEX = str(index)
 		STATUS = status
-		c.execute("INSERT INTO  shooter_table(WorkDir, Save_img_in, Idx, Status) VALUES (?,?,?,?)",\
+		c.execute("INSERT INTO  shooter_table(ts, WorkDir, Save_img_in, Idx, Status) VALUES (?,?,?,?,?)",\
 			(WORKDIR, SAVE_IMG_IN, INDEX, STATUS))
 		conn.commit()
 		
@@ -102,6 +104,9 @@ class ControladorCamara():
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 		index = str(date.split(':')[-1]) # MOST IMPORTANT FOR SYNC WITH THE PARALLEL PROCESS
 
+		# time stamp
+		timestamp = datetime.datetime.now()
+		ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
 		# Took or not captures from pi camera
 		status = 'OPEN'
 
@@ -111,10 +116,7 @@ class ControladorCamara():
 		#self.create_table(c)
 
 		# UPDATE NEW ROW
-		# Append new row to old metadata and close connection
-		self.dynamic_data_entry(c, conn, workdir, save_img_in, index, status)
-
-
+		self.dynamic_data_entry(c, conn, ts, workdir,timestamp, save_img_in, index, status)
 		shutil.copy(path_to_db, path_to_cache)
 		return self
 
@@ -145,7 +147,7 @@ class ControladorCamara():
 				run_camera = np.load(path_to_run)
 			except Exception as e:
 				print('I cant read exit by this reason:', e)
-
+		miCamara.apagar_pi()
 		print('Saliendo del While Loop en ShooterControllerv2')
 		print('>>Picamera OFF<<')
 

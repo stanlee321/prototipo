@@ -151,14 +151,15 @@ class Shooter():
 				#print('FOUND HOMEWORK', homework)
 				for work in homework:
 					print('WORK', work)
-					date   = work[0][1]
-					folder = work[0][1]
-					index  = work[0][2]
+					timestamp = work[0][0]
+					date   = work[0][2]
+					folder = work[0][2]
+					index  = work[0][3]
 				saveDir = directorioDeReporte + '/' + folder
 				# copy captures
 				observador.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
 				observador.move_captures()
-				watermarker.put_watermark(saveDir)
+				watermarker.put_watermark(saveDir, timestamp)
 			else:
 				pass
 
