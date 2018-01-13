@@ -83,7 +83,9 @@ class Shooter():
 		self.frame_marcado = None
 		self.folder = str
 		self.ilive = True
+		self.circular_buff_shooter = collections.deque(maxlen=6)
 		self.input_q = multiprocessing.Queue()
+
 		self.procesoParaleloDos = multiprocessing.Process(target = self.processo_paraleloDos, args = (self.input_q,))
 		self.procesoParaleloDos.start()
 		print('EXITOSAMENTE CREE LA CLASE SHOOTERv10!!!')
@@ -100,8 +102,9 @@ class Shooter():
 		
 		while self.frame_number < self.maxCapturas:
 			index =  (datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')).split(':')[-1]
-
 			save_in_work_dir = 	self.saveDirWORK+"/_f{}f_i{}i_.jpg".format(self.frame_number, index)
+
+			self.circular_buff_shooter.appendleft(save_in_work_dir)
 			self.input_q.put(save_in_work_dir)
 			self.frame_number += 1
 			yield save_in_work_dir
@@ -120,7 +123,7 @@ class Shooter():
 
 		if work_dir_len > 6: #increased size of images to save in dir from 6
 			for img_path in files_in_work_dir:
-				if img_path in self.circular_buff:
+				if img_path in self.circular_buff_shooter:
 					pass
 				else:
 					os.remove(img_path)
@@ -141,7 +144,7 @@ class Shooter():
 
 			save_in_work_dir = input_queue.get()
 			observador.circular_buff.appendleft(save_in_work_dir)
-
+			print('CIRCULAR BUFF FROM OBSERVER', observador.circular_buff)
 			# Read Homework
 			homework = observador.leer_DB()
 			if len(homework) > 0: # infracciones en DB:
@@ -168,7 +171,10 @@ class Shooter():
 		print('>>Picamera OFF<<')
 
 
-
+################################################################
+################################################################
+#################### OBSERVER CLAS #############################
+################################################################
 class Observer():
 
 	nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
