@@ -160,7 +160,10 @@ class Shooter():
 				timestamp = timestamp+' index:'+ index_real
 				observador.encenderCamaraEnSubDirectorio('WORKDIR', date, folder)
 				observador.move_captures(index_real)
-				watermarker.put_watermark(saveDir, timestamp)
+				try:
+					watermarker.put_watermark(saveDir, timestamp)
+				except:
+					print('Directory not ready yet for watermarker')
 			else:
 				pass
 
@@ -285,7 +288,7 @@ class Observer():
 				dst_one = self.save_in_file + '_1.jpg'
 
 			try:
-				src_two = self.circular_buff[indice-1]
+				src_two = self.circular_buff[indice-2]
 				dst_two = self.save_in_file + '_2.jpg' # -1
 			except Exception as e:
 				print('src two cant move by this:', e)
