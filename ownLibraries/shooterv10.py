@@ -20,7 +20,7 @@ import pandas as pd
 import sqlite3
 
 from watermark import WaterMarker
-
+import multiprocessing
 class Shooter():
 	""" General PICAMERA DRIVER Prototipe
 	"""
@@ -84,11 +84,9 @@ class Shooter():
 		# Variable para marcar paquete de frames
 		self.frame_marcado = None
 		self.folder = str
-
-		# Get the WaterMarker
-		path_to_logo = 	os.getenv('HOME')+'/'+ 'trafficFlow' +'/' +'prototipo/'+ 'watermark'+ '/dems.png'
-		print("path_to_logo", path_to_logo)
-		self.watermarker = WaterMarker(path_to_logo)
+		self.ilive = True
+		self.procesoParaleloDos = multiprocessing.Process(target = self.processo_paraleloDos, args = (self.ilive,))
+		self.procesoParaleloDos.start()
 		print('EXITOSAMENTE CREE LA CLASE SHOOTERv10!!!')
 
 		
@@ -125,34 +123,6 @@ class Shooter():
 			self.frame_number += 1
 			yield save_in_work_dir
 
-
-	def leer_DB(self):
-		# Read old metadata
-		date_for_db = str(datetime.datetime.now().strftime('%Y-%m-%d'))
-		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}_cache.db'.format(date_for_db)
-		# Init DB
-		conn = sqlite3.connect(path_to_metadata,timeout=1)
-		c =  conn.cursor()
-		#c.execute("SELECT * FROM stufftoPlot WHERE value=3 AND keyword='Python'")
-		#c.execute("SELECT keyword,unix,value FROM stufftoPlot WHERE unix >1515634491")
-		c.execute("SELECT * FROM shooter_table WHERE Status = 'OPEN'")
-		#data = c.fetchone()
-		data = c.fetchall()
-
-		homework = []
-		for row in data:
-			#print(row)
-			metadata = data
-			homework.append(metadata)
-		print('HOMEWORK', homework)
-		c.execute("UPDATE shooter_table SET Status = ? WHERE Status = ?", ('CLOSED','OPEN'))
-		conn.commit()
-
-		c.close()
-		conn.close()
-
-
-		return homework
 
 
 	def move_relevant_files(self, frame_marcado):
@@ -221,27 +191,14 @@ class Shooter():
 		print('Capturado posible infractor!')
 
 
+	def apagar_pi(self):
+		self.procesoParaleloDos.join()
+		return self
+
 	def start(self):
 		#print('here alive...')
 		self.camera.capture_sequence(self.writter(), format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
-		t1  = time.time()
-		homework = self.leer_DB()
-		if len(homework) > 0: # infracciones en DB:
-			for work in homework:
-				print('WORK', work)
-				date   = work[0][1]
-				folder = work[0][1]
-				index  = work[0][2]
-			# copy captures
-			self.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
-			self.move_captures()
-			self.watermarker.put_watermark(self.saveDir)
-		else:
-			pass
-		t2 = time.time()
-		print('tac:', t2-t1)
-	def move_captures(self):
-
+		
 		# CLEAN UNUSED IMAGES 
 		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
 		work_dir_len = len(files_in_work_dir)
@@ -252,13 +209,81 @@ class Shooter():
 					pass
 				else:
 					os.remove(img_path)
+	def move_captures(self):
+
 		#print('debug 1', self.circular_buff)
 		if self.frame_marcado != None:
 			# Once the while is finish move the files to his folders.
 			self.move_relevant_files(self.frame_marcado)
 
 
+	def processo_paraleloDos(self, ilive):
 
+		# Get the WaterMarker
+		directorioDeReporte = os.getenv('HOME')+'/' + nombreCarpeta
+		path_to_logo = 	os.getenv('HOME')+'/'+ 'trafficFlow' +'/' +'prototipo/'+ 'watermark'+ '/dems.png'
+		nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
+		path_to_run = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
+
+		watermarker = WaterMarker(path_to_logo)
+		observador = Observer()
+		# Load the state of the While loop
+		run_camera = np.load(path_to_run)
+		while run_camera == 1:
+			# Read Homework
+			homework = observador.leer_DB()
+			if len(homework) > 0: # infracciones en DB:
+				for work in homework:
+					print('WORK', work)
+					date   = work[0][1]
+					folder = work[0][1]
+					index  = work[0][2]
+				saveDir = directorioDeReporte + '/' + folder
+				# copy captures
+				Shooter.encenderCamaraEnSubDirectorio('WORKDIR', date, folder, index)
+				Shooter.move_captures()
+				watermarker.put_watermark(saveDir)
+			else:
+				pass
+
+			try:
+				# Load status to run the camera or exit from this while loop
+				run_camera = np.load(path_to_run)
+			except Exception as e:
+				print('I cant read exit by this reason:', e)
+
+		print('Saliendo del While Loop en ShooterControllerv2')
+		print('>>Picamera OFF<<')
+
+
+class Observer():
+	def __init__(self):
+		pass
+	@staticmethod
+	def leer_DB():
+		# Read old metadata
+		date_for_db = str(datetime.datetime.now().strftime('%Y-%m-%d'))
+		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}_cache.db'.format(date_for_db)
+		# Init DB
+		conn = sqlite3.connect(path_to_metadata,timeout=1)
+		c =  conn.cursor()
+		#c.execute("SELECT * FROM stufftoPlot WHERE value=3 AND keyword='Python'")
+		#c.execute("SELECT keyword,unix,value FROM stufftoPlot WHERE unix >1515634491")
+		c.execute("SELECT * FROM shooter_table WHERE Status = 'OPEN'")
+		#data = c.fetchone()
+		data = c.fetchall()
+
+		homework = []
+		for row in data:
+			metadata = data
+			homework.append(metadata)
+		print('HOMEWORK', homework)
+		c.execute("UPDATE shooter_table SET Status = ? WHERE Status = ?", ('CLOSED','OPEN'))
+		conn.commit()
+
+		c.close()
+		conn.close()
+		return homework
 
 
 if __name__ == '__main__':

@@ -29,9 +29,6 @@ class ControladorCamara():
 		#self.aux_queue = multiprocessing.Queue()
 		date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 
-		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.ilive,))
-		self.procesoParalelo.start()
-
 		# Create initial dataframe
 
 		# Get WORDIR route
@@ -58,6 +55,10 @@ class ControladorCamara():
 		self.create_table(c)
 		self.dynamic_data_entry(c, conn, 'WORKDIR', str(date), 'XX', 'CLOSED')
 
+		self.procesoParalelo = multiprocessing.Process(target = self.procesadoParalelo, args = (self.ilive,))
+		self.procesoParalelo.start()
+
+		
 	def create_table(self, c):
 		# Create table with default values as:
 
@@ -138,7 +139,6 @@ class ControladorCamara():
 		run_camera = np.load(path_to_run)
 		while run_camera == 1:
 			miCamara.start()
-	
 			# Load status to run the camera or exit from this while loop
 			path_to_run = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
 			try:
