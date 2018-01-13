@@ -83,9 +83,7 @@ class ControladorCamara():
 		print('Se esta guardando la imagen en :',nombreFoldertoSave )
 
 		date_for_db = datetime.datetime.now().strftime('%Y-%m-%d')
-		# Read old metadata
 		path_to_metadata = os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'shooter_database_{}.db'.format(date_for_db)
-
 		workdir = 'WORKDIR'
 		save_img_in = nombreFoldertoSave
 

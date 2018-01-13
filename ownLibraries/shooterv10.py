@@ -119,21 +119,6 @@ class Shooter():
 			self.frame_number += 1
 			yield save_in_work_dir
 
-		# CLEAN UNUSED IMAGES 
-		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
-		work_dir_len = len(files_in_work_dir)
-
-		if work_dir_len > 6:
-			for img_path in files_in_work_dir:
-				if img_path in self.circular_buff:
-					pass
-				else:
-					os.remove(img_path)
-
-		if self.frame_marcado != None:
-			# Once the while is finish move the files to his folders.
-			self.move_relevant_files(self.frame_marcado)
-
 
 	def move_relevant_files(self, frame_marcado):
 
@@ -237,6 +222,25 @@ class Shooter():
 	def start(self):
 		#print('here alive...')
 		self.camera.capture_sequence(self.writter(), format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
+
+		# CLEAN UNUSED IMAGES 
+		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
+		work_dir_len = len(files_in_work_dir)
+
+		if work_dir_len > 12: #increased size of images to save in dir from 6
+			for img_path in files_in_work_dir:
+				if img_path in self.circular_buff:
+					pass
+				else:
+					os.remove(img_path)
+
+		if self.frame_marcado != None:
+			# Once the while is finish move the files to his folders.
+			self.move_relevant_files(self.frame_marcado)
+
+
+
+
 
 if __name__ == '__main__':
 	#DEMO DEMO DEMO 
