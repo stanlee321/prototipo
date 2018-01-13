@@ -121,7 +121,7 @@ class Shooter():
 		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')
 		work_dir_len = len(files_in_work_dir)
 
-		if work_dir_len > 6: #increased size of images to save in dir from 6
+		if work_dir_len > 12: #increased size of images to save in dir from 6
 			for img_path in files_in_work_dir:
 				if img_path in self.circular_buff_shooter:
 					pass
@@ -144,10 +144,11 @@ class Shooter():
 
 			save_in_work_dir = input_queue.get()
 			observador.circular_buff.appendleft(save_in_work_dir)
-			print('CIRCULAR BUFF FROM OBSERVER', observador.circular_buff)
+			#print('CIRCULAR BUFF FROM OBSERVER', observador.circular_buff)
 			# Read Homework
 			homework = observador.leer_DB()
 			if len(homework) > 0: # infracciones en DB:
+				print('FOUND HOMEWORK', homework)
 				for work in homework:
 					print('WORK', work)
 					date   = work[0][1]
@@ -220,7 +221,7 @@ class Observer():
 		for row in data:
 			metadata = data
 			homework.append(metadata)
-		print('HOMEWORK', homework)
+		#print('HOMEWORK', homework)
 		c.execute("UPDATE shooter_table SET Status = ? WHERE Status = ?", ('CLOSED','OPEN'))
 		conn.commit()
 
