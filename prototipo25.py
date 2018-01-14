@@ -20,9 +20,10 @@ from ownLibraries.determinacionCruces import PoliciaInfractor
 from obtenerHistogramaHorario import exportarInformacionDeHoyO
 
 # Se crean las variables de directorios
-directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
-directorioDeVideos  = os.getenv('HOME')+'/trafficFlow/trialVideos'
-folderDeInstalacion = directorioDeTrabajo+'/installationFiles'
+directorioDeTrabajo = os.getenv('HOME') + '/trafficFlow/prototipo'
+directorioDeVideos  = os.getenv('HOME') + '/trafficFlow/trialVideos'
+folderDeInstalacion = directorioDeTrabajo + '/installationFiles'
+directorioDeLogo = directorioDeTrabajo + '/watermark'
 
 # Variables diarias:
 nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
@@ -108,7 +109,6 @@ def __main_function__():
 	else:
 		miReporte = MiReporte(levelLogging=logging.INFO,nombre=__name__,directorio=directorioDeReporte)			# Se crea por defecto con nombre de la fecha y hora actual
 		
-	
 	miReporte.info('Programa iniciado exitosamente con ingreso de senal video '+archivoDeVideo+entradaReal+' con semaforo '+semaforoSimuladoTexto+str(periodoDeSemaforo) +', corriendo a '+str(mifps)+' Frames por Segundo')
 	
 	vectorDeInicio = [[datetime.datetime.now(),0,0,0,0,0]]
@@ -179,6 +179,7 @@ def __main_function__():
 	miAcetatoInformativo.colocarPoligono(np.array(verticesPartida))
 	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))
 	miAcetatoInformativo.colocarPoligono(miPoliciaReportando.carrilValido)
+	miAcetatoInformativo.establecerLogo(directorioDeLogo+'/dems.png')
 
 	# El historial sera una lista de la siguiente forma:
 	# {numeroFrame: {'frame':np.array((320,240)),'data':{"info"}}}

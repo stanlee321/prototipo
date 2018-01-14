@@ -16,6 +16,9 @@ class Acetato(object):
 		self.misPuntos = []
 		self.colorSemaforo = (0,0,0)
 		self.numeroFrame = 0
+		self.logo = np.zeros((1,1,3))
+		self.logoInv = np.zeros((1,1,3))
+		self.alpha = 0.7
 
 		#Formato
 		self.opacidad = 1.0
@@ -28,6 +31,7 @@ class Acetato(object):
 		self.colorRectanguloPaz = (0,255,0)
 		self.paletaColores = [(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200),(0,255,0),(255,0,0),(255,255,0),(0,255,255),(255,0,255),(255,255,255),(100,100,100),(100,255,100),(255,100,100),(255,255,100),(100,255,255),(255,100,255),(200,200,200)]
 		self.ultimoColor = 0
+		self.placeLogoX = 270
 
 	def inicializar(self):
 		del self.targets
@@ -36,7 +40,21 @@ class Acetato(object):
 		self.misPuntos = []
 		self.ultimoColor = 0
 
+	def establecerLogo(self,nombreArchivo):
+		self.logo = cv2.resize(cv2.imread(nombreArchivo),(50,50))
+		self.logoInv = cv2.cvtColor(self.logo,cv2.COLOR_BGR2GRAY)
+		ret, self.maskLogo = cv2.threshold(self.logoInv, 10, 255, cv2.THRESH_BINARY)
+		self.maskLogoInv = cv2.bitwise_not(self.maskLogo)
+
 	def aplicarAFrame(self,frameNP):
+		if self.logo.shape != (1,1,3):
+			auxiliar = frameNP[0:50, self.placeLogoX:(self.placeLogoX+50)]
+			img1_bg = cv2.bitwise_and(auxiliar,auxiliar,mask = self.maskLogoInv)
+			img2_fg = cv2.bitwise_and(self.logo,self.logo,mask = self.maskLogo)
+			#auxiliar = cv2.addWeighted(self.logo,self.alpha,auxiliar,1-self.alpha,0,frameNP[0:50, 270:320])
+			dst = cv2.add(img1_bg,img2_fg)
+			#auxiliar = cv2.add(self.logo,auxiliar)
+			frameNP[0:50, self.placeLogoX:(self.placeLogoX+50)] = dst
 		for poligono in self.poligonos:
 			frameNP = cv2.polylines(frameNP,np.int32([poligono]),1,(160,160,160))
 		for ind in range(len(self.misPuntos)):
@@ -67,6 +85,8 @@ class Acetato(object):
 
 	def colocarPoligono(self,poligonoNP):
 		self.poligonos.append(poligonoNP)
+		if cv2.pointPolygonTest(poligonoNP,(self.placeLogoX, 50),True)>=0:	# Si esta dentro del carril valido se mueve:
+				self.placeLogoX = 0
 
 	def colocarObjetivo(self,target,prioridad):
 		rectangulo = target
