@@ -244,6 +244,8 @@ class Observer():
 		self.folder = folder
 		self.saveDir = Observer.directorioDeReporte +"/" + str(self.folder)
 		print('TIENE QUE CREARSE ESTA CARPETA:', self.saveDir)
+		existe = os.path.exists(self.saveDir)
+		print('EXISTE???', existe)
 		if not os.path.exists(self.saveDir):
 			os.makedirs(self.saveDir)
 			os.mkdir(self.saveDir)
