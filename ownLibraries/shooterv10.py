@@ -142,11 +142,15 @@ class Shooter():
 		run_camera = np.load(path_to_run)
 		while run_camera == 1:
 
-			save_in_work_dir = input_queue.get(timeout=1)
-			observador.circular_buff.appendleft(save_in_work_dir)
 			#print('CIRCULAR BUFF FROM OBSERVER', observador.circular_buff)
 			# Read Homework
 			homework = observador.leer_DB()
+			try:
+				save_in_work_dir = input_queue.get(timeout=1)
+				observador.circular_buff.appendleft(save_in_work_dir)
+
+			except Exception as e:
+				print('THIS EXCEPTION FOR GET()', e)
 			if len(homework) > 0: # infracciones en DB:
 				#print('FOUND HOMEWORK', homework)
 				for work in homework:
