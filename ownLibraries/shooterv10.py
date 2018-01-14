@@ -142,7 +142,7 @@ class Shooter():
 		run_camera = np.load(path_to_run)
 		while run_camera == 1:
 
-			save_in_work_dir = input_queue.get()
+			save_in_work_dir = input_queue.get(timeout=1)
 			observador.circular_buff.appendleft(save_in_work_dir)
 			#print('CIRCULAR BUFF FROM OBSERVER', observador.circular_buff)
 			# Read Homework
@@ -166,11 +166,9 @@ class Shooter():
 			else:
 				pass
 
-			try:
-				# Load status to run the camera or exit from this while loop
-				run_camera = np.load(path_to_run)
-			except Exception as e:
-				print('I cant read exit by this reason:', e)
+			# Load status to run the camera or exit from this while loop
+			run_camera = np.load(path_to_run)
+		
 
 		print('Saliendo del While Loop en ShooterControllerv2')
 		print('>>Picamera OFF<<')
