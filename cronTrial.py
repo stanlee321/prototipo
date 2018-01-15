@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import os
 import sys
 import cv2
@@ -14,6 +16,11 @@ from ownLibraries.herramientas import total_size
 from ownLibraries.videostream import VideoStream
 from ownLibraries.semaforov2 import CreateSemaforo
 from ownLibraries.determinacionCruces import PoliciaInfractor
+
+print(os.__file__)
+print(cv2.__file__)
+print(psutil.__file__)
+print(np.__file__)
 
 fecha = os.getenv('HOME')+'/trafficFlow/'+datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')+'_reporte.txt'
 

@@ -277,14 +277,21 @@ def __main_function__():
 			
 			miAcetatoInformativo.colorDeSemaforo(senalSemaforo)
 
-			historial[frame_number] = {'video':frameFlujo.copy()}
-			frameFlujo = miAcetatoInformativo.aplicarAFrame(frameFlujo)
+			frameFlujo = miAcetatoInformativo.aplicarConstantes(frameFlujo)
+
+			if generarArchivosDebug:
+				#historial[frame_number]['debug'] = frameFlujo.copy()
+				frameFlujo = miAcetatoInformativo.aplicarAFrame(frameFlujo)
+				historial[frame_number] = {'video':frameFlujo.copy()}
+			else:
+				historial[frame_number] = {'video':frameFlujo.copy()}
+				if mostrarImagen:
+					frameFlujo = miAcetatoInformativo.aplicarAFrame(frameFlujo)
 			
 			if mostrarImagen:
 				#cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(frameFlujo)[120:239,60:360])
 				cv2.imshow('Visual',frameFlujo)
-			if generarArchivosDebug:
-				historial[frame_number]['debug'] = frameFlujo.copy()
+
 			#else:
 			#	historial[frame_number]['frame'] = historial[frame_number]['captura']
 			historial[frame_number]['data'] = [velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear]

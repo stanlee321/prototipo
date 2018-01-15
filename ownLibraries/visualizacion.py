@@ -46,7 +46,7 @@ class Acetato(object):
 		ret, self.maskLogo = cv2.threshold(self.logoInv, 10, 255, cv2.THRESH_BINARY)
 		self.maskLogoInv = cv2.bitwise_not(self.maskLogo)
 
-	def aplicarAFrame(self,frameNP):
+	def aplicarConstantes(self,frameNP):
 		if self.logo.shape != (1,1,3):
 			auxiliar = frameNP[0:50, self.placeLogoX:(self.placeLogoX+50)]
 			img1_bg = cv2.bitwise_and(auxiliar,auxiliar,mask = self.maskLogoInv)
@@ -55,6 +55,10 @@ class Acetato(object):
 			dst = cv2.add(img1_bg,img2_fg)
 			#auxiliar = cv2.add(self.logo,auxiliar)
 			frameNP[0:50, self.placeLogoX:(self.placeLogoX+50)] = dst
+		frameNP = cv2.putText(frameNP, datetime.datetime.now().strftime('%A %d %B %Y %I:%M:%S%p')+' f{}'.format(self.numeroFrame), (4,236), self.font, 0.4,(255,255,255),1,cv2.LINE_AA)
+		return frameNP
+
+	def aplicarAFrame(self,frameNP):
 		for poligono in self.poligonos:
 			frameNP = cv2.polylines(frameNP,np.int32([poligono]),1,(160,160,160))
 		for ind in range(len(self.misPuntos)):
@@ -80,7 +84,7 @@ class Acetato(object):
 		xSem = int(self.poligonos[0][0][0] -5)
 		ySem = int(self.poligonos[0][0][1] -5)
 		frameNP = cv2.circle(frameNP, (xSem,ySem),4,self.colorSemaforo,-1)
-		frameNP = cv2.putText(frameNP, datetime.datetime.now().strftime('%A %d %B %Y %I:%M:%S%p')+' f{}'.format(self.numeroFrame), (4,236), self.font, 0.4,(255,255,255),1,cv2.LINE_AA)
+		
 		return frameNP
 
 	def colocarPoligono(self,poligonoNP):
