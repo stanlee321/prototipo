@@ -249,10 +249,10 @@ class Observer():
 		self.saveDir = Observer.directorioDeReporte +"/" + str(self.folder)
 		print('TIENE QUE CREARSE ESTA CARPETA:', self.saveDir)
 		existe = os.path.exists(self.saveDir)
-		print('EXISTE???', existe)
+		print('EXISTE FOLDER???', existe)
 		if not os.path.exists(self.saveDir):
 			os.makedirs(self.saveDir)
-			os.mkdir(self.saveDir)
+			#os.mkdir(self.saveDir)
 		if not os.path.exists(self.saveDirWORK):
 			os.makedirs(self.saveDirWORK) 
 			#print('Cree WORKDIR para trabajar el buffer de Forma Exitosa en ' + self.saveDirWORK + ' para: '+ self.saveDir)
