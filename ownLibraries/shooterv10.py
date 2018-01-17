@@ -144,11 +144,13 @@ class Shooter():
 
 			#print('CIRCULAR BUFF FROM OBSERVER', observador.circular_buff)
 			# Read Homework
-			homework = observador.leer_DB()
+			try:
+				homework = observador.leer_DB()
+			except Exception as e:
+				print('Table bussy, passing....', e)
 			try:
 				save_in_work_dir = input_queue.get(timeout=1)
 				observador.circular_buff.appendleft(save_in_work_dir)
-
 			except Exception as e:
 				print('THIS EXCEPTION FOR GET()', e)
 			if len(homework) > 0: # infracciones en DB:
