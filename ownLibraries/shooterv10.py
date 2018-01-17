@@ -152,7 +152,7 @@ class Shooter():
 				save_in_work_dir = input_queue.get(timeout=1)
 				observador.circular_buff.appendleft(save_in_work_dir)
 			except Exception as e:
-				print('THIS EXCEPTION FOR GET()', e)
+				print('### ERROR 1 ###, THIS EXCEPTION FOR GET()', e)
 			if len(homework) > 0: # infracciones en DB:
 				#print('FOUND HOMEWORK', homework)
 				for work in homework:
@@ -163,12 +163,10 @@ class Shooter():
 					index_real  = work[0][3]
 				saveDir = directorioDeReporte + '/' + folder
 				# copy captures
-				timestamp = timestamp+' index:'+ index_real
+				timestamp = timestamp#+' index:'+ index_real
 				observador.encenderCamaraEnSubDirectorio('WORKDIR', date, folder)
 				observador.move_captures(index_real)
 				watermarker.put_watermark(saveDir, timestamp)
-				#delete old files without watermwark
-				
 			else:
 				pass
 
@@ -249,9 +247,9 @@ class Observer():
 		self.fechaInfraccion = fecha
 		self.folder = folder
 		self.saveDir = Observer.directorioDeReporte +"/" + str(self.folder)
-		print('TIENE QUE CREARSE ESTA CARPETA:', self.saveDir)
+		#print('TIENE QUE CREARSE ESTA CARPETA:', self.saveDir)
 		existe = os.path.exists(self.saveDir)
-		print('EXISTE FOLDER???', existe)
+		#print('EXISTE FOLDER???', existe)
 		if not os.path.exists(self.saveDir):
 			os.makedirs(self.saveDir)
 			#os.mkdir(self.saveDir)
@@ -311,10 +309,10 @@ class Observer():
 
 	def copiar_las_imagenes(self, src_0,dst_0,src_one, dst_one, src_two, dst_two):
 
-		print('COPIAR A :')
-		print('0:',src_0, ">>>>>>",dst_0)
-		print('1:',src_one,">>>>>>", dst_one)
-		print('2:', src_two, ">>>>>>", dst_two)
+		#print('COPIAR A :')
+		#print('0:',src_0, ">>>>>>",dst_0)
+		#print('1:',src_one,">>>>>>", dst_one)
+		#print('2:', src_two, ">>>>>>", dst_two)
 		try:
 			#print('copying from:', src_0, 'to:', dst_0)
 			shutil.copy(src_0, dst_0)
