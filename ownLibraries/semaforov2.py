@@ -180,14 +180,16 @@ class Real(Semaforo):
 	def __init__(self):
 
 		# LOAD THE TRAINED SVM MODEL ... INTO THE MEMORY????
-		print( '>>>>>>WILLKOMEN TO  REAL REAL REAL SEMAFORO<<<<<<')
+		print( '>>>>>> STARTING #### REAL REAL REAL ### SEMAPHORO <<<<<<')
 		print( 'checking for model....')
-		if os.path.isfile("./model/svm_model_(8, 24)_96_39.pkl"):
+		path_to_svm_model = os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'svm_model_(8, 24)_96_39.pkl'
+		if os.path.isfile(path_to_svm_model):
 			print("Model Found!!!!")
-			print ("Using previous model... svm_model.pkl")
-			self.svm = pickle.load(open("./model/svm_model_(8, 24)_96_39.pkl", "rb"))
+			print ("Using previous model... {}".format(path_to_svm_model))
+			self.svm = pickle.load(open(path_to_svm_model, "rb"))
 		else:
-			print ("No model, retrain DUde!!")
+			print ("No model found in {}, please check the path to the ML model!!".format(path_to_svm_model))
+
 
 		# Init parent class attributes
 		super().__init__()
