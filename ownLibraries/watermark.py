@@ -1,5 +1,5 @@
 # import the necessary packages
-from imutils import paths
+import imutils
 import numpy as np
 import argparse
 import cv2
@@ -63,7 +63,7 @@ class WaterMarker():
 		# loop over the input images
 		print('PATH TO IMAGES,', path_to_images)
 		to_delete = []
-		for imagePath in paths.list_images(path_to_images):
+		for imagePath in imutils.paths.list_images(path_to_images):
 			try:
 				#print('for of images', imagePath)
 				to_delete.append(to_delete)
