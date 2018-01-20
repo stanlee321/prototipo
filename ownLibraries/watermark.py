@@ -7,7 +7,6 @@ import cv2
 import os
 from PIL import Image
 import datetime
-from imutils import paths
 
 # construct the argument parse and parse the arguments
 
@@ -61,11 +60,37 @@ class WaterMarker():
 		watermark = cv2.merge([B, G, R, A])
 		return watermark, wH, wW
 
+
+
+	@staticmethod
+	def list_images(basePath, contains=None):
+		# return the set of files that are valid
+		return WaterMarker.list_files(basePath, validExts=(".jpg", ".jpeg", ".png", ".bmp"), contains=contains)
+
+	@staticmethod
+	def list_files(basePath, validExts=(".jpg", ".jpeg", ".png", ".bmp"), contains=None):
+		# loop over the directory structure
+		for (rootDir, dirNames, filenames) in os.walk(basePath):
+			# loop over the filenames in the current directory
+			for filename in filenames:
+				# if the contains string is not none and the filename does not contain
+				# the supplied string, then ignore the file
+				if contains is not None and filename.find(contains) == -1:
+					continue
+
+				# determine the file extension of the current file
+				ext = filename[filename.rfind("."):].lower()
+
+				# check to see if the file is an image and should be processed
+				if ext.endswith(validExts):
+					# construct the path to the image and yield it
+					imagePath = os.path.join(rootDir, filename).replace(" ", "\\ ")
+					yield imagePath
 	def put_watermark(self, path_to_images, date):
 		# loop over the input images
 		print('PATH TO IMAGES,', path_to_images)
 		to_delete = []
-		for imagePath in paths.list_images(path_to_images):
+		for imagePath in WaterMarker.list_images(path_to_images):
 			try:
 				#print('for of images', imagePath)
 				to_delete.append(to_delete)
