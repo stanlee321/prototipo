@@ -7,5 +7,5 @@
 
 cd /
 cd /home/pi/trafficFlow/prototipo
-python3 prototipo25.py Show
+python3 prototipo25.py
 cd /
