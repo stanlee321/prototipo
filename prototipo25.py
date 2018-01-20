@@ -315,7 +315,7 @@ def __main_function__():
 				#miPoliciaReportando.apagarCamara()
 				#os.execl(sys.executable, 'python3', __file__, *sys.argv[1:])
 				# As bug continues we reboot the system:
-				#os.system('sudo reboot')
+				os.system('sudo reboot')
 
 			porcentajeDeMemoria = psutil.virtual_memory()[2]
 				
