@@ -57,8 +57,8 @@ class GeneradorEvidencia():
 		inicio = infraccion['frameInicial'] - self.ventana
 		final = infraccion['frameFinal'] + self.ventana
 		self.generarVideo(informacionTotal,infraccion['name'],directorioActual,'video',inicio,final,infraccion['observacion'])
-		if debug:
-			self.generarVideo(informacionTotal,infraccion['name'],directorioActual,'debug',inicio,final,infraccion['observacion'])
+		#if debug:
+		#	self.generarVideo(informacionTotal,infraccion['name'],directorioActual,'debug',inicio,final,infraccion['observacion'])
 
 	def generarVideoDebugParaPruebas(self,informacionTotal):
 		nombreInfraccion = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')

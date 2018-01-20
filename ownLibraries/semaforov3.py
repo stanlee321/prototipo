@@ -180,14 +180,15 @@ class Real(Semaforo):
 	def __init__(self):
 
 		# LOAD THE TRAINED SVM MODEL ... INTO THE MEMORY????
-		print( '>>>>>>WILLKOMEN TO  REAL REAL REAL SEMAFORO<<<<<<')
+		print( '>>>>>> STARTING #### REAL REAL REAL ### SEMAPHORO <<<<<<')
 		print( 'checking for model....')
-		if os.path.isfile("./model/svm_model_(8, 24)_96_39.pkl"):
+		path_to_svm_model = os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'svm_model_(8, 24)_96_39.pkl'
+		if os.path.isfile(path_to_svm_model):
 			print("Model Found!!!!")
-			print ("Using previous model... svm_model.pkl")
-			self.svm = pickle.load(open("./model/svm_model_(8, 24)_96_39.pkl", "rb"))
+			print ("Using previous model... {}".format(path_to_svm_model))
+			self.svm = pickle.load(open(path_to_svm_model, "rb"))
 		else:
-			print ("No model, retrain DUde!!")
+			print ("No model found in {}, please check the path to the ML model!!".format(path_to_svm_model))
 
 		# Init parent class attributes
 		super().__init__()
@@ -239,9 +240,7 @@ class Real(Semaforo):
 		full_mask = mask_red + mask_yellow + mask_green
 
 		# Put the mask and filter the R, Y , G colors in _imagen_
-		res = cv2.bitwise_and(imagen,imagen, mask= full_mask)
-
-
+		res = cv2.bitwise_and(imagen, imagen, mask= full_mask)
 
 		#res = cv2.GaussianBlur(res,(15,15),2)
 
@@ -249,8 +248,6 @@ class Real(Semaforo):
 
 		#res = cv2.bilateralFilter(res,30,75,75,75/2)
 		res = cv2.bilateralFilter(res,35,75,75)
-
-
 
 
 		#cv2.imshow('res', cv2.resize(res,(res.shape[1]*5,res.shape[0]*5)))
