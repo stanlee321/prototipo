@@ -108,7 +108,7 @@ class WaterMarker():
 				# then add the watermark to the overlay in the bottom-right
 				# corner
 				overlay = np.zeros((h, w, 4), dtype="uint8")
-				overlay[h - self.wH - 10:h - 10, w - self.wW - 10:w - 10] = self.watermark
+				overlay[h - self.wH - 10:h - 10, w - self.wW - 10:int(w*0.10) - 10] = self.watermark
 			 
 				# blend the two images together using transparent overlays
 				output = image.copy()
