@@ -20,7 +20,7 @@ open this file with nano
 nano ~/.bashrc 
 
 
-add this lines to the bootom of the file
+add this lines to the bottom of the file
 
 ################START########################
 echo "Running at Boot"
@@ -47,3 +47,7 @@ fi
 3.- check state and time of python code with:
 
 ps ax | grep python3
+
+4.- If you want to stop all,  Kill python3 process with:
+
+sudo killall -9 python3
