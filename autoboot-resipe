@@ -1,0 +1,49 @@
+1.-
+
+To auto-start the terminal on boot, open this file with nano:
+
+nano ~/.config/lxsession/LXDE-pi/autostart
+
+Add this line to the end of the file:
+
+@lxterminal
+
+Close, save and reboot
+
+
+2.- 
+
+Adding the python custom script
+
+open this file with nano
+
+nano ~/.bashrc 
+
+
+add this lines to the bootom of the file
+
+################START########################
+echo "Running at Boot"
+cd /home/pi/trafficFlow/prototipo/
+
+echo "Hi, I'm trying to run the script..."
+echo "starting First try to run python script."
+command_rc=python3 prototipo25.py
+if [[ $command_rc -ne 0 ]]; then
+        echo 'command was successful'
+else
+        echo 'damn, there was an error'
+        echo 'waiting 10 seg...'
+        sleep 10
+	echo 'killing stuck python3 process...'        
+	sudo killall -9 python3
+	echo 'starting Second try to run python script'
+        nohup python3 prototipo25.py >>fullLog.log 2>&1&
+	echo 'It Works! its running in background..., checklog with  nano fullLog.log'
+	echo 'or state and running time with command  ps ax | grep python3  in terminal'
+fi
+###################END######################
+
+3.- check state and time of python code with:
+
+ps ax | grep python3

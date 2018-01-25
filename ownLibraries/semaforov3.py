@@ -7,164 +7,98 @@ import os
 import pickle
 import time
 import threading
+import multiprocessing
+import collections
+from collections import Counter
 
-from abc import ABCMeta, abstractmethod
-
-class Semaforo(object):
+class Semaphoro():
 	"""
-	Semaforo object
-
-	Attributes:
-
-		self.numericValue : Integer like, values: 1 for red
-										   0 for Green
-										   -1 for Not found
-		self.flanco : Integer like, values: -1 for Red to Green
-											1 for Green to Yellow or Red
-		self.state : String like, values : Green, Yellow, Red
-
-		self.previous_state : self.state like
-
+		Class to check the states of a semaforo, also simulates one
+		Init:
+			periodo : int  # by feault 0, that means it runs the real case one
 	"""
-
-	__metaclass__ = ABCMeta
-
-
-	def __init__(self):
-		self.flanco = 0
-		self.state = 'verde'
-		self.previous_state = 'rojo'
-		self.numericValue = -1
-		self.counter = 0
-		self.tiempoParaPeriodo = time.time()
-		self.ultimoPeriodo = time.time() - self.tiempoParaPeriodo
-		self.maximoTiempoPeriodo = 150			# 2 minutos y medio sera el timeout para determinar que no se esta viendo semaforo
-	
-	def correrCronometro(self, periodoSemaforo, sleeptime):
-		# Run chronometer and reset self.flanco to 0 once that the
-		# pulse has been send.
-		#print('Returning pulse ..flanco:', self.flanco)
-		#
-		# After pulse has been send, self.flanco set to 0 again
-		#
-		self.flanco = 0
-		if self.state == 'amarillo':
-			# Default peridoSemaforo for amarillo set to 3 seconds.
-			periodoSemaforo = 3
+	def __init__(self, periodo = 30):
+		# Set target of multiprocessing
+		self.input_q = multiprocessing.Queue()
+		if periodo > 0:
+			# Case of simulation
+			semaphoro = Simulation(self.input_q, periodo)
+			semaphoro.start()
 		else:
-			pass
-		for number in range(periodoSemaforo):
-			time.sleep(sleeptime)
-			self.counter = number
-			self.counter += 1
+			# Case real one
+			semaphoro = Real(self.input_q)
+			semaphoro.start()
+	def obtenerColorEnSemaforo(self):
+		data = self.input_q.get()
+		numerico, literal, flanco = data[0], data[1], data[2]
+		return numerico, literal, flanco
 	
-	def comparation(self, periodoSemaforo, sleeptime):
+	def stop(self):
+		self.p.join()
 
-		# RED
-		if self.state == 'rojo':
-			self.numericValue = 1
-			self.kroneckerlike(current= self.state, passt=self.previous_state)
-			# Run cronometro
-			self.correrCronometro(periodoSemaforo, sleeptime)
-			self.previous_state = self.state
-			self.state = 'verde'
-			self.counter = 0
-		# Green
-		if self.state == 'verde':
-			self.numericValue = 0
-			self.kroneckerlike(current= self.state, passt=self.previous_state)
-			# Run Cronometro
-			self.correrCronometro(periodoSemaforo, sleeptime)		
-			self.previous_state = self.state
-			self.state = 'amarillo'
-			self.counter = 0
+class Simulation(multiprocessing.Process):
+	"""docstring for ProcessSimulation"""
+	def __init__(self, queue, periodo):
+		super(Simulation, self).__init__()
+		print('WELCOME to SIMULATION')
+		self.input_q = queue
+		self.periodo = periodo
+		self.count = 0.0
+		self.actual_state = 1  			# g = 1, y = 2, r = 3
+		self.sleeptime = 1.0
+		self.states = collections.deque(maxlen=2)
+		self.states.append(self.actual_state)
+		
+		self.flanco = 0
+	def counter(self):
+		self.count += 1
+		return self
+	def check_simulated_state(self):
+		self.counter()
+		self.states.append(self.actual_state)
+		print('bedore dequeu', self.count)
+		print('dequeu', self.states)
+		self.actual_state = self.states[-1]
+		if self.actual_state == 1:
+			if self.count == self.periodo:
+				self.count = 0.0
+				self.actual_state = 2
+		if self.actual_state == 2:
+			if self.count == 3.0:
+				self.count = 0.0
+				self.actual_state = 3
+		if self.actual_state == 3:
+			if self.count == self.periodo:
+				self.count = 0.0
+				self.actual_state = 1
+		self.checkflanco()
 
-		# Yellow
-		if self.state =='amarillo':
-			self.numericValue = 2
-			self.kroneckerlike(current= self.state, passt=self.previous_state)
-			# Run cronometro
-			self.correrCronometro(periodoSemaforo, sleeptime)
-			self.previous_state = self.state
-			self.state = 'rojo'
-			self.counter = 0
+	def checkflanco(self):
+		past, current = self.states[0], self.states[1]
 
-
-
-	def kroneckerlike(self, current=None, passt=None):
 		#
 		# Compare the current and pass colors to set self.flanco value 
 		#
-		if current == passt:
-			#print('{},{} are the same, ...passing flanco:{}'.format(i,j,0))
+		if current == past:
 			self.flanco = 0
-			return self.flanco
-		elif current == 'rojo' and passt == 'amarillo':
-			#print('from {} to {} ...passing flanco:{}'.format(passt, current, 1))
-			self.flanco = 1
-			return self.flanco
-		
-		elif current == 'verde' and passt == 'rojo':
-			#print('from {} to {} ...passing flanco:{}'.format(passt, current, -1))
+		elif current == 3 and past == 2:
+			self.flanco = 1	
+		elif current == 1 and past == 3:
 			self.flanco = -1
-			return self.flanco
-
-		elif current == 'amarillo' and passt == 'verde':
-			#print('from {} to {} ...passing flanco:{}'.format(passt, current, 1))
+		elif current == 2 and past == 1:
 			self.flanco = 1
-			return self.flanco
-
 		else:
-			print('No match found {}, {}, returning 0',format(current, passt))
-			return 0
-	
-	# Method to be _heredado_ to childs.
-	@abstractmethod
-	def encontrarSemaforoObtenerColor(self, poligono = None, imagen = None):
-		return self.numericValue, self.state, self.flanco
-
-
-class Simulado(Semaforo):
-
-	""" Simulated Semaforo that runs forever in the Background once that this object
-	is created
-
-	Attributes:
-		self.periodoSemaforo = Tiempo entre colores, por default amarillo es 3 segundos
-		self.sleeptime = 1, es el tiempo por defecto para el cronometro interno
-		super().__init__(), es para iniciar los atributos de la clase parent.
-		thread, es el proceso paralelo que se crea para que el programa corra 
-				de forma continua en el Background
-		Simulado.run(), es el progreso que se mantiene constante en el thread
-	"""
-
-	def __init__(self, periodoSemaforo = 10 ):
-		print( '[[[....STARTING .... SEMAFORO SIMULADO]]]')
-		self.periodoSemaforo = periodoSemaforo
-		self.sleeptime = 1
-
-		# Init parent class attributes
-		super().__init__()
-		thread = threading.Thread(target=self.run, args=())
-		thread.daemon = True                            # Daemonize thread
-		thread.start()                                  # Start the execution
+			print('No match found {}, {}, returning 0',format(current, past))
 
 	def run(self):
-		Semaforo.comparation(self, self.periodoSemaforo, self.sleeptime)
-		# Runing again the run() method.
-		thread = threading.Thread(target=self.run, args=())
-		thread.daemon = True                            # Daemonize thread
-		thread.start() 
+		while True:
+			time.sleep(self.sleeptime)
+			self.check_simulated_state()
+			self.input_q.put([self.actual_state, self.count, self.flanco])
 
 	
-	def encontrarSemaforoObtenerColor(self, poligono = None, imagen = None):
-		# Parent method 
-		return self.numericValue, self.state, self.flanco
 
-
-
-
-class Real(Semaforo):
+class Real(multiprocessing.Process):
 	"""
 	Real Method,  use a SVM classifier to find color in some input ROI imagen, ouputs are:
 	colorPrediction, literalColour, flanco
@@ -177,24 +111,26 @@ class Real(Semaforo):
 
 	"""
 
-	def __init__(self):
-
+	def __init__(self, queue):
+		super(Real, self).__init__()
+		print('......Starting REAL semaphoro....')
 		# LOAD THE TRAINED SVM MODEL ... INTO THE MEMORY????
-		print( '>>>>>> STARTING #### REAL REAL REAL ### SEMAPHORO <<<<<<')
-		print( 'checking for model....')
 		path_to_svm_model = os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'svm_model_(8, 24)_96_39.pkl'
-		if os.path.isfile(path_to_svm_model):
-			print("Model Found!!!!")
+		self.path_to_img = os.getenv('HOME') + '/' + 'WORKDIR' + '/' + 'imagen.npy'
+		if os.path.isfile(path_to_svm_model) and os.path.isfile(path_to_img):
 			print ("Using previous model... {}".format(path_to_svm_model))
+			print ("Reading route to imagen.npy... {}".format(path_to_img))
 			self.svm = pickle.load(open(path_to_svm_model, "rb"))
+			self.imagen_semaphoro_raw = path_to_img
 		else:
 			print ("No model found in {}, please check the path to the ML model!!".format(path_to_svm_model))
 
-		# Init parent class attributes
-		super().__init__()
-		#
-		# SOME COLORS
-		#
+		# expected shape of the image_semaphoro_raw (Weidth,Height,Channels)
+		self.SHAPE = (8,24,3)
+		# read Queue for put the results from inference.
+		self.input_q = queue
+
+
 		# YELLOW /(Orangen) range
 		self.lower_yellow = np.array([18,40,190], dtype=np.uint8) # 18,40,190
 		self.upper_yellow = np.array([27,255,255], dtype=np.uint8)
@@ -207,31 +143,29 @@ class Real(Semaforo):
 		self.lower_green = np.array([70,10,0], dtype=np.uint8) #_,0,_ , _,50,_
 		self.upper_green = np.array([90,255,255], dtype=np.uint8)
 
-		# SOME VARIABLES for SVM, if retrain the SVM in another
-		# resolution, change this val to this resolution.
-		self.SHAPE = (8,24)
+		# Deque for filter
+		self.filter_dequeu = collections.deque(maxlen=10)
 
-		# SOME AUXILIAR VARIABLES:
-		self.ultimoColorValido = - 1
-		self.tiempoAbsoluto = time.time()
-		self.periodoSemaforo = time.time()
-		self.porcentajeExitoEncontrarColor = 0
-		self.exitoColor = 0
-		self.fracasoColor = 0
+		self.previous_state = None
+		self.actual_state = None
 
-	def find_color(self, imagen):
+	@staticmethod
+	def reader(plain_img):
+		# Posible positino of colors
+		lenght_of_stream = len(list(plain_img))
+		red    = plain_img[0: int(0.35*lenght_of_stream)]
+		yellow = plain_img[int(0.35*lenght_of_stream): int(0.75*lenght_of_stream)]
+		green  = plain_img[int(0.75*lenght_of_stream): ]
+		return red,yellow,green
 
-		
-		#Load some semaforo Image and find color on it using svm_model
-		"""
-		# Load image and some magic	
-		
-		#cv2.imshow('semaforo', cv2.resize(imagen,(imagen.shape[1]*5,imagen.shape[0]*5)))
+	@staticmethod
+	def extract_feature(image_file):
 
-		"""
-		imagen = np.reshape(imagen,(8,24,3))
-		hsv = cv2.cvtColor(imagen, cv2.COLOR_BGR2HSV)
-		
+		SHAPE = (24, 8)
+		img = cv2.imread(image_file)
+		img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+		hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 		# SOME MASKS
 		mask_red = cv2.inRange(hsv, self.lower_red, self.upper_red)
 		mask_yellow = cv2.inRange(hsv, self.lower_yellow, self.upper_yellow)
@@ -240,144 +174,169 @@ class Real(Semaforo):
 		full_mask = mask_red + mask_yellow + mask_green
 
 		# Put the mask and filter the R, Y , G colors in _imagen_
-		res = cv2.bitwise_and(imagen, imagen, mask= full_mask)
-
-		#res = cv2.GaussianBlur(res,(15,15),2)
-
-		#res = cv2.medianBlur(res,15)
-
-		#res = cv2.bilateralFilter(res,30,75,75,75/2)
-		res = cv2.bilateralFilter(res,35,75,75)
-
-
-		#cv2.imshow('res', cv2.resize(res,(res.shape[1]*5,res.shape[0]*5)))
-		###########################
-		# SVM PART (CLASSIFICATION) ML PROCESS
-		###########################
-		img = cv2.resize(res, self.SHAPE, interpolation = cv2.INTER_CUBIC)
-
-		#cv2.imshow('res2', cv2.resize(img,(img.shape[1]*5,img.shape[0]*5)))
-		# LitleDebug for see what is the SVM seeing
-		#cv2.imwrite('red2.jpg', img)
-		
+		res = cv2.bitwise_and(img, img, mask= full_mask)
+		#res = cv2.bilateralFilter(res,35,35,35)
+		img = cv2.resize(res, SHAPE, interpolation = cv2.INTER_CUBIC)
 		img = img.flatten()
-		
-		#assert imagen.shape == (192*3, )
-		#img = imagen
-		#img = img.flatten()
-		# Some numerical corrections
-		feature_img = img/(np.mean(img)+0.0001)
-		#feature_img = img/255
-		x = feature_img
-		#x = np.asarray(feature_img)
-  
-		x = x.reshape(1, -1)
+		img = img/255
+#		x = x.reshape(1, -1)
+		return img
 
-		#cv2.imshow('Semaforo before in ..', cv2.resize(np.reshape(x,(8,24,3)),(8*20,24*15)))
+	@staticmethod
+	def sigmoid(t):
+		s = 1 / (1+np.exp(-t))
+		return s
 
-		prediction = self.svm.predict(x)[0]
+	def find_color(self):
+
+		imagen = self.path_to_img
+
+		X = self.extract_feature(imagen)
+		Y = self.svm.predict(X)[0]
 		###########################
 		# END SVM PART (CLASSIFICATION) ML PROCESS
 		###########################
-		#print('PREDICTION IS:', prediction)
 		# Return prediction from SVM
-		if prediction == 'green':
+		if   Y == 'green':
 			return 0
-		elif prediction == 'red':
+		elif Y == 'red':
 			return 1
-		elif prediction == 'black':
-			return 1
+		elif Y == 'yellow':
+			return 2
+		elif Y == 'black':
+			return -1
 		else:
 			pass
 
-	def encontrarSemaforoObtenerColor(self, imagen):
-		# Find the color in this piece of poligono and
-		# return colorPrediction, literalColour, self.flanco
-		"""
-		literalColour = 'error?'
+	def prediction(self):
+		colorPrediction = self.find_color()
 
-		ignore_mask_color = (255,) * 3
-		
-		# find MAX, MIN values  in poligono
-		maxinX = max([x[0] for x in poligono])
-		maxinY = max([y[1] for y in poligono])
+		self.filter_deque.append(colorPrediction)
 
-		mininX = min([x[0] for x in poligono])
-		mininY = min([y[1] for y in poligono])
 
-		x0 = mininX//2
-		x1 = maxinX//2
-
-		y0 = mininY//2
-		y1 = maxinY//2
-		"""
-		#print(x0,y0,x1,y1)
-
-		#poligono = [(x0,y0),(x1,y1)]
-		#cv2.imshow('imagen',cv2.resize(imagen[y0:y1,x0:x1],(480,240)))
-
-		# Create mask of Zeros with shape iqual to image input shape.
-		#mask =  np.zeros((imagen.shape[0], imagen.shape[1],imagen.shape[2]), np.uint8)
-
-		# Adjust poligono to mask
-		#fillPolyImage = cv2.fillPoly(mask, np.array([poligono]), ignore_mask_color)
-
-		# All zeros except the poligon region in image input
-		#masked_image = cv2.bitwise_and(imagen,mask)
-		#cv2.imshow('imagen',cv2.resize(masked_image[y0:y1,x0:x1],(480,240)))
-
-		# Feed to the SMV with cuted masked_image using max and min points (rectangle like)
-		# again, all zeros except poligion region of interest.
-
-		#colorPrediction = self.find_color(masked_image[y0:y1,x0:x1])
-		colorPrediction = self.find_color(imagen)
+		prediction = self.filter()
 
 
 		if colorPrediction == 1:
 			literalColour = 'ROJO'
-			Semaforo.state = 'rojo'
 		elif colorPrediction == 0:
 			literalColour = 'VERDE'
-			Semaforo.state = 'verde'
 		else:
 			literalColour = 'No hay Semaforo'
-			Semaforo.state = None
 
-		
-		if (colorPrediction == 0) | (colorPrediction == 1):
-			self.exitoColor +=1
-			if (colorPrediction != self.ultimoColorValido)&(colorPrediction == 0):	# Si el semaforo cambia de estado, a VERDE, se guarda el tiempo de duración del último periodo
-				Semaforo.flanco = -1
-				self.periodoSemaforo = time.time() - self.tiempoAbsoluto
-				self.tiempoAbsoluto = time.time()
-				self.porcentajeExitoEncontrarColor = self.exitoColor/(self.exitoColor+self.fracasoColor)
-				self.exitoColor = 0
-				self.fracasoColor = 0
-			if (colorPrediction != self.ultimoColorValido)&(colorPrediction == 1):	# Si el semaforo cambia de estado, a ROJO,
-				Semaforo.flanco = 1
-			self.ultimoColorValido = colorPrediction
-			
-		else:
-			colorPrediction = self.ultimoColorValido
-			self.fracasoColor +=1	
-		
-		# Si el numero de fracasos asciende a 150 el semaforo vuelve a condiciones iniciales parciales
-		if self.fracasoColor > 150:		# A 200 ms, 150 representa semaforo perdido por 50 segundos
-			colorPrediction = -1
-			self.ultimoColorValido = -1
-    		
 		return colorPrediction, literalColour, self.flanco
-	
 
+
+	def filter(self):
+		queu_len = len(self.filter_deque)
+		raw_deque = self.filter_deque
+		counts = Counter(raw_deque)
+
+		# Check number of values in deque
+		uniques = list(set(raw_deque))
+
+		if len(uniques) == 1:
+			#normal condiction
+			actual_state = uniques[-1]
+
+		if len(uniques) == 2:
+
+			n1 = counts[uniques[-1]]
+			n2 = counts[uniques[-2]]
+
+			c_state_1   = max(n1,n2)
+			c_state_2   = min(n1,n2)
+
+			state_1_p = c_state_1 / queu_len
+			state_2_p = c_state_2 / queu_len
+			
+			if  state_1_p > state_2_p :
+
+				previous_state = uniques[-1]
+				actual_state   = uniques[-2] 
+
+			elif state_1_p < state_2_p:
+			
+				previous_state = uniques[-2]
+				actual_state   = uniques[-1]
+			
+			elif state_1_p == state_2_p:
+				previous_state = uniques[-1]
+				actual_state   = uniques[-2] 
+			else:
+				pass
+		if len(uniques) > 2:
+			self.fill_holes(raw_deque)
+			# anromal situation
+
+	def fill_holes(self, raw_deque):
+		maping = {}
+		aux_list = []
+		for i, value in enumerate(raw_deque):
+			value = raw_deque.index(value)
+			aux_list.append(value)
+			maping[value] = aux_list
+
+
+
+	def checkflanco(self):
+		past, current = self.states[0], self.states[1]
+		#
+		# Compare the current and pass colors to set self.flanco value 
+		#
+		if current == past:
+			self.flanco = 0
+		elif current == 3 and past == 2:
+			self.flanco = 1	
+		elif current == 1 and past == 3:
+			self.flanco = -1
+		elif current == 2 and past == 1:
+			self.flanco = 1
+		else:
+			print('No match found {}, {}, returning 0',format(current, past))
+	def run(self):
+		while True:
+			color, literal_color, flanco = self.prediction()
+			self.input_q.put([self.actual_state, self.count, self.flanco])
+
+
+
+
+if __name__ == '__main__':
+	#cap = cv2.VideoCapture('./installationFiles/sar.mp4')
+	#data = np.load('./installationFiles/sar.npy')
+	#print(data)
+	semaphoro = Semaphoro(periodo = 30)
+	#poligono  = data[0]
+	#print(data[0])
+	counter = 0 
+	while True:
+		#_, img = cap.read()
+		time.sleep(1)
+		print(semaphoro.obtenerColorEnSemaforo())
+		#print('STATES:', semaphoro.numerico, semaphoro.literal,semaphoro.flanco)
+		print(' Main While loop',  counter)
+		counter +=1
+		#cv2.imshow('mask_image',img)
+
+		ch = 0xFF & cv2.waitKey(5)
+		if ch == 27:
+			break
+	cv2.destroyAllWindows()
+	c = cv2.waitKey(0)
+
+
+
+"""
 class CreateSemaforo(Semaforo):
-	"""
-	Create the requested semaforo according the the periodoSemaforo values,
-	Attributes:
-		periodoSemaforo == 0 for Real semoforo creation
-		periodoSemaforo != for Simulated Semaforo
-		self.blueprint_semaforo, is the interface for parent and childs classes attributes 
-								and methods sharing.
-	"""
+	
+	#Create the requested semaforo according the the periodoSemaforo values,
+	#Attributes:
+	#	periodoSemaforo == 0 for Real semoforo creation
+	#	periodoSemaforo != for Simulated Semaforo
+	#	self.blueprint_semaforo, is the interface for parent and childs classes attributes 
+	#							and methods sharing.
+	
 	def __init__(self, periodoSemaforo=30):
 		self.periodoSemaforo = periodoSemaforo
 		#
@@ -452,22 +411,4 @@ class CreateSemaforo(Semaforo):
 		return numerico, literal, flancoCorrecto, periodoAMostrar
 
 
-if __name__ == '__main__':
-	cap = cv2.VideoCapture('./installationFiles/sar.mp4')
-	data = np.load('./installationFiles/sar.npy')
-	print(data)
-	semaforo = CreateSemaforo(periodoSemaforo = 0)
-	poligono  = data[0]
-	print(data[0])
-	while True:
-		_, img = cap.read()
-
-		print(semaforo.obtenerColorEnSemaforo(imagen = img, poligono = poligono))
-		
-		#cv2.imshow('mask_image',img)
-
-		ch = 0xFF & cv2.waitKey(5)
-		if ch == 27:
-			break
-	cv2.destroyAllWindows()
-	c = cv2.waitKey(0)
+"""
