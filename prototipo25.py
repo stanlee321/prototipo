@@ -312,7 +312,7 @@ def __main_function__():
 				miReporte.info('Actualizando por cambio de dia a '+str(datetime.datetime.now().day))# el script por cambio de día')
 				exportarInformacionDeHoyO(-1)
 				# Esto tiene que estar antes del metodo nuevoDia():
-				miReporte.info('Informacion exportada, borrando: 'nombreCarpeta)
+				miReporte.info('Informacion exportada, borrando: '+nombreCarpeta)
 				os.system('python3 cleanfolders.py -folder '+nombreCarpeta)
 				nuevoDia()
 				miReporte.info('Cambio de día exitoso')
