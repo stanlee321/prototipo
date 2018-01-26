@@ -311,11 +311,15 @@ def __main_function__():
 			if (int(nombreCarpeta[8:10]) != datetime.datetime.now().day):
 				miReporte.info('Actualizando por cambio de dia a '+str(datetime.datetime.now().day))# el script por cambio de día')
 				exportarInformacionDeHoyO(-1)
+				# Esto tiene que estar antes del metodo nuevoDia():
+				miReporte.info('Informacion exportada, borrando: 'nombreCarpeta)
+				os.system('python3 cleanfolders.py -folder '+nombreCarpeta)
 				nuevoDia()
+				miReporte.info('Cambio de día exitoso')
 				#miPoliciaReportando.apagarCamara()
 				#os.execl(sys.executable, 'python3', __file__, *sys.argv[1:])
 				# As bug continues we reboot the system:
-				os.system('sudo reboot')
+				#os.system('sudo reboot')
 
 			porcentajeDeMemoria = psutil.virtual_memory()[2]
 				
