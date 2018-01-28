@@ -106,7 +106,7 @@ if __name__ == '__main__':
 
 	# Else it will search for the todays report and set path_to_clean to actual day
 	else:
-		home_dir = os.getenv('HOME')
+		home_dir = "/home/pi"
 		today_date = datetime.datetime.now().strftime('%Y-%m-%d')
 		path_to_clean =  home_dir + '/' + today_date + '_reporte' + '/*'
 
