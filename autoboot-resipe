@@ -55,12 +55,20 @@ sudo killall -9 python3
 5.- Program a reboot from OS
 
 open: 
-sudo crontab -e
-insert this in the bottom to reboot on 02:55 am everyday:
+#sudo crontab -e
+#insert this in the bottom to reboot on 02:55 am everyday:
 55 02 * * * root reboot
 
+if not work , edit this and add that line in the booton
+sudo nano /etc/crontab
+
+restart cron:
+sudo /etc/init.d/cron restart
 
 ##### THE ABOVE MEANS:########################
  m      h    dom        mon   dow       command
 minute hour dayOfMonth Month dayOfWeek commandToRun
 #############################################
+
+
+
