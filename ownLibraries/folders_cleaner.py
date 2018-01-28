@@ -1,6 +1,5 @@
-#  folders_cleaner.py
-
-
+#!/usr/bin/python3
+#folders_cleaner.py
 import os
 import glob
 import shutil
