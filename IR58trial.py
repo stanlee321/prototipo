@@ -20,13 +20,13 @@ try:
 	camaraAUsar = int(sys.arg[2])
 except:
 	print('No se introdujo cambio de camara, usando la primera, 0, por defecto')
-	camaraAUsar = 0
+	camaraAUsar = 1
 
 try:
 	resolucion = int(sys.arg[1])
 except:
 	print('No se introdujo resolucion, usando la maxima, 8Mp, por defecto')
-	resolucion = 8
+	resolucion = 5
 
 factorDeInteres = 5
 
@@ -94,8 +94,10 @@ while (1):
 		break
 		
 	if ch == ord('c'):
+		print('activando')
 		miFiltro.colocarFiltroIR()
 	if ch == ord('r'):
+		print('desactivando')
 		miFiltro.quitarFiltroIR()
 		
 			
