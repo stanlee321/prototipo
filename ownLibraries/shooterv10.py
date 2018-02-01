@@ -20,6 +20,7 @@ import pandas as pd
 import sqlite3
 #from imutils import paths
 from .watermark import WaterMarker
+
 import multiprocessing
 class Shooter():
 	""" General PICAMERA DRIVER Prototipe

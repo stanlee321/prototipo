@@ -24,7 +24,6 @@ class WaterMarker():
 		self.lineType               = 2
 		self.alpha = 0.25
 		 
-
 		self.watermark, self.wH, self.wW = WaterMarker.create_watermark(self.path_to_watermark)
 	@staticmethod
 	def convert_to_4channel(path_to_logo):
@@ -43,8 +42,9 @@ class WaterMarker():
 		#print(path_to_watermark)
 		# load the watermark image, making sure we retain the 4th channel
 		# which contains the alpha transparency
+		print('path to WaterMarker', path_to_watermark)
 		watermark = cv2.imread(path_to_watermark, cv2.IMREAD_UNCHANGED)
-		watermark = cv2.resize(watermark, (int(0.2*watermark.shape[0]),int(0.2*watermark.shape[1])))
+		watermark = cv2.resize(watermark, (int(0.15*watermark.shape[0]),int(0.15*watermark.shape[1])))
 		(wH, wW) = watermark.shape[:2]
 
 		# split the watermark into its respective Blue, Green, Red, and
@@ -108,13 +108,13 @@ class WaterMarker():
 				# then add the watermark to the overlay in the bottom-right
 				# corner
 				overlay = np.zeros((h, w, 4), dtype="uint8")
-				overlay[h - self.wH - 10:h - 10, w - self.wW - 10:w - 10] = self.watermark
+				overlay[h - self.wH - 1200:h - 1200, w - self.wW - 10:w - 10] = self.watermark
 			 
 				# blend the two images together using transparent overlays
 				output = image.copy()
 				cv2.addWeighted(overlay, self.alpha, output, 1.0, 0, output)
 				
-				bottomLeftCornerOfText = (int(0.1*w),int(0.9*h))
+				bottomLeftCornerOfText = (int(0.1*w), int(0.96*h))
 				#text = str(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
 				#timestamp = datetime.datetime.now()
 				#text = timestamp.strftime("%A %d %B %Y %I:%M:%S%p:%f")
@@ -138,7 +138,7 @@ class WaterMarker():
 				pass
 
 if __name__ == '__main__':
-	path_to_watermark = os.getenv('HOME')+'/'+ 'trafficFlow' +'/' + 'watermark'+ '/dems.png'
-	path_to_images = './test'
+	path_to_watermark = os.getenv('HOME')+'/'+ 'trafficFlow' +'/' +'prototipo'+'/'+ 'watermark'+ '/dems.png'
+	path_to_images = os.getenv('HOME')+'/'+ 'trafficFlow' +'/' + 'test'
 	make_watermarks = WaterMarker(path_to_watermark)
-	make_watermarks.put_watermark(path_to_images)
+	make_watermarks.put_watermark(path_to_images,'2018-1-1')
