@@ -45,13 +45,15 @@ class Perspective():
 		# Warp the image using OpenCV warpPerspective()
 
 		transformado = cv2.warpPerspective(image, M, img_size)
-		print(transformado.shape)
-		transformado = cv2.resize(transformado,(transformado.shape[1]//2,transformado.shape[0]//2))
-		print(transformado.shape)
 		
 		# Just comment the vizualization
 		#cv2.imshow("original",image)
-		cv2.imshow("perspective",transformado)
+		#cv2.imshow("perspective",transformado)
 		#cv2.waitKey(0)
 
+		return transformado
+
+	def transformarAMitad(self,image):
+		transformado = self.transformar(image)
+		transformado = cv2.resize(transformado,(transformado.shape[1]//2,transformado.shape[0]//2))
 		return transformado

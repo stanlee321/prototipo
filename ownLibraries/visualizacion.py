@@ -133,8 +133,8 @@ class Acetato(object):
 			w += (tuple(punto)[0]-x)*(tuple(punto)[0]-x)
 			h += (tuple(punto)[1]-y)*(tuple(punto)[1]-y)
 		
-		h = int(2*math.sqrt(h/n))
-		w = int(2*math.sqrt(w/n))
+		h = int(math.sqrt(h/n))
+		w = int(math.sqrt(w/n))
 
 		return x,y,h,w
 

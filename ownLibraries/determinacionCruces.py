@@ -62,7 +62,7 @@ class PoliciaInfractor():
 		vectorParalelo = self.lineaDePintadoLK[1] - self.lineaDePintadoLK[0]
 		self.vectorParaleloUnitario = (vectorParalelo)/self.tamanoVector(vectorParalelo)
 		self.vectorPerpendicularUnitario = np.array([self.vectorParaleloUnitario[1],-self.vectorParaleloUnitario[0]])
-		self.numeroDePuntos = 9
+		self.numeroDePuntos = 21
 		self.stepX = ditanciaEnX/self.numeroDePuntos
 		self.stepY = ditanciaEnY/self.numeroDePuntos
 		self.lk_params = dict(  winSize  = (15,15),
@@ -77,7 +77,7 @@ class PoliciaInfractor():
 
 		self.areaFlujo = self.obtenerRegionFlujo(self.areaDeResguardo)
 		self.miPerspectiva = Perspective(self.areaFlujo)
-		self.anteriorFranja = self.miPerspectiva.transformar(self.imagenAuxiliar)
+		self.anteriorFranja = self.miPerspectiva.transformarAMitad(self.imagenAuxiliar)
 		
 		self.listaVehiculos = []
 		"""
@@ -185,13 +185,25 @@ class PoliciaInfractor():
 		imagenActualEnGris = cv2.cvtColor(imagenActual, cv2.COLOR_BGR2GRAY)
 		arrayAuxiliarParaVelocidad, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaFijaDelantera, None, **self.lk_params)
 		self.lineaDeResguardoAlteradaDelantera = arrayAuxiliarParaVelocidad
-		if not flujoRegion:
-			
-			velocidadEnBruto = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,self.lineaDeResguardoAlteradaDelantera)
-		else:
-			velocidadEnBruto = self.obtenerMagnitudMovimientoEnRegion(self.miPerspectiva.transformar(imagenActualEnGris))
+		
+		velocidadEnBruto = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,self.lineaDeResguardoAlteradaDelantera)
+		velocidadFiltradaLinea, pulsoVehiculosLinea = self.miFiltro.obtenerOndaFiltrada(velocidadEnBruto)
+		if pulsoVehiculosLinea == 1:
+			print('########## Capturado por linea ##########')
 
-		velocidadFiltrada, pulsoVehiculos = self.miFiltro.obtenerOndaFiltrada(velocidadEnBruto)
+		velocidadEnBruto = self.obtenerMagnitudMovimientoEnRegion(self.miPerspectiva.transformarAMitad(imagenActualEnGris))
+		velocidadFiltradaRegion, pulsoVehiculosRegion = self.miFiltro.obtenerOndaFiltrada(velocidadEnBruto)
+		if pulsoVehiculosRegion == 1:
+			print('########## Capturado por region ##########')
+
+		if flujoRegion:
+			velocidadFiltrada = velocidadFiltradaRegion
+			pulsoVehiculos = pulsoVehiculosRegion
+		else:
+			velocidadFiltrada = velocidadFiltradaLinea
+			pulsoVehiculos = pulsoVehiculosLinea
+
+		
 
 		# Se evoluciona el resto de vehiculos solo si son 'Previo'
 		for infraccion in self.listaVehiculos:
@@ -445,7 +457,7 @@ class PoliciaInfractor():
 		self.anteriorFranja = nuevaFranja
 		# Se retorna el flujo en X invertido
 		flujoPerpendicular = -10*flowX/(flow.shape[0]*flow.shape[1]+1)
-		print(flowX,flujoPerpendicular)
+		
 		return flujoPerpendicular
 
 
