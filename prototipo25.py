@@ -48,7 +48,7 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 
 # Temporizaciones
 anocheciendo =  17*60+15														# Tiempo 17:30 am + 4 GMT
-amaneciendo = 7*60																# Tiempo  7:00 am + 4 GMT
+amaneciendo = 8*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
 
 horaInicioInfraccion = 6*60
@@ -264,13 +264,13 @@ def __main_function__():
 				del historial[min(historial)]				
 
 			# Draw frame number into image on top
-			for infraction in miPoliciaReportando.listaVehiculos:	
-				for puntos in infraction['desplazamiento']:
-					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
-					miAcetatoInformativo.colocarObjeto(puntosExtraidos,infraction['estado'])
+			for infraction in miPoliciaReportando.listaVehiculos:		
+				puntos = infraction['desplazamiento'].ravel()
+				puntosExtraidos = puntos.reshape(puntos.shape[0]//2,2)
+				miAcetatoInformativo.colocarObjeto(puntosExtraidos,infraction['estado'])
 
 			#for puntoResguardo in miPoliciaReportando.obtenerLineasDeResguardo(False):
-			miAcetatoInformativo.colocarObjeto(miPoliciaReportando.obtenerLineasDeResguardo(True),'Referencia')
+			miAcetatoInformativo.colocarPuntos(miPoliciaReportando.obtenerLineasDeResguardo(True),'Referencia')
 			
 			# Configs and displays for the MASK according to the semaforo
 			#miAcetatoInformativo.agregarTextoEn("I{}".format(miPoliciaReportando.infraccionesConfirmadas), 2)
@@ -323,7 +323,7 @@ def __main_function__():
 
 			porcentajeDeMemoria = psutil.virtual_memory()[2]
 				
-			if (porcentajeDeMemoria > 80)&(os.uname()[1] == 'raspberrypi'):
+			if (porcentajeDeMemoria > 85)&(os.uname()[1] == 'raspberrypi'):
 				miReporte.info('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
 			"""
 			if porcentajeDeMemoria > 96:
