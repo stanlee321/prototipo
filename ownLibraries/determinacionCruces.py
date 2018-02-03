@@ -11,6 +11,7 @@ import multiprocessing
 
 import matplotlib.pyplot as graficaActual
 from ownLibraries.mireporte import MiReporte
+from ownLibraries.perspectiva import Perspective
 from ownLibraries.analisisonda import AnalisisOnda
 from ownLibraries.generadorevidencia import GeneradorEvidencia
 if os.uname()[1] == 'raspberrypi':
@@ -61,7 +62,7 @@ class PoliciaInfractor():
 		vectorParalelo = self.lineaDePintadoLK[1] - self.lineaDePintadoLK[0]
 		self.vectorParaleloUnitario = (vectorParalelo)/self.tamanoVector(vectorParalelo)
 		self.vectorPerpendicularUnitario = np.array([self.vectorParaleloUnitario[1],-self.vectorParaleloUnitario[0]])
-		self.numeroDePuntos = 21
+		self.numeroDePuntos = 9
 		self.stepX = ditanciaEnX/self.numeroDePuntos
 		self.stepY = ditanciaEnY/self.numeroDePuntos
 		self.lk_params = dict(  winSize  = (15,15),
@@ -71,6 +72,12 @@ class PoliciaInfractor():
 		self.lineaFijaDelantera = np.zeros((self.numeroDePuntos+1,1,2))
 		self.lineaDeResguardoDelantera = self.crearLineaDeResguardo()
 		self.lineaDeResguardoAlteradaDelantera = self.lineaDeResguardoDelantera
+
+		# Se inicializa la perspectiva con 1/9 del largo del paso de cebra como ancho
+
+		self.areaFlujo = self.obtenerRegionFlujo(self.areaDeResguardo)
+		self.miPerspectiva = Perspective(self.areaFlujo)
+		self.anteriorFranja = self.miPerspectiva.transformar(self.imagenAuxiliar)
 		
 		self.listaVehiculos = []
 		"""
@@ -80,11 +87,23 @@ class PoliciaInfractor():
 		3. Giro
 		4. Ruido
 		"""
-
 		self.reestablecerEstado()
 
 		if os.uname()[1] == 'raspberrypi':
 			self.camaraAlta = ControladorCamara()
+
+	def obtenerRegionFlujo(self,npArrayDePartida):
+		punto01 = npArrayDePartida[0]
+		punto02 = npArrayDePartida[1]
+		punto03 = npArrayDePartida[2]
+		punto04 = npArrayDePartida[3]
+		unitario12 = (punto02 - punto01)/self.tamanoVector(punto02 - punto01)
+		unitario43 = (punto03 - punto04)/self.tamanoVector(punto03 - punto04)
+		largoPasoCebra = self.tamanoVector(punto04-punto01)
+		punto02 = punto01+largoPasoCebra/6*unitario12
+		punto03 = punto04+largoPasoCebra/6*unitario43
+
+		return np.array([punto01,punto02,punto03,punto04]).astype(int)
 
 	def nuevoDia(self,directorioDeReporte):
 		self.directorioDeReporte = directorioDeReporte
@@ -146,7 +165,7 @@ class PoliciaInfractor():
 		self.lineaFijaDelantera = np.array(self.lineaFijaDelantera,dtype = np.float32)
 		return lineaAuxiliar
 
-	def seguirImagen(self,numeroDeFrame,imagenActual,informacion = False,colorSemaforo = 1):
+	def seguirImagen(self,numeroDeFrame,imagenActual,informacion = False,colorSemaforo = 1,flujoRegion = False):
 		"""
 		Metodo mas importante del infractor: Se encarga de:
 		1. Crear vehiculos de ser necesario
@@ -166,8 +185,12 @@ class PoliciaInfractor():
 		imagenActualEnGris = cv2.cvtColor(imagenActual, cv2.COLOR_BGR2GRAY)
 		arrayAuxiliarParaVelocidad, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaFijaDelantera, None, **self.lk_params)
 		self.lineaDeResguardoAlteradaDelantera = arrayAuxiliarParaVelocidad
-		
-		velocidadEnBruto = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad)
+		if not flujoRegion:
+			
+			velocidadEnBruto = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,self.lineaDeResguardoAlteradaDelantera)
+		else:
+			velocidadEnBruto = self.obtenerMagnitudMovimientoEnRegion(self.miPerspectiva.transformar(imagenActualEnGris))
+
 		velocidadFiltrada, pulsoVehiculos = self.miFiltro.obtenerOndaFiltrada(velocidadEnBruto)
 
 		# Se evoluciona el resto de vehiculos solo si son 'Previo'
@@ -239,7 +262,7 @@ class PoliciaInfractor():
 
 		if pulsoVehiculos == 1:
 			# Se determina los mejores puntos para seguir para ser parte del objeto Vehiculo
-			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,arrayAuxiliarParaVelocidad,informacion)
+			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,self.lineaDeResguardoAlteradaDelantera,informacion)
 			
 			# Cada vehiculo tiene un numbre que biene a xer ela fecja y hora de la infracción en cuestion
 			nombreInfraccionYFolder = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -407,6 +430,24 @@ class PoliciaInfractor():
 		(x,y) = self.obtenerVectorMovimiento(vectorAntiguo, nuevoVector)
 		moduloPerpendicular = self.vectorPerpendicularUnitario[0]*x+self.vectorPerpendicularUnitario[1]*y
 		return moduloPerpendicular
+
+	def obtenerMagnitudMovimientoEnRegion(self,nuevaFranja):
+		flow = cv2.calcOpticalFlowFarneback(self.anteriorFranja, nuevaFranja, None, 0.5, 3, 15, 3, 5, 1.2, 0) #(self.auxiliar_image, current_image, None, 0.7, 3, 9, 3, 5, 1.2, 0)
+		
+		flowX = 0
+		flowY = 0
+
+		for row in flow:
+			for data in row:
+				flowX += data[0]
+				flowY += data[1]
+
+		self.anteriorFranja = nuevaFranja
+		# Se retorna el flujo en X invertido
+		flujoPerpendicular = -10*flowX/(flow.shape[0]*flow.shape[1]+1)
+		print(flowX,flujoPerpendicular)
+		return flujoPerpendicular
+
 
 	def apagarCamara(self):
 		self.camaraAlta.apagarControlador()

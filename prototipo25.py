@@ -179,6 +179,7 @@ def __main_function__():
 	miAcetatoInformativo.colocarPoligono(np.array(verticesPartida))
 	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))
 	miAcetatoInformativo.colocarPoligono(miPoliciaReportando.carrilValido)
+	miAcetatoInformativo.colocarPoligono(np.array(miPoliciaReportando.areaFlujo))
 	miAcetatoInformativo.establecerLogo(directorioDeLogo+'/dems.png')
 
 	# El historial sera una lista de la siguiente forma:
@@ -217,7 +218,7 @@ def __main_function__():
 
 			frameFlujo = cv2.resize(frameVideo,(320,240))
 			
-			velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear = miPoliciaReportando.seguirImagen(frame_number,frameFlujo,colorSemaforo = senalSemaforo)
+			velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear = miPoliciaReportando.seguirImagen(frame_number,frameFlujo,colorSemaforo = senalSemaforo,flujoRegion = True)
 			
 			if senalSemaforo >= 1 :							# Si estamos en rojo, realizamos una accion
 				if flanco == 1:							# esto se inicia al principio de este estado
