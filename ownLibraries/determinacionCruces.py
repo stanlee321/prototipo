@@ -61,7 +61,7 @@ class PoliciaInfractor():
 		vectorParalelo = self.lineaDePintadoLK[1] - self.lineaDePintadoLK[0]
 		self.vectorParaleloUnitario = (vectorParalelo)/self.tamanoVector(vectorParalelo)
 		self.vectorPerpendicularUnitario = np.array([self.vectorParaleloUnitario[1],-self.vectorParaleloUnitario[0]])
-		self.numeroDePuntos = 14
+		self.numeroDePuntos = 21
 		self.stepX = ditanciaEnX/self.numeroDePuntos
 		self.stepY = ditanciaEnY/self.numeroDePuntos
 		self.lk_params = dict(  winSize  = (15,15),
