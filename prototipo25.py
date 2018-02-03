@@ -299,8 +299,8 @@ def __main_function__():
 			miAcetatoInformativo.inicializar()
 			
 			tiempoEjecucion = time.time() - tiempoAuxiliar
-			if tiempoEjecucion>periodoDeMuestreo:
-				miReporte.warning('\t[f{}'.format(frame_number)+']'+' Periodo Excedido {0:2f}'.format(tiempoEjecucion)+ '[s]')
+			#if tiempoEjecucion>periodoDeMuestreo:
+			#	miReporte.warning('\t[f{}'.format(frame_number)+']'+' Periodo Excedido {0:2f}'.format(tiempoEjecucion)+ '[s]')
 			#print(len(historial))
 			#sys.stdout.write("\033[F")
 			while time.time() - tiempoAuxiliar < periodoDeMuestreo:
