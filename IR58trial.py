@@ -1,9 +1,11 @@
 import os
 import sys
+from picamera.array import PiRGBArray
+from picamera import PiCamera
 import cv2
+import numpy as np
 import time
 import datetime
-import numpy as np
 
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeLibreriasPropias = directorioDeTrabajo +'/ownLibraries'
@@ -51,22 +53,31 @@ xMax5 = int(3/5*wid5)
 yMin5 = int(2/5*hei5)
 yMax5 = int(3/5*hei5)
 
-cam=cv2.VideoCapture(camaraAUsar)
-cam.set(3,width)
-cam.set(4,height)
+
+# load the filter driver
 
 miFiltro = IRSwitch(55)
 miFiltro.quitarFiltroIR()
 
-while (1):
-	# Establezco las configuraciones iniciales
-	
-	cam.set(3,3280)
-	cam.set(4,2464)
-	# Leo el frame de prueba
-	ret0, image0=cam.read()
+
+# initialize the camera and grab a reference to the raw camera capture
+camera = PiCamera()
+camera.resolution = (640, 480)
+camera.framerate = 32
+rawCapture = PiRGBArray(camera, size=(640, 480))
+
+# allow the camera to warmup
+time.sleep(0.1)
+
+#while True:
+for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+
+	# grab the raw NumPy array representing the image, then initialize the timestamp
+	# and occupied/unoccupied text
+	image0 = frame.array
 	# Genero la visualizacion:
-	cv2.imshow('PiCam',cv2.resize(image0,(320,240)))
+	#cv2.imshow('PiCam',cv2.resize(image0,(320,240)))
+	cv2.imshow('PiCam',  image0)
 	cv2.imshow('Aumento',image0[yMin:yMax,xMin:xMax])
 
 	ch = 0xFF & cv2.waitKey(5)
@@ -88,11 +99,11 @@ while (1):
 		#cv2.imwrite('./VideoCapture/' + date_string + '_zinFiltro.png',image0)		
 		print('captured frame at: '+ date_string)
 		miFiltro.quitarFiltroIR()
-
+	# clear the stream in preparation for the next frame
+	rawCapture.truncate(0)
 	if ch == ord('q'):
 		#print(myFlowMahine.velocidades)
-		break
-		
+		break	
 	if ch == ord('c'):
 		print('activando')
 		miFiltro.colocarFiltroIR()
