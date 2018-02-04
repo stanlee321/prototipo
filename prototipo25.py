@@ -40,6 +40,7 @@ entradaReal = 'en tiempo real '													# Complementario
 periodoDeSemaforo = 0
 topeEjecucion = 0
 semaforoSimuladoTexto = 'real '
+miRegion = False
 
 generarArchivosDebug = False
 mostrarImagen = False
@@ -179,7 +180,6 @@ def __main_function__():
 	miAcetatoInformativo.colocarPoligono(np.array(verticesPartida))
 	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))
 	miAcetatoInformativo.colocarPoligono(miPoliciaReportando.carrilValido)
-	miAcetatoInformativo.colocarPoligono(np.array(miPoliciaReportando.areaFlujo))
 	miAcetatoInformativo.establecerLogo(directorioDeLogo+'/dems.png')
 
 	# El historial sera una lista de la siguiente forma:
@@ -218,7 +218,7 @@ def __main_function__():
 
 			frameFlujo = cv2.resize(frameVideo,(320,240))
 			
-			velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear = miPoliciaReportando.seguirImagen(frame_number,frameFlujo,colorSemaforo = senalSemaforo,flujoRegion = True)
+			velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear = miPoliciaReportando.seguirImagen(frame_number,frameFlujo,colorSemaforo = senalSemaforo,flujoRegion = miRegion)
 			
 			if senalSemaforo >= 1 :							# Si estamos en rojo, realizamos una accion
 				if flanco == 1:							# esto se inicia al principio de este estado
@@ -371,5 +371,8 @@ if __name__ == '__main__':
 			mifps = int(input[:-3])
 		if input =='Kill':
 			topeEjecucion = int(input[:-1])
+		if input == 'Region':
+			print('NEW REGION PARAMETERS')
+			miRegion = True
 
 	__main_function__()
