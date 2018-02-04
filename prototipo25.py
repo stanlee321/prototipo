@@ -170,7 +170,7 @@ def __main_function__():
 		trabajoConPiCamara = True
 	else:
 		trabajoConPiCamara = False
-	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,mifps,directorioDeReporte,generarArchivosDebug)
+	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,mifps,directorioDeReporte,generarArchivosDebug,flujoRegion = miRegion)
 	
 	miFiltro = IRSwitch()
 	miFiltro.paralelizar()
@@ -218,7 +218,7 @@ def __main_function__():
 
 			frameFlujo = cv2.resize(frameVideo,(320,240))
 			
-			velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear = miPoliciaReportando.seguirImagen(frame_number,frameFlujo,colorSemaforo = senalSemaforo,flujoRegion = miRegion)
+			velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear = miPoliciaReportando.seguirImagen(frame_number,frameFlujo,colorSemaforo = senalSemaforo)
 			
 			if senalSemaforo >= 1 :							# Si estamos en rojo, realizamos una accion
 				if flanco == 1:							# esto se inicia al principio de este estado
@@ -299,8 +299,8 @@ def __main_function__():
 			miAcetatoInformativo.inicializar()
 			
 			tiempoEjecucion = time.time() - tiempoAuxiliar
-			#if tiempoEjecucion>periodoDeMuestreo:
-			#	miReporte.warning('\t[f{}'.format(frame_number)+']'+' Periodo Excedido {0:2f}'.format(tiempoEjecucion)+ '[s]')
+			if tiempoEjecucion>periodoDeMuestreo:
+				miReporte.warning('\t[f{}'.format(frame_number)+']'+' Periodo Excedido {0:2f}'.format(tiempoEjecucion)+ '[s]')
 			#print(len(historial))
 			#sys.stdout.write("\033[F")
 			while time.time() - tiempoAuxiliar < periodoDeMuestreo:

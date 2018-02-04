@@ -26,7 +26,7 @@ class PoliciaInfractor():
 	Tambien se encarga de crear los objetos Vehiculos que pueden estar en estado cruce o infraccion
 	También se encarga de proveer el estado actual del infractor
 	"""
-	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada,mifps = 8,directorioDeReporte=os.getenv('HOME')+'/'+datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte',debug = False):
+	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada,mifps = 8,directorioDeReporte=os.getenv('HOME')+'/'+datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte',debug = False,flujoRegion = False):
 		# Tomo la imagen de inicialización y obtengo algunas caracteristicas de la misma
 		self.directorioDeReporte = directorioDeReporte
 		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)
@@ -63,6 +63,10 @@ class PoliciaInfractor():
 		self.vectorParaleloUnitario = (vectorParalelo)/self.tamanoVector(vectorParalelo)
 		self.vectorPerpendicularUnitario = np.array([self.vectorParaleloUnitario[1],-self.vectorParaleloUnitario[0]])
 		self.numeroDePuntos = 21
+		self.flujoRegion = False
+		if flujoRegion == True:
+			self.flujoRegion = True
+			self.numeroDePuntos = 9
 		self.stepX = ditanciaEnX/self.numeroDePuntos
 		self.stepY = ditanciaEnY/self.numeroDePuntos
 		self.lk_params = dict(  winSize  = (15,15),
@@ -79,6 +83,8 @@ class PoliciaInfractor():
 		self.miPerspectiva = Perspective(self.areaFlujo)
 		self.anteriorFranja = self.miPerspectiva.transformarAMitad(self.imagenAuxiliar)
 		self.optimalStep = 2
+
+
 		
 		self.listaVehiculos = []
 		"""
@@ -166,7 +172,7 @@ class PoliciaInfractor():
 		self.lineaFijaDelantera = np.array(self.lineaFijaDelantera,dtype = np.float32)
 		return lineaAuxiliar
 
-	def seguirImagen(self,numeroDeFrame,imagenActual,informacion = False,colorSemaforo = 1,flujoRegion = False):
+	def seguirImagen(self,numeroDeFrame,imagenActual,informacion = False,colorSemaforo = 1):
 		"""
 		Metodo mas importante del infractor: Se encarga de:
 		1. Crear vehiculos de ser necesario
@@ -188,11 +194,7 @@ class PoliciaInfractor():
 		arrayAuxiliarParaVelocidad, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaFijaDelantera, None, **self.lk_params)
 		self.lineaDeResguardoAlteradaDelantera = arrayAuxiliarParaVelocidad
 		
-
-
-		
-
-		if flujoRegion:
+		if self.flujoRegion:
 			velocidadEnBrutoRegion = self.obtenerMagnitudMovimientoEnRegion(self.miPerspectiva.transformarAMitad(imagenActualEnGris))
 			velocidadFiltradaRegion, pulsoVehiculosRegion = self.miFiltro.obtenerOndaFiltrada(velocidadEnBrutoRegion)
 			if pulsoVehiculosRegion == 1:
