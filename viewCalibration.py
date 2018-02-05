@@ -89,12 +89,13 @@ def __main_function__():
 	
 	parametrosInstalacion = np.load(folderDeInstalacion+'/'+archivoParametrosACargar)
 	
-	poligonoSemaforo = parametrosInstalacion[0]
+	indicesSemaforo = parametrosInstalacion[0]
 	verticesPartida = parametrosInstalacion[1]
 	verticesLlegada = parametrosInstalacion[2]
-	indicesSemaforo = obtenerIndicesSemaforo(np.array(poligonoSemaforo))
-	angulo = parametrosInstalacion[3]
-	poligonoEnAlta = parametrosInstalacion[4]
+	verticesDerecha = parametrosInstalacion[3]
+	verticesIzquierda = parametrosInstalacion[4]
+	angulo = parametrosInstalacion[5]
+	poligonoEnAlta = parametrosInstalacion[6]
 
 	# Arrancando camara
 	if len(archivoDeVideo) == 0:
@@ -127,6 +128,7 @@ def __main_function__():
 		cv2.imwrite(folderDeInstalacion+'/placa.jpg',framePlaca)
 		print('Imagen de 8 Mp para instalacion capturada con exito')
 	except:
+		cv2.imwrite(folderDeInstalacion+'/placa.jpg',np.zeros((3280,2464,3), np.uint8))
 		print('No se pudo capturar la imagen de 8 Mp')
 
 	frameFlujo = cv2.resize(frameVideo,(320,240))
