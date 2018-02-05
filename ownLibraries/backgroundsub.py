@@ -41,45 +41,22 @@ class BGSUBCNT():
 		# this is the bsubcnt result 
 		self.fgmask = self.fgbg.apply(smooth_frame, self.kernel, 0.1)
 		
-		#print('fbmask took (bgsubcnt)', time.time()-t1)
-
-		#t2 = time.time()
-		
-		# just thresholding values
-		#self.fgmask[self.fgmask < 240] = 0
-		
-		#self.fgmask = self.filter_mask(self.fgmask)
-		#imagen = np.vstack([self.fgmask, gray])
-		#return imagen
-		
-		#print('FILTER TOOK ', time.time()-t2)
-		#return self.fgmask
-
-		#t3 = time.time()
-		# Find the contours 
 		im2, contours, hierarchy = cv2.findContours(self.fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
 		
-		# for all the contours, calculate his centroid and position in the current frame
-		#print('FIND CONTOURS TOOK ', time.time() - t3)
-		#t4 = time.time()
 		for (i, contour) in enumerate(contours):
 			(x, y, w, h) = cv2.boundingRect(contour)
 			contour_valid = (w >= self.min_contour_width) and (h >= self.min_contour_height)
 			if not contour_valid:
 				continue
 			centroid = BGSUBCNT.get_centroid(x, y, w, h)
-
 			# apeend to the matches for output from current frame
 			self.matches.append([(x, y, w, h), centroid])
 			
 			# Optional, draw rectangle and circle where you find "movement"
 			#if self.draw == True:
-			#cv2.rectangle(frame, (x,y),(x+w-1, y+h-1),(0,0,255),1)
-			#cv2.circle(frame, centroid,2,(0,255,0),-1)
-			#else:
-			#	pass
-		#print('FOOR LOOP TOOK', time.time()-t4)
-		#print('ALL THE BG TOOOOOOOK>>>>>>>>', time.time()- t0)
+			cv2.rectangle(frame, (x,y),(x+w-1, y+h-1),(0,0,255),1)
+			cv2.circle(frame, centroid,2,(0,255,0),-1)
+
 		return self.matches
 		
 	def filter_mask(self, img, a=None):
@@ -97,7 +74,6 @@ class BGSUBCNT():
 		# Dilate to merge adjacent blobs
 		dilation = cv2.dilate(opening, kernel, iterations=2)
 
-		#cv2.imwrite('../blob/blob_frame_{}.jpg'.format(a), img)
 		return dilation
 
 	def __call__(self):
@@ -109,7 +85,6 @@ class BGSUBCNT():
 
 		if type == 'euclidian':
 			return math.sqrt(float((x[0] - y[0])**2) / x_weight + float((x[1] - y[1])**2) / y_weight)
-
 	@staticmethod
 	def get_centroid(x, y, w, h):
 		x1 = int(w / 2)
@@ -119,8 +94,6 @@ class BGSUBCNT():
 		cy = y + y1
 
 		return (cx, cy)
-
-
 
 if __name__ == '__main__':
 	"""
@@ -132,75 +105,33 @@ if __name__ == '__main__':
 	import imutils
 	import time
 	import cv2
-	from videostreamv2 import VideoStream
-	from videostreamv2 import FPS
-	from cutImage import Transform
+
 	# construct the argument parse and parse the arguments
 	ap = argparse.ArgumentParser()
-	ap.add_argument("-v", "--video", default=0,
-		help="path to input video file", type= str)
+	ap.add_argument("-v", "--video", default=0, 	help="path to input video file", type= str)
 	args = vars(ap.parse_args())
 
 	print("[INFO] starting video file thread...")
 
+	wHeight = 640
+	wWidth = 480
 
-	archivoParametrosACargar = 'mySquare.npy'
-	parametrosInstalacion = np.load('../installationFiles/'+ archivoParametrosACargar)
-	poligonoSemaforo = parametrosInstalacion[0]
-	verticesPartida = parametrosInstalacion[1]
-	verticesLlegada = parametrosInstalacion[2]
-	angulo = parametrosInstalacion[3]
+	resolution = (wHeight, wWidth)
 
-
-	# 8 mp ????
-	height = 640
-	width = 480
-
-	resolution = (height, width)
-
-	vs = VideoStream(src = args["video"], resolution = resolution).start()
 
 	time.sleep(1.0)
 	# start the FPS timer
-	fps = FPS().start()
 	backgroundsub = BGSUBCNT()
-	print('PAREMETERS', parametrosInstalacion[1])
 
-	transformer = Transform(parametrosInstalacion[1])
 	# loop over frames from the video file stream
 	while True:
 
 		t1 = time.time()
-		# grab the frame from the threaded video file stream, resize
-		# it, and convert it to grayscale (while still retaining 3
-		# channels)
-		data = vs.read()
-
-		frame = data['HRframe']
-
-		LRFrame = data['LRframe']
-
+		_, image = 
 		# Feed to BGSUB
-
-		warp_frame = transformer.cutRegion(frame)
-		poligonos_warp = backgroundsub.feedbgsub(warp_frame)
-
-
-		"""
-		RESERVADO DANIEL WARP
-
-		"""
-	
-		#poligonos_warp = backgroundsub()
-
-		print(poligonos_warp)
-		"""
-		poligonos_reales = f(poligonos_warp)
-		"""
-
+		poligonos_warp 	= backgroundsub.feedbgsub()
 		imagen = np.vstack(backgroundsub())
 		
-		#cv2.imshow('bgsub', f)
 		cv2.imshow("Frame", imagen)
 
 		print('TOOK', time.time() - t1)
