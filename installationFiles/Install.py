@@ -41,6 +41,7 @@ def obtenerIndicesSemaforo(poligono640):
 			indices.append((punto0+i*pasoHorizontal+j*pasoVertical).tolist())
 	#print('len of indices', len(indices))
 	#print('single index', indices[0])
+	indices = [[round(x[0]),round(x[1])] for x in indices]
 	return indices
 
 ###########Calculate new Points############
@@ -142,6 +143,7 @@ def get_BigRectangle(event,x,y,flags,param):
 		if len(listaAux2)==2:        
 			lista.append((listCorteAltaRes))
 			frame=cv2.rectangle(frame,listaAux2[0],listaAux2[1],(0,0,255),3)      
+			cv2.imshow('FrameDeSltaResolucion',frame)
 			np.save(fileToWrite,lista)
 			## file2.write("\n".listFinal)         
 			print('Press -q- to Save and Exit')
@@ -164,9 +166,10 @@ if __name__ == '__main__':
 	try:
 		nameSourceVideo = sys.argv[1]
 		fileToWrite = fileToWrite[:-9]+nameSourceVideo[:-3]+'npy'
+		
 	except:
 		nameSourceVideo = 0
-		print('Accediendo a camara ',nameSourceVideo)
+		#print('Accediendo a camara ',nameSourceVideo)
 ###Semaforo zona:
 
 	try:
@@ -176,21 +179,23 @@ if __name__ == '__main__':
 			ret, frame=cap.read()
 		frame=cv2.resize(frame,(640,480))
 		frame2=frame.copy()
-		fram=frame.copy() 
+		fram=frame.copy()
+		 
 	except:
-		print('Accdiendo a cámara...')
 		try:
 			if sys.argv[1] == 'picam':
 				cap=cv2.VideoCapture(1)
 				fileToWrite = directorioDeTrabajo+'prototipo/installationFiles/datos.npy'
 				cont=0
+				for i in range(50):
+					ret, frame=cap.read()
 		except:
-			cap=cv2.VideoCapture(0)
-		for i in range(100):
-			ret, frame=cap.read()
+			print('Accdiendo a imagen de flujo...')
+			frame=cv2.imread('flujo.jpg')
 		frame=cv2.resize(frame,(640,480))
 		frame2=frame.copy()
-		fram=frame.copy() 
+		fram=frame.copy()
+		 
 	cv2.namedWindow('semaforo_Zona')
 	cv2.setMouseCallback('semaforo_Zona', get_PointsSemaforZona)
 	while True:
@@ -230,7 +235,7 @@ if __name__ == '__main__':
 				listaSemFinal.append((x,y))
 				print(listaSemFinal)
 ####----------------------------------------- 
-			indices=obtenerIndicesSemaforo(listaSemFinal)          
+			indices=obtenerIndicesSemaforo(np.array(listaSemFinal))          
 			lista.append((indices))
 			break
 		
@@ -258,8 +263,8 @@ if __name__ == '__main__':
 			####listaAux1:contine valores para 320x240  ;listaAux:Valores para 640x480
 			if len(listaAux)==2:
 				pol1,polAdd=transformIma(listaAux)
-                pol320,polAdd320=transformIma(listaAux1)
-                lista.append((polAdd320))
+				pol320,polAdd320=transformIma(listaAux1)
+				lista.append((polAdd320))
 				vrx=np.array([[pol1]],np.int32)
 				pts=vrx.reshape((-1,1,2))
 				cv2.polylines(frame,[pts],True,(255,0,0))
@@ -324,15 +329,15 @@ if __name__ == '__main__':
 	cv2.destroyAllWindows()
 	#Capture of High Resolution
 	try:
-		#cap=cv2.VideoCapture(directorioDeVideos+nameSourceVideo)
+		cap=cv2.VideoCapture(directorioDeVideos+nameSourceVideo)
 		#cap=cv2.VideoCapture('officialTrialVideos/sar.mp4')
-		cap=cv2.VideoCapture(1)
-		cap.set(3,2592)
-		cap.set(4,1944)
 		ret, frame1=cap.read()
 		frame=cv2.resize(frame1,(640,480))
 	except:
-		print('Error Al cargar la camara de placas')
+		print('accediendo a imagen de placas...')
+		frame=cv2.imread('placa.jpg')
+		frame=cv2.resize(frame1,(640,480))
+	overlayHigh=frame.copy()
 	cv2.namedWindow('FrameDeSltaResolucion')
 	cv2.setMouseCallback('FrameDeSltaResolucion', get_BigRectangle)
 	while(len(listaAux2)<3):
