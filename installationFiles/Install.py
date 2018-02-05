@@ -240,15 +240,7 @@ if __name__ == '__main__':
 			break
 		
 	cv2.destroyAllWindows()
-######################	
-	#try:
-	##	cap=cv2.VideoCapture(directorioDeVideos+nameSourceVideo)
-	#	#cap=cv2.VideoCapture('officialTrialVideos/sar.mp4')
-	#	ret, frame=cap.read()
-	#	frame=cv2.resize(frame,(640,480))
-	#	overlay=frame.copy() 
-	#except:
-	#	print('Error Al cargar la camara de flujo')
+
 	frame=fram.copy()
 	overlay=frame.copy()
 	cv2.namedWindow('First_Frame')
