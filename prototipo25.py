@@ -40,6 +40,7 @@ entradaReal = 'en tiempo real '													# Complementario
 periodoDeSemaforo = 0
 topeEjecucion = 0
 semaforoSimuladoTexto = 'real '
+miRegion = False
 
 generarArchivosDebug = False
 mostrarImagen = False
@@ -48,7 +49,7 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 
 # Temporizaciones
 anocheciendo =  17*60+15														# Tiempo 17:30 am + 4 GMT
-amaneciendo = 7*60																# Tiempo  7:00 am + 4 GMT
+amaneciendo = 8*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
 
 horaInicioInfraccion = 6*60
@@ -169,10 +170,12 @@ def __main_function__():
 		trabajoConPiCamara = True
 	else:
 		trabajoConPiCamara = False
-	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,mifps,directorioDeReporte,generarArchivosDebug)
+	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,mifps,directorioDeReporte,generarArchivosDebug,flujoRegion = miRegion)
 	
 	miFiltro = IRSwitch()
 	miFiltro.paralelizar()
+	# Prueba sin filtro todo el dia
+	miFiltro.quitarFiltroIR()
 	miAcetatoInformativo = Acetato()
 	miSemaforo = CreateSemaforo(periodoDeSemaforo)
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
@@ -253,24 +256,25 @@ def __main_function__():
 
 			# Si el tiempo es el adecuado y el filtro no esta actualizado se actualiza
 			tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
+			"""
 			if (tiempoAhora > amaneciendo) & (tiempoAhora < anocheciendo) & ((miFiltro.ultimoEstado == 'Filtro Desactivado')|(miFiltro.ultimoEstado =='Inicializado')):
 				miFiltro.colocarFiltroIR()
 				miReporte.info('Active Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
 			if ((tiempoAhora < amaneciendo) | (tiempoAhora > anocheciendo)) & ((miFiltro.ultimoEstado == 'Filtro Activado')|(miFiltro.ultimoEstado =='Inicializado')):
 				miFiltro.quitarFiltroIR()
 				miReporte.info('Desactive Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
-
+			"""
 			if len(historial)> 2*60*mifps:	# Si es mayor a dos minutos en el pasado
 				del historial[min(historial)]				
 
 			# Draw frame number into image on top
-			for infraction in miPoliciaReportando.listaVehiculos:	
-				for puntos in infraction['desplazamiento']:
-					puntosExtraidos = puntos.ravel().reshape(puntos.ravel().shape[0]//2,2)
-					miAcetatoInformativo.colocarObjeto(puntosExtraidos,infraction['estado'])
+			for infraction in miPoliciaReportando.listaVehiculos:		
+				puntos = infraction['desplazamiento'].ravel()
+				puntosExtraidos = puntos.reshape(puntos.shape[0]//2,2)
+				miAcetatoInformativo.colocarObjeto(puntosExtraidos,infraction['estado'])
 
 			#for puntoResguardo in miPoliciaReportando.obtenerLineasDeResguardo(False):
-			miAcetatoInformativo.colocarObjeto(miPoliciaReportando.obtenerLineasDeResguardo(True),'Referencia')
+			miAcetatoInformativo.colocarPuntos(miPoliciaReportando.obtenerLineasDeResguardo(True),'Referencia')
 			
 			# Configs and displays for the MASK according to the semaforo
 			#miAcetatoInformativo.agregarTextoEn("I{}".format(miPoliciaReportando.infraccionesConfirmadas), 2)
@@ -323,7 +327,7 @@ def __main_function__():
 
 			porcentajeDeMemoria = psutil.virtual_memory()[2]
 				
-			if (porcentajeDeMemoria > 80)&(os.uname()[1] == 'raspberrypi'):
+			if (porcentajeDeMemoria > 85)&(os.uname()[1] == 'raspberrypi'):
 				miReporte.info('Estado de Memoria: '+str(porcentajeDeMemoria)+'/100')
 			"""
 			if porcentajeDeMemoria > 96:
@@ -370,5 +374,8 @@ if __name__ == '__main__':
 			mifps = int(input[:-3])
 		if input =='Kill':
 			topeEjecucion = int(input[:-1])
+		if input == 'Region':
+			print('NEW REGION PARAMETERS')
+			miRegion = True
 
 	__main_function__()

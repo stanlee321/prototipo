@@ -1,5 +1,6 @@
 import cv2
 import time
+import math
 import random
 import datetime
 import numpy as np
@@ -74,17 +75,20 @@ class Acetato(object):
 
 		for target in self.targets:
 			x,y,w,h = target[0]
-			prioridad = target[1]
-			if prioridad == 0:
-				frameNP = cv2.rectangle(frameNP, (x,y),(x+w-1, y+h-1),self.colorRectanguloMaximo,1)
-			elif prioridad == 1:
-				frameNP = cv2.rectangle(frameNP, (x,y),(x+w-1, y+h-1),self.colorRectanguloMedio,1)
-			elif prioridad == 2:
-				frameNP = cv2.rectangle(frameNP, (x,y),(x+w-1, y+h-1),self.colorRectanguloIrrelevante,1)
-			elif prioridad == 3:
-				frameNP = cv2.rectangle(frameNP, (x,y),(x+w-1, y+h-1),self.colorRectanguloPaz,1)
+			estado = target[1]
+			if estado == 'Confirmado':
+				#frameNP = cv2.rectangle(frameNP, (x,y),(x+w-1, y+h-1),(0,0,255),1)
+				frameNP = cv2.circle(frameNP, (x,y), h+w, (0,0,255), 1)
+			elif estado == 'Cruzo':
+				#frameNP = cv2.rectangle(frameNP, (x,y),(x+w-1, y+h-1),(0,255,0),1)
+				frameNP = cv2.circle(frameNP, (x,y), h+w, (0,255,0), 1)
+			elif estado == 'Referencia':
+				#frameNP = cv2.rectangle(frameNP, (x,y),(x+w-1, y+h-1),(0,0,0),1)
+				frameNP = cv2.circle(frameNP, (x,y), h+w, (0,0,0), 1)
 			else:
-				frameNP = cv2.rectangle(frameNP, (x,y),(x+w-1, y+h-1),self.colorRectanguloConError,1)
+				#frameNP = cv2.rectangle(frameNP, (x,y),(x+w-1, y+h-1),self.paletaColores[self.ultimoColor],1)
+				frameNP = cv2.circle(frameNP, (x,y), h+w, self.paletaColores[self.ultimoColor], 1)
+				
 			frameNP = cv2.circle(frameNP, (x+w//2,y+h//2),2,(0,255,0),-1)
 		xSem = int(self.poligonos[0][0][0] -5)
 		ySem = int(self.poligonos[0][0][1] -5)
@@ -97,14 +101,44 @@ class Acetato(object):
 		if cv2.pointPolygonTest(poligonoNP,(self.placeLogoX, self.logoSize),True)>=0:	# Si esta dentro del carril valido se mueve:
 				self.placeLogoX = 0
 
-	def colocarObjetivo(self,target,prioridad):
-		rectangulo = target
+	def colocarObjetivo(self,rectangulo,prioridad):
 		self.targets.append([rectangulo,prioridad])
 
 	def colocarPunto(self,pointTuple,color):
 		self.misPuntos.append([pointTuple,color])
 
+	def colocarObjetivo(self,rectangulo,estado):
+		self.targets.append([rectangulo,estado])
+
 	def colocarObjeto(self,puntosList,estado):
+		x,y,h,w = self.unificarPuntos(puntosList)
+		self.colocarObjetivo([x,y,h,w],estado)
+		self.colocarPuntos(puntosList,estado)
+
+	def unificarPuntos(self,puntosList):
+		x = 0
+		y = 0
+		n = 0
+		for punto in puntosList:
+			x += tuple(punto)[0]
+			y += tuple(punto)[1]
+			n += 1
+		if n == 0:
+			return 0,0,0,0
+		x = int(x/n)
+		y = int(y/n)
+		h = 0
+		w = 0
+		for punto in puntosList:
+			w += (tuple(punto)[0]-x)*(tuple(punto)[0]-x)
+			h += (tuple(punto)[1]-y)*(tuple(punto)[1]-y)
+		
+		h = int(math.sqrt(h/n))
+		w = int(math.sqrt(w/n))
+
+		return x,y,h,w
+
+	def colocarPuntos(self,puntosList,estado):
 		for punto in puntosList:
 			if estado == 'Confirmado':
 				self.colocarPunto(tuple(punto),(0,0,255))
