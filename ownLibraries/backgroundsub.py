@@ -54,10 +54,10 @@ class BGSUBCNT():
 			
 			# Optional, draw rectangle and circle where you find "movement"
 			#if self.draw == True:
-			cv2.rectangle(frame, (x,y),(x+w-1, y+h-1),(0,0,255),1)
-			cv2.circle(frame, centroid,2,(0,255,0),-1)
+			#cv2.rectangle(frame, (x,y),(x+w-1, y+h-1),(0,0,255),1)
+			#cv2.circle(frame, centroid,2,(0,255,0),-1)
 
-		return self.matches
+		return self.fgmask, self.matches
 		
 	def filter_mask(self, img, a=None):
 		'''
@@ -105,46 +105,47 @@ if __name__ == '__main__':
 	import imutils
 	import time
 	import cv2
-
+	import os
 	# construct the argument parse and parse the arguments
-	ap = argparse.ArgumentParser()
-	ap.add_argument("-v", "--video", default=0, 	help="path to input video file", type= str)
-	args = vars(ap.parse_args())
+	#ap = argparse.ArgumentParser()
+	#ap.add_argument("-v", "--video", default=0, help="path to input video file", type= str)
+	#args = vars(ap.parse_args())
 
 	print("[INFO] starting video file thread...")
 
 	wHeight = 640
-	wWidth = 480
-
+	wWidth 	= 480
+	
+	path_to_video_test	= os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'trialVideos' +'/' + 'mySquare.mp4'
+	cap 	= cv2.VideoCapture(path_to_video_test)
 	resolution = (wHeight, wWidth)
-
-
 	time.sleep(1.0)
 	# start the FPS timer
 	backgroundsub = BGSUBCNT()
-
 	# loop over frames from the video file stream
 	while True:
-
 		t1 = time.time()
-		_, image = 
+		_, img = cap.read()
 		# Feed to BGSUB
-		poligonos_warp 	= backgroundsub.feedbgsub()
-		imagen = np.vstack(backgroundsub())
+		img = cv2.resize(img,(int(wHeight/2), int(wWidth/2)))
+
+		mask, poligonos_warp = backgroundsub.feedbgsub(img)
+		if len(poligonos_warp) > 0:
+			for box in poligonos_warp:
+				rectangle, centroid = box[0], box[1]
+				(x, y, w, h) = rectangle
+				cv2.rectangle(img, (x,y),(x+w-1, y+h-1),(0,0,255),1)
+				cv2.circle(img, centroid,2,(0,255,0),-1)
+		
+
+		imagen = np.hstack([img,mask])
 		
 		cv2.imshow("Frame", imagen)
 
 		print('TOOK', time.time() - t1)
+
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
-		fps.update()
-		
-
-	# stop the timer and display FPS information
-	fps.stop()
-	print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-	print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
-	 
 	# do a bit of cleanup
 	cv2.destroyAllWindows()
-	vs.stop()
+

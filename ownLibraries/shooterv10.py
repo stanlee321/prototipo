@@ -183,7 +183,7 @@ class Shooter():
 ################################################################
 #################### OBSERVER CLAS #############################
 ################################################################
-class Observer(multiprocessing.Process):
+class Observer():
 
 	nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
 	directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
