@@ -174,6 +174,8 @@ def __main_function__():
 	
 	miFiltro = IRSwitch()
 	miFiltro.paralelizar()
+	# Prueba sin filtro todo el dia
+	miFiltro.quitarFiltroIR()
 	miAcetatoInformativo = Acetato()
 	miSemaforo = CreateSemaforo(periodoDeSemaforo)
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
@@ -254,13 +256,14 @@ def __main_function__():
 
 			# Si el tiempo es el adecuado y el filtro no esta actualizado se actualiza
 			tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
+			"""
 			if (tiempoAhora > amaneciendo) & (tiempoAhora < anocheciendo) & ((miFiltro.ultimoEstado == 'Filtro Desactivado')|(miFiltro.ultimoEstado =='Inicializado')):
 				miFiltro.colocarFiltroIR()
 				miReporte.info('Active Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
 			if ((tiempoAhora < amaneciendo) | (tiempoAhora > anocheciendo)) & ((miFiltro.ultimoEstado == 'Filtro Activado')|(miFiltro.ultimoEstado =='Inicializado')):
 				miFiltro.quitarFiltroIR()
 				miReporte.info('Desactive Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
-
+			"""
 			if len(historial)> 2*60*mifps:	# Si es mayor a dos minutos en el pasado
 				del historial[min(historial)]				
 

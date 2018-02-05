@@ -84,8 +84,6 @@ class PoliciaInfractor():
 		self.anteriorFranja = self.miPerspectiva.transformarAMitad(self.imagenAuxiliar)
 		self.optimalStep = 2
 
-
-		
 		self.listaVehiculos = []
 		"""
 		Estados de vehiculos
@@ -107,8 +105,8 @@ class PoliciaInfractor():
 		unitario12 = (punto02 - punto01)/self.tamanoVector(punto02 - punto01)
 		unitario43 = (punto03 - punto04)/self.tamanoVector(punto03 - punto04)
 		largoPasoCebra = self.tamanoVector(punto04-punto01)
-		punto02 = punto01+largoPasoCebra/4*unitario12
-		punto03 = punto04+largoPasoCebra/4*unitario43
+		punto02 = punto01+largoPasoCebra/3*unitario12
+		punto03 = punto04+largoPasoCebra/3*unitario43
 
 		return np.array([punto01,punto02,punto03,punto04]).astype(int)
 
