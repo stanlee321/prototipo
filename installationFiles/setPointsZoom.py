@@ -18,10 +18,11 @@ listaAux2=[]
 listCorteAltaRes=[]
 file_Points='datos.npy'
 
-
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/'
 directorioDeVideos = directorioDeTrabajo+'trialVideos/'
 fileToWrite = directorioDeTrabajo+'prototipo/installationFiles/datos.npy'
+
+
 ##########################################
 def get_PointsSemaforZona(event,x,y,flags,param):
 	global frame
@@ -122,11 +123,6 @@ if __name__ == '__main__':
 		cv2 .imshow('semaforo_Zona',frame)
 		keyPress = cv2.waitKey()
 		if keyPress == ord('z'):
-			#np.save(reAdjust,listaCorte)
-			## file2.write("\n".listFinal)         
-			#print('saved to ReAjust!!')
-			#dataReAjust=np.load(reAdjust)
-			#print ('file:..'+str(dataReAjust))
 			print('listaCorte..'+str(listaCorte))
 			break            
 		if keyPress == ord('q'):
@@ -134,7 +130,6 @@ if __name__ == '__main__':
 			break
 	cv2.destroyAllWindows()
 
-######################################
 ###Selccion Semaforo:
 	imag1=frame2[listaCorte[0][1]:listaCorte[1][1],listaCorte[0][0]:listaCorte[1][0]]
 	imag=imag1.copy()
@@ -148,25 +143,18 @@ if __name__ == '__main__':
 		if keyPress&0xFF==ord('q'):
 			print('listaSemaforo..'+str(listaSem))
 			rang=len(listaSem)
-##TRansformando a coordenadas origen
 			for i in range(0,len(listaSem)):
 				x,y=calcPoints(imag1,listaSem[i])
 				listaSemFinal.append((x,y))
 				print(listaSemFinal)
-####--------º--------------------------------            
+			path_to_np_data ='./mySquare.npy'
+			print('Saving list of semaphoro points to:', path_to_np_data)
 			lista.append((listaSemFinal))
+			np.save(path_to_np_data, lista)
 			break
-		
 	cv2.destroyAllWindows()
 ######################	
-	#try:
-	##	cap=cv2.VideoCapture(directorioDeVideos+nameSourceVideo)
-	#	#cap=cv2.VideoCapture('officialTrialVideos/sar.mp4')
-	#	ret, frame=cap.read()
-	#	frame=cv2.resize(frame,(640,480))
-	#	overlay=frame.copy() 
-	#except:
-	#	print('Error Al cargar la camara de flujo')
+
 	frame=fram.copy()
 	overlay=frame.copy()
 	cv2.namedWindow('First_Frame')
@@ -227,8 +215,6 @@ if __name__ == '__main__':
 	cv2.destroyAllWindows()
 	#Capture of High Resolution
 	try:
-		#cap=cv2.VideoCapture(directorioDeVideos+nameSourceVideo)
-		#cap=cv2.VideoCapture('officialTrialVideos/sar.mp4')
 		cap=cv2.VideoCapture(1)
 		cap.set(3,2592)
 		cap.set(4,1944)

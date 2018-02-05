@@ -10,6 +10,7 @@ import threading
 import multiprocessing
 import collections
 from collections import Counter
+import  scipy.misc
 
 class Semaphoro():
 	"""
@@ -20,18 +21,20 @@ class Semaphoro():
 	def __init__(self, periodo = 30):
 		# Set target of multiprocessing
 		self.input_q = multiprocessing.Queue()
+		self.ouput_q = multiprocessing.Queue()
 		if periodo > 0:
 			# Case of simulation
 			semaphoro = Simulation(self.input_q, periodo)
 			semaphoro.start()
 		else:
 			# Case real one
-			semaphoro = Real(self.input_q)
+			semaphoro = Real(self.input_q, self.ouput_q)
 			semaphoro.start()
-	def obtenerColorEnSemaforo(self):
-		data = self.input_q.get()
-		numerico, literal, flanco = data[0], data[1], data[2]
-		return numerico, literal, flanco
+	def obtenerColorEnSemaforo(self, raw_images):
+		self.input_q.put(raw_images)
+		data = self.ouput_q.get()
+		numerico, literal, flanco, period = data[0], data[1], data[2], data[3]
+		return numerico, literal, flanco, period
 	
 	def stop(self):
 		self.p.join()
@@ -56,9 +59,14 @@ class Simulation(multiprocessing.Process):
 	def check_simulated_state(self):
 		self.counter()
 		self.states.append(self.actual_state)
+
 		print('bedore dequeu', self.count)
 		print('dequeu', self.states)
+
+
 		self.actual_state = self.states[-1]
+
+
 		if self.actual_state == 1:
 			if self.count == self.periodo:
 				self.count = 0.0
@@ -88,7 +96,7 @@ class Simulation(multiprocessing.Process):
 		elif current == 2 and past == 1:
 			self.flanco = 1
 		else:
-			print('No match found {}, {}, returning 0',format(current, past))
+			print('No match found, current: {},  past: {}, returning 0',format(current, past))
 
 	def run(self):
 		while True:
@@ -96,58 +104,63 @@ class Simulation(multiprocessing.Process):
 			self.check_simulated_state()
 			self.input_q.put([self.actual_state, self.count, self.flanco])
 
-	
 
 class Real(multiprocessing.Process):
-	"""
-	Real Method,  use a SVM classifier to find color in some input ROI imagen, ouputs are:
-	colorPrediction, literalColour, flanco
 
-	Attributes:
-		self.svm: 	load the Machine Learning, Support Vector Machine model trained on Red, Green, Black images 
 
-		self.lower_yellow and so on... are range of colors where the SVM  where trained and
-										the input image of the semaforo is thressholded.
-
-	"""
-
-	def __init__(self, queue):
+	def __init__(self, input_q, ouput_q):
 		super(Real, self).__init__()
 		print('......Starting REAL semaphoro....')
+		
 		# LOAD THE TRAINED SVM MODEL ... INTO THE MEMORY????
-		path_to_svm_model = os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'svm_model_(8, 24)_96_39.pkl'
-		self.path_to_img = os.getenv('HOME') + '/' + 'WORKDIR' + '/' + 'imagen.npy'
-		if os.path.isfile(path_to_svm_model) and os.path.isfile(path_to_img):
+		path_to_svm_model = os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'svmv2.pkl'
+		path_to_keras_model = os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'model.h5'
+
+		self.path_to_img = os.getenv('HOME') + '/' + 'WORKDIR' + '/' + 'imagen.png'
+
+		if os.path.isfile(path_to_svm_model) and os.path.isfile(self.path_to_img):
 			print ("Using previous model... {}".format(path_to_svm_model))
-			print ("Reading route to imagen.npy... {}".format(path_to_img))
+			print ("Reading route to imagen.npy... {}".format(self.path_to_img))
 			self.svm = pickle.load(open(path_to_svm_model, "rb"))
-			self.imagen_semaphoro_raw = path_to_img
+			self.imagen_semaphoro_raw = self.path_to_img
 		else:
 			print ("No model found in {}, please check the path to the ML model!!".format(path_to_svm_model))
 
+
+		# idx to string
+		self.idx_to_str = {1:'rojo', 0:'verde', 2:'amarillo', -1:'NO Semaphoro'}
+
 		# expected shape of the image_semaphoro_raw (Weidth,Height,Channels)
-		self.SHAPE = (8,24,3)
+		self.SHAPE = (24,8,3)
 		# read Queue for put the results from inference.
-		self.input_q = queue
-
-
-		# YELLOW /(Orangen) range
-		self.lower_yellow = np.array([18,40,190], dtype=np.uint8) # 18,40,190
-		self.upper_yellow = np.array([27,255,255], dtype=np.uint8)
-
-		# RED range
-		self.lower_red = np.array([255,255,255], dtype=np.uint8) #_,100,_ # 140,70,_
-		self.upper_red = np.array([180,255,255], dtype=np.uint8)
-
-		# GREEN range
-		self.lower_green = np.array([70,10,0], dtype=np.uint8) #_,0,_ , _,50,_
-		self.upper_green = np.array([90,255,255], dtype=np.uint8)
-
-		# Deque for filter
-		self.filter_dequeu = collections.deque(maxlen=10)
+		self.input_q = input_q
+		self.ouput_q = ouput_q
 
 		self.previous_state = None
-		self.actual_state = None
+		self.actual_state 	= None
+		self.periodo = []
+
+		# aux list
+		#self.join_list 	= [0]*10
+		self.littleFilter = [0]*19
+		self.numericoAuxiliar = 0
+
+		self.start_part = collections.deque(maxlen=10)
+		self.mid_part   = collections.deque(maxlen=10)
+		self.end_part  	= collections.deque(maxlen=10)
+		# Deque for filter
+		self.filter_deque = collections.deque(maxlen=10)
+		self.filter_deque.append(self.actual_state)
+
+		self.raw_states = collections.deque(maxlen=30)
+		self.raw_states.append(self.actual_state)
+		self.flanco = 0
+
+
+		# Periodos
+		self.tiempoParaPeriodo 		= time.time()
+		self.ultimoPeriodo 			= time.time() - self.tiempoParaPeriodo
+		self.maximoTiempoPeriodo	= 150			# 2 minutos y medio sera el timeout para determinar que no se esta viendo semaforo
 
 	@staticmethod
 	def reader(plain_img):
@@ -158,41 +171,55 @@ class Real(multiprocessing.Process):
 		green  = plain_img[int(0.75*lenght_of_stream): ]
 		return red,yellow,green
 
-	@staticmethod
+
+	@staticmethod	
 	def extract_feature(image_file):
+		img 		= image_file
+		SHAPE 		= (24, 8)
+		img 		= cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+		hsv 		= cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-		SHAPE = (24, 8)
-		img = cv2.imread(image_file)
-		img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-		hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 		# SOME MASKS
-		mask_red = cv2.inRange(hsv, self.lower_red, self.upper_red)
-		mask_yellow = cv2.inRange(hsv, self.lower_yellow, self.upper_yellow)
-		mask_green = cv2.inRange(hsv, self.lower_green, self.upper_green)
+		lower_yellow = 	np.array([18,40,0], dtype=np.uint8) #_18_40_190
+		upper_yellow =	np.array([27,255,255], dtype=np.uint8)
 
-		full_mask = mask_red + mask_yellow + mask_green
+		# RED range
+		lower_red 	= np.array([140,10, 0], dtype=np.uint8) #_,70,_
+		upper_red 	= np.array([180,255,255], dtype=np.uint8)
+
+		# GREEN range
+		lower_green = np.array([42,10,0], dtype=np.uint8)
+		upper_green = np.array([95,255,255  ], dtype=np.uint8)
+
+
+		mask_red 	= cv2.inRange(hsv, lower_red, 		upper_red)
+		mask_yellow = cv2.inRange(hsv, lower_yellow,	upper_yellow)
+		mask_green 	= cv2.inRange(hsv, lower_green, 	upper_green)
+
+		full_mask 	= mask_red + mask_yellow + mask_green
 
 		# Put the mask and filter the R, Y , G colors in _imagen_
-		res = cv2.bitwise_and(img, img, mask= full_mask)
+		res 		= cv2.bitwise_and(img, img, mask = full_mask)
 		#res = cv2.bilateralFilter(res,35,35,35)
-		img = cv2.resize(res, SHAPE, interpolation = cv2.INTER_CUBIC)
-		img = img.flatten()
-		img = img/255
-#		x = x.reshape(1, -1)
+		#cv2.imshow('Semaphoro', cv2.resize(res,(320,240)))
+
+		img 		= cv2.resize(res, SHAPE, interpolation = cv2.INTER_CUBIC)
+		img 		= img.flatten()
+		img 		= img/255
+		img         = img.reshape(1, -1)
 		return img
 
 	@staticmethod
-	def sigmoid(t):
-		s = 1 / (1+np.exp(-t))
+	def sigmoid(x):
+		x = np.asarray(x)
+		s = 1 / (1+np.exp(-x))
 		return s
 
-	def find_color(self):
-
-		imagen = self.path_to_img
-
+	def find_color(self,imagen):
+		
 		X = self.extract_feature(imagen)
 		Y = self.svm.predict(X)[0]
+
 		###########################
 		# END SVM PART (CLASSIFICATION) ML PROCESS
 		###########################
@@ -202,85 +229,42 @@ class Real(multiprocessing.Process):
 		elif Y == 'red':
 			return 1
 		elif Y == 'yellow':
-			return 2
+			return 2 
 		elif Y == 'black':
-			return -1
+			return -1 
 		else:
 			pass
 
-	def prediction(self):
-		colorPrediction = self.find_color()
 
-		self.filter_deque.append(colorPrediction)
+	def prediction(self, imagen):
 
 
-		prediction = self.filter()
+		colorPrediction = self.find_color(imagen)
 
-
-		if colorPrediction == 1:
-			literalColour = 'ROJO'
-		elif colorPrediction == 0:
-			literalColour = 'VERDE'
+		self.raw_states.append(colorPrediction)
+		try:
+			A,B,C,D = self.filter()
+			return A,B,C,D
+		except:
+			return -1,'None', 1,1
+		"""
+		self.actual_state = state #self.filter_deque[0]
+		# Check the actual states.
+		if  self.actual_state == 0:
+			literalColour = 'verde'
+		elif self.actual_state == 1:
+			literalColour = 'rojo'
+		elif self.actual_state == 2:
+			literalColour = 'amarillo'
 		else:
 			literalColour = 'No hay Semaforo'
-
-		return colorPrediction, literalColour, self.flanco
-
-
-	def filter(self):
-		queu_len = len(self.filter_deque)
-		raw_deque = self.filter_deque
-		counts = Counter(raw_deque)
-
-		# Check number of values in deque
-		uniques = list(set(raw_deque))
-
-		if len(uniques) == 1:
-			#normal condiction
-			actual_state = uniques[-1]
-
-		if len(uniques) == 2:
-
-			n1 = counts[uniques[-1]]
-			n2 = counts[uniques[-2]]
-
-			c_state_1   = max(n1,n2)
-			c_state_2   = min(n1,n2)
-
-			state_1_p = c_state_1 / queu_len
-			state_2_p = c_state_2 / queu_len
-			
-			if  state_1_p > state_2_p :
-
-				previous_state = uniques[-1]
-				actual_state   = uniques[-2] 
-
-			elif state_1_p < state_2_p:
-			
-				previous_state = uniques[-2]
-				actual_state   = uniques[-1]
-			
-			elif state_1_p == state_2_p:
-				previous_state = uniques[-1]
-				actual_state   = uniques[-2] 
-			else:
-				pass
-		if len(uniques) > 2:
-			self.fill_holes(raw_deque)
-			# anromal situation
-
-	def fill_holes(self, raw_deque):
-		maping = {}
-		aux_list = []
-		for i, value in enumerate(raw_deque):
-			value = raw_deque.index(value)
-			aux_list.append(value)
-			maping[value] = aux_list
-
-
+		self.checkflanco()
+		"""
+		#return self.actual_state, literalColour, self.flanco
+		
 
 	def checkflanco(self):
-		past, current = self.states[0], self.states[1]
+		past, current = self.raw_states[0], self.raw_states[1]
 		#
 		# Compare the current and pass colors to set self.flanco value 
 		#
@@ -293,34 +277,149 @@ class Real(multiprocessing.Process):
 		elif current == 2 and past == 1:
 			self.flanco = 1
 		else:
-			print('No match found {}, {}, returning 0',format(current, past))
+			print('No match found, current: {},  past: {}, returning 0'.format(current, past))
+
+#  R-- G -> Y -> R --G 
+
+	def filter(self):
+
+		len_of_queue	= len(self.raw_states)
+
+		first_part  	= list(self.raw_states)[0:9]
+		mid_part 		= list(self.raw_states)[10:19]
+		second_part 	= list(self.raw_states)[20:29]
+		periodoAMostrar = 0
+
+		try:
+
+			t_one  = np.mean(Real.sigmoid(first_part))
+			t_mid  = np.mean(Real.sigmoid(mid_part))
+			t_two  = np.mean(Real.sigmoid(second_part))
+
+			self.start_part.append(t_one)
+			self.mid_part.append(t_mid)
+			self.end_part.append(t_two)
+
+
+			A = np.mean(np.array(list(self.start_part)))
+			B = np.mean(np.array(list(self.mid_part)))
+			C = np.mean(np.array(list(self.end_part)))
+			print(A,B,C)	
+			Z = np.max([A,B,C])
+			print('Z is', Z)
+			# if actual in red region
+			if 0.60 <= Z <= 0.79 :
+				self.actual_state = 1
+			# green region
+			if 0.41 <= Z <= 0.59:
+				self.actual_state =  0
+			#None
+			if Z <= 0.4:
+				self.actual_state = -1
+
+			#self.littleFilter[19] = self.littleFilter[18]
+			#self.littleFilter[18] = self.littleFilter[17]
+			#self.littleFilter[17] = self.littleFilter[16]
+			#self.littleFilter[16] = self.littleFilter[15]
+			#self.littleFilter[15] = self.littleFilter[14]
+			#self.littleFilter[14] = self.littleFilter[13]
+			#self.littleFilter[13] = self.littleFilter[12]
+			#self.littleFilter[12] = self.littleFilter[11]
+
+			self.littleFilter[11] = self.littleFilter[10]
+			self.littleFilter[10] = self.littleFilter[9]
+			self.littleFilter[9] = self.littleFilter[8]
+			self.littleFilter[8] = self.littleFilter[7]
+			self.littleFilter[7] = self.littleFilter[6]
+			self.littleFilter[6] = self.littleFilter[5]
+			self.littleFilter[5] = self.littleFilter[4]
+			self.littleFilter[4] = self.littleFilter[3]
+			self.littleFilter[3] = self.littleFilter[2]
+			self.littleFilter[2] = self.littleFilter[1]
+			self.littleFilter[1] = self.littleFilter[0]
+			self.littleFilter[0] = self.actual_state
+			numeroDeVerdes 	= 0
+			numeroDeRojos 	= 0
+			for colorNumeral in self.littleFilter:
+				if colorNumeral==0:
+					numeroDeVerdes+=1
+				if colorNumeral==1:
+					numeroDeRojos+=1
+			if numeroDeVerdes	>=7:
+				numerico = 0
+
+			if numeroDeRojos	>=5:
+				numerico = 1
+			flancoCorrecto = 0
+
+			# Si llegue a un valor valido entonces es posible generar flanco
+			if (self.actual_state==0)|(self.actual_state==1)|(self.actual_state==2):
+				#Si hay cambio entonces genero flanco:
+				if self.actual_state != self.numericoAuxiliar:
+					if self.actual_state == 0:
+						flancoCorrecto = -1
+					elif self.actual_state >= 1:
+						flancoCorrecto = 1
+					if (self.numericoAuxiliar == 2)&(self.actual_state==1):		# Si el valor anterior es amarillo se descarta el flanco
+						flancoCorrecto = 0
+					self.numericoAuxiliar = numerico
+			else: # Si no llego a un valor valido repito
+				self.actual_state = self.numericoAuxiliar
+
+			# Si el flanco es correcto entonces genero los valores de periodo
+			if flancoCorrecto == -1:
+				periodoAMostrar = self.ultimoPeriodo
+				self.tiempoParaPeriodo = time.time()
+
+			self.ultimoPeriodo = time.time() - self.tiempoParaPeriodo
+			# Si el periodo excede los 2 minutos (normalmente 2, 1 para debug) entonces señalo que no hay semaforo
+			if self.ultimoPeriodo >self.maximoTiempoPeriodo:
+				flancoCorrecto = 1				# Flanco verde para guardar la información que se tenga
+				numerico = -2
+			return self.actual_state, self.idx_to_str[self.actual_state], flancoCorrecto, periodoAMostrar
+		except:
+			print('Not ready yet')
+
+
+
 	def run(self):
 		while True:
-			color, literal_color, flanco = self.prediction()
-			self.input_q.put([self.actual_state, self.count, self.flanco])
-
-
+			imagen = self.input_q.get(timeout=1)
+			color, literal_color, flanco, period = self.prediction(imagen)
+			self.ouput_q.put([self.actual_state, literal_color, flanco, period])
 
 
 if __name__ == '__main__':
-	#cap = cv2.VideoCapture('./installationFiles/sar.mp4')
-	#data = np.load('./installationFiles/sar.npy')
-	#print(data)
-	semaphoro = Semaphoro(periodo = 30)
-	#poligono  = data[0]
-	#print(data[0])
-	counter = 0 
-	while True:
-		#_, img = cap.read()
-		time.sleep(1)
-		print(semaphoro.obtenerColorEnSemaforo())
-		#print('STATES:', semaphoro.numerico, semaphoro.literal,semaphoro.flanco)
-		print(' Main While loop',  counter)
-		counter +=1
-		#cv2.imshow('mask_image',img)
+	path_to_video_test	= os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'trialVideos' +'/' + 'mySquare.mp4'
+	data 				= np.load('../installationFiles/mySquare.npy')
+	path_to_workdir 	= os.getenv('HOME') + '/' + 'WORKDIR' + '/' + 'imagen.png'
 
+	cap 				= cv2.VideoCapture(path_to_video_test)
+
+	# Load position of semaphoro
+	sem_img 	= data[-1]
+	px0 		= int(sem_img[0][0])
+	py0 		= int(sem_img[0][1])
+	px1 		= int(sem_img[1][0]*1.12)
+	py1 		= int(sem_img[1][1])
+
+
+	# Create semaphoro class
+	semaphoro = Semaphoro(periodo = 0)
+	while True:
+		_, img = cap.read()
+		#time.sleep(0.05)
+
+		# Feed with images to semaphoro
+		cropped = img[py1:py0, px0:px1]
+		#cropped_r = cv2.resize(cropped, (24,8))
+		#scipy.misc.imsave(path_to_workdir, cropped)
+		#cv2.rectangle(img,(px0,py0),(px1,py1),(0,255,0),1)
+		data = semaphoro.obtenerColorEnSemaforo(cropped)
+		print(data)
+		cv2.imshow('Semaphoro', cv2.resize(cropped,(320,240)))
 		ch = 0xFF & cv2.waitKey(5)
-		if ch == 27:
+		if ch == ord('q'):
 			break
 	cv2.destroyAllWindows()
 	c = cv2.waitKey(0)
@@ -343,9 +442,7 @@ class CreateSemaforo(Semaforo):
 		# Init parent attributes and methods
 		#
 		super().__init__()
-		self.littleFilter = [0,0,0,0,0,0,0,0,0,0,0,0]	
 		self.blueprint_semaforo = None
-		self.numericoAuxiliar = 0
 		if self.periodoSemaforo > 0 :
 			self.blueprint_semaforo =  Simulado(periodoSemaforo = self.periodoSemaforo)
 		else:
@@ -354,61 +451,5 @@ class CreateSemaforo(Semaforo):
 	def obtenerColorEnSemaforo(self, imagenUnidimensional):
 		numerico, literal, flancoErrado = self.blueprint_semaforo.encontrarSemaforoObtenerColor(imagen = imagenUnidimensional )
 		#print('COLOR EN BRUTO: '+literal)
-		periodoAMostrar = 0
 		if self.periodoSemaforo == 0 :
-			self.littleFilter[11] = self.littleFilter[10]
-			self.littleFilter[10] = self.littleFilter[9]
-			self.littleFilter[9] = self.littleFilter[8]
-			self.littleFilter[8] = self.littleFilter[7]
-			self.littleFilter[7] = self.littleFilter[6]
-			self.littleFilter[6] = self.littleFilter[5]
-			self.littleFilter[5] = self.littleFilter[4]
-			self.littleFilter[4] = self.littleFilter[3]
-			self.littleFilter[3] = self.littleFilter[2]
-			self.littleFilter[2] = self.littleFilter[1]
-			self.littleFilter[1] = self.littleFilter[0]
-			self.littleFilter[0] = numerico
-			numeroDeVerdes = 0
-			numeroDeRojos = 0
-			for colorNumeral in self.littleFilter:
-				if colorNumeral==0:
-					numeroDeVerdes+=1
-				if colorNumeral==1:
-					numeroDeRojos+=1
-			if numeroDeVerdes>=7:
-				numerico = 0
-			if numeroDeRojos>=5:
-				numerico = 1
-			
-		flancoCorrecto = 0
-
-		# Si llegue a un valor valido entonces es posible generar flanco
-		if (numerico==0)|(numerico==1)|(numerico==2):
-			#Si hay cambio entonces genero flanco:
-			if numerico != self.numericoAuxiliar:
-				if numerico == 0:
-					flancoCorrecto = -1
-				elif numerico >= 1:
-					flancoCorrecto = 1
-				if (self.numericoAuxiliar == 2)&(numerico==1):		# Si el valor anterior es amarillo se descarta el flanco
-					flancoCorrecto = 0
-				self.numericoAuxiliar = numerico
-		else: # Si no llego a un valor valido repito
-			numerico = self.numericoAuxiliar
-
-		# Si el flanco es correcto entonces genero los valores de periodo
-		if flancoCorrecto == -1:
-			periodoAMostrar = self.blueprint_semaforo.ultimoPeriodo
-			self.blueprint_semaforo.tiempoParaPeriodo = time.time()
-
-		self.blueprint_semaforo.ultimoPeriodo = time.time() - self.blueprint_semaforo.tiempoParaPeriodo
-		# Si el periodo excede los 2 minutos (normalmente 2, 1 para debug) entonces señalo que no hay semaforo
-		if self.blueprint_semaforo.ultimoPeriodo >self.maximoTiempoPeriodo:
-			flancoCorrecto = 1				# Flanco verde para guardar la información que se tenga
-			numerico = -2
-		
-
-		return numerico, literal, flancoCorrecto, periodoAMostrar
-
-
 """
