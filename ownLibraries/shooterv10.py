@@ -150,7 +150,7 @@ class Shooter():
 			except Exception as e:
 				print('Table bussy, passing....', e)
 			try:
-				save_in_work_dir = input_queue.get(timeout=1)
+				save_in_work_dir 	= input_queue.get(timeout=1)
 				observador.circular_buff.appendleft(save_in_work_dir)
 			except Exception as e:
 				print('### ERROR 1 ###, THIS EXCEPTION FOR GET()', e)
@@ -183,7 +183,7 @@ class Shooter():
 ################################################################
 #################### OBSERVER CLAS #############################
 ################################################################
-class Observer():
+class Observer(multiprocessing.Process):
 
 	nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
 	directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
@@ -197,18 +197,18 @@ class Observer():
 		# Dir where to save images
 
 		self.directorioDeGuardadoGeneral = Observer.directorioDeReporte
-		self.root = Observer.directorioWORKDIR
-		self.fechaInfraccion = str
-		self.saveDir = str
-		self.frame_number = 0
+		self.root 						 = Observer.directorioWORKDIR
+		self.fechaInfraccion 			 = str
+		self.saveDir 					 = str
+		self.frame_number 				 = 0
 
-		self.frame_marcado = str
-		self.folder = str
-		folder_WORK = 'WORKDIR'
-		self.saveDirWORK = self.root + "/" + folder_WORK
+		self.frame_marcado 				 = str
+		self.folder 					 = str
+		folder_WORK 					 = 'WORKDIR'
+		self.saveDirWORK 				 = self.root + "/" + folder_WORK
 
 		# Create circular buff deque of len 6
-		self.circular_buff = collections.deque(maxlen=12)
+		self.circular_buff 				 = collections.deque(maxlen=12)
 
 	@staticmethod
 	def leer_DB():
@@ -306,7 +306,6 @@ class Observer():
 
 
 			self.frame_marcado = None
-
 
 	def copiar_las_imagenes(self, src_0,dst_0,src_one, dst_one, src_two, dst_two):
 
