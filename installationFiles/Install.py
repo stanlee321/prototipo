@@ -327,7 +327,10 @@ if __name__ == '__main__':
 		frame=cv2.resize(frame1,(640,480))
 	except:
 		print('accediendo a imagen de placas...')
-		frame=cv2.imread('placa.jpg')
+		try:
+			frame=cv2.imread('placa.jpg')
+		except:
+			frame=np.zeros((640,480))
 		frame=cv2.resize(frame1,(640,480))
 	overlayHigh=frame.copy()
 	cv2.namedWindow('FrameDeSltaResolucion')
