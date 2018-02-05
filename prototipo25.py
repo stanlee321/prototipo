@@ -191,7 +191,6 @@ def __main_function__():
 	frame_number  = 0
 	tiempoAuxiliar = time.time()
 	periodoDeMuestreo = 1.0/mifps
-	grupo = [0]
 
 	try: 
 		while True:
@@ -206,8 +205,6 @@ def __main_function__():
 			
 			for indiceSemaforo in indicesSemaforo[1:]:
 				pixeles = np.append(pixeles,[frameVideo[indiceSemaforo[1],indiceSemaforo[0]]], axis=0)
-				
-			wtf = pixeles.reshape((24,8,3))
 
 			tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
 			if (tiempoAhora > horaInicioInfraccion) & (tiempoAhora < horaFinalInfraccion):

@@ -4,6 +4,8 @@ casosDebug/
 casosReportados/
 VideoCapture/
 installationFiles/datos.npy
+installationFiles/flujo.jpg
+installationFiles/placa.jpg
 *.py~
 \?*
 ownLibraries/*.py~
