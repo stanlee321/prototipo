@@ -22,6 +22,9 @@ file_Points='datos.npy'
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/'
 directorioDeVideos = directorioDeTrabajo+'trialVideos/'
 fileToWrite = directorioDeTrabajo+'prototipo/installationFiles/datos.npy'
+#directorioDeTrabajo='trafficFlow/'
+#directorioDeVideos=directorioDeTrabajo+'trialVideos/'
+#fileToWrite=directorioDeTrabajo+'.npy'
 ###############Get indices#################
 def obtenerIndicesSemaforo(poligono640):
 	punto0 = poligono640[0]
@@ -31,10 +34,11 @@ def obtenerIndicesSemaforo(poligono640):
 
 	vectorHorizontal = punto3 - punto0
 	vectorVertical = punto1 - punto0
-	pasoHorizontal = vectorHorizontal//8
-	pasoVertical = vectorVertical//24
+	pasoHorizontal = vectorHorizontal/8
+	pasoVertical = vectorVertical/24
 
 	indices = []
+
 
 	for j in range(24):
 		for i in range(8):
@@ -53,45 +57,45 @@ def transformIma(lista):
 	distancia=math.sqrt((x2-x3)**2+(y2-y3)**2)
 	altura=distancia/3
 	if y2>y3:
-		print('caso1')
+		#print('caso1')
 		anguloInicial=math.asin((y2-y3)/distancia)
 		anguloInicialGrados=anguloInicial*180/(math.pi)
 		anguloGrados=180-90-anguloInicialGrados
 		anguloRadians=anguloGrados*(math.pi)/180
 		y=altura*math.sin(anguloRadians)
 		x=altura*math.cos(anguloRadians)
-		x1=x2-x
-		y1_0=y2-y
-		y1=y1_0-altura
-		x4=x3-x
-		y4_0=y3-y
-		y4=y4_0-altura
+		x1=int(x2-x)
+		y1_0=int(y2-y)
+		y1=int(y1_0-altura)
+		x4=int(x3-x)
+		y4_0=int(y3-y)
+		y4=int(y4_0-altura)
 		poligon=[(x1,y1_0),(x2,y2),(x3,y3),(x4,y4_0)]
 		poligonAdd=[(x1,y1),(x2,y2),(x3,y3),(x4,y4)]
 	if y3==y2:
-		print('caso2')
+		#print('caso2')
 		x1=x2
-		y1_0=altura
-		y1=2*altura
+		y1_0=int(altura)
+		y1=int(2*altura)
 		x4=x3
-		y4_0=altura
-		y4=2*altura
+		y4_0=int(altura)
+		y4=int(2*altura)
 		poligon=[(x1,y1_0),(x2,y2),(x3,y3),(x4,y4_0)]
 		poligonAdd=[(x1,y1),(x2,y2),(x3,y3),(x4,y4)]
 	if y3>y2:
-		print('caso3')
+		#print('caso3')
 		anguloInicial=math.asin((y3-y2)/distancia)
 		anguloInicialGrados=anguloInicial*180/(math.pi)
 		anguloGrados=180-90-anguloInicialGrados
 		anguloRadians=anguloGrados*(math.pi)/180
 		y=altura*math.sin(anguloRadians)
 		x=altura*math.cos(anguloRadians)
-		x1=x2+x
-		y1_0=y2-y
-		y1=y1_0-altura
-		x4=x3+x
-		y4_0=y3-y
-		y4=y4_0-altura
+		x1=int(x2+x)
+		y1_0=int(y2-y)
+		y1=int(y1_0-altura)
+		x4=int(x3+x)
+		y4_0=int(y3-y)
+		y4=int(y4_0-altura)
 		poligon=[(x1,y1_0),(x2,y2),(x3,y3),(x4,y4_0)]
 		poligonAdd=[(x1,y1),(x2,y2),(x3,y3),(x4,y4)]
 	return poligon, poligonAdd
@@ -208,7 +212,7 @@ if __name__ == '__main__':
 			#print('saved to ReAjust!!')
 			#dataReAjust=np.load(reAdjust)
 			#print ('file:..'+str(dataReAjust))
-			print('listaCorte..'+str(listaCorte))
+			#print('listaCorte..'+str(listaCorte))
 			break            
 		if keyPress == ord('q'):
 			print ('Interrumpido...')
@@ -227,16 +231,18 @@ if __name__ == '__main__':
 		cv2.imshow('semaforo',imag)
 		keyPress = cv2.waitKey()
 		if keyPress&0xFF==ord('q'):
-			print('listaSemaforo..'+str(listaSem))
+			#print('listaSemaforo..'+str(listaSem))
 			rang=len(listaSem)
 ##TRansformando a coordenadas origen
 			for i in range(0,len(listaSem)):
 				x,y=calcPoints(imag1,listaSem[i])
 				listaSemFinal.append((x,y))
-				print(listaSemFinal)
+				
 ####----------------------------------------- 
-			indices=obtenerIndicesSemaforo(np.array(listaSemFinal))          
-			lista.append((indices))
+			indice=obtenerIndicesSemaforo(np.array(listaSemFinal))          
+			print('listaSemaforo..'+str(listaSemFinal))
+			print(indice)
+			lista.append((indice))
 			break
 		
 	cv2.destroyAllWindows()
@@ -260,12 +266,12 @@ if __name__ == '__main__':
 				vrx=np.array([[pol1]],np.int32)
 				pts=vrx.reshape((-1,1,2))
 				cv2.polylines(frame,[pts],True,(255,0,0))
-				print(pol1)
+				#print(pol1)
 				########################
 				vrx=np.array([[polAdd]],np.int32)
 				pts=vrx.reshape((-1,1,2))
 				cv2.polylines(frame,[pts],True,(0,0,255))
-				print(polAdd)
+				#print(polAdd)
 				listaAux=[]
 				listaAux1=[]
 				cv2.imshow('First_Frame',frame)                
@@ -313,10 +319,10 @@ if __name__ == '__main__':
 			if (deno<0):
 			    alpha=alpha+180
 			#print('angule:.'+str(alpha))
-			lista.append([alpha])
+			lista.append([int(alpha)])
 			print('Press -q- to go a Full Resolution')
 		if keyPress&0xFF==ord('q'):
-			print ('lista:  ---' +str(lista))
+			#print ('lista:  ---' +str(lista))
 			break
 	cv2.destroyAllWindows()
 	#Capture of High Resolution
@@ -329,9 +335,10 @@ if __name__ == '__main__':
 		print('accediendo a imagen de placas...')
 		try:
 			frame=cv2.imread('placa.jpg')
+			frame=cv2.resize(frame,(640,480))
 		except:
-			frame=np.zeros((640,480))
-		frame=cv2.resize(frame1,(640,480))
+			frame=np.zeros((480,640,3), np.uint8)
+		
 	overlayHigh=frame.copy()
 	cv2.namedWindow('FrameDeSltaResolucion')
 	cv2.setMouseCallback('FrameDeSltaResolucion', get_BigRectangle)
