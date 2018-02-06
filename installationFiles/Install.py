@@ -60,22 +60,22 @@ def transformIma(lista):
 		anguloRadians=anguloGrados*(math.pi)/180
 		y=altura*math.sin(anguloRadians)
 		x=altura*math.cos(anguloRadians)
-		x1=x2-x
-		y1_0=y2-y
-		y1=y1_0-altura
-		x4=x3-x
-		y4_0=y3-y
-		y4=y4_0-altura
+		x1=int(x2-x)
+		y1_0=int(y2-y)
+		y1=int(y1_0-altura)
+		x4=int(x3-x)
+		y4_0=int(y3-y)
+		y4=int(y4_0-altura)
 		poligon=[(x1,y1_0),(x2,y2),(x3,y3),(x4,y4_0)]
 		poligonAdd=[(x1,y1),(x2,y2),(x3,y3),(x4,y4)]
 	if y3==y2:
 		print('caso2')
 		x1=x2
-		y1_0=altura
-		y1=2*altura
+		y1_0=int(altura)
+		y1=int(2*altura)
 		x4=x3
-		y4_0=altura
-		y4=2*altura
+		y4_0=int(altura)
+		y4=int(2*altura)
 		poligon=[(x1,y1_0),(x2,y2),(x3,y3),(x4,y4_0)]
 		poligonAdd=[(x1,y1),(x2,y2),(x3,y3),(x4,y4)]
 	if y3>y2:
@@ -86,12 +86,12 @@ def transformIma(lista):
 		anguloRadians=anguloGrados*(math.pi)/180
 		y=altura*math.sin(anguloRadians)
 		x=altura*math.cos(anguloRadians)
-		x1=x2+x
-		y1_0=y2-y
-		y1=y1_0-altura
-		x4=x3+x
-		y4_0=y3-y
-		y4=y4_0-altura
+		x1=int(x2+x)
+		y1_0=int(y2-y)
+		y1=int(y1_0-altura)
+		x4=int(x3+x)
+		y4_0=int(y3-y)
+		y4=int(y4_0-altura)
 		poligon=[(x1,y1_0),(x2,y2),(x3,y3),(x4,y4_0)]
 		poligonAdd=[(x1,y1),(x2,y2),(x3,y3),(x4,y4)]
 	return poligon, poligonAdd
@@ -313,7 +313,7 @@ if __name__ == '__main__':
 			if (deno<0):
 			    alpha=alpha+180
 			#print('angule:.'+str(alpha))
-			lista.append([alpha])
+			lista.append([int(alpha)])
 			print('Press -q- to go a Full Resolution')
 		if keyPress&0xFF==ord('q'):
 			print ('lista:  ---' +str(lista))
@@ -330,7 +330,7 @@ if __name__ == '__main__':
 		try:
 			frame=cv2.imread('placa.jpg')
 		except:
-			frame=np.zeros((640,480))
+			frame=np.zeros((640,480,3), np.uint8)
 		frame=cv2.resize(frame1,(640,480))
 	overlayHigh=frame.copy()
 	cv2.namedWindow('FrameDeSltaResolucion')
