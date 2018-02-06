@@ -48,7 +48,8 @@ class Observer(multiprocessing.Process):
 		# create watermarker class
 		self.watermarker = WaterMarker(Observer.path_to_logo)
 
-
+		# check status
+		self.save_in_folder = None
 	def leer_DB(self):
 		# Read old metadata
 		self.date_for_db = 	str(datetime.datetime.now().strftime('%Y-%m-%d'))
@@ -174,20 +175,26 @@ class Observer(multiprocessing.Process):
 
 	def run(self):
 		while True:
-			homework = self.leer_DB()
-
 			save_in_work_dir = self.output_q.get()
-			self.circular_buff.appendleft(save_in_work_dir)
-			if len(homework) > 0: 
-				for work in homework:
-					timestamp 	= work[0][0]
-					date   		= work[0][2]
-					folder 		= work[0][2]
-					index_real  = work[0][3]
 
-				saveDir = directorioDeReporte + '/' + folder
 
-				timestamp = timestamp#+' index:'+ index_real
-				self.encenderCamaraEnSubDirectorio('WORKDIR', date, folder)
-				self.move_captures(index_real)
-				self.watermarker.put_watermark(saveDir, timestamp)
+			if  self.save_in_folder != None:
+
+				homework = self.leer_DB()
+
+				self.circular_buff.appendleft(save_in_work_dir)
+				if len(homework) > 0: 
+					for work in homework:
+						timestamp 	= work[0][0]
+						date   		= work[0][2]
+						folder 		= work[0][2]
+						index_real  = work[0][3]
+
+					saveDir = directorioDeReporte + '/' + folder
+
+					timestamp = timestamp#+' index:'+ index_real
+					self.encenderCamaraEnSubDirectorio('WORKDIR', date, folder)
+					self.move_captures(index_real)
+					self.watermarker.put_watermark(saveDir, timestamp)
+
+				self.save_in_folder = None

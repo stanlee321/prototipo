@@ -56,11 +56,11 @@ class ControladorCamara():
 		self.output_q = multiprocessing.Queue()
 
 		# Create miCamara object with the queues as init parameters.
-		miCamara  	= Shutter(self.input_q)
-		miCamara.start()
+		self.miCamara  	= Shutter(self.input_q)
+		self.miCamara.start()
 		
-		observador 	= Observer(self.output_q)
-		observador.start()
+		self.observador = Observer(self.output_q)
+		self.observador.start()
 
 
 	@staticmethod
@@ -116,9 +116,11 @@ class ControladorCamara():
 
 	def resivir_info(self):
 		while self.run_camera == True:
+			self.observador.save_in_folder 	=  self.save_in_folder
 
 			#print('CIRCULAR BUFF FROM OBSERVER', observador.circular_buff)
 			# Read Homework
+
 			save_in_folder = self.input_q.get() 
 			self.output_q.put(save_in_folder)
 		

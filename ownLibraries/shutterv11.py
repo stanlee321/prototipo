@@ -96,7 +96,6 @@ class Shutter(multiprocessing.Process):
 
 			index 				=   (datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')).split(':')[-1]
 			save_in_work_dir 	= 	self.saveDirWORK+"/_f{}f_i{}i_.jpg".format(self.frame_number, index)
-
 			self.circular_buff_shooter.appendleft(save_in_work_dir)
 			self.input_q.put(save_in_work_dir)
 			self.frame_number 	+= 1
