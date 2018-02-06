@@ -10,7 +10,7 @@ import threading
 import pandas as pd
 import multiprocessing
 import numpy as np
-from shooterv11 import Shutter
+from shutterv11 import Shutter
 from observerpicamera import Observer
 import sqlite3
 import shutil
