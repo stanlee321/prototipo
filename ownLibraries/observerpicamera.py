@@ -5,7 +5,7 @@ import collections
 import datetime
 import sqlite3
 
-from .watermark import WaterMarker
+from watermark import WaterMarker
 
 
 
