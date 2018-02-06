@@ -57,27 +57,6 @@ horaFinalInfraccion = 22*60
 
 conVideoGrabado = False
 
-# Función principal
-def obtenerIndicesSemaforo(poligono640):
-	punto0 = poligono640[0]
-	punto1 = poligono640[1]
-	punto2 = poligono640[2]
-	punto3 = poligono640[3]
-
-	vectorHorizontal = punto3 - punto0
-	vectorVertical = punto1 - punto0
-	pasoHorizontal = vectorHorizontal/8
-	pasoVertical = vectorVertical/24
-
-	indices = []
-
-	for j in range(24):
-		for i in range(8):
-			indices.append((punto0+i*pasoHorizontal+j*pasoVertical).tolist())
-	#print('len of indices', len(indices))
-	#print('single index', indices[0])
-	indices = [[round(x[0]),round(x[1])] for x in indices]
-	return indices
 
 def nuevoDia():
 	nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
@@ -86,6 +65,7 @@ def nuevoDia():
 	miReporte.setDirectory(directorioDeReporte)
 	miPoliciaReportando.nuevoDia(directorioDeReporte)
 
+# Función principal
 def __main_function__():
 	# Import some global varialbes
 	global archivoDeVideo
@@ -135,12 +115,15 @@ def __main_function__():
 	
 	parametrosInstalacion = np.load(folderDeInstalacion+'/'+archivoParametrosACargar)
 	miReporte.info('Datos de Instalacion de: '+folderDeInstalacion+'/'+archivoParametrosACargar)
-	poligonoSemaforo = parametrosInstalacion[0]
-	verticesPartida = parametrosInstalacion[1]
-	verticesLlegada = parametrosInstalacion[2]
-	indicesSemaforo = obtenerIndicesSemaforo(np.array(poligonoSemaforo))
-	angulo = parametrosInstalacion[3]
-	poligonoEnAlta = parametrosInstalacion[4]
+	indicesSemaforo = np.array(parametrosInstalacion[0]).astype(int)
+	poligonoSemaforo = np.array([indicesSemaforo[0],indicesSemaforo[183],indicesSemaforo[191],indicesSemaforo[7]])
+	print(poligonoSemaforo)
+	verticesPartida = np.array(parametrosInstalacion[1]).astype(int)
+	verticesLlegada = np.array(parametrosInstalacion[2]).astype(int)
+	verticesDerecha = np.array(parametrosInstalacion[3]).astype(int)
+	verticesIzquierda = np.array(parametrosInstalacion[4]).astype(int)
+	angulo = parametrosInstalacion[5]
+	poligonoEnAlta = parametrosInstalacion[6]
 
 	miReporte.info('Cargado exitosamente parametros de instalacion ')#+str(parametrosInstalacion))
 
@@ -191,7 +174,6 @@ def __main_function__():
 	frame_number  = 0
 	tiempoAuxiliar = time.time()
 	periodoDeMuestreo = 1.0/mifps
-	grupo = [0]
 
 	try: 
 		while True:
@@ -206,8 +188,6 @@ def __main_function__():
 			
 			for indiceSemaforo in indicesSemaforo[1:]:
 				pixeles = np.append(pixeles,[frameVideo[indiceSemaforo[1],indiceSemaforo[0]]], axis=0)
-				
-			wtf = pixeles.reshape((24,8,3))
 
 			tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
 			if (tiempoAhora > horaInicioInfraccion) & (tiempoAhora < horaFinalInfraccion):
