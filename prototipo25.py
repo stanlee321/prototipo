@@ -13,7 +13,6 @@ import numpy as np
 from ownLibraries.irswitch import IRSwitch
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.visualizacion import Acetato
-from ownLibraries.herramientas import total_size
 from ownLibraries.videostream import VideoStream
 from ownLibraries.semaforov2 import CreateSemaforo
 from ownLibraries.determinacionCruces import PoliciaInfractor
@@ -115,13 +114,12 @@ def __main_function__():
 	
 	parametrosInstalacion = np.load(folderDeInstalacion+'/'+archivoParametrosACargar)
 	miReporte.info('Datos de Instalacion de: '+folderDeInstalacion+'/'+archivoParametrosACargar)
-	indicesSemaforo = np.array(parametrosInstalacion[0]).astype(int)
+	indicesSemaforo = parametrosInstalacion[0]
 	poligonoSemaforo = np.array([indicesSemaforo[0],indicesSemaforo[183],indicesSemaforo[191],indicesSemaforo[7]])
-	print(poligonoSemaforo)
-	verticesPartida = np.array(parametrosInstalacion[1]).astype(int)
-	verticesLlegada = np.array(parametrosInstalacion[2]).astype(int)
-	verticesDerecha = np.array(parametrosInstalacion[3]).astype(int)
-	verticesIzquierda = np.array(parametrosInstalacion[4]).astype(int)
+	verticesPartida = parametrosInstalacion[1]
+	verticesLlegada = parametrosInstalacion[2]
+	verticesDerecha = parametrosInstalacion[3]
+	verticesIzquierda = parametrosInstalacion[4]
 	angulo = parametrosInstalacion[5]
 	poligonoEnAlta = parametrosInstalacion[6]
 
@@ -158,7 +156,7 @@ def __main_function__():
 	miFiltro = IRSwitch()
 	miFiltro.paralelizar()
 	# Prueba sin filtro todo el dia
-	miFiltro.quitarFiltroIR()
+	
 	miAcetatoInformativo = Acetato()
 	miSemaforo = CreateSemaforo(periodoDeSemaforo)
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
@@ -236,14 +234,14 @@ def __main_function__():
 
 			# Si el tiempo es el adecuado y el filtro no esta actualizado se actualiza
 			tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
-			"""
+			
 			if (tiempoAhora > amaneciendo) & (tiempoAhora < anocheciendo) & ((miFiltro.ultimoEstado == 'Filtro Desactivado')|(miFiltro.ultimoEstado =='Inicializado')):
 				miFiltro.colocarFiltroIR()
 				miReporte.info('Active Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
 			if ((tiempoAhora < amaneciendo) | (tiempoAhora > anocheciendo)) & ((miFiltro.ultimoEstado == 'Filtro Activado')|(miFiltro.ultimoEstado =='Inicializado')):
 				miFiltro.quitarFiltroIR()
 				miReporte.info('Desactive Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
-			"""
+			
 			if len(historial)> 2*60*mifps:	# Si es mayor a dos minutos en el pasado
 				del historial[min(historial)]				
 
@@ -284,7 +282,7 @@ def __main_function__():
 			tiempoEjecucion = time.time() - tiempoAuxiliar
 			if tiempoEjecucion>periodoDeMuestreo:
 				miReporte.warning('\t[f{}'.format(frame_number)+']'+' Periodo Excedido {0:2f}'.format(tiempoEjecucion)+ '[s]')
-			#print(len(historial))
+			
 			#sys.stdout.write("\033[F")
 			while time.time() - tiempoAuxiliar < periodoDeMuestreo:
 				True
@@ -355,7 +353,6 @@ if __name__ == '__main__':
 		if input =='Kill':
 			topeEjecucion = int(input[:-1])
 		if input == 'Region':
-			print('NEW REGION PARAMETERS')
 			miRegion = True
 
 	__main_function__()
