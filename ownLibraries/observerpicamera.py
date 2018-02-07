@@ -227,6 +227,7 @@ class Observer(multiprocessing.Process):
 			except:
 				#q = collections.deque(maxlen=2)
 				#np.save(Observer.path_image_workdir,q)
+				print('Cant Load run_camera state, turning off the OBSERVER')
 				run_camera = 0
 
 

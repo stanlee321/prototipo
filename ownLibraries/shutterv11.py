@@ -96,6 +96,7 @@ class Shutter(multiprocessing.Process):
 		self.camera.resolution 			= self.camera.MAX_RESOLUTION
 		self.camera.framerate 			= 2 # original 1
 		self.camera.zoom 				= (self.p0x, self.p0y, self.p1x, self.p1y)
+		self.camera.exposure_mode 		= 'sports'
 		#self.camera.shutter_speed = 190000
 		#self.camera.iso = 800
 		self.camera.start_preview()
