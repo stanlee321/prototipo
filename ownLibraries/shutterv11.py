@@ -34,7 +34,9 @@ class Shutter(multiprocessing.Process):
 	path_to_run_camera 	= os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
 
 
-	def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 3):
+	#def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 3):
+	def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([10,10],[2592,1944]), capturas = 3):
+
 		super(Shutter, self).__init__()
 
 		self.run_camera 		= True
@@ -93,7 +95,7 @@ class Shutter(multiprocessing.Process):
 	def run(self):
 		# PICMEARA INIT
 		self.camera 					= picamera.PiCamera()
-		self.camera.resolution 			= self.camera.MAX_RESOLUTION
+		self.camera.resolution 			= (2592,1944)#self.camera.MAX_RESOLUTION
 		self.camera.framerate 			= 2 # original 1
 		self.camera.zoom 				= (self.p0x, self.p0y, self.p1x, self.p1y)
 		self.camera.exposure_mode 		= 'sports'

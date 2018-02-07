@@ -33,9 +33,9 @@ class Semaphoro():
 	def obtenerColorEnSemaforo(self, raw_images):
 		self.input_q.put(raw_images)
 		data = self.ouput_q.get()
-		numerico, literal, flanco, period = data[0], data[1], data[2], data[3]
-		return numerico, literal, flanco, period
-	
+		#numerico, literal, flanco, period = data[0], data[1], data[2], data[3]
+		#return numerico, literal, flanco, period
+		return data
 	def stop(self):
 		self.p.join()
 
@@ -113,7 +113,7 @@ class Real(multiprocessing.Process):
 		print('......Starting REAL semaphoro....')
 		
 		# LOAD THE TRAINED SVM MODEL ... INTO THE MEMORY????
-		path_to_svm_model = os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'svmv2.pkl'
+		path_to_svm_model = os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'binary.pkl'
 		path_to_keras_model = os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'model.h5'
 
 		self.path_to_img = os.getenv('HOME') + '/' + 'WORKDIR' + '/' + 'imagen.png'
@@ -128,7 +128,7 @@ class Real(multiprocessing.Process):
 
 
 		# idx to string
-		self.idx_to_str = {1:'rojo', 0:'verde', 2:'amarillo', -1:'NO Semaphoro'}
+		self.idx_to_str = {1:'verde', 0:'else'}
 
 		# expected shape of the image_semaphoro_raw (Weidth,Height,Channels)
 		self.SHAPE = (24,8,3)
@@ -180,16 +180,16 @@ class Real(multiprocessing.Process):
 		hsv 		= cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
 		# SOME MASKS
-		lower_yellow = 	np.array([18,40,0], dtype=np.uint8) #_18_40_190
-		upper_yellow =	np.array([27,255,255], dtype=np.uint8)
+		lower_yellow = 	np.array([255,255,255], dtype=np.uint8) #_18_40_190
+		upper_yellow =	np.array([255,255,255], dtype=np.uint8)
 
 		# RED range
-		lower_red 	= np.array([140,10, 0], dtype=np.uint8) #_,70,_
+		lower_red 	= np.array([255,255, 255], dtype=np.uint8) #_,70,_
 		upper_red 	= np.array([180,255,255], dtype=np.uint8)
 
 		# GREEN range
-		lower_green = np.array([42,10,0], dtype=np.uint8)
-		upper_green = np.array([95,255,255  ], dtype=np.uint8)
+		lower_green = np.array([22,10,0], dtype=np.uint8)
+		upper_green = np.array([95,255,255 ], dtype=np.uint8)
 
 
 		mask_red 	= cv2.inRange(hsv, lower_red, 		upper_red)
@@ -205,7 +205,7 @@ class Real(multiprocessing.Process):
 
 		img 		= cv2.resize(res, SHAPE, interpolation = cv2.INTER_CUBIC)
 		img 		= img.flatten()
-		img 		= img/255
+		img 		= img / 255
 		img         = img.reshape(1, -1)
 		return img
 
@@ -219,34 +219,35 @@ class Real(multiprocessing.Process):
 		
 		X = self.extract_feature(imagen)
 		Y = self.svm.predict(X)[0]
-
 		###########################
 		# END SVM PART (CLASSIFICATION) ML PROCESS
 		###########################
 		# Return prediction from SVM
+		print('prediction is', Y)
 		if   Y == 'green':
-			return 0
-		elif Y == 'red':
 			return 1
-		elif Y == 'yellow':
-			return 2 
-		elif Y == 'black':
-			return -1 
 		else:
-			pass
+			return 0
 
 
 	def prediction(self, imagen):
 
 
-		colorPrediction = self.find_color(imagen)
+		Y = self.find_color(imagen)
 
-		self.raw_states.append(colorPrediction)
-		try:
-			A,B,C,D = self.filter()
-			return A,B,C,D
-		except:
-			return -1,'None', 1,1
+		#self.raw_states.append(colorPrediction)
+		
+
+		color_prediction = self.idx_to_str[Y]
+
+
+		#try:
+		#	A,B,C,D = self.filter()
+		#	return A,B,C,D
+		#except:
+		return color_prediction
+
+		#return -1,'None', 1,1
 		"""
 		self.actual_state = state #self.filter_deque[0]
 		# Check the actual states.
@@ -385,13 +386,15 @@ class Real(multiprocessing.Process):
 	def run(self):
 		while True:
 			imagen = self.input_q.get(timeout=1)
-			color, literal_color, flanco, period = self.prediction(imagen)
-			self.ouput_q.put([self.actual_state, literal_color, flanco, period])
+			#color, literal_color, flanco, period = self.prediction(imagen)
+			color_prediction = self.prediction(imagen)
+			#self.ouput_q.put([self.actual_state, literal_color, flanco, period])
+			self.ouput_q.put([color_prediction])
 
 
 if __name__ == '__main__':
 	path_to_video_test	= os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'trialVideos' +'/' + 'mySquare.mp4'
-	data 				= np.load('../installationFiles/mySquare.npy')
+	data 				= np.load('../installationFiles/mySquareSEMAPHORO.npy')
 	path_to_workdir 	= os.getenv('HOME') + '/' + 'WORKDIR' + '/' + 'imagen.png'
 
 	cap 				= cv2.VideoCapture(path_to_video_test)
@@ -403,7 +406,7 @@ if __name__ == '__main__':
 	px1 		= int(sem_img[1][0]*1.12)
 	py1 		= int(sem_img[1][1])
 
-
+	print('INSTALLTION DATA', sem_img)
 	# Create semaphoro class
 	semaphoro = Semaphoro(periodo = 0)
 	while True:
@@ -412,12 +415,12 @@ if __name__ == '__main__':
 
 		# Feed with images to semaphoro
 		cropped = img[py1:py0, px0:px1]
-		#cropped_r = cv2.resize(cropped, (24,8))
+		cropped_r = cv2.resize(cropped, (24,8))
 		#scipy.misc.imsave(path_to_workdir, cropped)
 		#cv2.rectangle(img,(px0,py0),(px1,py1),(0,255,0),1)
 		data = semaphoro.obtenerColorEnSemaforo(cropped)
-		print(data)
 		cv2.imshow('Semaphoro', cv2.resize(cropped,(320,240)))
+		#cv2.imshow('Semaphoro', img)
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
 			break

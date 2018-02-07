@@ -147,7 +147,7 @@ if __name__ == '__main__':
 				x,y=calcPoints(imag1,listaSem[i])
 				listaSemFinal.append((x,y))
 				print(listaSemFinal)
-			path_to_np_data ='./mySquare.npy'
+			path_to_np_data ='./mySquareSEMAPHORO.npy'
 			print('Saving list of semaphoro points to:', path_to_np_data)
 			lista.append((listaSemFinal))
 			np.save(path_to_np_data, lista)
