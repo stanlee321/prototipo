@@ -117,8 +117,6 @@ class Shutter(multiprocessing.Process):
 			work_dir_len		 = len(files_in_work_dir)
 
 			if work_dir_len > 24: #increased size of images to save in dir from 6 then clean
-				print('CLEANING....')
-
 				for img_path in files_in_work_dir:
 					if img_path in self.circular_buff_shooter:
 						pass
@@ -126,7 +124,6 @@ class Shutter(multiprocessing.Process):
 						os.remove(img_path)
 
 			run_camera = np.load(Shutter.path_to_run_camera)
-
 
 		print('END OF RUN IN SHUTTER????')
 		print('Finished...')

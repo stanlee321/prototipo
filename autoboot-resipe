@@ -38,7 +38,8 @@ else
 	echo 'killing stuck python3 process...'        
 	sudo killall -9 python3
 	echo 'starting Second try to run python script'
-        nohup python3 prototipo25.py >>fullLog.log 2>&1&
+        today=`date '+%Y_%m_%d'`;
+        nohup python3 prototipo25.py >>$today.log 2>&1&
 	echo 'It Works! its running in background..., checklog with  nano fullLog.log'
 	echo 'or state and running time with command  ps ax | grep python3  in terminal'
 fi
