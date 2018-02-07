@@ -4,8 +4,8 @@ import numpy as np
 import collections
 import datetime
 import sqlite3
-
-from watermark import WaterMarker
+import shutil
+from .watermark import WaterMarker
 
 
 
@@ -19,7 +19,11 @@ class Observer(multiprocessing.Process):
 	date_hour_string 	= datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S:%f')
 	path_to_logo 		= os.getenv('HOME')+'/'+ 'trafficFlow' +'/' +'prototipo/'+ 'watermark'+ '/dems.png'
 
-	def __init__(self, output_q):
+	path_to_run_camera 		= os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
+	path_to_tasks_deque 	= os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'tasks_deque.npy'
+
+
+	def __init__(self, input_q):
 		super(Observer, self).__init__()
 		# Dir where to save images
 
@@ -28,6 +32,9 @@ class Observer(multiprocessing.Process):
 		self.fechaInfraccion 			 = str
 		self.saveDir 					 = str
 		self.frame_number 				 = 0
+
+		self.run_camera 				 = False
+
 
 		self.frame_marcado 				 = str
 		self.folder 					 = str
@@ -43,13 +50,15 @@ class Observer(multiprocessing.Process):
 		self.circular_buff 				 = collections.deque(maxlen=12)
 
 		# load queues from exterior world
-		self.output_q = output_q
+		self.input_q = input_q
 
 		# create watermarker class
 		self.watermarker = WaterMarker(Observer.path_to_logo)
 
-		# check status
-		self.save_in_folder = None
+
+		print('Sucessfully started Observer CLASS!!!')
+
+
 	def leer_DB(self):
 		# Read old metadata
 		self.date_for_db = 	str(datetime.datetime.now().strftime('%Y-%m-%d'))
@@ -110,13 +119,24 @@ class Observer(multiprocessing.Process):
 
 	def move_relevant_files(self, frame_marcado):
 		marcados_list  = []
+		print('frame_marcado is', frame_marcado)
+		print('self. circular_buff is', self.circular_buff)
 		for i, image_route in enumerate(self.circular_buff):
 			image_route_splited = image_route.split('i')
 
 			if frame_marcado in image_route_splited:
 				marcados_list.append(i)
+			# If index is not in list, chose his value - 1
 			else:
-				pass
+				frame_marcado_as_int = int(frame_marcado) - 1
+				frame_marcado_as_str = str(frame_marcado_as_int)
+
+				if frame_marcado_as_str in image_route_splited:
+					marcados_list.append(i)
+				else:
+					pass
+
+		print('LIST OF AMRCADOS IS', marcados_list)
 		if len(marcados_list) != 0:
 			for marcado_frame in marcados_list:
 
@@ -153,48 +173,61 @@ class Observer(multiprocessing.Process):
 			#print('copying from:', src_0, 'to:', dst_0)
 			shutil.copy(src_0, dst_0)
 		except Exception as e:
-			print('DELETION WARNING for {}, delering source {}'.format(dst_0, src_0))
+			#print('DELETION WARNING for {}, delering source {}'.format(dst_0, src_0))
 			print('OR:', e)
 
 		try:
 			#print('copying from:', src_one, 'to:', dst_one)
 			shutil.copy(src_one, dst_one)
 		except Exception as e:
-			print('DELETION WARNING for {}, delering source {}'.format(dst_one, src_one))
+			#print('DELETION WARNING for {}, delering source {}'.format(dst_one, src_one))
 			print('OR:', e)
 
 		try:
 			shutil.copy(src_two, dst_two)
 		except Exception as e:
-			print('DELETION WARNING for {}, delering source {}'.format(dst_two, src_two))
+			#print('DELETION WARNING for {}, delering source {}'.format(dst_two, src_two))
 			print('OR:', e)
 		print('Capturado posible infractor!')
 
 
-
-
 	def run(self):
-		while True:
-			save_in_work_dir = self.output_q.get()
+		run_camera = np.load(Observer.path_to_run_camera)
+		while run_camera == 1:
+			folders_queue 		= np.load(Observer.path_to_tasks_deque)
+			try:
+				path_image_workdir = self.input_q.get(timeout=5)
+				self.circular_buff.appendleft(path_image_workdir)
+
+				if  len(folders_queue) != 0:
+					print('Iam into the tasksss!!!, tasks are', len(folders_queue))
+					print('TASKs are,', folders_queue)
+					homework = self.leer_DB()
+					if len(homework) > 0: 
+						for work in homework:
+							timestamp 	= work[0][0]
+							date   		= work[0][1]
+							folder 		= work[0][1]
+							index_real  = work[0][2]
+
+						saveDir = Observer.directorioDeReporte + '/' + folder
+
+						timestamp = timestamp#+' index:'+ index_real
+						self.encenderCamaraEnSubDirectorio(date, folder)
+						self.move_captures(index_real)
+						#self.watermarker.put_watermark(saveDir, timestamp)
+					# return an empnty task basket
+					queu = collections.deque(maxlen=2)
+					np.save(Observer.path_to_tasks_deque, queu)
+			except:
+				pass
+			# return state of while loop camera
+			try:
+				run_camera = np.load(Observer.path_to_run_camera)
+			except:
+				#q = collections.deque(maxlen=2)
+				#np.save(Observer.path_image_workdir,q)
+				run_camera = 0
 
 
-			if  self.save_in_folder != None:
-
-				homework = self.leer_DB()
-
-				self.circular_buff.appendleft(save_in_work_dir)
-				if len(homework) > 0: 
-					for work in homework:
-						timestamp 	= work[0][0]
-						date   		= work[0][2]
-						folder 		= work[0][2]
-						index_real  = work[0][3]
-
-					saveDir = directorioDeReporte + '/' + folder
-
-					timestamp = timestamp#+' index:'+ index_real
-					self.encenderCamaraEnSubDirectorio('WORKDIR', date, folder)
-					self.move_captures(index_real)
-					self.watermarker.put_watermark(saveDir, timestamp)
-
-				self.save_in_folder = None
+		print('EXIRING FROM OBSERVER....')

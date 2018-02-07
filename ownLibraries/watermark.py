@@ -91,8 +91,9 @@ class WaterMarker():
 		print('PATH TO IMAGES,', path_to_images)
 		to_delete = []
 		for imagePath in WaterMarker.list_images(path_to_images):
+			print('for of images', imagePath)
+
 			try:
-				#print('for of images', imagePath)
 				to_delete.append(to_delete)
 				route =imagePath.split('.')[0] 
 				jpg = imagePath.split('.')[-1]
@@ -124,6 +125,7 @@ class WaterMarker():
 				# write the output image to disk
 				filename = imagePath[imagePath.rfind(os.path.sep) + 1:]
 				p = output_folder #os.path.sep.join((output_folder, filename))
+				print('OUT OF IMAGE MUST VBE', p)
 				cv2.imwrite(p, output)
 
 				to_delete.append(imagePath)
