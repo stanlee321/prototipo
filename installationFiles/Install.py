@@ -170,35 +170,33 @@ if __name__ == '__main__':
 	try:
 		nameSourceVideo = sys.argv[1]
 		fileToWrite = fileToWrite[:-9]+nameSourceVideo[:-3]+'npy'
-		
 	except:
 		nameSourceVideo = 0
+		
 		#print('Accediendo a camara ',nameSourceVideo)
 ###Semaforo zona:
 
 	try:
 		cap=cv2.VideoCapture(directorioDeVideos+nameSourceVideo)
-		#cap=cv2.VideoCapture('officialTrialVideos/sar.mp4')
 		for i in range(100):
 			ret, frame=cap.read()
 		frame=cv2.resize(frame,(640,480))
-		frame2=frame.copy()
-		fram=frame.copy()
-		 
+		val=1
 	except:
+		val=0
+	if val==0:
+		print('Accdiendo a imagen de flujo...')
 		try:
-			if sys.argv[1] == 'picam':
-				cap=cv2.VideoCapture(1)
-				fileToWrite = directorioDeTrabajo+'prototipo/installationFiles/datos.npy'
-				cont=0
-				for i in range(50):
-					ret, frame=cap.read()
-		except:
-			print('Accdiendo a imagen de flujo...')
 			frame=cv2.imread('flujo.jpg')
-		frame=cv2.resize(frame,(640,480))
-		frame2=frame.copy()
-		fram=frame.copy()
+			frame=cv2.resize(frame,(640,480))
+		except:
+			print('No se encontro imagen de flujo')
+			print('Accediendo a cámara...')
+			cap=cv2.VideoCapture(0)
+			ret, frame=cap.read()
+			frame=cv2.resize(frame,(640,480))
+	frame2=frame.copy()
+	fram=frame.copy()
 		 
 	cv2.namedWindow('semaforo_Zona')
 	cv2.setMouseCallback('semaforo_Zona', get_PointsSemaforZona)
@@ -336,9 +334,22 @@ if __name__ == '__main__':
 		try:
 			frame=cv2.imread('placa.jpg')
 			frame=cv2.resize(frame,(640,480))
+			imag=1
 		except:
-			frame=np.zeros((480,640,3), np.uint8)
-		
+			print('No se encontro imagen...')
+			imag=0
+		if imag==0:
+			try:
+				cap=cv2.VideoCapture(1)
+				ret, frame1=cap.read()
+				frame=cv2.resize(frame1,(640,480))
+			except:
+				try:
+					cap=cv2.VideoCapture(0)
+					ret, frame1=cap.read()
+					frame=cv2.resize(frame1,(640,480))
+				except:
+					frame=np.zeros((480,640),np.uint8)
 	overlayHigh=frame.copy()
 	cv2.namedWindow('FrameDeSltaResolucion')
 	cv2.setMouseCallback('FrameDeSltaResolucion', get_BigRectangle)

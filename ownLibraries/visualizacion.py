@@ -76,18 +76,21 @@ class Acetato(object):
 		for target in self.targets:
 			x,y,w,h = target[0]
 			estado = target[1]
+			r = w+h
+			if r<20:
+				r = 20
 			if estado == 'Confirmado':
 				#frameNP = cv2.rectangle(frameNP, (x,y),(x+w-1, y+h-1),(0,0,255),1)
-				frameNP = cv2.circle(frameNP, (x,y), h+w, (0,0,255), 1)
+				frameNP = cv2.circle(frameNP, (x,y), r, (0,0,255), 1)
 			elif estado == 'Cruzo':
 				#frameNP = cv2.rectangle(frameNP, (x,y),(x+w-1, y+h-1),(0,255,0),1)
-				frameNP = cv2.circle(frameNP, (x,y), h+w, (0,255,0), 1)
+				frameNP = cv2.circle(frameNP, (x,y), r, (0,255,0), 1)
 			elif estado == 'Referencia':
 				#frameNP = cv2.rectangle(frameNP, (x,y),(x+w-1, y+h-1),(0,0,0),1)
-				frameNP = cv2.circle(frameNP, (x,y), h+w, (0,0,0), 1)
+				frameNP = cv2.circle(frameNP, (x,y), r, (0,0,0), 1)
 			else:
 				#frameNP = cv2.rectangle(frameNP, (x,y),(x+w-1, y+h-1),self.paletaColores[self.ultimoColor],1)
-				frameNP = cv2.circle(frameNP, (x,y), h+w, self.paletaColores[self.ultimoColor], 1)
+				frameNP = cv2.circle(frameNP, (x,y), r, self.paletaColores[self.ultimoColor], 1)
 				
 			frameNP = cv2.circle(frameNP, (x+w//2,y+h//2),2,(0,255,0),-1)
 		xSem = int(self.poligonos[0][0][0] -5)

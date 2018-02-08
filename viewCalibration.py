@@ -41,27 +41,6 @@ tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
 
 conVideoGrabado = False
 
-def obtenerIndicesSemaforo(poligono640):
-	punto0 = poligono640[0]
-	punto1 = poligono640[1]
-	punto2 = poligono640[2]
-	punto3 = poligono640[3]
-
-	vectorHorizontal = punto3 - punto0
-	vectorVertical = punto1 - punto0
-	pasoHorizontal = vectorHorizontal/8
-	pasoVertical = vectorVertical/24
-
-	indices = []
-
-	for j in range(24):
-		for i in range(8):
-			indices.append((punto0+i*pasoHorizontal+j*pasoVertical).tolist())
-	#print('len of indices', len(indices))
-	#print('single index', indices[0])
-	indices = [[round(x[0]),round(x[1])] for x in indices]
-	return indices
-
 def __main_function__():
 	# Import some global varialbes
 	global archivoDeVideo
@@ -90,6 +69,7 @@ def __main_function__():
 	parametrosInstalacion = np.load(folderDeInstalacion+'/'+archivoParametrosACargar)
 	
 	indicesSemaforo = parametrosInstalacion[0]
+	poligonoSemaforo = np.array([indicesSemaforo[0],indicesSemaforo[183],indicesSemaforo[191],indicesSemaforo[7]])
 	verticesPartida = parametrosInstalacion[1]
 	verticesLlegada = parametrosInstalacion[2]
 	verticesDerecha = parametrosInstalacion[3]
@@ -132,7 +112,7 @@ def __main_function__():
 		print('No se pudo capturar la imagen de 8 Mp')
 
 	frameFlujo = cv2.resize(frameVideo,(320,240))
-	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,8,directorioDeReporte,False)
+	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,verticesDerecha,verticesIzquierda,8,directorioDeReporte,False,flujoAntiguo = False)
 
 	miSemaforo = CreateSemaforo(0)
 
@@ -157,6 +137,8 @@ def __main_function__():
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
 	miAcetatoInformativo.colocarPoligono(np.array(verticesPartida))
 	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))
+	miAcetatoInformativo.colocarPoligono(np.array(verticesDerecha))
+	miAcetatoInformativo.colocarPoligono(np.array(verticesIzquierda))
 	miAcetatoInformativo.colocarPoligono(miPoliciaReportando.areaFlujo)
 	miAcetatoInformativo.colocarPoligono(miPoliciaReportando.carrilValido)
 	miAcetatoInformativo.colocarObjeto(miPoliciaReportando.obtenerLineasDeResguardo(True),'Referencia')

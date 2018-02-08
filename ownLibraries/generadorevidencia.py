@@ -51,12 +51,13 @@ class GeneradorEvidencia():
 
 	def generarReporteEnVideoDe(self,informacionTotal,infraccion,debug = False):
 		nombreInfraccion = infraccion['name']
+		estado = infraccion['infraccion']
 		directorioActual = self.carpetaDeReporteActual + '/'+nombreInfraccion
 		if not os.path.exists(directorioActual):
 			os.makedirs(directorioActual)
 		inicio = infraccion['frameInicial'] - self.ventana
 		final = infraccion['frameFinal'] + self.ventana
-		self.generarVideo(informacionTotal,infraccion['name'],directorioActual,'video',inicio,final,infraccion['observacion'])
+		self.generarVideo(informacionTotal,estado+'_'+infraccion['name'],directorioActual,'video',inicio,final,infraccion['observacion'])
 		#if debug:
 		#	self.generarVideo(informacionTotal,infraccion['name'],directorioActual,'debug',inicio,final,infraccion['observacion'])
 
