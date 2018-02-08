@@ -198,8 +198,8 @@ class Observer(multiprocessing.Process):
 				folders_queue 		= np.load(Observer.path_to_tasks_deque)
 			except:
 				print('Bussy np.load(), passing...')
-					queu = collections.deque(maxlen=2)
-					np.save(Observer.path_to_tasks_deque, queu)
+				queu = collections.deque(maxlen=2)
+				np.save(Observer.path_to_tasks_deque, queu)
 
 			try:
 				path_image_workdir = self.input_q.get(timeout=5)
