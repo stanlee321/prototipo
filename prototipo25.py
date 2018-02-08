@@ -39,7 +39,7 @@ entradaReal = 'en tiempo real '													# Complementario
 periodoDeSemaforo = 0
 topeEjecucion = 0
 semaforoSimuladoTexto = 'real '
-miRegion = False
+oldFlow = False
 
 generarArchivosDebug = False
 mostrarImagen = False
@@ -114,13 +114,14 @@ def __main_function__():
 	
 	parametrosInstalacion = np.load(folderDeInstalacion+'/'+archivoParametrosACargar)
 	miReporte.info('Datos de Instalacion de: '+folderDeInstalacion+'/'+archivoParametrosACargar)
+
 	indicesSemaforo = parametrosInstalacion[0]
 	poligonoSemaforo = np.array([indicesSemaforo[0],indicesSemaforo[183],indicesSemaforo[191],indicesSemaforo[7]])
 	verticesPartida = parametrosInstalacion[1]
 	verticesLlegada = parametrosInstalacion[2]
 	verticesDerecha = parametrosInstalacion[3]
 	verticesIzquierda = parametrosInstalacion[4]
-	angulo = parametrosInstalacion[5]
+	angulo = parametrosInstalacion[5][0]
 	poligonoEnAlta = parametrosInstalacion[6]
 
 	miReporte.info('Cargado exitosamente parametros de instalacion ')#+str(parametrosInstalacion))
@@ -151,7 +152,7 @@ def __main_function__():
 		trabajoConPiCamara = True
 	else:
 		trabajoConPiCamara = False
-	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,mifps,directorioDeReporte,generarArchivosDebug,flujoRegion = miRegion)
+	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,verticesDerecha,verticesIzquierda,mifps,directorioDeReporte,generarArchivosDebug,flujoAntiguo = oldFlow,anguloCarril = angulo)
 	
 	miFiltro = IRSwitch()
 	miFiltro.paralelizar()
@@ -162,6 +163,8 @@ def __main_function__():
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
 	miAcetatoInformativo.colocarPoligono(np.array(verticesPartida))
 	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))
+	miAcetatoInformativo.colocarPoligono(np.array(verticesDerecha))
+	miAcetatoInformativo.colocarPoligono(np.array(verticesIzquierda))
 	miAcetatoInformativo.colocarPoligono(miPoliciaReportando.carrilValido)
 	miAcetatoInformativo.establecerLogo(directorioDeLogo+'/dems.png')
 
@@ -208,21 +211,24 @@ def __main_function__():
 				if flanco == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
 					miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(periodo)+' a '+datetime.datetime.now().strftime('%Y%m%d_%H%M'))
 					cruce = miPoliciaReportando.estadoActual['cruzo']
-					giro = miPoliciaReportando.estadoActual['giro']
+					salio = miPoliciaReportando.estadoActual['salio']
+					derecha = miPoliciaReportando.estadoActual['derecha']
+					izquierda = miPoliciaReportando.estadoActual['izquierda']
 					infraccion = miPoliciaReportando.estadoActual['infraccion']
 					otro = miPoliciaReportando.estadoActual['ruido']
-					vectorDeInicio = [[datetime.datetime.now(),periodo,cruce,giro,infraccion,otro]]
+					vectorDeInicio = [[datetime.datetime.now(),periodo,infraccion,cruce,derecha,izquierda,salio,otro]]
 					if os.path.isfile(reporteDiario):
 						np.save(reporteDiario,np.append(np.load(reporteDiario),vectorDeInicio,0))
 					else:
 						np.save(reporteDiario,vectorDeInicio)
-					miReporte.info(	'GLOBAL STATE: p:'+str(miPoliciaReportando.estadoActual['previo'])+
-									', c:'+str(miPoliciaReportando.estadoActual['cruzo'])+
-									', g:'+str(miPoliciaReportando.estadoActual['giro'])+
-									', i:'+str(miPoliciaReportando.estadoActual['infraccion']))
+					miReporte.info(	'GLOBAL STATE: prev:'+str(miPoliciaReportando.estadoActual['previo'])+
+									', cru:'+str(miPoliciaReportando.estadoActual['cruzo'])+
+									', der:'+str(miPoliciaReportando.estadoActual['derecha'])+
+									', izq:'+str(miPoliciaReportando.estadoActual['izquierda'])+
+									', out:'+str(miPoliciaReportando.estadoActual['salio'])+
+									', inf:'+str(miPoliciaReportando.estadoActual['infraccion']))
 					miPoliciaReportando.reestablecerEstado()
 
-					#miPoliciaReportando.reportarTodasInfraccionesEnUno()
 				miPoliciaReportando.reportarPasoAPaso(historial)
 	
 				if generarArchivosDebug:
@@ -352,7 +358,7 @@ if __name__ == '__main__':
 			mifps = int(input[:-3])
 		if input =='Kill':
 			topeEjecucion = int(input[:-1])
-		if input == 'Region':
-			miRegion = True
+		if input == 'Old':
+			oldFlow = True
 
 	__main_function__()

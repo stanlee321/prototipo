@@ -90,6 +90,7 @@ def __main_function__():
 	parametrosInstalacion = np.load(folderDeInstalacion+'/'+archivoParametrosACargar)
 	
 	indicesSemaforo = parametrosInstalacion[0]
+	poligonoSemaforo = np.array([indicesSemaforo[0],indicesSemaforo[183],indicesSemaforo[191],indicesSemaforo[7]])
 	verticesPartida = parametrosInstalacion[1]
 	verticesLlegada = parametrosInstalacion[2]
 	verticesDerecha = parametrosInstalacion[3]
@@ -132,7 +133,7 @@ def __main_function__():
 		print('No se pudo capturar la imagen de 8 Mp')
 
 	frameFlujo = cv2.resize(frameVideo,(320,240))
-	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,8,directorioDeReporte,False)
+	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,verticesDerecha,verticesIzquierda,8,directorioDeReporte,False,flujoRegion = False)
 
 	miSemaforo = CreateSemaforo(0)
 
@@ -157,6 +158,8 @@ def __main_function__():
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
 	miAcetatoInformativo.colocarPoligono(np.array(verticesPartida))
 	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))
+	miAcetatoInformativo.colocarPoligono(np.array(verticesDerecha))
+	miAcetatoInformativo.colocarPoligono(np.array(verticesIzquierda))
 	miAcetatoInformativo.colocarPoligono(miPoliciaReportando.areaFlujo)
 	miAcetatoInformativo.colocarPoligono(miPoliciaReportando.carrilValido)
 	miAcetatoInformativo.colocarObjeto(miPoliciaReportando.obtenerLineasDeResguardo(True),'Referencia')

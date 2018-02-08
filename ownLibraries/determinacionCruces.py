@@ -26,7 +26,7 @@ class PoliciaInfractor():
 	Tambien se encarga de crear los objetos Vehiculos que pueden estar en estado cruce o infraccion
 	También se encarga de proveer el estado actual del infractor
 	"""
-	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada,mifps = 8,directorioDeReporte=os.getenv('HOME')+'/'+datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte',debug = False,flujoRegion = False):
+	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada,poligonoDerecha,poligonoIzquierda,mifps = 8,directorioDeReporte=os.getenv('HOME')+'/'+datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte',debug = False,flujoAntiguo = False, anguloCarril = 0):
 		# Tomo la imagen de inicialización y obtengo algunas caracteristicas de la misma
 		self.directorioDeReporte = directorioDeReporte
 		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)
@@ -38,11 +38,15 @@ class PoliciaInfractor():
 		self.imagenAuxiliar = cv2.cvtColor(imagenParaInicializar, cv2.COLOR_BGR2GRAY)
 		self.areaDeResguardo = np.array(poligonoPartida)
 		self.areaDeConfirmacion = np.array(poligonoLlegada)
+		self.areaDeGiroDerecha = np.array(poligonoDerecha)
+		self.areaDeGiroIzquierda = np.array(poligonoIzquierda)
+		self.anguloCarril = -anguloCarril
+		self.desplazamiento = np.array([8*math.cos(self.anguloCarril),8*math.sin(self.anguloCarril)])
 
 		# CONDICIONES DE DESCARTE
 		# En si un punto sale del carril valido (ensanchado debidamente) se descarta el punto individual
-		self.carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
-		self.carrilValido = self.ensancharCarrilValido(self.carrilValido)
+		
+		self.carrilValido = self.generarCarrilValido(poligonoPartida,poligonoLlegada,poligonoDerecha,poligonoIzquierda)
 		self.maximoNumeroFramesParaDescarte = 80
 		self.numeroDePuntosASeguirDeInicializacion = 4
 
@@ -62,10 +66,10 @@ class PoliciaInfractor():
 		vectorParalelo = self.lineaDePintadoLK[1] - self.lineaDePintadoLK[0]
 		self.vectorParaleloUnitario = (vectorParalelo)/self.tamanoVector(vectorParalelo)
 		self.vectorPerpendicularUnitario = np.array([self.vectorParaleloUnitario[1],-self.vectorParaleloUnitario[0]])
-		self.numeroDePuntos = 21
-		self.flujoRegion = False
-		if flujoRegion == True:
-			self.flujoRegion = True
+		self.numeroDePuntos = 15
+		self.flujoAntiguo = False
+		if flujoAntiguo == True:
+			self.flujoAntiguo = True
 			self.numeroDePuntos = 9
 		self.stepX = ditanciaEnX/self.numeroDePuntos
 		self.stepY = ditanciaEnY/self.numeroDePuntos
@@ -116,12 +120,13 @@ class PoliciaInfractor():
 		self.miGrabadora.nuevoDia()
 		self.reestablecerEstado()
 
-	def ensancharCarrilValido(self, carrilValido):
+	def generarCarrilValido(self, poligonoPartida,poligonoLlegada,poligonoDerecha,poligonoIzquierda):
 		# Input type: self.carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
 		# Se modifican los puntos
 		# partida: 0-,3+
 		# llegada: 1+,2-
 		# La matriz de rotacion por un angulo de 15 grados
+		carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
 		self.angulo = 14
 		cos15 = math.cos(self.angulo*math.pi/180)
 		sin15 = math.sin(self.angulo*math.pi/180)
@@ -137,6 +142,26 @@ class PoliciaInfractor():
 		carrilValido[3]=llegada1_p3
 		carrilValido[4]=llegada1_p4
 		carrilValido[7]=llegada1_p7
+
+		# Hasta este punto se obtiene el carril valido simplemente ensanchado
+		# Ahora concatenamos con los puntos de llegada a Derecha e Izquierda
+
+		carrilValido = np.array([	carrilValido[0],
+									carrilValido[1],
+									carrilValido[2],
+									carrilValido[3],
+									poligonoDerecha[2],
+									poligonoDerecha[3],
+									poligonoDerecha[0],
+									poligonoDerecha[1],
+									carrilValido[4],
+									carrilValido[5],
+									carrilValido[6],
+									carrilValido[7],
+									poligonoIzquierda[2],
+									poligonoIzquierda[3],
+									poligonoIzquierda[0],
+									poligonoIzquierda[1]])
 
 		return carrilValido
 
@@ -192,22 +217,11 @@ class PoliciaInfractor():
 		arrayAuxiliarParaVelocidad, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaFijaDelantera, None, **self.lk_params)
 		self.lineaDeResguardoAlteradaDelantera = arrayAuxiliarParaVelocidad
 		
-		if self.flujoRegion:
-			velocidadEnBrutoRegion = self.obtenerMagnitudMovimientoEnRegion(self.miPerspectiva.transformarAMitad(imagenActualEnGris))
-			velocidadFiltradaRegion, pulsoVehiculosRegion = self.miFiltro.obtenerOndaFiltrada(velocidadEnBrutoRegion)
-			if pulsoVehiculosRegion == 1:
-				print('########## Capturado por region ##########')
-			velocidadFiltrada = velocidadFiltradaRegion
-			pulsoVehiculos = pulsoVehiculosRegion
-			velocidadEnBruto = velocidadEnBrutoRegion
+		if self.flujoAntiguo:
+			velocidadEnBruto = self.obtenerMagnitudMovimientoEnRegion(self.miPerspectiva.transformarAMitad(imagenActualEnGris))
 		else:
-			velocidadEnBrutoLinea = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,self.lineaDeResguardoAlteradaDelantera)
-			velocidadFiltradaLinea, pulsoVehiculosLinea = self.miFiltro.obtenerOndaFiltrada(velocidadEnBrutoLinea)
-			if pulsoVehiculosLinea == 1:
-				print('########## Capturado por linea ##########')
-			velocidadFiltrada = velocidadFiltradaLinea
-			pulsoVehiculos = pulsoVehiculosLinea
-			velocidadEnBruto = velocidadEnBrutoLinea
+			velocidadEnBruto = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,self.lineaDeResguardoAlteradaDelantera)
+		velocidadFiltrada, pulsoVehiculos = self.miFiltro.obtenerOndaFiltrada(velocidadEnBruto)
 
 		# Se evoluciona el resto de vehiculos solo si son 'Previo'
 		for infraccion in self.listaVehiculos:
@@ -223,12 +237,12 @@ class PoliciaInfractor():
 				# Si ya no hay puntos que seguir el anterior retorna NoneType, se determina como Giro,
 				NoneType = type(None)
 				if type(nuevaPosicionVehiculo) == NoneType:
-					infraccion['estado'] = 'Giro'
+					infraccion['estado'] = 'Salio'
 					if infraccion['infraccion'] == 'candidato':
 						infraccion['infraccion'] = ''
 						self.eliminoCarpetaDeSerNecesario(infraccion)
 						# VALIDO SOLO PARA GIRO CONTROLADO POR SEMAFORO A PARTE
-					self.estadoActual['giro'] += 1
+					self.estadoActual['salio'] += 1
 					break
 				# DESCARTE INDIVIDUAL POR PUNTO
 				# Se descarta puntos individualmente, si un punto esta en el borde del frame o fuera de el entonces se lo mantiene congelado
@@ -247,6 +261,8 @@ class PoliciaInfractor():
 				# Si es candidato y algun punto llego al final se confirma
 				indicesValidos = []
 				puntosQueLlegaron = 0
+				puntosQueGiraronDerecha = 0
+				puntosQueGiraronIzquierda = 0
 
 				for indiceVector in range(len(nuevaPosicionVehiculo)):
 					# Para cada indice
@@ -259,6 +275,10 @@ class PoliciaInfractor():
 					# Confirmo la llegada de uno
 					if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:	# Si esta dentro del espacio de llegada se confirma
 						puntosQueLlegaron += 1
+					if cv2.pointPolygonTest(self.areaDeGiroDerecha,(xTest, yTest ),True)>=0:	# Si esta dentro del espacio de llegada se confirma
+						puntosQueGiraronDerecha += 1
+					if cv2.pointPolygonTest(self.areaDeGiroIzquierda,(xTest, yTest ),True)>=0:	# Si esta dentro del espacio de llegada se confirma
+						puntosQueGiraronIzquierda += 1
 					
 					if puntosQueLlegaron >= 2:
 						# Si llego al otro extremo, entonces cruzo:
@@ -271,7 +291,35 @@ class PoliciaInfractor():
 							infraccion['infraccion'] = 'CAPTURADO'
 							self.estadoActual['infraccion'] += 1
 						
-						self.miReporte.info(infraccion['infraccion']+'\t'+infraccion['estado']+' con nombre '+infraccion['name']+' ('+str(infraccion['frameInicial'])+'-'+str(infraccion['frameFinal'])+')')
+						self.miReporte.info(infraccion['infraccion']+'\t'+infraccion['estado']+' a horas '+infraccion['name']+' ('+str(infraccion['frameInicial'])+'-'+str(infraccion['frameFinal'])+')')
+						break
+
+					if puntosQueGiraronDerecha >= 2:
+						# Si llego al otro extremo, entonces cruzo:
+						infraccion['estado'] = 'Giro derecha'
+						self.estadoActual['derecha'] += 1
+						infraccion['frameFinal'] = numeroDeFrame
+						# Si era candidato y esta llegando en rojo o amarillo
+						# ESTO DESCARTA LAS LLEGADAS EN VERDE # Anulado por mala intensión
+						if (infraccion['infraccion'] == 'candidato'):#&(colorSemaforo>=1):
+							infraccion['infraccion'] = 'CAPTURADO_DERECHA'
+							self.estadoActual['infraccion'] += 1
+						
+						self.miReporte.info(infraccion['infraccion']+'\t'+infraccion['estado']+' a horas '+infraccion['name']+' ('+str(infraccion['frameInicial'])+'-'+str(infraccion['frameFinal'])+')')
+						break
+
+					if puntosQueGiraronIzquierda >= 2:
+						# Si llego al otro extremo, entonces cruzo:
+						infraccion['estado'] = 'Giro izquierda'
+						self.estadoActual['izquierda'] += 1
+						infraccion['frameFinal'] = numeroDeFrame
+						# Si era candidato y esta llegando en rojo o amarillo
+						# ESTO DESCARTA LAS LLEGADAS EN VERDE # Anulado por mala intensión
+						if (infraccion['infraccion'] == 'candidato'):#&(colorSemaforo>=1):
+							infraccion['infraccion'] = 'CAPTURADO_IZQUIERDA'
+							self.estadoActual['infraccion'] += 1
+						
+						self.miReporte.info(infraccion['infraccion']+'\t'+infraccion['estado']+' a horas '+infraccion['name']+' ('+str(infraccion['frameInicial'])+'-'+str(infraccion['frameFinal'])+')')
 						break
 				# Se continuara solamente con los puntos validos
 				infraccion['desplazamiento'] = nuevaPosicionVehiculo[indicesValidos]
@@ -281,7 +329,7 @@ class PoliciaInfractor():
 			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,self.lineaDeResguardoAlteradaDelantera,informacion)
 			
 			# Cada vehiculo tiene un numbre que biene a xer ela fecja y hora de la infracción en cuestion
-			nombreInfraccionYFolder = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+			nombreInfraccionYFolder = datetime.datetime.now().strftime('%H-%M-%S') # Eliminada redundancia en nombre de archivo %Y-%m-%d_
 
 			# CREACION NUEVO VEHICULO
 			nuevoVehiculo = {	'name':nombreInfraccionYFolder,
@@ -318,7 +366,9 @@ class PoliciaInfractor():
 	def reestablecerEstado(self):
 		self.estadoActual =   { 'previo':0,
 								'cruzo':0,
-								'giro':0,
+								'salio':0,
+								'derecha':0,
+								'izquierda':0,
 								'ruido':0,
 								'infraccion':0,
 								'infraccionAmarillo':0,
@@ -339,7 +389,10 @@ class PoliciaInfractor():
 		return contadorInfracciones
 
 	def reportarPasoAPaso(self,historial):
-		self.listaVehiculos = [vehiculosPendientes for vehiculosPendientes in self.listaVehiculos if vehiculosPendientes['estado']=='Previo' or vehiculosPendientes['infraccion']=='CAPTURADO']
+		"""
+		Este metodo reporta un caso a la vez de existir el mismo en la base de datos de infracciones
+		"""
+		self.listaVehiculos = [vehiculosPendientes for vehiculosPendientes in self.listaVehiculos if vehiculosPendientes['estado']=='Previo' or vehiculosPendientes['infraccion']=='CAPTURADO' or vehiculosPendientes['infraccion']=='CAPTURADO DERECHA' or vehiculosPendientes['infraccion']=='CAPTURADO IZQUIERDA']
 		listaInfracciones = [infraccion for infraccion in self.listaVehiculos if infraccion['infraccion']=='CAPTURADO']
 		# Los cruces siguen evolucionando
 		# Las infracciones en calidad de 'CAPTURADO' son generadas en video
@@ -356,9 +409,6 @@ class PoliciaInfractor():
 		if len(historial)> self.minimosFramesVideoNormalDebug:
 			#self.miGrabadora.generarReporteInfraccion(historial, True,debug = self.reportarDebug)
 			self.miGrabadora.generarVideoDebugParaPruebas(historial)
-
-	def reportarTodasInfraccionesEnUno(self):
-		listaInfracciones = [infraccion for infraccion in self.listaVehiculos if infraccion['infraccion']=='CAPTURADO']
 
 	def eliminoCarpetaDeSerNecesario(self,infraccion):
 		try: 
@@ -436,7 +486,12 @@ class PoliciaInfractor():
 			indiceDeMayores.append(indice)
 			dif2.pop(indice)
 
-		return nuevoVector[indiceDeMayores] #np.array([[nuevoVector[indiceDeMayores[0]][0]],[nuevoVector[indiceDeMayores[1]][0]],[nuevoVector[indiceDeMayores[2]][0]]])
+		listaNuevosPuntos = np.array(nuevoVector[indiceDeMayores])
+		
+		for indice in range(len(listaNuevosPuntos)):
+			listaNuevosPuntos[indice][0] = listaNuevosPuntos[indice][0] + self.desplazamiento
+
+		return listaNuevosPuntos #np.array([[nuevoVector[indiceDeMayores[0]][0]],[nuevoVector[indiceDeMayores[1]][0]],[nuevoVector[indiceDeMayores[2]][0]]])
 			
 
 	def obtenerMagnitudMovimiento(self,vectorAntiguo, nuevoVector):
