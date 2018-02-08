@@ -152,7 +152,7 @@ class Real(multiprocessing.Process):
 		self.filter_deque = collections.deque(maxlen=10)
 		self.filter_deque.append(self.actual_state)
 
-		self.raw_states = collections.deque(maxlen=30)
+		self.raw_states = collections.deque(maxlen=2)
 		self.raw_states.append(self.actual_state)
 		self.flanco = 0
 
@@ -161,6 +161,12 @@ class Real(multiprocessing.Process):
 		self.tiempoParaPeriodo 		= time.time()
 		self.ultimoPeriodo 			= time.time() - self.tiempoParaPeriodo
 		self.maximoTiempoPeriodo	= 150			# 2 minutos y medio sera el timeout para determinar que no se esta viendo semaforo
+		self.collection_periodos = collections.deque(maxlen=10)
+		self.periodos_dict = {'verde':[], 'else':[]}
+
+		self.mean_values = {'verde': float, 'else':float}
+		self.std_values  = {'verde': float, 'else':float}
+
 
 	@staticmethod
 	def reader(plain_img):
@@ -223,7 +229,7 @@ class Real(multiprocessing.Process):
 		# END SVM PART (CLASSIFICATION) ML PROCESS
 		###########################
 		# Return prediction from SVM
-		print('prediction is', Y)
+		#print('prediction is', Y)
 		if   Y == 'green':
 			return 1
 		else:
@@ -234,34 +240,34 @@ class Real(multiprocessing.Process):
 
 
 		Y = self.find_color(imagen)
+		periodoAMostrar = 0
 
 		#self.raw_states.append(colorPrediction)
 		
-
 		color_prediction = self.idx_to_str[Y]
-
-
-		#try:
-		#	A,B,C,D = self.filter()
-		#	return A,B,C,D
-		#except:
-		return color_prediction
-
-		#return -1,'None', 1,1
-		"""
-		self.actual_state = state #self.filter_deque[0]
-		# Check the actual states.
-		if  self.actual_state == 0:
-			literalColour = 'verde'
-		elif self.actual_state == 1:
-			literalColour = 'rojo'
-		elif self.actual_state == 2:
-			literalColour = 'amarillo'
-		else:
-			literalColour = 'No hay Semaforo'
+		self.raw_states.append(color_prediction)
 		self.checkflanco()
-		"""
-		#return self.actual_state, literalColour, self.flanco
+		if self.flanco == 1:
+			periodoAMostrar 	   = self.ultimoPeriodo
+			self.tiempoParaPeriodo = time.time()
+			self.periodos_dict[color_prediction].append(periodoAMostrar)
+			print(self.periodos_dict)
+			self.mean_values[color_prediction] = np.mean(self.periodos_dict[color_prediction])#np.sum(self.periodos_dict[color_prediction])/len(self.periodos_dict[color_prediction])
+			self.std_values[color_prediction]  = np.std(self.periodos_dict[color_prediction])
+			#self.mean_values[color_prediction] = len(self.periodos_dict[color_prediction])/(np.sum(1/np.sum(self.periodos_dict[color_prediction])))
+
+			print('MEAN VALUES ARE:', self.mean_values)
+			print('STD VALUES ARE:', self.std_values)
+
+			#ultimo_value = self.periodos_dict[color_prediction][-1] 
+
+			#if  ultimo_value - 1 <= ultimo_value <= ultimo_value +1:
+
+			#	print('STILL IN THRESS,:', ultimo_value)
+
+		self.ultimoPeriodo = time.time() - self.tiempoParaPeriodo
+
+		return color_prediction, self.flanco, periodoAMostrar
 		
 
 	def checkflanco(self):
@@ -271,11 +277,7 @@ class Real(multiprocessing.Process):
 		#
 		if current == past:
 			self.flanco = 0
-		elif current == 3 and past == 2:
-			self.flanco = 1	
-		elif current == 1 and past == 3:
-			self.flanco = -1
-		elif current == 2 and past == 1:
+		elif current !=  past:
 			self.flanco = 1
 		else:
 			print('No match found, current: {},  past: {}, returning 0'.format(current, past))
@@ -387,9 +389,9 @@ class Real(multiprocessing.Process):
 		while True:
 			imagen = self.input_q.get(timeout=1)
 			#color, literal_color, flanco, period = self.prediction(imagen)
-			color_prediction = self.prediction(imagen)
+			color_prediction, flanco, periodoAMostrar = self.prediction(imagen)
 			#self.ouput_q.put([self.actual_state, literal_color, flanco, period])
-			self.ouput_q.put([color_prediction])
+			self.ouput_q.put([color_prediction, flanco, periodoAMostrar])
 
 
 if __name__ == '__main__':
@@ -419,6 +421,7 @@ if __name__ == '__main__':
 		#scipy.misc.imsave(path_to_workdir, cropped)
 		#cv2.rectangle(img,(px0,py0),(px1,py1),(0,255,0),1)
 		data = semaphoro.obtenerColorEnSemaforo(cropped)
+		#print(data)
 		cv2.imshow('Semaphoro', cv2.resize(cropped,(320,240)))
 		#cv2.imshow('Semaphoro', img)
 		ch = 0xFF & cv2.waitKey(5)

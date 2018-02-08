@@ -194,7 +194,13 @@ class Observer(multiprocessing.Process):
 	def run(self):
 		run_camera = np.load(Observer.path_to_run_camera)
 		while run_camera == 1:
-			folders_queue 		= np.load(Observer.path_to_tasks_deque)
+			try:
+				folders_queue 		= np.load(Observer.path_to_tasks_deque)
+			except:
+				print('Bussy np.load(), passing...')
+					queu = collections.deque(maxlen=2)
+					np.save(Observer.path_to_tasks_deque, queu)
+
 			try:
 				path_image_workdir = self.input_q.get(timeout=5)
 				self.circular_buff.appendleft(path_image_workdir)
