@@ -251,11 +251,21 @@ class Real(multiprocessing.Process):
 			periodoAMostrar 	   = self.ultimoPeriodo
 			self.tiempoParaPeriodo = time.time()
 			self.periodos_dict[color_prediction].append(periodoAMostrar)
-			print(self.periodos_dict)
-			self.mean_values[color_prediction] = np.mean(self.periodos_dict[color_prediction])#np.sum(self.periodos_dict[color_prediction])/len(self.periodos_dict[color_prediction])
-			self.std_values[color_prediction]  = np.std(self.periodos_dict[color_prediction])
-			#self.mean_values[color_prediction] = len(self.periodos_dict[color_prediction])/(np.sum(1/np.sum(self.periodos_dict[color_prediction])))
+			self.mean_values[color_prediction] = np.mean(self.periodos_dict[color_prediction][0:-1])#np.sum(self.periodos_dict[color_prediction])/len(self.periodos_dict[color_prediction])
+			self.std_values[color_prediction]  = np.std(self.periodos_dict[color_prediction][0:-1])
 
+			candidato = {'prediction': color_prediction, periodo_anterior[]}
+
+			try:
+				maximun_in_verde = np.max(self.mean_values['verde'])
+				maximun_in_else  = np.max(self.mean_values['else'])
+
+				periodo_amarillo = maximun_in_else  -  maximun_in_verde
+				print('Periodo amarillo must be', periodo_amarillo) 
+
+			except:
+				pass
+			print('COLOR', color_prediction)
 			print('MEAN VALUES ARE:', self.mean_values)
 			print('STD VALUES ARE:', self.std_values)
 
