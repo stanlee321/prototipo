@@ -303,13 +303,15 @@ class Real(multiprocessing.Process):
 				if self.raw_states[-2] == 'verde' and self.raw_states[-1] == 'else':
 					# TRANSITION FROM  verde to else
 					self.local_previous_state = 'verde'
-					self.local_actual_state   = 'amarillo'				
-					print('>>>>>>>>>>>>>>>>>>>>>>>>><counter inside is:{}, periodo_amarillo ist:{}'.format(periodo_a_mostrar_amarillo, round(periodo_amarillo)))
+					self.local_actual_state   = 'amarillo'	
+					print('INgrasandoa countdown..')			
+					#print('>>>>>>>>>>>>>>>>>>>>>>>>><counter inside is:{}, periodo_amarillo ist:{}'.format(periodo_a_mostrar_amarillo, round(periodo_amarillo)))
 					#if  periodo_a_mostrar_amarillo >= round(periodo_amarillo): #t1 >= periodo_amarillo:
+					
 					Real.countdown(round(periodo_amarillo))
 					# start rojo periodo:
 					self.local_previous_state 	= 'amarillo'
-					self.local_actual_state 	='rojo'
+					self.local_actual_state 	= 'rojo'
 
 				if self.raw_states[-2] == 'else' and self.raw_states[-1] == 'verde':
 					# TRANSITION FROM  else to verde
@@ -337,18 +339,27 @@ class Real(multiprocessing.Process):
 			pass
 		#print('actual raw_states', self.periodos_dict)
 		#print('RPincipal shard', self.principal_shard)
-		print('COLOR'			, self.local_actual_state)
-		print('MEAN VALUES ARE:', self.mean_values)
-		print('STD VALUES ARE:', self.std_values)
+		#print('COLOR'			, self.local_actual_state)
+		#print('MEAN VALUES ARE:', self.mean_values)
+		#print('STD VALUES ARE:', self.std_values)
 		
-
+		try:
+			print(self.local_actual_state, self.flanco, periodo_amarillo)
+		except Exception as e:
+			print(e)
 		#ultimo_value = self.periodos_dict[color_prediction][-1] 
 
 		#if  ultimo_value - 1 <= ultimo_value <= ultimo_value +1:
 
 		#	print('STILL IN THRESS,:', ultimo_value)
 
-		self.ultimoPeriodo = time.time() - self.tiempoParaPeriodo
+		#self.ultimoPeriodo = time.time() - self.tiempoParaPeriodo
+
+
+		try:
+			color_prediction = self.local_actual_state
+		except:
+			pass
 
 		return color_prediction, self.flanco, periodoAMostrar
 		
@@ -367,7 +378,7 @@ class Real(multiprocessing.Process):
 
 	@staticmethod
 	def _checkflanco_full(current, past):
-		print('flancos are,', current, past)
+		#print('flancos are,', current, past)
 		#
 		# Compare the current and pass colors to set self.flanco value 
 		#
@@ -522,7 +533,7 @@ if __name__ == '__main__':
 		#scipy.misc.imsave(path_to_workdir, cropped)
 		#cv2.rectangle(img,(px0,py0),(px1,py1),(0,255,0),1)
 		data = semaphoro.obtenerColorEnSemaforo(cropped)
-		#print(data)
+		print(data)
 		cv2.imshow('Semaphoro', cv2.resize(cropped,(320,240)))
 		#cv2.imshow('Semaphoro', img)
 		ch = 0xFF & cv2.waitKey(5)

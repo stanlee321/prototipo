@@ -6,7 +6,6 @@ import numpy as np
 import time
 class BGSUBCNT():
 	def __init__(self):
-		
 		##### BG part
 			# (3, False, 3*15) are parameters to adjust the bgsub behavior
 		# first parameter : Number of frames until the bg "rememver the differences"
@@ -106,18 +105,18 @@ if __name__ == '__main__':
 	import cv2
 	import os
 	# construct the argument parse and parse the arguments
-	#ap = argparse.ArgumentParser()
-	#ap.add_argument("-v", "--video", default=0, help="path to input video file", type= str)
-	#args = vars(ap.parse_args())
+	ap = argparse.ArgumentParser()
+	ap.add_argument("-v", "--video", default=0, help="path to input video file", type= str)
+	args = vars(ap.parse_args())
 
 	print("[INFO] starting video file thread...")
 
 	wHeight = 640
 	wWidth 	= 480
-	
-	path_to_video_test	= os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'trialVideos' +'/' + 'mySquare.mp4'
-	cap 	= cv2.VideoCapture(path_to_video_test)
-	resolution = (wHeight, wWidth)
+	print(args)
+	path_to_video_test	= os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'trialVideos' +'/' + args['video']#'sar.mp4'
+	cap 				= cv2.VideoCapture(path_to_video_test)
+	resolution 			= (wHeight, wWidth)
 	time.sleep(1.0)
 	# start the FPS timer
 	backgroundsub = BGSUBCNT()
