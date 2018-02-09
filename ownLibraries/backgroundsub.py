@@ -108,12 +108,17 @@ if __name__ == '__main__':
 	ap = argparse.ArgumentParser()
 	ap.add_argument("-v", "--video",  default=0,  help="path to input video file", type = str)
 	ap.add_argument("-t", "--thress", default= 5, help="thress to manage the rectangles", type=int)
+	ap.add_argument("-hh", "--height", default = 320, help="inputa resolution", type=int)
+	ap.add_argument("-ww", "--width",  default =  240, help="input resolution", type=int)
+
 	args = vars(ap.parse_args())
 
 	print("[INFO] starting video file thread...")
 
-	wHeight = 640
-	wWidth 	= 480
+	wHeight = args['height']
+	wWidth 	= args['width']
+	print(wHeight ,wWidth )
+	input_res = (wHeight,wWidth)
 	print(args)
 	thresh 				= args['thress']
 	path_to_video_test	= os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'trialVideos' +'/' + args['video']#'sar.mp4'
@@ -129,7 +134,7 @@ if __name__ == '__main__':
 		t1 = time.time()
 		_, img = cap.read()
 		# Feed to BGSUB
-		img 			= cv2.resize(img, (320,240))
+		img 			= cv2.resize(img, input_res)
 		xShape, yShape 	= img.shape[0], img.shape[1]
 		img = cv2.resize(img,(int(xShape/scale), int(yShape/scale)))
 		mask, poligonos_warp = backgroundsub.feedbgsub(img)
