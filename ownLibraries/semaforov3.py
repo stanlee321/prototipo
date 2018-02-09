@@ -87,9 +87,9 @@ class Simulation(multiprocessing.Process):
 		#
 		# Compare the current and pass colors to set self.flanco value 
 		#
-		if current == past:
+		if current == past:					# if actual state = previous_state
 			self.flanco = 0
-		elif current == 3 and past == 2:
+		elif current == 3 and past == 2:	# if current state = 
 			self.flanco = 1	
 		elif current == 1 and past == 3:
 			self.flanco = -1
@@ -118,11 +118,11 @@ class Real(multiprocessing.Process):
 
 		self.path_to_img = os.getenv('HOME') + '/' + 'WORKDIR' + '/' + 'imagen.png'
 
-		if os.path.isfile(path_to_svm_model) and os.path.isfile(self.path_to_img):
+		if os.path.isfile(path_to_svm_model):# and os.path.isfile(self.path_to_img):
 			print ("Using previous model... {}".format(path_to_svm_model))
-			print ("Reading route to imagen.npy... {}".format(self.path_to_img))
+			#print ("Reading route to imagen.npy... {}".format(self.path_to_img))
 			self.svm = pickle.load(open(path_to_svm_model, "rb"))
-			self.imagen_semaphoro_raw = self.path_to_img
+			#self.imagen_semaphoro_raw = self.path_to_img
 		else:
 			print ("No model found in {}, please check the path to the ML model!!".format(path_to_svm_model))
 
@@ -246,28 +246,72 @@ class Real(multiprocessing.Process):
 		
 		color_prediction = self.idx_to_str[Y]
 		self.raw_states.append(color_prediction)
-		self.checkflanco()
+		self._checkflanco_simple()
+
 		if self.flanco == 1:
 			periodoAMostrar 	   = self.ultimoPeriodo
 			self.tiempoParaPeriodo = time.time()
 			self.periodos_dict[color_prediction].append(periodoAMostrar)
+			
 			self.mean_values[color_prediction] = np.mean(self.periodos_dict[color_prediction][0:-1])#np.sum(self.periodos_dict[color_prediction])/len(self.periodos_dict[color_prediction])
 			self.std_values[color_prediction]  = np.std(self.periodos_dict[color_prediction][0:-1])
+			
+
+			if std['verde'] and std['else'] < 1:
+				# calculate the periodos of the three colors:
+				periodo_verde 	 = self.mean_values['verde']
+				periodo_else	 = self.mean_values['else']
+				periodo_amarillo = periodo_else - periodo_verde
+				periodo_rojo 	 = periodo_else - periodo_amarillo
+
+
+				self.actual_state = color_prediction
+				self.principal_shard.append(actual_state)
+
+				if self.raw_states[-2] == 'verde' and self.raw_states[-1] == 'else':
+					# TRANSITION FROM  verde to else
+					self.previous_state = 'verde'
+					self.actual_state  = 'amarillo'
+					t1 = time.time()
+
+					if t1 >= periodo_amarillo:
+						# start rojo periodo:
+						self.previous_state = 'amarillo'
+						self.actual_state ='rojo'
+
+
+				if self.raw_states[-2] == 'else' and self.raw_states[-1] == 'verde':
+					# TRANSITION FROM  else to verde
+					self.previous_state = 'rojo'
+					self.actual_state 	= 'verde'
+
+
+				self.principal_shard.append(self.actual_state)
+
+
+
+				if actual_state == 'verde':
+					previous_state  == 'rojo'
+					flanco 			= Real._checkflanco_full(actual_state, previous_state)
+					return actual_state, flanco, periodo_rojo
+				elif actual_state == 'amarillo':
+					previous_state  == 'verde'
+					flanco 			= Real._checkflanco_full(actual_state, previous_state)
+					return actual_state, flanco, periodo_verde
+				elif actual_state == 'rojo':
+					previous_state  == 'amarillo'
+					flanco 			= Real._checkflanco_full(actual_state, previous_state)
+					return actual_state, flanco, periodo_amarillo
 
 			candidato = {'prediction': color_prediction, periodo_anterior[]}
-
-			try:
-				maximun_in_verde = np.max(self.mean_values['verde'])
-				maximun_in_else  = np.max(self.mean_values['else'])
-
-				periodo_amarillo = maximun_in_else  -  maximun_in_verde
-				print('Periodo amarillo must be', periodo_amarillo) 
+			
 
 			except:
 				pass
-			print('COLOR', color_prediction)
+			print('COLOR'			, color_prediction)
 			print('MEAN VALUES ARE:', self.mean_values)
 			print('STD VALUES ARE:', self.std_values)
+
 
 			#ultimo_value = self.periodos_dict[color_prediction][-1] 
 
@@ -280,7 +324,7 @@ class Real(multiprocessing.Process):
 		return color_prediction, self.flanco, periodoAMostrar
 		
 
-	def checkflanco(self):
+	def _checkflanco_simple(self):
 		past, current = self.raw_states[0], self.raw_states[1]
 		#
 		# Compare the current and pass colors to set self.flanco value 
@@ -291,6 +335,24 @@ class Real(multiprocessing.Process):
 			self.flanco = 1
 		else:
 			print('No match found, current: {},  past: {}, returning 0'.format(current, past))
+
+	@staticmethod
+	def _checkflanco_full(current, past):
+
+		#
+		# Compare the current and pass colors to set self.flanco value 
+		#
+		if current == past:					# if actual state = previous_state
+			flanco = 0
+		elif current == 3 and past == 2:	# if current state = 
+			flanco = 1	
+		elif current == 1 and past == 3:
+			flanco = -1
+		elif current == 2 and past == 1:
+			flanco = 1
+		else:
+			print('No match found, current: {},  past: {}, returning 0',format(current, past))
+
 
 #  R-- G -> Y -> R --G 
 
