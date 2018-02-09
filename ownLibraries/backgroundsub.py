@@ -128,15 +128,15 @@ if __name__ == '__main__':
 	# start the FPS timer
 	backgroundsub = BGSUBCNT(thresh)
 	# loop over frames from the video file stream
-	scale = 10
+	#scale = 10
 	while True:
 		time.sleep(0.03)
 		t1 = time.time()
 		_, img = cap.read()
 		# Feed to BGSUB
 		img 			= cv2.resize(img, input_res)
-		xShape, yShape 	= img.shape[0], img.shape[1]
-		img = cv2.resize(img,(int(xShape/scale), int(yShape/scale)))
+		#xShape, yShape 	= img.shape[0], img.shape[1]
+		#img = cv2.resize(img,(int(xShape/scale), int(yShape/scale)))
 		mask, poligonos_warp = backgroundsub.feedbgsub(img)
 
 
