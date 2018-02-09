@@ -14,12 +14,12 @@ class BGSUBCNT():
 		# thirth parameter : first parameter * FPS excpeted
 
 		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3 * 10) #self.fps
-		self.k = 31
+		self.k = 15
 		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 
 		# Adjust the minimum size of the blog matching contour
-		self.min_contour_width = 30
-		self.min_contour_height = 30
+		self.min_contour_width = 5
+		self.min_contour_height = 5
 
 		# list like to append bounding box where is the moving object
 		self.matches = []
@@ -82,7 +82,6 @@ class BGSUBCNT():
 
 	@staticmethod
 	def distance(x, y, type='euclidian', x_weight=1.0, y_weight=1.0):
-
 		if type == 'euclidian':
 			return math.sqrt(float((x[0] - y[0])**2) / x_weight + float((x[1] - y[1])**2) / y_weight)
 	@staticmethod
@@ -123,25 +122,35 @@ if __name__ == '__main__':
 	# start the FPS timer
 	backgroundsub = BGSUBCNT()
 	# loop over frames from the video file stream
+	scale = 10
 	while True:
+		time.sleep(0.03)
 		t1 = time.time()
 		_, img = cap.read()
 		# Feed to BGSUB
-		img = cv2.resize(img,(int(wHeight/2), int(wWidth/2)))
-
+		img = cv2.resize(img,(int(wHeight/scale), int(wWidth/scale)))
 		mask, poligonos_warp = backgroundsub.feedbgsub(img)
+
+
 		if len(poligonos_warp) > 0:
 			for box in poligonos_warp:
 				rectangle, centroid = box[0], box[1]
 				(x, y, w, h) = rectangle
 				cv2.rectangle(img, (x,y),(x+w-1, y+h-1),(0,0,255),1)
 				cv2.circle(img, centroid,2,(0,255,0),-1)
-		
 
-		imagen = np.hstack([img,mask])
-		
-		cv2.imshow("Frame", imagen)
+		font = cv2.FONT_HERSHEY_SIMPLEX
 
+		#imagen = np.hstack([img,mask])
+
+		shape = img.shape
+		print(shape)
+		px = int(shape[0]*scale)
+		py = int(shape[1]*0.95*scale)
+		cv2.putText(img,str('shape is'+ str(shape)),(px,py), font, 1,(0,255,3),2,cv2.LINE_AA)
+		cv2.imshow("Frame", 	cv2.resize(img,  (640,480)))
+		cv2.imshow('bgresult', 	cv2.resize(mask, (640,480)))
+		#cv2.imshow('Subresults', cv2.resize(img,(0,240)))
 		print('TOOK', time.time() - t1)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):

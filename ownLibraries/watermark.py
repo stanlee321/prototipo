@@ -108,6 +108,7 @@ class WaterMarker():
 				# image, (using an extra dimension for the alpha transparency),
 				# then add the watermark to the overlay in the bottom-right
 				# corner
+				
 				overlay = np.zeros((h, w, 4), dtype="uint8")
 				overlay[h - self.wH - 1200:h - 1200, w - self.wW - 10:w - 10] = self.watermark
 			 
