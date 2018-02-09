@@ -5,20 +5,20 @@ import bgsubcnt
 import numpy as np
 import time
 class BGSUBCNT():
-	def __init__(self):
+	def __init__(self, thresh=5):
 		##### BG part
 			# (3, False, 3*15) are parameters to adjust the bgsub behavior
 		# first parameter : Number of frames until the bg "rememver the differences"
 		# second parameter : Remember Frames until the end?
 		# thirth parameter : first parameter * FPS excpeted
 
-		self.fgbg = bgsubcnt.createBackgroundSubtractor(3, False, 3 * 10) #self.fps
-		self.k = 15
+		self.fgbg 	= bgsubcnt.createBackgroundSubtractor(3, False, 3 * 10) #self.fps
+		self.k 		= 15
 		self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 
 		# Adjust the minimum size of the blog matching contour
-		self.min_contour_width = 5
-		self.min_contour_height = 5
+		self.min_contour_width 	= thresh
+		self.min_contour_height = thresh
 
 		# list like to append bounding box where is the moving object
 		self.matches = []
@@ -106,7 +106,8 @@ if __name__ == '__main__':
 	import os
 	# construct the argument parse and parse the arguments
 	ap = argparse.ArgumentParser()
-	ap.add_argument("-v", "--video", default=0, help="path to input video file", type= str)
+	ap.add_argument("-v", "--video",  default=0,  help="path to input video file", type = str)
+	ap.add_argument("-t", "--thress", default= 5, help="thress to manage the rectangles", type=int)
 	args = vars(ap.parse_args())
 
 	print("[INFO] starting video file thread...")
@@ -114,12 +115,13 @@ if __name__ == '__main__':
 	wHeight = 640
 	wWidth 	= 480
 	print(args)
+	thresh 				= args['thress']
 	path_to_video_test	= os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'trialVideos' +'/' + args['video']#'sar.mp4'
 	cap 				= cv2.VideoCapture(path_to_video_test)
 	resolution 			= (wHeight, wWidth)
 	time.sleep(1.0)
 	# start the FPS timer
-	backgroundsub = BGSUBCNT()
+	backgroundsub = BGSUBCNT(thresh)
 	# loop over frames from the video file stream
 	scale = 10
 	while True:
