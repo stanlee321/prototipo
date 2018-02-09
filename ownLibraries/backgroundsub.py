@@ -127,7 +127,9 @@ if __name__ == '__main__':
 		t1 = time.time()
 		_, img = cap.read()
 		# Feed to BGSUB
-		img = cv2.resize(img,(int(wHeight/scale), int(wWidth/scale)))
+		img 			= cv2.resize(img, (320,240))
+		xShape, yShape 	= img.shape[0], img.shape[1]
+		img = cv2.resize(img,(int(xShape/scale), int(yShape/scale)))
 		mask, poligonos_warp = backgroundsub.feedbgsub(img)
 
 
