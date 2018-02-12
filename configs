@@ -49,6 +49,8 @@ $ cmake -D CMAKE_BUILD_TYPE=RELEASE \
     -D WITH_EIGEN=ON	\
     -D BUILD_EXAMPLES=OFF ..
 
+
+
 // edit swap and increase this to 1024 for compile with multiple cores
 $ sudo nano /etc/dphys-swapfile
 # set size to absolute value, leaving empty (default) then uses computed value
@@ -59,6 +61,9 @@ CONF_SWAPSIZE=1024
 
 $ sudo /etc/init.d/dphys-swapfile stop
 $ sudo /etc/init.d/dphys-swapfile start
+
+$ make -j4
+$ sudo make install
 
 // Added git
 $ sudo apt-get install swig && sudo apt-get install git
