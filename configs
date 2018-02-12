@@ -50,7 +50,7 @@ $ cmake -D CMAKE_BUILD_TYPE=RELEASE \
     -D BUILD_EXAMPLES=OFF ..
 
 // edit swap and increase this to 1024 for compile with multiple cores
-$ nano /etc/dphys-swapfile
+$ sudo nano /etc/dphys-swapfile
 # set size to absolute value, leaving empty (default) then uses computed value
 #   you most likely don't want this, unless you have an special disk situation
 # CONF_SWAPSIZE=100
@@ -60,8 +60,8 @@ CONF_SWAPSIZE=1024
 $ sudo /etc/init.d/dphys-swapfile stop
 $ sudo /etc/init.d/dphys-swapfile start
 
-
-$ sudo apt-get install swig
+// Added git
+$ sudo apt-get install swig && sudo apt-get install git
 $ git clone https://github.com/sagi-z/BackgroundSubtractorCNT.git --single-branch
 $ cd BackgroundSubtractorCNT
 $ mkdir build

@@ -15,3 +15,14 @@ data/
 data
 *.txt
 logs/
+documentation/*.aux
+documentation/*.log
+documentation/*.out
+documentation/*.gz
+documentation/*.tex
+documentation/*.toc
+documentation/*.png
+documentation/*.jpg
+
+
+
