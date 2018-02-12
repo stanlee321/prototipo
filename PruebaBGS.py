@@ -1,15 +1,14 @@
 import numpy as np
 import cv2
-from cutImage import Transform
+from ownLibraries.cutImage import Transform
 import timeit
-from backProve import Detector
+from ownLibraries.backProve import Detector
 lista=[]
-
+nameSource='sar.mp4'
 boxes=[]
-datos=np.load('/home/pi/trafficFlow/prototipo/installationFiles/datos.npy')
+datos=np.load('./installationFiles/sar.npy')
 listaFile=datos[1]
-listaFile1=datos[0]
-listaFile2=datos[2]
+
 print(datos)
 def draw(matches,frame_resized):
 		for (i, match) in enumerate(matches):
@@ -21,7 +20,7 @@ def draw(matches,frame_resized):
 backSub=Detector()
 cutting=Transform(listaFile)
 #cutting=Transform(listaFile)
-cap=cv2.VideoCapture(0)
+cap=cv2.VideoCapture(nameSource)
 while(1):
 		
 	ret, frame=cap.read()
