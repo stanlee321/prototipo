@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 # semaforoFinal.py
-
 import cv2
 import numpy as np
 import os
 import pickle
 import time
-import threading
 import multiprocessing
 import collections
 from collections import Counter
@@ -24,20 +22,25 @@ class Semaphoro():
 		self.ouput_q = multiprocessing.Queue()
 		if periodo > 0:
 			# Case of simulation
-			semaphoro = Simulation(self.input_q, periodo)
-			semaphoro.start()
+			self.semaphoro = Simulation(self.input_q, periodo)
+			self.semaphoro.start()
 		else:
 			# Case real one
-			semaphoro = Real(self.input_q, self.ouput_q)
-			semaphoro.start()
-	def obtenerColorEnSemaforo(self, raw_images):
+			self.semaphoro = Real(self.input_q, self.ouput_q)
+			self.semaphoro.start()
+	def obtenerColorEnSemaforo(self, raw):
+
+		raw_images 	= np.reshape(raw,(24,8,3))
 		self.input_q.put(raw_images)
-		data = self.ouput_q.get()
+		data 		= self.ouput_q.get()
 		#numerico, literal, flanco, period = data[0], data[1], data[2], data[3]
 		#return numerico, literal, flanco, period
 		return data
 	def stop(self):
-		self.p.join()
+		self.semaphoro.join()
+		self.semaphoro.exit()
+
+
 
 class Simulation(multiprocessing.Process):
 	"""docstring for ProcessSimulation"""
@@ -128,7 +131,8 @@ class Real(multiprocessing.Process):
 
 
 		# idx to string
-		self.idx_to_str = {1:'verde', 0:'else'}
+		self.idx_to_str = {0:'verde', 1:'else'}
+		self.str_to_ids = {'verde':0 , 'else': 1, 'amarillo':2, 'rojo': 1 }
 
 		# expected shape of the image_semaphoro_raw (Weidth,Height,Channels)
 		self.SHAPE = (24,8,3)
@@ -139,76 +143,47 @@ class Real(multiprocessing.Process):
 
 		self.periodo = []
 
-		# aux list
-		#self.join_list 	= [0]*10
-		self.littleFilter = [0]*19
-		self.numericoAuxiliar = 0
-
-		self.start_part = collections.deque(maxlen=10)
-		self.mid_part   = collections.deque(maxlen=10)
-		self.end_part  	= collections.deque(maxlen=10)
-
-
 
 		# Periodos
 		self.tiempoParaPeriodo 		= time.time()
 		self.ultimoPeriodo 			= time.time() - self.tiempoParaPeriodo
 
-
-
 		self.tiempo_para_periodo_amarillo 	= time.time()
 		self.ultimo_periodo_amarillo		= time.time() - self.tiempo_para_periodo_amarillo
 
-
-
 		self.maximoTiempoPeriodo	= 150			# 2 minutos y medio sera el timeout para determinar que no se esta viendo semaforo
 
-
-
-		self.collection_periodos = collections.deque(maxlen=10)
-		self.principal_shard     = collections.deque(maxlen=10)	
+		random_number_1 = np.random.random_sample()*100
+		random_number_2 = np.random.random_sample()*100
+		random_number_3 = np.random.random_sample()*100
+		random_number_4 = np.random.random_sample()*100
 
 
 		self.periodos_dict = {'verde':[], 'else':[]}
-		self.mean_values = {'verde': float, 'else':float}
-		self.std_values  = {'verde': float, 'else':float}
+		self.mean_values = {'verde': random_number_1, 'else':random_number_2}
+		self.std_values  = {'verde': random_number_3, 'else':random_number_4}
 
 
 		self.global_actual_state	= str
 		self.global_previous_state	= str
 
-		self.raw_states = collections.deque(maxlen=2)
-		self.raw_states.append(self.global_actual_state)
-		self.flanco = 0
+		self.global_shard    	= collections.deque(maxlen=40)	
 
+
+		self.principal_shard    = collections.deque(maxlen=2)	
+		self.raw_states 		= collections.deque(maxlen=2)
+
+		self.raw_states.append(self.global_actual_state)
+		
+
+		self.flanco = 0
 
 		self.local_actual_state		= str
 		self.local_previous_state	= str
 
+		self.countdown = Timer()
 
 
-	@staticmethod
-	def reader(plain_img):
-		# Posible positino of colors
-		lenght_of_stream = len(list(plain_img))
-		red    = plain_img[0: int(0.35*lenght_of_stream)]
-		yellow = plain_img[int(0.35*lenght_of_stream): int(0.75*lenght_of_stream)]
-		green  = plain_img[int(0.75*lenght_of_stream): ]
-		return red,yellow,green
-
-
-	@staticmethod
-	def countdown(t):
-		print('####################################')
-		print('I RESIVE t {} seconds'.format(t))
-		print('####################################')
-		while t:
-
-			mins, secs = divmod(t, 60)
-			timeformat = '{:02d}:{:03d}'.format(mins, secs)
-			print(timeformat, end='\r')
-			time.sleep(1)
-			t -= 1
 
 	@staticmethod	
 	def extract_feature(image_file):
@@ -254,115 +229,168 @@ class Real(multiprocessing.Process):
 		return s
 
 	def find_color(self,imagen):
-		
+		# ML PROCESS
 		X = self.extract_feature(imagen)
 		Y = self.svm.predict(X)[0]
 		###########################
-		# END SVM PART (CLASSIFICATION) ML PROCESS
+		# END SVM PART (CLASSIFICATION) 
 		###########################
 		# Return prediction from SVM
-		#print('prediction is', Y)
+
 		if   Y == 'green':
-			return 1
-		else:
 			return 0
+		else:
+			return 1
 
 
 	def prediction(self, imagen):
 
-
+		# Obtain the prediction
 		Y = self.find_color(imagen)
-		periodoAMostrar = 0
 
-		#self.raw_states.append(colorPrediction)
+		# Reset global counter
+		periodoAMostrar = 0
 		
+		# get color as literal
 		color_prediction = self.idx_to_str[Y]
+
+		#self.global_shard.append(color_prediction_raw)
+		#color_prediction = self.filter()
+
+		# Append the prediction to global buffer
 		self.raw_states.append(color_prediction)
+
+
+		# Calculate the global flanco
 		self._checkflanco_simple()
-		counter = 0
+		
+		# Check the global flanco and calculate the mean and std of this period
 		if self.flanco == 1:
 			periodoAMostrar 	   = self.ultimoPeriodo
 			self.tiempoParaPeriodo = time.time()
-			self.periodos_dict[color_prediction].append(periodoAMostrar)
+			# If periodo para mostrar is less of 0 , this is noice ... pass
+			if round(periodoAMostrar) <= 0:
+				print('Noice...')
+			else:
+				# append the periods to the global dict 
+				self.periodos_dict[color_prediction].append(periodoAMostrar)
+
+				# calculate the mean and std of this periodos
+				self.mean_values[color_prediction] = np.mean(self.periodos_dict[color_prediction][0:])
+				self.std_values[color_prediction]  = np.std(self.periodos_dict[color_prediction][0:])
+		else:
+			pass
+
+
+		# Update the last period
+		self.ultimoPeriodo = time.time() - self.tiempoParaPeriodo
 			
-			self.mean_values[color_prediction] = np.mean(self.periodos_dict[color_prediction][0:])#np.sum(self.periodos_dict[color_prediction])/len(self.periodos_dict[color_prediction])
-			self.std_values[color_prediction]  = np.std(self.periodos_dict[color_prediction][0:])
-		try:
-			if self.std_values['verde'] or self.std_values['else'] < 2:
+		if self.mean_values['else'] > 150:
+			return 'No hay Semaphoro!!!!!!!!', 0, 0
+		# if std of verde and else are less of 1.5 continue to the G-Y-R semaphoro
+		if (self.std_values['verde'] < 1.5 ) and (self.std_values['else'] < 1.5 ) :
+
+			# if exist enought values to calculate the std above of 0.0 continue to G-Y-R semaphoro 
+			
+
+			if (self.std_values['verde'] != 0.0 ) and (self.std_values['else'] != 0.0 ):
+				
 				# calculate the periodos of the three colors:
-				periodo_verde 	 = self.mean_values['verde']
-				periodo_else	 = self.mean_values['else']
+				periodo_verde 	 = self.mean_values['verde'] + self.std_values['verde']
+				periodo_else	 = self.mean_values['else'] + self.std_values['else']
 				periodo_amarillo = periodo_else - periodo_verde
 				periodo_rojo 	 = periodo_else - periodo_amarillo
 
-
 				self.global_actual_state = color_prediction
 
-				#self.principal_shard.append(self.local_actual_state)
 
+
+				# if exist verde and else  in deque buffer of len two , transition.... from
 				if self.raw_states[-2] == 'verde' and self.raw_states[-1] == 'else':
-					# TRANSITION FROM  verde to else
-					self.local_previous_state = 'verde'
-					self.local_actual_state   = 'amarillo'	
-					print('INgrasandoa countdown..')			
-					#print('>>>>>>>>>>>>>>>>>>>>>>>>><counter inside is:{}, periodo_amarillo ist:{}'.format(periodo_a_mostrar_amarillo, round(periodo_amarillo)))
-					#if  periodo_a_mostrar_amarillo >= round(periodo_amarillo): #t1 >= periodo_amarillo:
-					
-					Real.countdown(round(periodo_amarillo))
-					# start rojo periodo:
-					self.local_previous_state 	= 'amarillo'
-					self.local_actual_state 	= 'rojo'
+					# TRANSITION FROM  verde to else 'amarillo'
+					self.local_previous_state 	= 'verde'
+					self.local_actual_state		= 'amarillo'
+					# Init  the stopmatch for the amarillo period
+					self.countdown.init_time = time.time()
+				else:
+					pass
+				
+				# Check if stopmatch time was started, else pass
+				if self.countdown.init_time != None:
+					# if started check the time
+					value = float(self.countdown.elapsed().split(': ')[-1])
+					# if time is above of amarillo period
+					if value  > periodo_amarillo:
+						self.local_previous_state 	= 'amarillo'
+						self.local_actual_state 	= 'rojo'
+						self.countdown.stop()
+					else:
+						pass
+				else:
+					pass
 
-				if self.raw_states[-2] == 'else' and self.raw_states[-1] == 'verde':
-					# TRANSITION FROM  else to verde
+				# Check if exist transition from else 'rojo' from global buffer to 'verde'
+
+				if (self.raw_states[-2] == 'else') and (self.raw_states[-1] == 'verde'):
+					# TRANSITION FROM  else 'rojo' to verde
 					self.local_previous_state 	= 'rojo'
 					self.local_actual_state 	= 'verde'
+				else:
+					pass
 
-
+				# append this to principal_shard which mantain the G-Y-R transitions.
 				self.principal_shard.append(self.local_actual_state)
 
 
 
+				# Statements for   check the local flancos
 				if self.local_actual_state == 'verde':
 					self.local_previous_state  == 'rojo'
-					flanco 			= Real._checkflanco_full(self.local_actual_state, self.local_previous_state)
-					return self.local_actual_state, flanco, periodo_rojo
+					flanco 		= self._checkflanco_full()
+					numerico	= self.str_to_ids[self.local_actual_state]
+
+					if flanco != 0:
+						return numerico, self.local_actual_state, flanco, periodo_rojo
+					else:
+						return numerico, self.local_actual_state, flanco, 0
+
+
 				elif self.local_actual_state == 'amarillo':
 					self.local_previous_state  == 'verde'
-					flanco 			= Real._checkflanco_full(self.local_actual_state, self.local_previous_state)
-					return self.local_actual_state, flanco, periodo_verde
+					flanco 			= self._checkflanco_full()
+					numerico		= self.str_to_ids[self.local_actual_state]
+
+					if flanco != 0:
+						return numerico, self.local_actual_state, flanco, periodo_verde
+					else:
+						return numerico, self.local_actual_state, flanco, 0
+
+
 				elif self.local_actual_state == 'rojo':
 					self.local_previous_state  == 'amarillo'
-					flanco 			= Real._checkflanco_full(self.local_actual_state, self.local_previous_state)
-					return self.local_actual_state, flanco, periodo_amarillo
-		except:
-			pass
-		#print('actual raw_states', self.periodos_dict)
-		#print('RPincipal shard', self.principal_shard)
-		#print('COLOR'			, self.local_actual_state)
-		#print('MEAN VALUES ARE:', self.mean_values)
-		#print('STD VALUES ARE:', self.std_values)
-		
-		try:
-			print(self.local_actual_state, self.flanco, periodo_amarillo)
-		except Exception as e:
-			print(e)
-		#ultimo_value = self.periodos_dict[color_prediction][-1] 
+					flanco 		= self._checkflanco_full()
+					numerico	= self.str_to_ids[self.local_actual_state]
 
-		#if  ultimo_value - 1 <= ultimo_value <= ultimo_value +1:
+					if flanco != 0:
+						return numerico, self.local_actual_state, flanco, periodo_amarillo
+					else:
+						return numerico, self.local_actual_state, flanco, 0
+				else:
+					pass
+				#print(self.local_actual_state, flanco, periodo_amarillo)
+				#color_prediction = self.local_actual_state
 
-		#	print('STILL IN THRESS,:', ultimo_value)
+				#return color_prediction, self.flanco, periodoAMostrar
+			else:
+				print('Still returiong the binary case...')
+				numerico = 	self.str_to_ids[color_prediction]
+				return numerico, color_prediction, self.flanco, periodoAMostrar
 
-		#self.ultimoPeriodo = time.time() - self.tiempoParaPeriodo
-
-
-		try:
-			color_prediction = self.local_actual_state
-		except:
-			pass
-
-		return color_prediction, self.flanco, periodoAMostrar
-		
+		else:
+			numerico = 	self.str_to_ids[color_prediction]
+			print('Returning Single  binary return...')
+			return numerico, color_prediction, self.flanco, periodoAMostrar
+			
 
 	def _checkflanco_simple(self):
 		past, current = self.raw_states[0], self.raw_states[1]
@@ -376,134 +404,87 @@ class Real(multiprocessing.Process):
 		else:
 			print('No match found, current: {},  past: {}, returning 0'.format(current, past))
 
-	@staticmethod
-	def _checkflanco_full(current, past):
-		#print('flancos are,', current, past)
-		#
-		# Compare the current and pass colors to set self.flanco value 
-		#
-		if current == past:					# if actual state = previous_state
-			flanco = 0
-		elif current == 3 and past == 2:	# if current state = 
-			flanco = 1	
-		elif current == 1 and past == 3:
-			flanco = -1
-		elif current == 2 and past == 1:
-			flanco = 1
+	def _checkflanco_full(self):
+		if len(self.principal_shard) == 2:
+			past, current = self.principal_shard[0], self.principal_shard[1]
+			#
+			# Compare the current and pass colors to set self.flanco value 
+			#
+			if current == past:					
+				return  0
+			elif (current == 'verde') and (past == 'rojo'):	
+				return -1	
+			elif (current == 'amarillo') and (past == 'verde'):
+				return  1
+			elif (current == 'rojo')  and (past == 'amarillo'):
+				return 2
+			elif (current == 'verde') and (past == 'else'):
+				return -1
+			else:
+				print('No match found, current: {},  past: {}, returning 0'.format(current, past))
 		else:
-			print('No match found, current: {},  past: {}, returning 0',format(current, past))
-
-
-#  R-- G -> Y -> R --G 
-
+			return 0
+	
 	def filter(self):
-
-		len_of_queue	= len(self.raw_states)
-
-		first_part  	= list(self.raw_states)[0:9]
-		mid_part 		= list(self.raw_states)[10:19]
-		second_part 	= list(self.raw_states)[20:29]
-		periodoAMostrar = 0
-
+		queue		= list(self.global_shard)
 		try:
+			n_elements	= dict(Counter(queue))
 
-			t_one  = np.mean(Real.sigmoid(first_part))
-			t_mid  = np.mean(Real.sigmoid(mid_part))
-			t_two  = np.mean(Real.sigmoid(second_part))
-
-			self.start_part.append(t_one)
-			self.mid_part.append(t_mid)
-			self.end_part.append(t_two)
+			print(n_elements)
+			n_elses 	= n_elements['else']
+			n_greens 	= n_elements['verde']
 
 
-			A = np.mean(np.array(list(self.start_part)))
-			B = np.mean(np.array(list(self.mid_part)))
-			C = np.mean(np.array(list(self.end_part)))
-			print(A,B,C)	
-			Z = np.max([A,B,C])
-			print('Z is', Z)
-			# if actual in red region
-			if 0.60 <= Z <= 0.79 :
-				self.actual_state = 1
-			# green region
-			if 0.41 <= Z <= 0.59:
-				self.actual_state =  0
-			#None
-			if Z <= 0.4:
-				self.actual_state = -1
+			prob_elses  = np.mean(Real.sigmoid(n_elses))
+			prob_greens = np.mean(Real.sigmoid(n_greens))
 
-			#self.littleFilter[19] = self.littleFilter[18]
-			#self.littleFilter[18] = self.littleFilter[17]
-			#self.littleFilter[17] = self.littleFilter[16]
-			#self.littleFilter[16] = self.littleFilter[15]
-			#self.littleFilter[15] = self.littleFilter[14]
-			#self.littleFilter[14] = self.littleFilter[13]
-			#self.littleFilter[13] = self.littleFilter[12]
-			#self.littleFilter[12] = self.littleFilter[11]
-
-			self.littleFilter[11] = self.littleFilter[10]
-			self.littleFilter[10] = self.littleFilter[9]
-			self.littleFilter[9] = self.littleFilter[8]
-			self.littleFilter[8] = self.littleFilter[7]
-			self.littleFilter[7] = self.littleFilter[6]
-			self.littleFilter[6] = self.littleFilter[5]
-			self.littleFilter[5] = self.littleFilter[4]
-			self.littleFilter[4] = self.littleFilter[3]
-			self.littleFilter[3] = self.littleFilter[2]
-			self.littleFilter[2] = self.littleFilter[1]
-			self.littleFilter[1] = self.littleFilter[0]
-			self.littleFilter[0] = self.actual_state
-			numeroDeVerdes 	= 0
-			numeroDeRojos 	= 0
-			for colorNumeral in self.littleFilter:
-				if colorNumeral==0:
-					numeroDeVerdes+=1
-				if colorNumeral==1:
-					numeroDeRojos+=1
-			if numeroDeVerdes	>=7:
-				numerico = 0
-
-			if numeroDeRojos	>=5:
-				numerico = 1
-			flancoCorrecto = 0
-
-			# Si llegue a un valor valido entonces es posible generar flanco
-			if (self.actual_state==0)|(self.actual_state==1)|(self.actual_state==2):
-				#Si hay cambio entonces genero flanco:
-				if self.actual_state != self.numericoAuxiliar:
-					if self.actual_state == 0:
-						flancoCorrecto = -1
-					elif self.actual_state >= 1:
-						flancoCorrecto = 1
-					if (self.numericoAuxiliar == 2)&(self.actual_state==1):		# Si el valor anterior es amarillo se descarta el flanco
-						flancoCorrecto = 0
-					self.numericoAuxiliar = numerico
-			else: # Si no llego a un valor valido repito
-				self.actual_state = self.numericoAuxiliar
-
-			# Si el flanco es correcto entonces genero los valores de periodo
-			if flancoCorrecto == -1:
-				periodoAMostrar = self.ultimoPeriodo
-				self.tiempoParaPeriodo = time.time()
-
-			self.ultimoPeriodo = time.time() - self.tiempoParaPeriodo
-			# Si el periodo excede los 2 minutos (normalmente 2, 1 para debug) entonces señalo que no hay semaforo
-			if self.ultimoPeriodo >self.maximoTiempoPeriodo:
-				flancoCorrecto = 1				# Flanco verde para guardar la información que se tenga
-				numerico = -2
-			return self.actual_state, self.idx_to_str[self.actual_state], flancoCorrecto, periodoAMostrar
+			if prob_elses > prob_greens:
+				return 'else'
+			else:
+				return 'verde'
 		except:
-			print('Not ready yet')
-
-
+			return queue[-1]
 
 	def run(self):
 		while True:
 			imagen = self.input_q.get(timeout=1)
 			#color, literal_color, flanco, period = self.prediction(imagen)
-			color_prediction, flanco, periodoAMostrar = self.prediction(imagen)
+			numerical, color_prediction, flanco, periodoAMostrar = self.prediction(imagen)
 			#self.ouput_q.put([self.actual_state, literal_color, flanco, period])
-			self.ouput_q.put([color_prediction, flanco, periodoAMostrar])
+			self.ouput_q.put([numerical, color_prediction, flanco, periodoAMostrar])
+
+
+
+
+
+class Timer(object):
+    """A simple timer class"""
+    
+    def __init__(self, periodos=[]):
+        self.periodos = periodos
+        self.init_time = None#time.time()
+    @property
+    def init_time(self):
+        return self.__init_time
+    @init_time.setter
+    def init_time(self,t):
+        self.__init_time = t
+
+    def stop(self, message="Total: "):
+        """Stops the timer.  Returns the time elapsed"""
+        self.stop_l = time.time()
+        self.__init_time = None
+        #print(message + str(self.stop_l - self.__init_time))
+
+    def elapsed(self, message="Elapsed: "):
+        """Time elapsed since start was called"""
+        return message + str(time.time() - self.__init_time)
+
+
+    def start(self):
+        """Starts the timer"""
+        self.__init_time = time.time()
+        return self.__init_time
 
 
 if __name__ == '__main__':
@@ -525,7 +506,6 @@ if __name__ == '__main__':
 	semaphoro = Semaphoro(periodo = 0)
 	while True:
 		_, img = cap.read()
-		#time.sleep(0.05)
 
 		# Feed with images to semaphoro
 		cropped = img[py1:py0, px0:px1]
@@ -538,36 +518,8 @@ if __name__ == '__main__':
 		#cv2.imshow('Semaphoro', img)
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
+			#semaphoro.stop()
 			break
 	cv2.destroyAllWindows()
 	c = cv2.waitKey(0)
 
-
-
-"""
-class CreateSemaforo(Semaforo):
-	
-	#Create the requested semaforo according the the periodoSemaforo values,
-	#Attributes:
-	#	periodoSemaforo == 0 for Real semoforo creation
-	#	periodoSemaforo != for Simulated Semaforo
-	#	self.blueprint_semaforo, is the interface for parent and childs classes attributes 
-	#							and methods sharing.
-	
-	def __init__(self, periodoSemaforo=30):
-		self.periodoSemaforo = periodoSemaforo
-		#
-		# Init parent attributes and methods
-		#
-		super().__init__()
-		self.blueprint_semaforo = None
-		if self.periodoSemaforo > 0 :
-			self.blueprint_semaforo =  Simulado(periodoSemaforo = self.periodoSemaforo)
-		else:
-			self.blueprint_semaforo = Real()
-	
-	def obtenerColorEnSemaforo(self, imagenUnidimensional):
-		numerico, literal, flancoErrado = self.blueprint_semaforo.encontrarSemaforoObtenerColor(imagen = imagenUnidimensional )
-		#print('COLOR EN BRUTO: '+literal)
-		if self.periodoSemaforo == 0 :
-"""
