@@ -417,7 +417,7 @@ class Real(multiprocessing.Process):
 			elif (current == 'amarillo') and (past == 'verde'):
 				return  1
 			elif (current == 'rojo')  and (past == 'amarillo'):
-				return 1
+				return 2
 			elif (current == 'verde') and (past == 'else'):
 				return -1
 			else:
