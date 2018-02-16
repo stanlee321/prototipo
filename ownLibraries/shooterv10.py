@@ -116,7 +116,7 @@ class Shooter():
 
 	def start(self):
 		#print('here alive...')
-		self.camera.capture_sequence(self.writter(), format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
+		self.camera.capture_sequence(self.writter(), format='jpeg', use_video_port=True, resize=(self.scale_factor_in_Yn_X, self.scale_factor_in_Y))
 		
 		# CLEAN UNUSED IMAGES 
 		files_in_work_dir = glob.glob(self.saveDirWORK + '/*.jpg')

@@ -28,9 +28,11 @@ class Semaphoro():
 			# Case real one
 			self.semaphoro = Real(self.input_q, self.ouput_q)
 			self.semaphoro.start()
-	def obtenerColorEnSemaforo(self, raw_images):
+	def obtenerColorEnSemaforo(self, raw):
+
+		raw_images 	= np.reshape(raw,(24,8,3))
 		self.input_q.put(raw_images)
-		data = self.ouput_q.get()
+		data 		= self.ouput_q.get()
 		#numerico, literal, flanco, period = data[0], data[1], data[2], data[3]
 		#return numerico, literal, flanco, period
 		return data
