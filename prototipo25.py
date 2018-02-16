@@ -14,7 +14,7 @@ from ownLibraries.irswitch import IRSwitch
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.visualizacion import Acetato
 from ownLibraries.videostream import VideoStream
-from ownLibraries.semaforov2 import CreateSemaforo
+from ownLibraries.semaforov3 import Semaphoro
 from ownLibraries.determinacionCruces import PoliciaInfractor
 from obtenerHistogramaHorario import exportarInformacionDeHoyO
 
@@ -159,7 +159,7 @@ def __main_function__():
 	# Prueba sin filtro todo el dia
 	
 	miAcetatoInformativo = Acetato()
-	miSemaforo = CreateSemaforo(periodoDeSemaforo)
+	miSemaforo = Semaphoro(periodoDeSemaforo)
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
 	miAcetatoInformativo.colocarPoligono(np.array(verticesPartida))
 	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))
