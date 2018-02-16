@@ -129,7 +129,8 @@ class Real(multiprocessing.Process):
 
 
 		# idx to string
-		self.idx_to_str = {1:'verde', 0:'else'}
+		self.idx_to_str = {0:'verde', 1:'else'}
+		self.str_to_ids = {'verde':0 , 'else': 1, 'amarillo':2, 'rojo': 1 }
 
 		# expected shape of the image_semaphoro_raw (Weidth,Height,Channels)
 		self.SHAPE = (24,8,3)
@@ -235,9 +236,9 @@ class Real(multiprocessing.Process):
 		# Return prediction from SVM
 
 		if   Y == 'green':
-			return 1
-		else:
 			return 0
+		else:
+			return 1
 
 
 	def prediction(self, imagen):
@@ -265,7 +266,6 @@ class Real(multiprocessing.Process):
 		if self.flanco == 1:
 			periodoAMostrar 	   = self.ultimoPeriodo
 			self.tiempoParaPeriodo = time.time()
-
 			# If periodo para mostrar is less of 0 , this is noice ... pass
 			if round(periodoAMostrar) <= 0:
 				print('Noice...')
@@ -283,11 +283,14 @@ class Real(multiprocessing.Process):
 		# Update the last period
 		self.ultimoPeriodo = time.time() - self.tiempoParaPeriodo
 			
-
+		if self.mean_values['else'] > 150:
+			return 'No hay Semaphoro!!!!!!!!', 0, 0
 		# if std of verde and else are less of 1.5 continue to the G-Y-R semaphoro
 		if (self.std_values['verde'] < 1.5 ) and (self.std_values['else'] < 1.5 ) :
 
 			# if exist enought values to calculate the std above of 0.0 continue to G-Y-R semaphoro 
+			
+
 			if (self.std_values['verde'] != 0.0 ) and (self.std_values['else'] != 0.0 ):
 				
 				# calculate the periodos of the three colors:
@@ -326,7 +329,7 @@ class Real(multiprocessing.Process):
 
 				# Check if exist transition from else 'rojo' from global buffer to 'verde'
 
-				if self.raw_states[-2] == 'else' and self.raw_states[-1] == 'verde':
+				if (self.raw_states[-2] == 'else') and (self.raw_states[-1] == 'verde'):
 					# TRANSITION FROM  else 'rojo' to verde
 					self.local_previous_state 	= 'rojo'
 					self.local_actual_state 	= 'verde'
@@ -341,30 +344,35 @@ class Real(multiprocessing.Process):
 				# Statements for   check the local flancos
 				if self.local_actual_state == 'verde':
 					self.local_previous_state  == 'rojo'
-					flanco 			= self._checkflanco_full()
+					flanco 		= self._checkflanco_full()
+					numerico	= self.str_to_ids[self.local_actual_state]
+
 					if flanco != 0:
-						return self.local_actual_state, flanco, periodo_rojo
+						return numerico, self.local_actual_state, flanco, periodo_rojo
 					else:
-						return self.local_actual_state, flanco, 0
+						return numerico, self.local_actual_state, flanco, 0
 
 
 				elif self.local_actual_state == 'amarillo':
 					self.local_previous_state  == 'verde'
 					flanco 			= self._checkflanco_full()
+					numerico		= self.str_to_ids[self.local_actual_state]
+
 					if flanco != 0:
-						return self.local_actual_state, flanco, periodo_verde
+						return numerico, self.local_actual_state, flanco, periodo_verde
 					else:
-						return self.local_actual_state, flanco, 0
+						return numerico, self.local_actual_state, flanco, 0
 
 
 				elif self.local_actual_state == 'rojo':
 					self.local_previous_state  == 'amarillo'
-					flanco 			= self._checkflanco_full()
-					
+					flanco 		= self._checkflanco_full()
+					numerico	= self.str_to_ids[self.local_actual_state]
+
 					if flanco != 0:
-						return self.local_actual_state, flanco, periodo_amarillo
+						return numerico, self.local_actual_state, flanco, periodo_amarillo
 					else:
-						return self.local_actual_state, flanco, 0
+						return numerico, self.local_actual_state, flanco, 0
 				else:
 					pass
 				#print(self.local_actual_state, flanco, periodo_amarillo)
@@ -373,11 +381,13 @@ class Real(multiprocessing.Process):
 				#return color_prediction, self.flanco, periodoAMostrar
 			else:
 				print('Still returiong the binary case...')
-				return color_prediction, self.flanco, periodoAMostrar
+				numerico = 	self.str_to_ids[color_prediction]
+				return numerico, color_prediction, self.flanco, periodoAMostrar
 
 		else:
+			numerico = 	self.str_to_ids[color_prediction]
 			print('Returning Single  binary return...')
-			return color_prediction, self.flanco, periodoAMostrar
+			return numerico, color_prediction, self.flanco, periodoAMostrar
 			
 
 	def _checkflanco_simple(self):
@@ -403,7 +413,7 @@ class Real(multiprocessing.Process):
 			elif (current == 'verde') and (past == 'rojo'):	
 				return -1	
 			elif (current == 'amarillo') and (past == 'verde'):
-				return  2
+				return  1
 			elif (current == 'rojo')  and (past == 'amarillo'):
 				return 1
 			elif (current == 'verde') and (past == 'else'):
@@ -437,9 +447,9 @@ class Real(multiprocessing.Process):
 		while True:
 			imagen = self.input_q.get(timeout=1)
 			#color, literal_color, flanco, period = self.prediction(imagen)
-			color_prediction, flanco, periodoAMostrar = self.prediction(imagen)
+			numerical, color_prediction, flanco, periodoAMostrar = self.prediction(imagen)
 			#self.ouput_q.put([self.actual_state, literal_color, flanco, period])
-			self.ouput_q.put([color_prediction, flanco, periodoAMostrar])
+			self.ouput_q.put([numerical, color_prediction, flanco, periodoAMostrar])
 
 
 
