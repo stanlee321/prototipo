@@ -30,10 +30,13 @@ class Semaphoro():
 			self.semaphoro.start()
 	def obtenerColorEnSemaforo(self, raw_images):
 		self.input_q.put(raw_images)
-		data = self.ouput_q.get()
+		try:
+			data = self.ouput_q.get()
+			return data
+		except:
+			pass
 		#numerico, literal, flanco, period = data[0], data[1], data[2], data[3]
 		#return numerico, literal, flanco, period
-		return data
 	def stop(self):
 		self.semaphoro.join()
 		self.semaphoro.exit()
@@ -380,13 +383,13 @@ class Real(multiprocessing.Process):
 
 				#return color_prediction, self.flanco, periodoAMostrar
 			else:
-				print('Still returiong the binary case...')
+				#print('Still returiong the binary case...')
 				numerico = 	self.str_to_ids[color_prediction]
 				return numerico, color_prediction, self.flanco, periodoAMostrar
 
 		else:
 			numerico = 	self.str_to_ids[color_prediction]
-			print('Returning Single  binary return...')
+			#print('Returning Single  binary return...')
 			return numerico, color_prediction, self.flanco, periodoAMostrar
 			
 
