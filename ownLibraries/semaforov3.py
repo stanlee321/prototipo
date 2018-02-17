@@ -28,13 +28,19 @@ class Semaphoro():
 			# Case real one
 			self.semaphoro = Real(self.input_q, self.ouput_q)
 			self.semaphoro.start()
-	def obtenerColorEnSemaforo(self, raw_images):
+	def obtenerColorEnSemaforo(self, raw):
+
+		raw_images 	= np.reshape(raw,(24,8,3))
 		self.input_q.put(raw_images)
+<<<<<<< HEAD
 		try:
 			data = self.ouput_q.get()
 			return data
 		except:
 			pass
+=======
+		data 		= self.ouput_q.get()
+>>>>>>> a69f4acb7ce8ed255c454732f259de1e3ff23d2e
 		#numerico, literal, flanco, period = data[0], data[1], data[2], data[3]
 		#return numerico, literal, flanco, period
 	def stop(self):
@@ -418,7 +424,7 @@ class Real(multiprocessing.Process):
 			elif (current == 'amarillo') and (past == 'verde'):
 				return  1
 			elif (current == 'rojo')  and (past == 'amarillo'):
-				return 1
+				return 2
 			elif (current == 'verde') and (past == 'else'):
 				return -1
 			else:
