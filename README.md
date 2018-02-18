@@ -12,7 +12,7 @@ Implementation SmartCamera with a picam, python, opencv and machine learning tec
 
 You can see our results in our page [http://deepmicrosystems.com/](http://deepmicrosystems.com/)
 
-And a video demo also 
+This is a video demo of the results, also in the folder /demo 
 
 [![Video visualization demo](https://github.com/AlvaroRQ/prototipo/blob/master/demo/demo.gif)](https://youtu.be/nVQm3AYlGUo)
 

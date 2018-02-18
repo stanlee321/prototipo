@@ -10,12 +10,12 @@ import threading
 import pandas as pd
 import multiprocessing
 import numpy as np
-from .shutterv11 import Shutter
 import sqlite3
 import shutil
 import collections
-
-
+from .shutterv11 import Shutter
+import pandas as pd
+import glob
 
 class ControladorCamara():
 	work_in_folder		 	= 'WORKDIR'
@@ -128,8 +128,6 @@ class ControladorCamara():
 		self.miCamara.join()
 		
 		return self
-
-
 
 
 if __name__ == '__main__':
