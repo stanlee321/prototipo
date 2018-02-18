@@ -10,7 +10,7 @@ In Bolivia there is a huge problem regarding Road culture, this project intends 
 Implementation SmartCamera with a picam, python, opencv and machine learning techniques.
 
 
-You can see our results in our page [here](http://deepmicrosystems.com/)
+You can see our results in our page [http://deepmicrosystems.com/](http://deepmicrosystems.com/)
 
 And a video demo also 
 
