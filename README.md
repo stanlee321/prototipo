@@ -13,7 +13,7 @@ Implementation SmartCamera with a picam, python, opencv and machine learning tec
 You can see our results in our page [here](http://deepmicrosystems.com/)
 
 And a video demo also 
-[[![Video visualization demo](https://i.ytimg.com/vi/4Ew56N_uMIk/2.jpg)](https://youtu.be/4Ew56N_uMIk)
+![Video visualization demo](https://i.ytimg.com/vi/4Ew56N_uMIk/2.jpg)](https://youtu.be/4Ew56N_uMIk)
 
 
 ## Getting Started
@@ -25,10 +25,10 @@ And a video demo also
 
 ## Requirements
 ### Hardware 
-- Your RPi3 must have conected to
+- Your RPi3 must be conected to
 - 5 or 8 MP NoIR PiCamera ( for take the HD shoots )
-- Simple USB WebCam (camera for detec the flow of cars)
-- Optional ( embeded circuit to control the IR filter)
+- Simple USB WebCam (camera for detect the flow of cars)
+- Embeded circuit to control a IR filter for NoIR PiCamera (Optional)
 
 ### Software
 - [Python 3.5](https://www.continuum.io/downloads)
