@@ -13,8 +13,8 @@ Implementation SmartCamera with a picam, python, opencv and machine learning tec
 You can see our results in our page [here](http://deepmicrosystems.com/)
 
 And a video demo also 
-[![Video visualization demo]](https://i.ytimg.com/vi/4Ew56N_uMIk/2.jpg)](https://youtu.be/4Ew56N_uMIk)
 
+[![Video visualization demo]](https://github.com/AlvaroRQ/prototipo/demo/demo.gif)](https://youtu.be/nVQm3AYlGUo)
 
 ## Getting Started
 1. `pip3 install -r requirements.txt`
