@@ -14,7 +14,7 @@ You can see our results in our page [here](http://deepmicrosystems.com/)
 
 And a video demo also 
 
-[![Video visualization demo]](https://github.com/AlvaroRQ/prototipo/demo/demo.gif)](https://youtu.be/nVQm3AYlGUo)
+[![Video visualization demo](https://github.com/AlvaroRQ/prototipo/demo/demo.gif)](https://youtu.be/nVQm3AYlGUo)
 
 ## Getting Started
 1. `pip3 install -r requirements.txt`
