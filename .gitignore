@@ -22,6 +22,6 @@ documentation/*.gz
 documentation/*.toc
 documentation/*.png
 documentation/*.jpg
-
+documentation/*txt
 
 
