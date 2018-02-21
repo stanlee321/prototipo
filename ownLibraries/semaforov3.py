@@ -36,7 +36,7 @@ class Semaphoro():
 			data = self.ouput_q.get()
 			return data
 		except:
-			return [0,'nan0',0,0]
+			return 0,'nan0',0,0
 		#numerico, literal, flanco, period = data[0], data[1], data[2], data[3]
 		#return numerico, literal, flanco, period
 	def stop(self):
