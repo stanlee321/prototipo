@@ -36,7 +36,7 @@ class Semaphoro():
 			data = self.ouput_q.get()
 			return data
 		except:
-			pass
+			return [0,0,0,0]
 		#numerico, literal, flanco, period = data[0], data[1], data[2], data[3]
 		#return numerico, literal, flanco, period
 	def stop(self):
@@ -455,8 +455,6 @@ class Real(multiprocessing.Process):
 			numerical, color_prediction, flanco, periodoAMostrar = self.prediction(imagen)
 			#self.ouput_q.put([self.actual_state, literal_color, flanco, period])
 			self.ouput_q.put([numerical, color_prediction, flanco, periodoAMostrar])
-
-
 
 
 
