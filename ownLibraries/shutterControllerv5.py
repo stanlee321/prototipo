@@ -52,7 +52,7 @@ class ControladorCamara():
 	def job(self):
 		return self.__job
 
-	@job_list.setter
+	@job.setter
 	def job(self, j):
 		self.__job = j
 

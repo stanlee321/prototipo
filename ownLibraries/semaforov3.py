@@ -289,7 +289,7 @@ class Real(multiprocessing.Process):
 		self.ultimoPeriodo = time.time() - self.tiempoParaPeriodo
 			
 		if self.mean_values['else'] > 150:
-			return 'No hay Semaphoro!!!!!!!!', 0, 0
+			return -1, 'No hay Semaphoro!!!!!!!!', 0, 0
 		# if std of verde and else are less of 1.5 continue to the G-Y-R semaphoro
 		if (self.std_values['verde'] < 1.5 ) and (self.std_values['else'] < 1.5 ) :
 
@@ -460,7 +460,7 @@ class Real(multiprocessing.Process):
 				#self.ouput_q.put([self.actual_state, literal_color, flanco, period])
 				self.ouput_q.put([numerical, color_prediction, flanco, periodoAMostrar])
 			except Exception as e:
-				print('This exception in init ..{}'.format(e))
+				print('Error Here in reading images, returning feaults ..{}'.format(e))
 				self.ouput_q.put([0,'nan',0, 0, 0])
 
 			run_camera = np.load(path_to_run_camera)
