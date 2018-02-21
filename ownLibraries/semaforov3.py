@@ -449,7 +449,10 @@ class Real(multiprocessing.Process):
 			return queue[-1]
 
 	def run(self):
-		while True:
+		path_to_run_camera 		= os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
+
+		run_camera = np.load(path_to_run_camera)
+		while run_camera == 1:
 			try:
 				imagen = self.input_q.get(timeout=1)
 				#color, literal_color, flanco, period = self.prediction(imagen)
@@ -460,6 +463,7 @@ class Real(multiprocessing.Process):
 				print('This exception in init ..{}'.format(e))
 				self.ouput_q.put([0,'nan',0, 0, 0])
 
+			run_camera = np.load(path_to_run_camera)
 
 
 
