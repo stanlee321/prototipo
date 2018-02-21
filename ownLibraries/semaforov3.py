@@ -36,7 +36,7 @@ class Semaphoro():
 			data = self.ouput_q.get()
 			return data
 		except:
-			pass
+			return 0,'nan0',0,0
 		#numerico, literal, flanco, period = data[0], data[1], data[2], data[3]
 		#return numerico, literal, flanco, period
 	def stop(self):
@@ -449,12 +449,21 @@ class Real(multiprocessing.Process):
 			return queue[-1]
 
 	def run(self):
-		while True:
-			imagen = self.input_q.get(timeout=1)
-			#color, literal_color, flanco, period = self.prediction(imagen)
-			numerical, color_prediction, flanco, periodoAMostrar = self.prediction(imagen)
-			#self.ouput_q.put([self.actual_state, literal_color, flanco, period])
-			self.ouput_q.put([numerical, color_prediction, flanco, periodoAMostrar])
+		path_to_run_camera 		= os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
+
+		run_camera = np.load(path_to_run_camera)
+		while run_camera == 1:
+			try:
+				imagen = self.input_q.get(timeout=1)
+				#color, literal_color, flanco, period = self.prediction(imagen)
+				numerical, color_prediction, flanco, periodoAMostrar = self.prediction(imagen)
+				#self.ouput_q.put([self.actual_state, literal_color, flanco, period])
+				self.ouput_q.put([numerical, color_prediction, flanco, periodoAMostrar])
+			except Exception as e:
+				print('This exception in init ..{}'.format(e))
+				self.ouput_q.put([0,'nan',0, 0, 0])
+
+			run_camera = np.load(path_to_run_camera)
 
 
 
