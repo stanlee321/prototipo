@@ -16,7 +16,7 @@ import collections
 import pandas as pd
 import glob
 
-
+import picamera
 class Shutter():
 	"""
 	General PICAMERA DRIVER Prototipe
