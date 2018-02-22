@@ -365,23 +365,22 @@ class Observer(multiprocessing.Process):
 				print('Cant receive buff from images in WORKDIR from  Shutter ')
 
 			try:
-				homework_folder		= self.receiver.recv()
-				print('Iam into the tasksss!!!, tasks are')
-				homework = homework_folder
-				if len(homework) > 0: 
-					for feature in homework:
-						timestamp 	= feature[0][0]
-						date   		= feature[0][1]
-						folder 		= feature[0][1]
-						index_real  = feature[0][2]
-
-						# for watermark
-
-						#saveDir = Observer.directorioDeReporte + '/' + folder
-						#timestamp = timestamp#+' index:'+ index_real
-						#self.watermarker.put_watermark(saveDir, timestamp)
-						self.encenderCamaraEnSubDirectorio(date, folder)
-						self.move_captures(index_real)
+				if self.receiver.poll():
+					homework_folder		= self.receiver.recv()
+					print('Iam into the tasksss!!!, tasks are')
+					homework = homework_folder
+					if len(homework) > 0: 
+						for feature in homework:
+							timestamp 	= feature[0][0]
+							date   		= feature[0][1]
+							folder 		= feature[0][1]
+							index_real  = feature[0][2]
+							# for watermark
+							#saveDir = Observer.directorioDeReporte + '/' + folder
+							#timestamp = timestamp#+' index:'+ index_real
+							#self.watermarker.put_watermark(saveDir, timestamp)
+							self.encenderCamaraEnSubDirectorio(date, folder)
+							self.move_captures(index_real)
 			except Exception as e:
 				print('Pipe not working properly or: e', e)
 			# return state of while loop camera
