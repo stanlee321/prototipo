@@ -16,7 +16,7 @@ import glob
 import pandas as pd
 import sqlite3
 import multiprocessing
-
+from .watermark import WaterMarker
 
 
 class Shutter(multiprocessing.Process):

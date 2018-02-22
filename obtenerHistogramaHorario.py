@@ -5,12 +5,15 @@ import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 
-def exportarInformacionDeHoyO(day = 0,subDirectorio = ''):
-	if os.uname()[1] == 'raspberrypi':
-		directorio = os.getenv('HOME')
+def exportarInformacionDeHoyO(day = 0,folder = ''):
+	if folder != '':
+		directorio = folder
 	else:
-		directorio = '/media/alvarohurtado/almacenamiento/casosReportadosOficiales'
-	directorio = directorio + '/' + (datetime.datetime.today()+datetime.timedelta(days = day)).strftime('%Y-%m-%d')+'_reporte'
+		if os.uname()[1] == 'raspberrypi':
+			directorio = os.getenv('HOME')
+		else:
+			directorio = '/media/alvarohurtado/almacenamiento/casosReportadosOficiales'
+		directorio = directorio + '/' + (datetime.datetime.today()+datetime.timedelta(days = day)).strftime('%Y-%m-%d')+'_reporte'
 	exportarInformacionEnDir(directorio)
 
 def exportarInformacionEnDir(nombreDirectorio):
@@ -104,8 +107,20 @@ def exportarInformacionEnDir(nombreDirectorio):
 if __name__ == '__main__':
 	# Tomamos los ingresos para controlar el video
 	dia = 0
+	folder = ''
 	for input in sys.argv:
 		if 'day' in input:
 			dia = int(input[:-3])
-	print('Ingreso numero: ',dia)
-	exportarInformacionDeHoyO(dia)
+			print('Ingreso numero: ',dia)
+			exportarInformacionDeHoyO(day = dia)
+		#if 'reporte' in input:
+		#	dia = 0
+		#	folder = os.getenv('HOME')+'/'+input
+		#	print('generando de folder: ',folder)
+		#	exportarInformacionDeHoyO(folder = folder)
+		if 'media' in input:
+			dia = 0
+			folder = input
+			print('generando de folder: ',folder)
+			exportarInformacionDeHoyO(folder = folder)
+	
