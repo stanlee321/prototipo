@@ -104,7 +104,7 @@ class Shutter():
 			date				=   (datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
 
 			# create a list of names to save
-			writte_names		= 	[self.saveDirWORK+"/_frame_{}_date_{}_.jpg".format(f_number, index) for f_number in range(self.maxCapturas)]
+			writte_names		= 	[self.saveDirWORK+"/_frame_{}_date_{}_.jpg".format(f_number, date) for f_number in range(self.maxCapturas)]
 			
 
 			# Create a buffer of USEFUL filenames
