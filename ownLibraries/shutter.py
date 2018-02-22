@@ -20,6 +20,7 @@ import picamera
 class Shutter():
 	"""
 	General PICAMERA DRIVER Prototipe
+
 	"""
 	nombreCarpeta 		= datetime.datetime.now().strftime('%Y-%m-%d')	+	'_reporte'
 	directorioDeReporte = os.getenv('HOME') +	'/'	 + nombreCarpeta
@@ -88,7 +89,7 @@ class Shutter():
 		# PICMEARA INIT
 		self.camera 					= picamera.PiCamera()
 		self.camera.resolution 			= (2592,1944)#self.camera.MAX_RESOLUTION
-		self.camera.framerate 			= 5 # original 1
+		self.camera.framerate 			= 5 # original 2
 		self.camera.zoom 				= (self.p0x, self.p0y, self.p1x, self.p1y)
 		self.camera.exposure_mode 		= 'sports'
 		#self.camera.shutter_speed = 190000
@@ -104,9 +105,8 @@ class Shutter():
 			date				=   (datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
 
 			# create a list of names to save
-			writte_names		= 	[self.saveDirWORK+"/_frame_{}_date_{}_.jpg".format(f_number, date) for f_number in range(self.maxCapturas)]
+			writte_names		= 	[self.saveDirWORK+"/_group_{}_date_{}_.jpg".format(group, date) for group in range(self.maxCapturas)]
 			
-
 			# Create a buffer of USEFUL filenames
 			for route in sorted(writte_names):
 				self.circular_buff_shooter.appendleft(route)
@@ -117,9 +117,6 @@ class Shutter():
 			# CLEAN UNUSED IMAGES 
 			files_in_work_dir 	 = glob.glob(self.saveDirWORK + '/*.jpg')
 			work_dir_len		 = len(files_in_work_dir)
-
-
-
 
 			if work_dir_len > 24: # if exist 24 jpgs and more in dir, >>>> clean
 				for img_path in files_in_work_dir:
