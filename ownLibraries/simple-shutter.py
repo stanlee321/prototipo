@@ -88,7 +88,7 @@ class Shutter():
 	def run(self):
 		# PICMEARA INIT
 		self.camera 					= picamera.PiCamera()
-		self.camera.resolution 			= (2592,1944)#self.camera.MAX_RESOLUTION
+		self.camera.resolution 			= (2592,1944) # 5mpx or  self.camera.MAX_RESOLUTION for max resolution
 		self.camera.framerate 			= 5 # original 2
 		self.camera.zoom 				= (self.p0x, self.p0y, self.p1x, self.p1y)
 		self.camera.exposure_mode 		= 'sports'
