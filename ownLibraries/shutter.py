@@ -33,6 +33,8 @@ class Shutter():
 	#def __init__(self, video_source = 0, width = 3280, height = 2464, cutPoly=([10,10],[3280,2464]), capturas = 3):
 	def __init__(self, video_source = 0, width = 2592, height = 1944, cutPoly=([10,10],[2592,1944]), capturas = 3, pipe = None):
 
+
+		np.save(Shutter.path_to_run_camera, 1) 		# 1 ON state
 		self.run_camera 		= True
 		# Initial aparemeters
 		self.video_source 		= video_source
