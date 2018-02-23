@@ -384,6 +384,7 @@ class Observer(multiprocessing.Process):
 						#self.watermarker.put_watermark(saveDir, timestamp)
 						self.encenderCamaraEnSubDirectorio(date, folder)
 						self.move_captures(index_real)
+
 			except Exception as e:
 				print('Pipe not working properly or: e', e)
 			# return state of while loop camera
