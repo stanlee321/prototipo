@@ -274,7 +274,8 @@ class Real(multiprocessing.Process):
 			self.tiempoParaPeriodo = time.time()
 			# If periodo para mostrar is less of 0 , this is noice ... pass
 			if round(periodoAMostrar) <= 0:
-				print('Noice...')
+				pass
+				#print('Noice...')
 			else:
 				# append the periods to the global dict 
 				self.periodos_dict[color_prediction].append(periodoAMostrar)
@@ -455,13 +456,13 @@ class Real(multiprocessing.Process):
 		run_camera = np.load(path_to_run_camera)
 		while run_camera == 1:
 			try:
-				imagen = self.input_q.get(timeout=1)
+				imagen = self.input_q.get()
 				#color, literal_color, flanco, period = self.prediction(imagen)
 				numerical, color_prediction, flanco, periodoAMostrar = self.prediction(imagen)
 				#self.ouput_q.put([self.actual_state, literal_color, flanco, period])
 				self.ouput_q.put([numerical, color_prediction, flanco, periodoAMostrar])
 			except Exception as e:
-				print('Error Here in reading images, returning feaults ..{}'.format(e))
+				print('DEBUGS Error Here in reading images, returning feaults ..{}'.format(e))
 				self.ouput_q.put([0,'nan',0, 0, 0])
 
 			run_camera = np.load(path_to_run_camera)
