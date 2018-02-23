@@ -16,6 +16,7 @@ import collections
 import pandas as pd
 import glob
 
+import picamera
 class ControladorCamara():
 	work_in_folder		 	= 'WORKDIR'
 	path_to_run_camera 		= os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
@@ -45,7 +46,7 @@ class ControladorCamara():
 		
 
 		# Create miCamara object with the queues as init parameters.
-		self.miCamara  	= Shutter(self.receiver)
+		self.miCamara  	= Shutter(pipe=self.receiver)
 		self.miCamara.start()
 
 	@property
@@ -365,15 +366,16 @@ class Observer(multiprocessing.Process):
 				print('Cant receive buff from images in WORKDIR from  Shutter ')
 
 			try:
-				homework_folder		= self.receiver.recv()
+				homeworks		= self.receiver.recv()
 				print('Iam into the tasksss!!!, tasks are')
-				homework = homework_folder
-				if len(homework) > 0: 
-					for feature in homework:
-						timestamp 	= feature[0][0]
-						date   		= feature[0][1]
-						folder 		= feature[0][1]
-						index_real  = feature[0][2]
+				print('EXPECTED HOWMEORK IS..', homeworks)
+				if len(homeworks) > 0: 
+					for homework in [homeworks]:
+						print('FEATURES ARE', homework)
+						timestamp 	= homework[0]
+						date   		= homework[1]
+						folder 		= homework[1]
+						index_real  = homework[2]
 
 						# for watermark
 
