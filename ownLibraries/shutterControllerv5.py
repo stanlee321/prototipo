@@ -15,8 +15,10 @@ import shutil
 import collections
 import pandas as pd
 import glob
-
 import picamera
+
+
+
 class ControladorCamara():
 	work_in_folder		 	= 'WORKDIR'
 	path_to_run_camera 		= os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
@@ -43,7 +45,7 @@ class ControladorCamara():
 
 		self.job_list 	= collections.deque(maxlen=5)
 		self.job   		= str
-		
+
 
 		# Create miCamara object with the queues as init parameters.
 		self.miCamara  	= Shutter(pipe=self.receiver)
@@ -73,7 +75,7 @@ class ControladorCamara():
 		# Check if deque is with 3 jobs
 		if len(self.job_list) > 0:
 			for i, j in enumerate(self.job_list):
-				print('SENDING..job {} / {}'.format(i, len(self.job_list)))
+				print('SENDING..job {} / {}'.format(i+1, len(self.job_list)))
 				self.sender.send(j)
 			self.job_list 	= collections.deque(maxlen=5)
 
@@ -160,6 +162,7 @@ class Shutter(multiprocessing.Process):
 		print('EXITOSAMENTE CREE LA CLASE SHOOTERv11!!!')
 
 	def apagar_observador(self):
+		self.observador.terminate()
 		self.observador.join()
 
 	def run(self):
@@ -284,8 +287,6 @@ class Observer(multiprocessing.Process):
 
 	def move_relevant_files(self, frame_marcado):
 		marcados_list  = []
-		print('frame_marcado is', frame_marcado)
-		print('self. circular_buff is', self.circular_buff)
 		for i, image_route in enumerate(self.circular_buff):
 			image_route_splited = image_route.split('i')
 
@@ -300,8 +301,6 @@ class Observer(multiprocessing.Process):
 					marcados_list.append(i)
 				else:
 					pass
-
-		print('LIST OF AMRCADOS IS', marcados_list)
 		if len(marcados_list) != 0:
 			for marcado_frame in marcados_list:
 
@@ -359,44 +358,40 @@ class Observer(multiprocessing.Process):
 	def run(self):
 		run_camera = np.load(Observer.path_to_run_camera)
 		while run_camera == 1:
-			print('I am runing...')
 			# Receive indexes from images in WORKDIR
+
+			actual_time = datetime.datetime.now().strftime('%H:%M')
+			if actual_time == '20:00':
+				print('Its time')
+				# for watermark
+				#saveDir = Observer.directorioDeReporte + '/' + folder
+				#timestamp = timestamp#+' index:'+ index_real
+				#self.watermarker.put_watermark(saveDir, timestamp)
+
+
 			path_image_workdir = self.input_q.get()
 			self.circular_buff.appendleft(path_image_workdir)
-			print('Self circular buff is>>>>>>>>>>', self.circular_buff)
-			print('time ')
-			tic = time.time()
-			homeworks		= self.receiver.recv()
-			tac = time.time()
-
-			print('TIC-TAC', tac-tic)
-			print('EXPECTED HOWMEORK IS..', homeworks)
-			if len(homeworks) > 0: 
-				for homework in [homeworks]:
-					print('FEATURES ARE', homework)
-					timestamp 	= homework[0]
-					date   		= homework[1]
-					folder 		= homework[1]
-					index_real  = homework[2]
-					# for watermark
-
-					#saveDir = Observer.directorioDeReporte + '/' + folder
-					#timestamp = timestamp#+' index:'+ index_real
-					#self.watermarker.put_watermark(saveDir, timestamp)
-					self.encenderCamaraEnSubDirectorio(date, folder)
-					self.move_captures(index_real)
+			if self.receiver.poll():
+				homeworks		= self.receiver.recv()
+				if len(homeworks) > 0: 
+					for homework in [homeworks]:
+						timestamp 	= homework[0]
+						date   		= homework[1]
+						folder 		= homework[1]
+						index_real  = homework[2]
+						self.encenderCamaraEnSubDirectorio(date, folder)
+						self.move_captures(index_real)
+				else:
+					pass
+				# return state of while loop camera
+				try:
+					run_camera = np.load(Observer.path_to_run_camera)
+				except:
+					print('Cant Load run_camera state, turning off the OBSERVER')
+					run_camera = 0
 			else:
 				pass
-
-			# return state of while loop camera
-			try:
-				run_camera = np.load(Observer.path_to_run_camera)
-			except:
-				print('Cant Load run_camera state, turning off the OBSERVER')
-				run_camera = 0
-
-		print('EXIRING FROM OBSERVER....')
-
+		print('QUITING FROM OBSERVER....')
 
 
 if __name__ == '__main__':
