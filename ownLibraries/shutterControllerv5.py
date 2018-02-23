@@ -361,7 +361,8 @@ class Observer(multiprocessing.Process):
 			try:
 				# Receive indexes from images in WORKDIR
 				path_image_workdir = self.input_q.get(timeout=5)
-				self.circular_buff.appendleft(path_image_workdir)	
+				self.circular_buff.appendleft(path_image_workdir)
+				print('Self circular buff is>>>>>>>>>>', self.circular_buff)
 			except:
 				print('Cant receive buff from images in WORKDIR from  Shutter ')
 
@@ -372,6 +373,7 @@ class Observer(multiprocessing.Process):
 				if len(homeworks) > 0: 
 					for homework in [homeworks]:
 						print('FEATURES ARE', homework)
+
 						timestamp 	= homework[0]
 						date   		= homework[1]
 						folder 		= homework[1]
