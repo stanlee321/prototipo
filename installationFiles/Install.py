@@ -193,7 +193,8 @@ if __name__ == '__main__':
 			print('No se encontro imagen de flujo')
 			print('Accediendo a cámara...')
 			cap=cv2.VideoCapture(0)
-			ret, frame=cap.read()
+			for i in range(100):
+				ret, frame=cap.read()
 			frame=cv2.resize(frame,(640,480))
 	frame2=frame.copy()
 	fram=frame.copy()
