@@ -182,6 +182,8 @@ class Shutter(multiprocessing.Process):
 			for route in sorted(writte_names):
 				self.circular_buff_shooter.appendleft(route)
 				self.input_q.put(route)
+
+			print('CIRCULAR BUFFF IST:::>>>>>>...', self.circular_buff_shooter)
 			self.camera.capture_sequence(writte_names, format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
 			
 			# CLEAN UNUSED IMAGES 
@@ -358,13 +360,11 @@ class Observer(multiprocessing.Process):
 	def run(self):
 		run_camera = np.load(Observer.path_to_run_camera)
 		while run_camera == 1:
-			try:
-				# Receive indexes from images in WORKDIR
-				path_image_workdir = self.input_q.get(timeout=5)
-				self.circular_buff.appendleft(path_image_workdir)
-				print('Self circular buff is>>>>>>>>>>', self.circular_buff)
-			except:
-				print('Cant receive buff from images in WORKDIR from  Shutter ')
+			# Receive indexes from images in WORKDIR
+			path_image_workdir = self.input_q.get()
+			self.circular_buff.appendleft(path_image_workdir)
+			print('Self circular buff is>>>>>>>>>>', self.circular_buff)
+			print('Cant receive buff from images in WORKDIR from  Shutter ')
 
 			try:
 				homeworks		= self.receiver.recv()
