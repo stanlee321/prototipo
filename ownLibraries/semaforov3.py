@@ -34,7 +34,8 @@ class Semaphoro():
 		self.input_q.put(raw_images)
 		try:
 			data = self.ouput_q.get()
-			return data
+
+			return data[0],data[1],data[2], data[3]
 		except:
 			return 0,'nan0',0,0
 		#numerico, literal, flanco, period = data[0], data[1], data[2], data[3]
