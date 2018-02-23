@@ -38,7 +38,7 @@ class ControladorCamara():
 		# Create input and output Queues for send and resive
 		# the information.
 
-		self.receiver, self.sender = multiprocessing.Pipe()
+		self.receiver, self.sender = multiprocessing.Pipe(duplex=False)
 
 
 		self.job_list 	= collections.deque(maxlen=5)
@@ -182,8 +182,7 @@ class Shutter(multiprocessing.Process):
 			for route in sorted(writte_names):
 				self.circular_buff_shooter.appendleft(route)
 				self.input_q.put(route)
-
-			print('CIRCULAR BUFFF IST:::>>>>>>...', self.circular_buff_shooter)
+			##print('CIRCULAR BUFFF IST:::>>>>>>...', self.circular_buff_shooter)
 			self.camera.capture_sequence(writte_names, format='jpeg', use_video_port=True, resize=(self.scale_factor_in_X, self.scale_factor_in_Y))
 			
 			# CLEAN UNUSED IMAGES 
@@ -360,35 +359,35 @@ class Observer(multiprocessing.Process):
 	def run(self):
 		run_camera = np.load(Observer.path_to_run_camera)
 		while run_camera == 1:
+			print('I am runing...')
 			# Receive indexes from images in WORKDIR
 			path_image_workdir = self.input_q.get()
 			self.circular_buff.appendleft(path_image_workdir)
 			print('Self circular buff is>>>>>>>>>>', self.circular_buff)
-			print('Cant receive buff from images in WORKDIR from  Shutter ')
+			print('time ')
+			tic = time.time()
+			homeworks		= self.receiver.recv()
+			tac = time.time()
 
-			try:
-				homeworks		= self.receiver.recv()
-				print('Iam into the tasksss!!!, tasks are')
-				print('EXPECTED HOWMEORK IS..', homeworks)
-				if len(homeworks) > 0: 
-					for homework in [homeworks]:
-						print('FEATURES ARE', homework)
+			print('TIC-TAC', tac-tic)
+			print('EXPECTED HOWMEORK IS..', homeworks)
+			if len(homeworks) > 0: 
+				for homework in [homeworks]:
+					print('FEATURES ARE', homework)
+					timestamp 	= homework[0]
+					date   		= homework[1]
+					folder 		= homework[1]
+					index_real  = homework[2]
+					# for watermark
 
-						timestamp 	= homework[0]
-						date   		= homework[1]
-						folder 		= homework[1]
-						index_real  = homework[2]
+					#saveDir = Observer.directorioDeReporte + '/' + folder
+					#timestamp = timestamp#+' index:'+ index_real
+					#self.watermarker.put_watermark(saveDir, timestamp)
+					self.encenderCamaraEnSubDirectorio(date, folder)
+					self.move_captures(index_real)
+			else:
+				pass
 
-						# for watermark
-
-						#saveDir = Observer.directorioDeReporte + '/' + folder
-						#timestamp = timestamp#+' index:'+ index_real
-						#self.watermarker.put_watermark(saveDir, timestamp)
-						self.encenderCamaraEnSubDirectorio(date, folder)
-						self.move_captures(index_real)
-
-			except Exception as e:
-				print('Pipe not working properly or: e', e)
 			# return state of while loop camera
 			try:
 				run_camera = np.load(Observer.path_to_run_camera)
