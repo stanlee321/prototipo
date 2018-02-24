@@ -98,7 +98,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 		cv2.imwrite('./VideoCapture/' + date_string + '_ROIa5mpConFiltro.png',image2[yMin5:yMax5,xMin5:xMax5])
 		#cv2.imwrite('./VideoCapture/' + date_string + '_zinFiltro.png',image0)		
 		print('captured frame at: '+ date_string)
-		miFiltro.quitarFiltroIR()
+		#miFiltro.quitarFiltroIR()
 	# clear the stream in preparation for the next frame
 	rawCapture.truncate(0)
 	if ch == ord('q'):
