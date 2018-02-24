@@ -30,11 +30,10 @@ class Semaphoro():
 			self.semaphoro.start()
 	def obtenerColorEnSemaforo(self, raw):
 
-		raw_images 	= np.reshape(raw,(24,8,3))
-		self.input_q.put(raw_images)
+		#raw_images 	= np.reshape(raw,(24,8,3))
+		self.input_q.put(raw)
 		try:
 			data = self.ouput_q.get()
-
 			return data[0],data[1],data[2], data[3]
 		except:
 			return 0,'nan0',0,0
@@ -453,7 +452,7 @@ class Real(multiprocessing.Process):
 	def run(self):
 		path_to_run_camera 		= os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
 
-		run_camera = np.load(path_to_run_camera)
+		run_camera =  1#np.load(path_to_run_camera)
 		while run_camera == 1:
 			try:
 				imagen = self.input_q.get()
@@ -465,7 +464,7 @@ class Real(multiprocessing.Process):
 				print('DEBUGS Error Here in reading images, returning feaults ..{}'.format(e))
 				self.ouput_q.put([0,'nan',0, 0, 0])
 
-			run_camera = np.load(path_to_run_camera)
+			#run_camera = np.load(path_to_run_camera)
 
 
 

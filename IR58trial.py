@@ -87,13 +87,13 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 		cv2.imwrite('./VideoCapture/' + date_string + '_sinFiltro.png',image0)
 		cv2.imwrite('./VideoCapture/' + date_string + '_ROIsinFiltro.png',image0[yMin:yMax,xMin:xMax])
 		miFiltro.colocarFiltroIR()
-		ret0, image1=cam.read()
+		image1  = image0
 		cv2.imwrite('./VideoCapture/' + date_string + '_conFiltro.png',image1)
 		cv2.imwrite('./VideoCapture/' + date_string + '_ROIconFiltro.png',image1[yMin:yMax,xMin:xMax])
 		cv2.imshow('Aumento',image1[yMin:yMax,xMin:xMax])
-		cam.set(3,wid5)
-		cam.set(4,hei5)
-		ret0, image2=cam.read()
+		#cam.set(3,wid5)
+		#cam.set(4,hei5)
+		image2 = image0
 		#cv2.imwrite('./VideoCapture/' + date_string + '_a5mpConFiltro.png',image2)
 		cv2.imwrite('./VideoCapture/' + date_string + '_ROIa5mpConFiltro.png',image2[yMin5:yMax5,xMin5:xMax5])
 		#cv2.imwrite('./VideoCapture/' + date_string + '_zinFiltro.png',image0)		
