@@ -30,8 +30,8 @@ class Semaphoro():
 			self.semaphoro.start()
 	def obtenerColorEnSemaforo(self, raw):
 
-		raw_images 	= np.reshape(raw,(24,8,3))
-		self.input_q.put(raw_images)
+		#raw 	= np.reshape(raw,(24,8,3))
+		self.input_q.put(raw)
 		try:
 			data = self.ouput_q.get()
 			return data[0],data[1],data[2], data[3]
