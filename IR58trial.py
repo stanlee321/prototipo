@@ -38,10 +38,10 @@ if resolucion == 8:
 	wid5 = 2592
 	hei5 = 1944
 else:
-	width = 640
-	height = 480
-	wid5 = 320
-	hei5 = 240
+	width = 3280   #640
+	height = 2464  #480
+	wid5 = 2592 	#320
+	hei5 = 1944
 
 xMin = int(2/5*width)
 xMax = int(3/5*width)
@@ -62,9 +62,9 @@ miFiltro.quitarFiltroIR()
 
 # initialize the camera and grab a reference to the raw camera capture
 camera = PiCamera()
-camera.resolution = (640, 480)
-camera.framerate = 32
-rawCapture = PiRGBArray(camera, size=(640, 480))
+camera.resolution = (3280, 2464)
+camera.framerate = 2
+rawCapture = PiRGBArray(camera, size=(3280, 2464))
 
 # allow the camera to warmup
 time.sleep(0.1)
