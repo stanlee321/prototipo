@@ -86,7 +86,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 		date_string = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
 		cv2.imwrite('./VideoCapture/' + date_string + '_sinFiltro.png',image0)
 		cv2.imwrite('./VideoCapture/' + date_string + '_ROIsinFiltro.png',image0[yMin:yMax,xMin:xMax])
-		miFiltro.colocarFiltroIR()
+		#miFiltro.colocarFiltroIR()
 		image1  = image0
 		cv2.imwrite('./VideoCapture/' + date_string + '_conFiltro.png',image1)
 		cv2.imwrite('./VideoCapture/' + date_string + '_ROIconFiltro.png',image1[yMin:yMax,xMin:xMax])
