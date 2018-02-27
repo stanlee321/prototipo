@@ -10,7 +10,7 @@ import collections
 from collections import Counter
 import  scipy.misc
 
-class Semaphoro():
+class CreateSemaforo():
 	"""
 		Class to check the states of a semaforo, also simulates one
 		Init:
@@ -18,57 +18,62 @@ class Semaphoro():
 	"""
 	def __init__(self, periodo = 30):
 		# Set target of multiprocessing
-		self.input_q = multiprocessing.Queue()
-		self.ouput_q = multiprocessing.Queue()
+		#self.input_q = multiprocessing.Queue()
+		#self.ouput_q = multiprocessing.Queue()
+		self.periodo = periodo
+		self.resiver,  self.sender   = multiprocessing.Pipe(duplex=False)
+		self.consumer, self.producer = multiprocessing.Pipe(duplex=False)
+
 		if periodo > 0:
 			# Case of simulation
-			self.semaphoro = Simulation(self.input_q, periodo)
+			self.semaphoro = Simulation(self.producer, periodo)
 			self.semaphoro.start()
 		else:
 			# Case real one
-			self.semaphoro = Real(self.input_q, self.ouput_q)
+			self.semaphoro = Real(self.resiver, self.producer)
 			self.semaphoro.start()
-	def obtenerColorEnSemaforo(self, raw):
-
-		#raw 	= np.reshape(raw,(24,8,3))
-		self.input_q.put(raw)
-		try:
-			data = self.ouput_q.get()
-			return data[0],data[1],data[2], data[3]
-		except:
-			return 0,'nan0',0,0
+	def obtenerColorEnSemaforo(self, raw_i):
+		raw 	= np.reshape(raw_i,(24,8,3))
+		
+		# If simulation
+		if self.periodo > 0:
+			data = self.consumer.recv()
+			return data[0], data[1], data[2], data[3]
+		else:
+			self.sender.send(raw)
+			data = self.consumer.recv()
+			return data[0], data[1], data[2], data[3]
 		#numerico, literal, flanco, period = data[0], data[1], data[2], data[3]
 		#return numerico, literal, flanco, period
 	def stop(self):
+		self.semaphoro.terminate()
 		self.semaphoro.join()
-		self.semaphoro.exit()
 
 
 
 class Simulation(multiprocessing.Process):
 	"""docstring for ProcessSimulation"""
-	def __init__(self, queue, periodo):
+	def __init__(self, producer, periodo):
 		super(Simulation, self).__init__()
 		print('WELCOME to SIMULATION')
-		self.input_q = queue
-		self.periodo = periodo
-		self.count = 0.0
-		self.actual_state = 1  			# g = 1, y = 2, r = 3
-		self.sleeptime = 1.0
-		self.states = collections.deque(maxlen=2)
+		self.producer	= producer
+
+		self.periodo 	= periodo
+		self.count 		= 0.0
+		self.actual_state 	= 1  			# g = 1, y = 2, r = 3
+		self.sleeptime 		= 1.0
+		self.states 		= collections.deque(maxlen=2)
 		self.states.append(self.actual_state)
 		
 		self.flanco = 0
+		self.idx_to_str = {0:'verde', 1:'rojo', 2:'amarillo',-1:'NONE'}
+
 	def counter(self):
 		self.count += 1
 		return self
 	def check_simulated_state(self):
 		self.counter()
 		self.states.append(self.actual_state)
-
-		print('bedore dequeu', self.count)
-		print('dequeu', self.states)
-
 
 		self.actual_state = self.states[-1]
 
@@ -80,8 +85,8 @@ class Simulation(multiprocessing.Process):
 		if self.actual_state == 2:
 			if self.count == 3.0:
 				self.count = 0.0
-				self.actual_state = 3
-		if self.actual_state == 3:
+				self.actual_state = 0
+		if self.actual_state == 0:
 			if self.count == self.periodo:
 				self.count = 0.0
 				self.actual_state = 1
@@ -95,9 +100,9 @@ class Simulation(multiprocessing.Process):
 		#
 		if current == past:					# if actual state = previous_state
 			self.flanco = 0
-		elif current == 3 and past == 2:	# if current state = 
+		elif current == 0 and past == 2:	# if current state = 
 			self.flanco = 1	
-		elif current == 1 and past == 3:
+		elif current == 1 and past == 0:
 			self.flanco = -1
 		elif current == 2 and past == 1:
 			self.flanco = 1
@@ -108,11 +113,16 @@ class Simulation(multiprocessing.Process):
 		while True:
 			time.sleep(self.sleeptime)
 			self.check_simulated_state()
-			self.input_q.put([self.actual_state, self.count, self.flanco])
+			numerico = self.actual_state
+			literal  = self.idx_to_str[self.actual_state]
+			flanco   = self.flanco
+			periodo  = self.count
+			self.producer.send([numerico, literal,flanco,periodo])
 
 
 class Real(multiprocessing.Process):
 
+	path_to_run_camera 		= os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
 
 	def __init__(self, input_q, ouput_q):
 		super(Real, self).__init__()
@@ -140,10 +150,11 @@ class Real(multiprocessing.Process):
 		# expected shape of the image_semaphoro_raw (Weidth,Height,Channels)
 		self.SHAPE = (24,8,3)
 		# read Queue for put the results from inference.
-		self.input_q = input_q
-		self.ouput_q = ouput_q
+		#self.input_q = input_q
+		#self.ouput_q = ouput_q
 
-
+		self.resiver  = input_q
+		self.producer = ouput_q
 		self.periodo = []
 
 
@@ -450,21 +461,19 @@ class Real(multiprocessing.Process):
 			return queue[-1]
 
 	def run(self):
-		path_to_run_camera 		= os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
-
-		run_camera =  1#np.load(path_to_run_camera)
+		run_camera =  1 # np.load(Real.path_to_run_camera)
 		while run_camera == 1:
-			try:
-				imagen = self.input_q.get()
+			if 	self.resiver.poll():
+				imagen = self.resiver.recv()
 				#color, literal_color, flanco, period = self.prediction(imagen)
 				numerical, color_prediction, flanco, periodoAMostrar = self.prediction(imagen)
 				#self.ouput_q.put([self.actual_state, literal_color, flanco, period])
-				self.ouput_q.put([numerical, color_prediction, flanco, periodoAMostrar])
-			except Exception as e:
-				print('DEBUGS Error Here in reading images, returning feaults ..{}'.format(e))
-				self.ouput_q.put([0,'nan',0, 0, 0])
+				self.producer.send([numerical, color_prediction, flanco, periodoAMostrar])
+				#except Exception as e:
+			#else:
+			#	print('DEBUGS Error Here in reading images, returning feaults ..')
+			#	self.consumer.send([0,'nan',0, 0, 0])
 
-			#run_camera = np.load(path_to_run_camera)
 
 
 
@@ -516,7 +525,7 @@ if __name__ == '__main__':
 
 	print('INSTALLTION DATA', sem_img)
 	# Create semaphoro class
-	semaphoro = Semaphoro(periodo = 0)
+	semaphoro = CreateSemaforo(periodo = 0)
 	while True:
 		_, img = cap.read()
 
@@ -531,7 +540,7 @@ if __name__ == '__main__':
 		#cv2.imshow('Semaphoro', img)
 		ch = 0xFF & cv2.waitKey(5)
 		if ch == ord('q'):
-			#semaphoro.stop()
+			semaphoro.stop()
 			break
 	cv2.destroyAllWindows()
 	c = cv2.waitKey(0)
