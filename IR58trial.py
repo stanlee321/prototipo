@@ -77,8 +77,8 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 	image0 = frame.array
 	# Genero la visualizacion:
 	#cv2.imshow('PiCam',cv2.resize(image0,(320,240)))
-	cv2.imshow('PiCam',  image0)
-	cv2.imshow('Aumento',image0[yMin:yMax,xMin:xMax])
+	cv2.imshow('PiCam',  cv2.resize(image0,(320,240)))
+	cv2.imshow('Aumento',cv2.resize(image0[yMin:yMax,xMin:xMax],(320,240)))
 
 	ch = 0xFF & cv2.waitKey(5)
 		#is_red = findColor()
@@ -90,7 +90,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 		image1  = image0
 		cv2.imwrite('./VideoCapture/' + date_string + '_conFiltro.png',image1)
 		cv2.imwrite('./VideoCapture/' + date_string + '_ROIconFiltro.png',image1[yMin:yMax,xMin:xMax])
-		cv2.imshow('Aumento',image1[yMin:yMax,xMin:xMax])
+		cv2.imshow('Aumento', cv2.resize(image1[yMin:yMax,xMin:xMax], (320,240)))
 		#cam.set(3,wid5)
 		#cam.set(4,hei5)
 		image2 = image0
