@@ -7,6 +7,8 @@ import pickle
 import time
 import multiprocessing
 import collections
+import datetime
+import sqlite3
 from collections import Counter
 import  scipy.misc
 
@@ -32,8 +34,8 @@ class CreateSemaforo():
 			# Case real one
 			self.semaphoro = Real(self.resiver, self.producer)
 			self.semaphoro.start()
-	def obtenerColorEnSemaforo(self, raw_i):
-		raw 	= np.reshape(raw_i,(24,8,3))
+	def obtenerColorEnSemaforo(self, raw):
+		#raw 	= np.reshape(raw,(24,8,3))
 		
 		# If simulation
 		if self.periodo > 0:
@@ -122,15 +124,16 @@ class Simulation(multiprocessing.Process):
 
 class Real(multiprocessing.Process):
 
-	path_to_run_camera 		= os.getenv('HOME')+'/'+ 'WORKDIR' + '/' + 'run_camera.npy'
 
 	def __init__(self, input_q, ouput_q):
 		super(Real, self).__init__()
 		print('......Starting REAL semaphoro....')
 		
 		# LOAD THE TRAINED SVM MODEL ... INTO THE MEMORY????
-		path_to_svm_model = os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'binary.pkl'
-		path_to_keras_model = os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'model.h5'
+		path_to_svm_model 		= os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'binary.pkl'
+		path_to_keras_model	 	= os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'model.h5'
+		self.path_to_semaphoro_db	= os.getenv('HOME') + '/' + 'WORKDIR' + '/' + 'semaphoro_periods.db'
+		
 
 		self.path_to_img = os.getenv('HOME') + '/' + 'WORKDIR' + '/' + 'imagen.png'
 
@@ -196,6 +199,13 @@ class Real(multiprocessing.Process):
 		self.local_previous_state	= str
 
 		self.countdown = Timer()
+
+		# Create DB for track the traffic light periods
+		# Create second connection for db_cache
+		self.date 						= datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+		
+		self.create_table(self.path_to_semaphoro_db)
+		#self.dynamic_data_entry(str(self.date), self.local_actual_state, self.flanco, self.ultimoPeriodo)
 
 
 
@@ -301,13 +311,10 @@ class Real(multiprocessing.Process):
 		self.ultimoPeriodo = time.time() - self.tiempoParaPeriodo
 			
 		if self.mean_values['else'] > 150:
-			return -1, 'No hay Semaphoro!!!!!!!!', 0, 0
+			return -1, 'Off', 0, 0
 		# if std of verde and else are less of 1.5 continue to the G-Y-R semaphoro
 		if (self.std_values['verde'] < 1.5 ) and (self.std_values['else'] < 1.5 ) :
-
 			# if exist enought values to calculate the std above of 0.0 continue to G-Y-R semaphoro 
-			
-
 			if (self.std_values['verde'] != 0.0 ) and (self.std_values['else'] != 0.0 ):
 				
 				# calculate the periodos of the three colors:
@@ -355,7 +362,6 @@ class Real(multiprocessing.Process):
 
 				# append this to principal_shard which mantain the G-Y-R transitions.
 				self.principal_shard.append(self.local_actual_state)
-
 
 
 				# Statements for   check the local flancos
@@ -460,6 +466,34 @@ class Real(multiprocessing.Process):
 		except:
 			return queue[-1]
 
+	@staticmethod
+	def create_table(path_to_semaphoro_db):
+
+		# Create table with default values as:
+
+		# WORKDIR, 		dir where to start to work
+		# SAVE_IMG_IN, 	dir where to copy the images from WORKDIR
+		# INDEX, 		for sync the outer and inner process
+		# STATUS, 		took pictures or not status
+
+
+		conn = sqlite3.connect(path_to_semaphoro_db)
+		c 	 =  conn.cursor()
+		c.execute('CREATE TABLE IF NOT EXISTS semaphoro_table(SDateStamp TEXT, SPrediction TEXT, SFlanco REAL, SPeriod REAL)')
+
+	@staticmethod
+	def dynamic_data_entry(path_to_semaphoro_db, DateStamp, Prediction, Flanco, Period):
+
+		conn = sqlite3.connect(path_to_semaphoro_db)
+		c 	 =  conn.cursor()
+
+		c.execute("INSERT INTO  semaphoro_table(SDateStamp, SPrediction, SFlanco, SPeriod) VALUES (?,?,?,?)",\
+			(str(DateStamp), str(Prediction), float(Flanco), float(Period)))
+		conn.commit()
+		# Close coneccions
+		c.close()
+		conn.close()
+
 	def run(self):
 		run_camera =  1 # np.load(Real.path_to_run_camera)
 		while run_camera == 1:
@@ -468,6 +502,9 @@ class Real(multiprocessing.Process):
 				#color, literal_color, flanco, period = self.prediction(imagen)
 				numerical, color_prediction, flanco, periodoAMostrar = self.prediction(imagen)
 				#self.ouput_q.put([self.actual_state, literal_color, flanco, period])
+				if flanco != 0:
+					date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+					Real.dynamic_data_entry(self.path_to_semaphoro_db, date, color_prediction, flanco, periodoAMostrar)
 				self.producer.send([numerical, color_prediction, flanco, periodoAMostrar])
 				#except Exception as e:
 			#else:
