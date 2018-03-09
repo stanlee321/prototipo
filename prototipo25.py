@@ -191,6 +191,7 @@ def __main_function__():
 				pixeles = np.append(pixeles,[frameVideo[indiceSemaforo[1],indiceSemaforo[0]]], axis=0)
 
 			tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
+			tic = time.time()
 			if (tiempoAhora > horaInicioInfraccion) & (tiempoAhora < horaFinalInfraccion):
 				senalSemaforo, semaforoLiteral, flanco, periodo = miSemaforo.obtenerColorEnSemaforo(pixeles)
 			else:
@@ -198,7 +199,8 @@ def __main_function__():
 				if datetime.datetime.now().minute>minuto:
 					minuto = datetime.datetime.now().minute
 					flanco = -1
-
+			tac = time.time()
+			print('tic-tac', tac-tic)
 			frameFlujo = cv2.resize(frameVideo,(320,240))
 			
 			velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear = miPoliciaReportando.seguirImagen(frame_number,frameFlujo,colorSemaforo = senalSemaforo)
