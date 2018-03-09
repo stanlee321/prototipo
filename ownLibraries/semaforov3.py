@@ -312,7 +312,8 @@ class Real(multiprocessing.Process):
 			
 		if self.mean_values['else'] > 150:
 			return -1, 'Off', 0, 0
-		# if std of verde and else are less of 1.5 continue to the G-Y-R semaphoro
+		# if std of verde and else are less of 1.5 ...continue to the G-Y-R semaphoro
+		
 		if (self.std_values['verde'] < 1.5 ) and (self.std_values['else'] < 1.5 ) :
 			# if exist enought values to calculate the std above of 0.0 continue to G-Y-R semaphoro 
 			if (self.std_values['verde'] != 0.0 ) and (self.std_values['else'] != 0.0 ):
@@ -397,6 +398,7 @@ class Real(multiprocessing.Process):
 					else:
 						return numerico, self.local_actual_state, flanco, 0
 				else:
+					# Off semaforo case
 					pass
 				#print(self.local_actual_state, flanco, periodo_amarillo)
 				#color_prediction = self.local_actual_state
@@ -470,13 +472,6 @@ class Real(multiprocessing.Process):
 	def create_table(path_to_semaphoro_db):
 
 		# Create table with default values as:
-
-		# WORKDIR, 		dir where to start to work
-		# SAVE_IMG_IN, 	dir where to copy the images from WORKDIR
-		# INDEX, 		for sync the outer and inner process
-		# STATUS, 		took pictures or not status
-
-
 		conn = sqlite3.connect(path_to_semaphoro_db)
 		c 	 =  conn.cursor()
 		c.execute('CREATE TABLE IF NOT EXISTS semaphoro_table(SDateStamp TEXT, SPrediction TEXT, SFlanco REAL, SPeriod REAL)')
