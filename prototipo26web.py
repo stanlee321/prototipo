@@ -1,5 +1,5 @@
 """
-This new prototipe includes huge improvements in flow detection and image capture for the raspberry pi 
+This new prototipe works with a Flask server the raspberry pi 
 """
 import os
 import sys
@@ -10,22 +10,23 @@ import logging
 import datetime
 import numpy as np
 
-
+# Web Server lib
 from flask import Flask, render_template, Response
 
+# Own Libraries
 from ownLibraries.irswitch import IRSwitch
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.visualizacion import Acetato
-#from ownLibraries.videostream import VideoStream
 from ownLibraries.semaforov2 import CreateSemaforo
 from ownLibraries.determinacionCruces import PoliciaInfractor
 from obtenerHistogramaHorario import exportarInformacionDeHoyO
+
 
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME') + '/trafficFlow/prototipo'
 directorioDeVideos  = os.getenv('HOME') + '/trafficFlow/trialVideos'
 folderDeInstalacion = directorioDeTrabajo + '/installationFiles'
-directorioDeLogo = directorioDeTrabajo + '/watermark'
+directorioDeLogo 	= directorioDeTrabajo + '/watermark'
 
 # Variables diarias:
 nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
@@ -33,20 +34,26 @@ directorioDeReporte = os.getenv('HOME') +'/'+ nombreCarpeta
 reporteDiario = directorioDeReporte+'/reporteDiario.npy'
 
 ### PARAMETROS DE CONTROL DE EJECUCIÓN DE PROGRAMA
-archivoDeVideo = ''
-videofps = 30
-mifps = 8
-saltarFrames = False
-entradaReal = 'en tiempo real '													# Complementario
-## Parametros semaforo
-periodoDeSemaforo = 0
-topeEjecucion = 0
-semaforoSimuladoTexto = 'real '
-oldFlow = False
+archivoDeVideo 	= ''
+videofps 		= 30
+mifps 			= 8
+saltarFrames 	= False
+entradaReal 	= 'en tiempo real '													# Complementario
 
-generarArchivosDebug = False
-mostrarImagen = False
-longitudRegistro = 360
+
+## Parametros semaforo
+periodoDeSemaforo 		= 0
+topeEjecucion 			= 0
+semaforoSimuladoTexto 	= 'real '
+oldFlow 				= False
+
+
+# Para Debugs
+generarArchivosDebug 	= False
+mostrarImagen 			= False
+longitudRegistro 		= 360
+
+# Font
 font = cv2.FONT_HERSHEY_SIMPLEX
 
 # Temporizaciones
@@ -55,27 +62,27 @@ amaneciendo = 8*60																# Tiempo  7:00 am + 4 GMT
 tiempoAhora = datetime.datetime.now().hour*60 +datetime.datetime.now().minute
 
 horaInicioInfraccion = 6*60
-horaFinalInfraccion = 22*60
+horaFinalInfraccion  = 22*60
 
 conVideoGrabado = False
 
 
 
+# Init Web Server parameters
 app = Flask(__name__)
+
 
 @app.route('/')
 def index():
 	return render_template('index.html')
 
 
-
 def nuevoDia():
-	nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
+	nombreCarpeta 		= datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
 	directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
-	reporteDiario = directorioDeReporte+'/reporteDiario.npy'
+	reporteDiario 		= directorioDeReporte+'/reporteDiario.npy'
 	miReporte.setDirectory(directorioDeReporte)
 	miPoliciaReportando.nuevoDia(directorioDeReporte)
-
 
 
 
@@ -130,14 +137,14 @@ def __main_function__():
 	parametrosInstalacion = np.load(folderDeInstalacion+'/'+archivoParametrosACargar)
 	miReporte.info('Datos de Instalacion de: '+folderDeInstalacion+'/'+archivoParametrosACargar)
 
-	indicesSemaforo = parametrosInstalacion[0]
-	poligonoSemaforo = np.array([indicesSemaforo[0],indicesSemaforo[183],indicesSemaforo[191],indicesSemaforo[7]])
-	verticesPartida = parametrosInstalacion[1]
-	verticesLlegada = parametrosInstalacion[2]
-	verticesDerecha = parametrosInstalacion[3]
-	verticesIzquierda = parametrosInstalacion[4]
-	angulo = parametrosInstalacion[5][0]
-	poligonoEnAlta = parametrosInstalacion[6]
+	indicesSemaforo 	= parametrosInstalacion[0]
+	poligonoSemaforo 	= np.array([indicesSemaforo[0],indicesSemaforo[183],indicesSemaforo[191],indicesSemaforo[7]])
+	verticesPartida 	= parametrosInstalacion[1]
+	verticesLlegada 	= parametrosInstalacion[2]
+	verticesDerecha 	= parametrosInstalacion[3]
+	verticesIzquierda 	= parametrosInstalacion[4]
+	angulo 				= parametrosInstalacion[5][0]
+	poligonoEnAlta 		= parametrosInstalacion[6]
 
 	miReporte.info('Cargado exitosamente parametros de instalacion ')#+str(parametrosInstalacion))
 
@@ -184,35 +191,32 @@ def __main_function__():
 	miAcetatoInformativo.establecerLogo(directorioDeLogo+'/dems.png')
 
 	# El historial sera una lista de la siguiente forma:
-	# {numeroFrame: {'frame':np.array((320,240)),'data':{"info"}}}
+	# {numeroFrame: {'frame':np.array((320,240)),
+	#				 'data':{"info"}}}
 	global historial
 	historial = {}
 	frame_number  = 0
 	tiempoAuxiliar = time.time()
 	periodoDeMuestreo = 1.0/mifps
 
-	try: 
+	try:
 		while True:
 			# LEEMOS LA CAMARA DE FLUJO
 			if conVideoGrabado:
 				for i in range(videofps//mifps):
 					ret, frameVideo = miCamara.read()
-					_, jpeg = cv2.imencode('.jpg', frameVideo)
-
-
 			else:
 				ret, frameVideo = miCamara.read()
-				_, jpeg = cv2.imencode('.jpg', frameVideo)
 
-			web_frame = jpeg.tobytes()
 
+			# Discretise 2-D array to 1-D and feed
 			pixeles = np.array([frameVideo[indicesSemaforo[0][1],indicesSemaforo[0][0]]])
 			
 			for indiceSemaforo in indicesSemaforo[1:]:
 				pixeles = np.append(pixeles,[frameVideo[indiceSemaforo[1],indiceSemaforo[0]]], axis=0)
 
 			tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
-			tic = time.time()
+
 			if (tiempoAhora > horaInicioInfraccion) & (tiempoAhora < horaFinalInfraccion):
 				senalSemaforo, semaforoLiteral, flanco, periodo = miSemaforo.obtenerColorEnSemaforo(pixeles)
 			else:
@@ -220,11 +224,13 @@ def __main_function__():
 				if datetime.datetime.now().minute>minuto:
 					minuto = datetime.datetime.now().minute
 					flanco = -1
-			tac = time.time()
-			print('tic-tac', tac-tic)
 
 			frameFlujo = cv2.resize(frameVideo,(320,240))
-			
+
+			# get frame as bytes to feed web-server
+			_, jpeg 		= cv2.imencode('.jpg', frameFlujo)
+			web_frame 		= jpeg.tobytes()
+		
 			velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear = miPoliciaReportando.seguirImagen(frame_number,frameFlujo,colorSemaforo = senalSemaforo)
 			
 			if senalSemaforo >= 1 :							# Si estamos en rojo, realizamos una accion
@@ -234,12 +240,13 @@ def __main_function__():
 			if senalSemaforo <= 0:							# Si estamos en verde realizamos otra accion
 				if flanco == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
 					miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(periodo)+' a '+datetime.datetime.now().strftime('%Y%m%d_%H%M'))
-					cruce = miPoliciaReportando.estadoActual['cruzo']
-					salio = miPoliciaReportando.estadoActual['salio']
-					derecha = miPoliciaReportando.estadoActual['derecha']
-					izquierda = miPoliciaReportando.estadoActual['izquierda']
-					infraccion = miPoliciaReportando.estadoActual['infraccion']
-					otro = miPoliciaReportando.estadoActual['ruido']
+					cruce 		= miPoliciaReportando.estadoActual['cruzo']
+					salio 		= miPoliciaReportando.estadoActual['salio']
+					derecha 	= miPoliciaReportando.estadoActual['derecha']
+					izquierda 	= miPoliciaReportando.estadoActual['izquierda']
+					infraccion 	= miPoliciaReportando.estadoActual['infraccion']
+					otro 		= miPoliciaReportando.estadoActual['ruido']
+
 					vectorDeInicio = [[datetime.datetime.now(),periodo,infraccion,cruce,derecha,izquierda,salio,otro]]
 					if os.path.isfile(reporteDiario):
 						np.save(reporteDiario,np.append(np.load(reporteDiario),vectorDeInicio,0))
@@ -277,7 +284,7 @@ def __main_function__():
 
 			# Draw frame number into image on top
 			for infraction in miPoliciaReportando.listaVehiculos:		
-				puntos = infraction['desplazamiento'].ravel()
+				puntos 			= infraction['desplazamiento'].ravel()
 				puntosExtraidos = puntos.reshape(puntos.shape[0]//2,2)
 				miAcetatoInformativo.colocarObjeto(puntosExtraidos,infraction['estado'])
 
@@ -293,12 +300,12 @@ def __main_function__():
 
 			if generarArchivosDebug:
 				#historial[frame_number]['debug'] = frameFlujo.copy()
-				frameFlujo = miAcetatoInformativo.aplicarAFrame(frameFlujo)
+				frameFlujo 				= miAcetatoInformativo.aplicarAFrame(frameFlujo)
 				historial[frame_number] = {'video':frameFlujo.copy()}
 			else:
 				historial[frame_number] = {'video':frameFlujo.copy()}
 				if mostrarImagen:
-					frameFlujo = miAcetatoInformativo.aplicarAFrame(frameFlujo)
+					frameFlujo 			= miAcetatoInformativo.aplicarAFrame(frameFlujo)
 			
 			if mostrarImagen:
 				#cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(frameFlujo)[120:239,60:360])
@@ -351,6 +358,8 @@ def __main_function__():
 				miPoliciaReportando.apagarCamara()
 				break
 
+
+
 			ch = 0xFF & cv2.waitKey(5)
 			if ch == ord('q'):
 				miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por salida manual')
@@ -358,6 +367,8 @@ def __main_function__():
 				break
 			if ch == ord('s'):
 				cv2.imwrite(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')+'.jpg',frameFlujo)
+
+
 
 			yield (b'--frame\r\n'
 					b'Content-Type: image/jpeg\r\n\r\n' +  web_frame  + b'\r\n\r\n')

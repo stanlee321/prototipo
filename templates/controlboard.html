@@ -1,0 +1,28 @@
+{% extends "header.html" %}
+
+{% block body %}
+
+
+
+<div class"container">
+<form name="pointform" method="post">
+
+	<div class="media">
+		<div class="media-left" >
+			<div id="pointer_div" onclick="point_it(event)">
+				<img  class="img-fluid" alt="Responsive image" style="width:500px;height:333px;visibility:hidden;z-index:2;"" src="../static/images/demo.jpg">
+			</div>
+		</div>
+		<div class="media-body">
+			<h3 class="media-heading">Instllation of semaforo></h3>
+				<div id="pointer_div" onclick="point_it(event)">
+				</div>
+				You pointed on x = <input type="text" name="form_x" size="4" /> - y = <input type="text" name="form_y" size="4" />
+		</div>
+	</div>
+</form>
+
+</div>
+
+{% endblock %}
+<!--style="position:relative;visibility:hidden;z-index:2;" -->
