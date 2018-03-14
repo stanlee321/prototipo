@@ -16,7 +16,7 @@ from ownLibraries.visualizacion import Acetato
 from ownLibraries.videostream import VideoStream
 from ownLibraries.semaforov2 import CreateSemaforo
 from ownLibraries.determinacionCruces import PoliciaInfractor
-from obtenerHistogramaHorario import exportarInformacionDeHoyO
+from ownLibraries.obtenerHistogramaHorario import exportarInformacionDeHoyO
 
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME') + '/trafficFlow/prototipo'

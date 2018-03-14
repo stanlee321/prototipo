@@ -19,7 +19,7 @@ from ownLibraries.mireporte import MiReporte
 from ownLibraries.visualizacion import Acetato
 from ownLibraries.semaforov2 import CreateSemaforo
 from ownLibraries.determinacionCruces import PoliciaInfractor
-from obtenerHistogramaHorario import exportarInformacionDeHoyO
+from ownLibraries.obtenerHistogramaHorario import exportarInformacionDeHoyO
 
 
 # Se crean las variables de directorios
