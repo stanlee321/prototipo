@@ -36,7 +36,8 @@ def video_feed():
 
 @app.route('/my-link/')
 def my_link():
-	global configs, receiver_configs, sender_configs
+	print('Clicked')
+	global configs
 
 	if configs['show_video'] == True:
 		configs['show_video'] = False
@@ -50,11 +51,9 @@ def my_link():
 	return (''), 204
 
 
-def feed_video():
-	stream 		= cv2.VideoCapture(0)
+def feed_video(frane):
 	while True:
 		# Get frame as web frame
-		_, frame 	=	stream.read()
 		ret, jpeg 	= 	cv2.imencode('.jpeg', frame)
 		framebytes 	= 	jpeg.tobytes()
 
@@ -62,7 +61,16 @@ def feed_video():
 					b'Content-Type: image/jpeg\r\n\r\n' +  framebytes + b'\r\n\r\n')
 		
 
+def _mainCamera():
+	stream 		= cv2.VideoCapture(0)
+	while True:
+		_, frameFlujo 	=	stream.read()
+		cv2.imshow('test', frameFlujo)
+		ch = 0xff & cv2.waitKey(5)
+		if ch == ord('q'):
+			break
 
 if __name__ == '__main__':
+	#_mainCamera()
 
 	app.run(host='0.0.0.0', debug=True, threaded=True)
