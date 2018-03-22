@@ -11,7 +11,7 @@ import datetime
 import numpy as np
 
 # Web Server lib
-from flask import Flask, render_template, Response
+import requests
 
 # Own Libraries
 from ownLibraries.irswitch import IRSwitch
@@ -31,6 +31,16 @@ directorioDeLogo 	= directorioDeTrabajo + '/watermark'
 # Variables diarias:
 nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
 directorioDeReporte = os.getenv('HOME') +'/'+ nombreCarpeta
+
+# Configs for server
+directorioDeConfigsServer = os.getenv('HOME') +'/'+ 'trafficFlow' + '/'+ 'prototipo' + '/' +'web' + '/configs_server.npy'
+
+addr = 'http://localhost:5000'
+test_url = addr + '/get_images'
+content_type = 'image/jpeg'
+headers = {'content-type': content_type}
+
+# Reporte diario ruta
 reporteDiario = directorioDeReporte+'/reporteDiario.npy'
 
 ### PARAMETROS DE CONTROL DE EJECUCIÓN DE PROGRAMA
@@ -66,15 +76,6 @@ horaFinalInfraccion  = 22*60
 
 conVideoGrabado = False
 
-
-
-# Init Web Server parameters
-app = Flask(__name__)
-
-
-@app.route('/')
-def index():
-	return render_template('index.html')
 
 
 def nuevoDia():
@@ -201,6 +202,9 @@ def __main_function__():
 
 	try:
 		while True:
+			# Load configs for stream to server if needed
+			configs_server = np.load(directorioDeConfigsServer)
+
 			# LEEMOS LA CAMARA DE FLUJO
 			if conVideoGrabado:
 				for i in range(videofps//mifps):
@@ -226,10 +230,6 @@ def __main_function__():
 					flanco = -1
 
 			frameFlujo = cv2.resize(frameVideo,(320,240))
-
-			# get frame as bytes to feed web-server
-			_, jpeg 		= cv2.imencode('.jpg', frameFlujo)
-			web_frame 		= jpeg.tobytes()
 		
 			velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear = miPoliciaReportando.seguirImagen(frame_number,frameFlujo,colorSemaforo = senalSemaforo)
 			
@@ -311,7 +311,14 @@ def __main_function__():
 				#cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(frameFlujo)[120:239,60:360])
 				cv2.imshow('Visual',frameFlujo)
 
-			#else:
+			#   pass
+			if configs_server[0] == True:
+				try:
+					_, img_encoded = cv2.imencode('.jpg', frameFlujo)
+					r = requests.post(test_url, data=img_encoded.tostring(), headers=headers)
+				except Exception as e:
+					print('<SERVER ERROR> This happen ,', e)
+				#else:
 			#	historial[frame_number]['frame'] = historial[frame_number]['captura']
 			historial[frame_number]['data'] = [velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear]
 			miAcetatoInformativo.inicializar()
@@ -377,13 +384,6 @@ def __main_function__():
 		miReporte.info('Salida forzada')
 		miPoliciaReportando.apagarCamara()
 
-
-@app.route('/video_feed')
-def video_feed():
-    return Response(__main_function__(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
-
-
 if __name__ == '__main__':
 	# Tomamos los ingresos para controlar el video
 	for input in sys.argv:
@@ -404,7 +404,4 @@ if __name__ == '__main__':
 			topeEjecucion = int(input[:-1])
 		if input == 'Old':
 			oldFlow = True
-
-	app.run(host='0.0.0.0', debug=False, threaded=False)
-
-	#__main_function__()
+	__main_function__()
