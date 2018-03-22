@@ -33,7 +33,7 @@ nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
 directorioDeReporte = os.getenv('HOME') +'/'+ nombreCarpeta
 
 # Configs for server
-directorioDeConfigsServer = os.getenv('HOME') +'/'+ 'trafficFlow' + '/'+ 'prototipo' + '/' +'webserver' + '/configs_server.npy'
+directorioDeConfigsServer = os.getenv('HOME') +'/'+ 'trafficFlow' + '/'+ 'prototipo' + '/' +'web' + '/configs_server.npy'
 addr = 'http://localhost:5000'
 test_url = addr + '/get_images'
 content_type = 'image/jpeg'
@@ -87,7 +87,7 @@ def nuevoDia():
 
 
 # Función principal
-def __main_function__():
+def main():
 	# Import some global varialbes
 	global archivoDeVideo
 	global acaboDeIniciarNuevoCiclo
@@ -205,7 +205,7 @@ def __main_function__():
 				# Load configs for stream to server if needed
 				configs_server = np.load(directorioDeConfigsServer)
 			except:
-				print('error trying to read configs_server in /webserver folder')
+				print('error trying to read configs_server in /web folder')
 
 
 			# LEEMOS LA CAMARA DE FLUJO
@@ -373,8 +373,6 @@ def __main_function__():
 				miPoliciaReportando.apagarCamara()
 				break
 
-
-
 			ch = 0xFF & cv2.waitKey(5)
 			if ch == ord('q'):
 				miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por salida manual')
@@ -382,11 +380,6 @@ def __main_function__():
 				break
 			if ch == ord('s'):
 				cv2.imwrite(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')+'.jpg',frameFlujo)
-
-
-
-			yield (b'--frame\r\n'
-					b'Content-Type: image/jpeg\r\n\r\n' +  web_frame  + b'\r\n\r\n')
 			
 	except KeyboardInterrupt as e:
 		miReporte.info('Salida forzada')
@@ -412,4 +405,5 @@ if __name__ == '__main__':
 			topeEjecucion = int(input[:-1])
 		if input == 'Old':
 			oldFlow = True
-	__main_function__()
+	print('Starting...')
+	main()

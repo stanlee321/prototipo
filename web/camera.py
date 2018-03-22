@@ -29,8 +29,7 @@ def _mainProgram( ingest_queue = None):
 		# Read camera
 		ret, frameFlujo = miCamara.read()
 		frameFlujo = cv2.resize(frameFlujo,(320,240))
-		configs = np.load('./configs.npy')
-		#   pass
+		configs = np.load('./configs_server.npy')
 		if configs[0] == True:
 			try:
 				_, img_encoded = cv2.imencode('.jpg', frameFlujo)

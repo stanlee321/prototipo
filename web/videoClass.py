@@ -3,7 +3,7 @@ import os
 import cv2
 
 class FeedVideo():
-    configs_server_path = os.getenv('HOME') +'/'+ 'trafficFlow' + '/'+ 'prototipo' + '/' +'webserver' + '/configs_server.npy'
+    configs_server_path = os.getenv('HOME') +'/'+ 'trafficFlow' + '/'+ 'prototipo' + '/' +'web' + '/configs_server.npy'
     def __init__(self):
         # Create placeholder for imagen
         self.imagen     = None
@@ -31,6 +31,7 @@ class FeedVideo():
 
 
     def saveConfigsToDisk(self, path='./configs_server.npy'):
+        print('saving configs to...', path)
         np.save('{}'.format(path), self.configs)
 
     # Getters
