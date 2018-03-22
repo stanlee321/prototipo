@@ -33,8 +33,7 @@ nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
 directorioDeReporte = os.getenv('HOME') +'/'+ nombreCarpeta
 
 # Configs for server
-directorioDeConfigsServer = os.getenv('HOME') +'/'+ 'trafficFlow' + '/'+ 'prototipo' + '/' +'web' + '/configs_server.npy'
-
+directorioDeConfigsServer = os.getenv('HOME') +'/'+ 'trafficFlow' + '/'+ 'prototipo' + '/' +'webserver' + '/configs_server.npy'
 addr = 'http://localhost:5000'
 test_url = addr + '/get_images'
 content_type = 'image/jpeg'
@@ -202,8 +201,12 @@ def __main_function__():
 
 	try:
 		while True:
-			# Load configs for stream to server if needed
-			configs_server = np.load(directorioDeConfigsServer)
+			try:	
+				# Load configs for stream to server if needed
+				configs_server = np.load(directorioDeConfigsServer)
+			except:
+				print('error trying to read configs_server in /webserver folder')
+
 
 			# LEEMOS LA CAMARA DE FLUJO
 			if conVideoGrabado:
@@ -311,14 +314,19 @@ def __main_function__():
 				#cv2.imshow('Visual', miAcetatoInformativo.aplicarAFrame(frameFlujo)[120:239,60:360])
 				cv2.imshow('Visual',frameFlujo)
 
-			#   pass
-			if configs_server[0] == True:
-				try:
-					_, img_encoded = cv2.imencode('.jpg', frameFlujo)
-					r = requests.post(test_url, data=img_encoded.tostring(), headers=headers)
-				except Exception as e:
-					print('<SERVER ERROR> This happen ,', e)
-				#else:
+			#  if can read configs_server then check state to send image
+			try:
+				if configs_server[0] == True:
+					try:
+						_, img_encoded = cv2.imencode('.jpg', frameFlujo)
+						r = requests.post(test_url, data=img_encoded.tostring(), headers=headers)
+					except Exception as e:
+						print('<SERVER ERROR> Cannot send images to server, This happen ,', e)
+				else:
+					pass
+			except:
+				print('Cannot read configs_server..passing')
+
 			#	historial[frame_number]['frame'] = historial[frame_number]['captura']
 			historial[frame_number]['data'] = [velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear]
 			miAcetatoInformativo.inicializar()

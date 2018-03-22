@@ -1,0 +1,30 @@
+{% extends "header.html" %}
+
+{% block body %}
+
+
+{% if show==True %}
+	<button><a href="/my-link/">Click to TURN OFF Video </a></button>
+{% else %}
+	<button><a href="/my-link/">Click to Video </a></button>
+{% endif %}
+
+<div class="container">
+  <!-- Left-aligned media object -->
+  	<div class="media">
+	    <div class="media-left">
+	    	{% if show==True %}
+				<img class="img-fluid" alt="Responsive image" src="{{ url_for('video_feed') }}">
+			{% else %}
+				<img class="img-fluid" style="max-width:400px; max-height:400px" alt="Responsive image" src="../static/images/logo.png">
+			{% endif %}
+	    </div>
+	    <div class="media-body">
+	      <h4 class="media-heading">Live Video Feed</h4>
+	      <p>This must be a installation....</p>
+		</div>
+	</div>
+</div>
+
+
+{% endblock %}
