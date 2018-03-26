@@ -12,41 +12,43 @@ import sqlite3
 from collections import Counter
 import  scipy.misc
 
+import logging 
+import pandas as pd
+
+
 class CreateSemaforo():
 	"""
-		Class to check the states of a semaforo, also simulates one
-		Init:
-			periodo : int  # by feault 0, that means it runs the real case one
+		This Class init Semaforo , Real or Simulation case.
 	"""
 	def __init__(self, periodo = 30):
-		# Set target of multiprocessing
-		#self.input_q = multiprocessing.Queue()
-		#self.ouput_q = multiprocessing.Queue()
 		self.periodo = periodo
+
+		# Create Pipis for send and resive the information betwhen process.
 		self.resiver,  self.sender   = multiprocessing.Pipe(duplex=False)
 		self.consumer, self.producer = multiprocessing.Pipe(duplex=False)
 
-		if periodo > 0:
-			# Case of simulation
+		if periodo > 0: # If periodo is > 0 create Simulation
 			self.semaphoro = Simulation(self.producer, periodo)
 			self.semaphoro.start()
 		else:
-			# Case real one
 			self.semaphoro = Real(self.resiver, self.producer)
 			self.semaphoro.start()
 	def obtenerColorEnSemaforo(self, raw):
+
+		# If Debug with video pass else uncomment
 		#raw 	= np.reshape(raw,(24,8,3))
 		
-		# If simulation
-		if self.periodo > 0:
+		if self.periodo > 0:  # If simulation
+			# Read the data from the producer in simulation.
 			data = self.consumer.recv()
 			return data[0], data[1], data[2], data[3]
 		else:
+			# Send the images to The Producer
 			self.sender.send(raw)
+
+			# Read the ouputs from The Producer
 			data = self.consumer.recv()
-			return data[0], data[1], data[2], data[3]
-		#numerico, literal, flanco, period = data[0], data[1], data[2], data[3]
-		#return numerico, literal, flanco, period
+			return data[0], data[1], data[2], data[3] #numerico, literal, flanco, period
 	def stop(self):
 		self.semaphoro.terminate()
 		self.semaphoro.join()
@@ -54,7 +56,9 @@ class CreateSemaforo():
 
 
 class Simulation(multiprocessing.Process):
-	"""docstring for ProcessSimulation"""
+	"""
+	 	 This Class is a Traffic Light simulator
+	 """
 	def __init__(self, producer, periodo):
 		super(Simulation, self).__init__()
 		print('WELCOME to SIMULATION')
@@ -102,7 +106,7 @@ class Simulation(multiprocessing.Process):
 		#
 		if current == past:					# if actual state = previous_state
 			self.flanco = 0
-		elif current == 0 and past == 2:	# if current state = 
+		elif current == 0 and past == 2:	 
 			self.flanco = 1	
 		elif current == 1 and past == 0:
 			self.flanco = -1
@@ -127,38 +131,69 @@ class Real(multiprocessing.Process):
 
 	def __init__(self, input_q, ouput_q):
 		super(Real, self).__init__()
-		print('......Starting REAL semaphoro....')
-		
-		# LOAD THE TRAINED SVM MODEL ... INTO THE MEMORY????
-		path_to_svm_model 		= os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'binary.pkl'
-		path_to_keras_model	 	= os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'model.h5'
-		self.path_to_semaphoro_db	= os.getenv('HOME') + '/' + 'WORKDIR' + '/' + 'semaphoro_periods.db'
-		
+		print('......Starting REAL TRAFICLIGHT....')
 
-		self.path_to_img = os.getenv('HOME') + '/' + 'WORKDIR' + '/' + 'imagen.png'
+		# Set initial time 
+		TODAYDATE = datetime.datetime.now().strftime('%Y-%m-%d')
 
-		if os.path.isfile(path_to_svm_model):# and os.path.isfile(self.path_to_img):
+		# Some paths to Folders
+		LOG_FOLDER  = 	os.getenv('HOME') + '/' + 'WORKDIR' + '/' + 'Logs/'
+		DBS_FOLDER	=	os.getenv('HOME') + '/' + 'WORKDIR' + '/' + 'DBS/'
+		self.TS_DATA_FOLDER	= 	os.getenv('HOME') + '/' + 'WORKDIR'	+ '/' + 'tseriesdata/'
+		
+		# Create Folders if this does not exists
+		if not os.path.exists(LOG_FOLDER):
+			os.makedirs(LOG_FOLDER)
+		else:
+			# Folder {}.format(LOG_FOLDER) already exist
+			pass
+		if not os.path.exists(DBS_FOLDER):
+			os.makedirs(DBS_FOLDER)
+		else:
+			# Folder {}.format(DBS_FOLDER) already exist
+			pass
+		if not os.path.exists(self.TS_DATA_FOLDER):
+			os.makedirs(self.TS_DATA_FOLDER)
+		else:
+			# Folder {}.format(TS_DATA_FOLDER) already exist
+			pass
+
+		# Some paths to files
+		LOG_PATH	=	LOG_FOLDER + 'LOGGIN_semaforo_{}.log'.format(TODAYDATE)
+
+		# Path to  DB for keep traffic light transition states
+		self.today_semaphoro_db_path = os.getenv('HOME') + '/' + 'WORKDIR' + '/' +'DBS/' + 'semaphoro_periods_{}.db'.format(TODAYDATE)
+
+		# Paths to Machine Learning models
+		path_to_svm_model 		= os.getenv('HOME') + '/' + 'trafficFlow' + \
+									'/' + 'prototipo' +'/' + 'model' + '/' + 'binary.pkl'
+		path_to_keras_model	 	= os.getenv('HOME') + '/' + 'trafficFlow' + \
+									'/' + 'prototipo' +'/' + 'model' + '/' + 'model.h5'
+		# Check Models path
+		if os.path.isfile(path_to_svm_model): # If Model exist load into memory
 			print ("Using previous model... {}".format(path_to_svm_model))
-			#print ("Reading route to imagen.npy... {}".format(self.path_to_img))
 			self.svm = pickle.load(open(path_to_svm_model, "rb"))
-			#self.imagen_semaphoro_raw = self.path_to_img
 		else:
 			print ("No model found in {}, please check the path to the ML model!!".format(path_to_svm_model))
 
+		# Set Logging configs
+		LOG_FORMAT  =  	"%(levelname)s %(asctime)s - - %(message)s"
+		logging.basicConfig(filename = LOG_PATH,
+							level = logging.DEBUG,
+							format = LOG_FORMAT)
+		# Create Logger
+		self.logger = logging.getLogger()
 
 		# idx to string
 		self.idx_to_str = {0:'verde', 1:'else'}
 		self.str_to_ids = {'verde':0 , 'else': 1, 'amarillo':2, 'rojo': 1 }
 
-		# expected shape of the image_semaphoro_raw (Weidth,Height,Channels)
+		# Expected shape INPUT of the image_semaphoro_raw (Weidth,Height,Channels)
 		self.SHAPE = (24,8,3)
-		# read Queue for put the results from inference.
-		#self.input_q = input_q
-		#self.ouput_q = ouput_q
 
+		# Load the Pipes 
 		self.resiver  = input_q
 		self.producer = ouput_q
-		self.periodo = []
 
 
 		# Periodos
@@ -168,93 +203,114 @@ class Real(multiprocessing.Process):
 		self.tiempo_para_periodo_amarillo 	= time.time()
 		self.ultimo_periodo_amarillo		= time.time() - self.tiempo_para_periodo_amarillo
 
-		self.maximoTiempoPeriodo	= 150			# 2 minutos y medio sera el timeout para determinar que no se esta viendo semaforo
 
+		# 2 minutos y medio sera el timeout para determinar que no se esta viendo semaforo
+		self.maximoTiempoPeriodo	= 150
+
+		# Random numbers for init Traffic Light  Prob. Distributions model
 		random_number_1 = np.random.random_sample()*100
 		random_number_2 = np.random.random_sample()*100
 		random_number_3 = np.random.random_sample()*100
 		random_number_4 = np.random.random_sample()*100
 
 
-		self.periodos_dict = {'verde':[], 'else':[]}
+		# Deques for states data circulation 
+		self.principal_shard    = collections.deque(maxlen=2)	# GLOBAL maxlen of 2 for check transitions in Flanco
+		self.raw_states 		= collections.deque(maxlen=2)	# LOCAL  maxlen of 2 for check transitions in Flanco
+		VERDE_deque				= collections.deque(maxlen=20)  # For keep track the VERDE periods
+		ELSE_deque				= collections.deque(maxlen=20)	# For keep track the ELSE periods.
+
+		# Dictionary placeholder to save the traffic light transitions times.
+		self.periodos_dict = {'verde':VERDE_deque, 'else':ELSE_deque}
+
+		# Dictionary to save the values to exterior world
+		self.periodosToNumpy = {'verde' : [] , 'else': []}
+
+		# Dictionary to save Stadistical Values from Transitions
 		self.mean_values = {'verde': random_number_1, 'else':random_number_2}
 		self.std_values  = {'verde': random_number_3, 'else':random_number_4}
 
 
+		# PlaceHolders for actual and previous states
+		# Globals
 		self.global_actual_state	= str
 		self.global_previous_state	= str
-
-		self.global_shard    	= collections.deque(maxlen=40)	
-
-
-		self.principal_shard    = collections.deque(maxlen=2)	
-		self.raw_states 		= collections.deque(maxlen=2)
-
-		self.raw_states.append(self.global_actual_state)
-		
-
-		self.flanco = 0
-
+		# Locals
 		self.local_actual_state		= str
 		self.local_previous_state	= str
 
-		self.countdown = Timer()
 
-		# Create DB for track the traffic light periods
-		# Create second connection for db_cache
-		self.date 						= datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+
+		# Init raw_states with a global actual state
+		self.raw_states.append(self.global_actual_state)
 		
-		self.create_table(self.path_to_semaphoro_db)
-		#self.dynamic_data_entry(str(self.date), self.local_actual_state, self.flanco, self.ultimoPeriodo)
+		# Init Flanco to 0
+		self.flanco = 0
 
+		# Limit to know if this period is Noice, less of this time, this periodo es noice...
+		self.is_noice_thress = 0
+
+		# No Traffic Light limit
+		self.no_traffic_light_time		= 150			# 150 Segs limit ot say there'r not TrafficLight 
+
+		# Limit shart to save
+		self.bucketLimit 				= 30			# every 30 minutes save
+		
+		# Index to keep track of buckets 
+		self.bucketIndex				= 0 
+
+		# Init a countdown for the states
+		self.countdown = Timer()
+	
+		# Create DB for keep track of Traffic Light states across the day
+		self._createTable(self.today_semaphoro_db_path)
 
 
 	@staticmethod	
-	def extract_feature(image_file):
-		img 		= image_file
+	def _extract_feature(raw_image):
 		SHAPE 		= (24, 8)
-		img 		= cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-		hsv 		= cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+		img 		= cv2.cvtColor(raw_image, cv2.COLOR_BGR2RGB)
+		hsv 		= cv2.cvtColor(raw_image, cv2.COLOR_BGR2HSV)
 
 		# SOME MASKS
-		lower_yellow = 	np.array([255,255,255], dtype=np.uint8) #_18_40_190
+		lower_yellow = 	np.array([255,255,255], dtype=np.uint8) # CLOSE all the colors for YELLOW
 		upper_yellow =	np.array([255,255,255], dtype=np.uint8)
 
 		# RED range
-		lower_red 	= np.array([255,255, 255], dtype=np.uint8) #_,70,_
+		lower_red 	= np.array([255,255, 255], dtype=np.uint8) 	# CLOSE all the colors for RED
 		upper_red 	= np.array([180,255,255], dtype=np.uint8)
 
 		# GREEN range
-		lower_green = np.array([22,10,0], dtype=np.uint8)
+		lower_green = np.array([22,10,0], dtype=np.uint8)		# OPEN Green channels
 		upper_green = np.array([95,255,255 ], dtype=np.uint8)
 
-
+		# Combine the Channels
 		mask_red 	= cv2.inRange(hsv, lower_red, 		upper_red)
 		mask_yellow = cv2.inRange(hsv, lower_yellow,	upper_yellow)
 		mask_green 	= cv2.inRange(hsv, lower_green, 	upper_green)
-
 		full_mask 	= mask_red + mask_yellow + mask_green
 
 		# Put the mask and filter the R, Y , G colors in _imagen_
-		res 		= cv2.bitwise_and(img, img, mask = full_mask)
-		#res = cv2.bilateralFilter(res,35,35,35)
-		#cv2.imshow('Semaphoro', cv2.resize(res,(320,240)))
+		res 		= cv2.bitwise_and(raw_image, raw_image, mask = full_mask)
+		inputImage 	= cv2.resize(res, SHAPE, interpolation = cv2.INTER_CUBIC)
 
-		img 		= cv2.resize(res, SHAPE, interpolation = cv2.INTER_CUBIC)
-		img 		= img.flatten()
-		img 		= img / 255
-		img         = img.reshape(1, -1)
-		return img
+		# Set 1D array
+		inputImage 	= inputImage.flatten()
+		
+		# Normalize to 0-1 range
+		inputImage 	= inputImage / 255
+
+		# Return Data for Machine Learning Classifica
+		return inputImage.reshape(1, -1)
 
 	@staticmethod
-	def sigmoid(x):
-		x = np.asarray(x)
-		s = 1 / (1+np.exp(-x))
+	def _sigmoid(x):
+		s = 1 / (1+np.exp(-np.asarray(x)))
 		return s
 
-	def find_color(self,imagen):
+	def _find_color(self, imagen):
 		# ML PROCESS
-		X = self.extract_feature(imagen)
+		X = self._extract_feature(imagen)
 		Y = self.svm.predict(X)[0]
 		###########################
 		# END SVM PART (CLASSIFICATION) 
@@ -267,19 +323,16 @@ class Real(multiprocessing.Process):
 			return 1
 
 
-	def prediction(self, imagen):
+	def prediction(self, imagen_raw):
 
 		# Obtain the prediction
-		Y = self.find_color(imagen)
+		Y = self._find_color(imagen_raw)
 
 		# Reset global counter
 		periodoAMostrar = 0
 		
 		# get color as literal
 		color_prediction = self.idx_to_str[Y]
-
-		#self.global_shard.append(color_prediction_raw)
-		#color_prediction = self.filter()
 
 		# Append the prediction to global buffer
 		self.raw_states.append(color_prediction)
@@ -288,44 +341,75 @@ class Real(multiprocessing.Process):
 		# Calculate the global flanco
 		self._checkflanco_simple()
 		
-		# Check the global flanco and calculate the mean and std of this period
+		# Check the global flanco and calculate the mean and std of this past period
 		if self.flanco == 1:
 			periodoAMostrar 	   = self.ultimoPeriodo
 			self.tiempoParaPeriodo = time.time()
-			# If periodo para mostrar is less of 0 , this is noice ... pass
-			if round(periodoAMostrar) <= 0:
-				pass
-				#print('Noice...')
-			else:
-				# append the periods to the global dict 
-				self.periodos_dict[color_prediction].append(periodoAMostrar)
 
+			if round(periodoAMostrar) <= self.is_noice_thress: # If periodo para mostrar is less of 0 , this is noice ... pass
+				self.logger.warning('NOICE NOICE with  periodoAMostrar: {}'.format(periodoAMostrar))
+			else:
+				self.periodos_dict[color_prediction].append(periodoAMostrar) 	# append the periods to the global dict deques
+				
+				actualTime 	= datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S') # Get acutal time to row data
+				AUX_ROW 	= {'periodo': periodoAMostrar, 'time': actualTime}		# Auxilar Dictionary to pass into the dicts.
+
+				self.periodosToNumpy[color_prediction].append(AUX_ROW) 			# append to periodostoNumpy
+				
+				print('color_prediction', self.periodos_dict	)
 				# calculate the mean and std of this periodos
-				self.mean_values[color_prediction] = np.mean(self.periodos_dict[color_prediction][0:])
-				self.std_values[color_prediction]  = np.std(self.periodos_dict[color_prediction][0:])
+				self.mean_values[color_prediction] = np.mean(self.periodos_dict[color_prediction])  # TODO Check Limits 0: to...
+				self.std_values[color_prediction]  = np.std(self.periodos_dict[color_prediction])	# TODO Check Limits 0: to...
+
+
+				# Check if list is in the limit of 40 elements.
+				if (len(self.periodosToNumpy['verde']) == self.bucketLimit) and (len(self.periodosToNumpy['else']) == self.bucketLimit):
+					# Save to disk uncompleted data
+					df  	= pd.DataFrame.from_dict(self.periodosToNumpy, orient='index')
+					data 	= df.transpose()
+
+					# Loggers amd Path infoLOG_FOLDER  = 	'
+					now 	= datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+					PATH_TO_SAVE_CSV  =	self.TS_DATA_FOLDER  + 'periodos-{}-{}.csv'.format(now, self.bucketIndex)
+					self.logger.info('SAVING periodosToNumpy with route {} '.format(PATH_TO_SAVE_CSV))
+					# Save to disk
+					data.to_csv(PATH_TO_SAVE_CSV, sep='\t', encoding='utf-8')
+
+					# Reset the Dict
+					self.periodosToNumpy = {'verde' : [] , 'else': []}
+
+					# Increase bucketIndex 
+					self.bucketIndex += 1
 		else:
 			pass
 
 
 		# Update the last period
 		self.ultimoPeriodo = time.time() - self.tiempoParaPeriodo
-			
-		if self.mean_values['else'] > 150:
-			return -1, 'Off', 0, 0
-		# if std of verde and else are less of 1.5 ...continue to the G-Y-R semaphoro
 		
+
+		# Check if  acumulate mean_values of "ELSE" are mayor of 150
+		if self.mean_values['else'] > self.no_traffic_light_time:			# TODO check if is comvenient use STD
+			return -1, 'Off', 0, 0
+
+
+		# if STD of verde and else are less of 1.5 in the distribution ...continue to the G-Y-R semaphoro
 		if (self.std_values['verde'] < 1.5 ) and (self.std_values['else'] < 1.5 ) :
-			# if exist enought values to calculate the std above of 0.0 continue to G-Y-R semaphoro 
+
+			# if exist enought values in the distribution to calculate the 
+			# STD above of 0.0 continue to G-Y-R semaphoro 
 			if (self.std_values['verde'] != 0.0 ) and (self.std_values['else'] != 0.0 ):
 				
-				# calculate the periodos of the three colors:
+				# Start to calculate the periodos of the three colors:
 				periodo_verde 	 = self.mean_values['verde'] + self.std_values['verde']
 				periodo_else	 = self.mean_values['else'] + self.std_values['else']
+
+				# Inference, this must be the colors of yellow and red.
 				periodo_amarillo = periodo_else - periodo_verde
 				periodo_rojo 	 = periodo_else - periodo_amarillo
 
+				# Assing to the global_actual_sate the value of actual color_prediction
 				self.global_actual_state = color_prediction
-
 
 
 				# if exist verde and else  in deque buffer of len two , transition.... from
@@ -342,6 +426,7 @@ class Real(multiprocessing.Process):
 				if self.countdown.init_time != None:
 					# if started check the time
 					value = float(self.countdown.elapsed().split(': ')[-1])
+
 					# if time is above of amarillo period
 					if value  > periodo_amarillo:
 						self.local_previous_state 	= 'amarillo'
@@ -353,7 +438,6 @@ class Real(multiprocessing.Process):
 					pass
 
 				# Check if exist transition from else 'rojo' from global buffer to 'verde'
-
 				if (self.raw_states[-2] == 'else') and (self.raw_states[-1] == 'verde'):
 					# TRANSITION FROM  else 'rojo' to verde
 					self.local_previous_state 	= 'rojo'
@@ -400,10 +484,6 @@ class Real(multiprocessing.Process):
 				else:
 					# Off semaforo case
 					pass
-				#print(self.local_actual_state, flanco, periodo_amarillo)
-				#color_prediction = self.local_actual_state
-
-				#return color_prediction, self.flanco, periodoAMostrar
 			else:
 				#print('Still returiong the binary case...')
 				numerico = 	self.str_to_ids[color_prediction]
@@ -447,7 +527,8 @@ class Real(multiprocessing.Process):
 				print('No match found, current: {},  past: {}, returning 0'.format(current, past))
 		else:
 			return 0
-	
+	"""
+	TODO MAKE THIS FUNCTIONAL
 	def filter(self):
 		queue		= list(self.global_shard)
 		try:
@@ -467,9 +548,9 @@ class Real(multiprocessing.Process):
 				return 'verde'
 		except:
 			return queue[-1]
-
+	"""
 	@staticmethod
-	def create_table(path_to_semaphoro_db):
+	def _createTable(path_to_semaphoro_db):
 
 		# Create table with default values as:
 		conn = sqlite3.connect(path_to_semaphoro_db)
@@ -490,21 +571,48 @@ class Real(multiprocessing.Process):
 		conn.close()
 
 	def run(self):
-		run_camera =  1 # np.load(Real.path_to_run_camera)
+		run_camera = 1 
 		while run_camera == 1:
-			if 	self.resiver.poll():
+			if 	self.resiver.poll(): # Check if exist input images from main program.
+				# Read images form sender
 				imagen = self.resiver.recv()
-				#color, literal_color, flanco, period = self.prediction(imagen)
+
+				# Return predictions 
 				numerical, color_prediction, flanco, periodoAMostrar = self.prediction(imagen)
-				#self.ouput_q.put([self.actual_state, literal_color, flanco, period])
+
+				# if Flanco is != from 0, add the above results to DB 
 				if flanco != 0:
-					date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-					Real.dynamic_data_entry(self.path_to_semaphoro_db, date, color_prediction, flanco, periodoAMostrar)
+
+					if os.path.isfile(self.today_semaphoro_db_path): # If Model exist load into memory
+						date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+						Real.dynamic_data_entry(self.today_semaphoro_db_path, date, color_prediction, flanco, periodoAMostrar)		
+
+					else:
+						# Notify that there was not folder
+						self.logger.info('THERE WAS NOT DB FOLDER in {}'. format(self.today_semaphoro_db_path))
+						# Create a new DB with TOdays date
+						TODAY = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+						self.today_semaphoro_db_path = os.getenv('HOME') + '/' + 'WORKDIR' + '/' +'DBS/' + 'semaphoro_periods_{}.db'.format(TODAY)
+
+
+						# Attempt to create a new DB
+						self._createTable(self.today_semaphoro_db_path)
+
+						# Notify that data saving.. in new direction
+						self.logger.info('SAVING DB DATA in... {}'.format(self.today_semaphoro_db_path))
+
+						date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+						Real.dynamic_data_entry(self.today_semaphoro_db_path, date, color_prediction, flanco, periodoAMostrar)		
+
+
+				# Send the results back to consumer in main program				
 				self.producer.send([numerical, color_prediction, flanco, periodoAMostrar])
-				#except Exception as e:
+			
 			#else:
-			#	print('DEBUGS Error Here in reading images, returning feaults ..')
-			#	self.consumer.send([0,'nan',0, 0, 0])
+			#	print('DEBUGS Error Here in reading images, returning feaults  WE..')
+			#	print('WE ARE NOT RESIVING IMAGES FROM MAIN PROGRAM!!!!..')
+			#	print('SENDING DEAFULTS....')
+				#self.consumer.send([0,'nan',0, 0, 0])
 
 
 
@@ -534,7 +642,6 @@ class Timer(object):
         """Time elapsed since start was called"""
         return message + str(time.time() - self.__init_time)
 
-
     def start(self):
         """Starts the timer"""
         self.__init_time = time.time()
@@ -542,7 +649,7 @@ class Timer(object):
 
 
 if __name__ == '__main__':
-	path_to_video_test	= os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'trialVideos' +'/' + 'mySquare.mp4'
+	path_to_video_test	= os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'trialVideos' +'/' + 'out.mp4'
 	data 				= np.load('../installationFiles/mySquareSEMAPHORO.npy')
 	path_to_workdir 	= os.getenv('HOME') + '/' + 'WORKDIR' + '/' + 'imagen.png'
 
