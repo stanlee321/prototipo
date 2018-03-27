@@ -151,7 +151,7 @@ def main():
 	# Arrancando camara
 	if len(archivoDeVideo) == 0:
 		conVideoGrabado = False												# modo real
-		miCamara = cv2.VideoCapture(1)
+		miCamara = cv2.VideoCapture(0)
 		miCamara.set(3,640)
 		miCamara.set(4,480)
 		time.sleep(1)
@@ -317,8 +317,8 @@ def main():
 			#  if can read configs_server then check state to send image
 			try:
 				if configs_server[0] == True:
-    				if not mostrarImagen: # Para no escribir dos veces sobre el mismo lienzo
-    					frameFlujo 			= miAcetatoInformativo.aplicarAFrame(frameFlujo)
+					if not mostrarImagen: # Para no escribir dos veces sobre el mismo lienzo
+						frameFlujo 			= miAcetatoInformativo.aplicarAFrame(frameFlujo)
 					try:
 						_, img_encoded = cv2.imencode('.jpg', frameFlujo)
 						r = requests.post(test_url, data=img_encoded.tostring(), headers=headers)
