@@ -19,7 +19,7 @@ class Acetato(object):
 		self.numeroFrame = 0
 		self.logo = np.zeros((1,1,3))
 		self.logoInv = np.zeros((1,1,3))
-		self.alpha = 0.7
+		self.alpha = 0.85
 
 		#Formato
 		self.opacidad = 1.0
@@ -60,7 +60,7 @@ class Acetato(object):
 			#dst = img1_bg	# Negro con la silueta del logo
 			#dst = img2_fg
 			#auxiliar = cv2.add(self.logo,auxiliar)
-			frameNP[0:self.logoSize, self.placeLogoX:(self.placeLogoX+self.logoSize)] = dst#shader -> cv2.addWeighted(img1_bg,self.alpha,dst,1-self.alpha,0,dst)
+			frameNP[0:self.logoSize, self.placeLogoX:(self.placeLogoX+self.logoSize)] = cv2.addWeighted(frameNP[0:self.logoSize, self.placeLogoX:(self.placeLogoX+self.logoSize)],self.alpha,dst,1-self.alpha,0,dst)
 		frameNP = cv2.putText(frameNP, datetime.datetime.now().strftime('%A %d %B %Y %I:%M:%S%p')+' f{}'.format(self.numeroFrame), (4,236), self.font, 0.4,(255,255,255),1,cv2.LINE_AA)
 		return frameNP
 
