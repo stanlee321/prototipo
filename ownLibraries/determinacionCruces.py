@@ -329,13 +329,16 @@ class PoliciaInfractor():
 			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,self.lineaDeResguardoAlteradaDelantera,informacion)
 			
 			# Cada vehiculo tiene un numbre que biene a xer ela fecja y hora de la infracción en cuestion
-			nombreInfraccionYFolder = datetime.datetime.now().strftime('%H-%M-%S') # Eliminada redundancia en nombre de archivo %Y-%m-%d_
+			nombreInicialParaInfraccionYFolder = datetime.datetime.now().strftime('%Y%m%d_%H%M%S') # Eliminada redundancia en nombre de archivo %Y-%m-%d_
 
 			# CREACION NUEVO VEHICULO
-			nuevoVehiculo = {	'name':nombreInfraccionYFolder,
+			nuevoVehiculo = {	'name':nombreInicialParaInfraccionYFolder,
 								'frameInicial':numeroDeFrame,
+								'colorInicial':colorSemaforo,
 								'frameFinal':0,
+								'colorFinal':-1,
 								'desplazamiento':puntosMasMoviles,
+								'numeroDeVehiculos':1,
 								'estado':'Previo',
 								'infraccion':'',
 								'observacion':''}
@@ -344,14 +347,14 @@ class PoliciaInfractor():
 			direccionDeGuardadoFotos = 'None'
 			if colorSemaforo >=1:
 				nuevoVehiculo['infraccion'] = 'candidato'
-				direccionDeGuardadoFotos = self.directorioDeReporte + '/' + nombreInfraccionYFolder
+				direccionDeGuardadoFotos = self.directorioDeReporte + '/' + nombreInicialParaInfraccionYFolder
 				if not os.path.exists(direccionDeGuardadoFotos):
 					os.makedirs(direccionDeGuardadoFotos)
 
 				if os.uname()[1] == 'raspberrypi':
 					# AQUI!
 					self.camaraAlta.encenderCamaraEnSubDirectorio(direccionDeGuardadoFotos)
-					#self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInfraccionYFolder)
+					#self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInicialParaInfraccionYFolder)
 			
 			self.listaVehiculos.append(nuevoVehiculo)
 			self.miReporte.info('\t\tCreado vehiculo '+nuevoVehiculo['name']+' en frame '+str(nuevoVehiculo['frameInicial'])+' con nivel '+nuevoVehiculo['infraccion']+' guardado en '+direccionDeGuardadoFotos[19:])
