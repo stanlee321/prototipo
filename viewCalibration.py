@@ -69,7 +69,7 @@ def __main_function__():
 	parametrosInstalacion = np.load(folderDeInstalacion+'/'+archivoParametrosACargar)
 	
 	indicesSemaforo = parametrosInstalacion[0]
-	poligonoSemaforo = np.array([indicesSemaforo[0],indicesSemaforo[183],indicesSemaforo[191],indicesSemaforo[7]])
+	poligonoSemaforo = np.array([indicesSemaforo[0],indicesSemaforo[184],indicesSemaforo[191],indicesSemaforo[7]])
 	verticesPartida = parametrosInstalacion[1]
 	verticesLlegada = parametrosInstalacion[2]
 	verticesDerecha = parametrosInstalacion[3]
