@@ -16,7 +16,7 @@ from ownLibraries.visualizacion import Acetato
 from ownLibraries.videostream import VideoStream
 from ownLibraries.semaforov2 import CreateSemaforo
 from ownLibraries.determinacionCruces import PoliciaInfractor
-from ownLibraries.obtenerHistogramaHorario import exportarInformacionDeHoyO
+
 
 # Se crean las variables de directorios
 directorioDeTrabajo = os.getenv('HOME') + '/trafficFlow/prototipo'
@@ -298,7 +298,6 @@ def __main_function__():
 
 			if (int(nombreCarpeta[8:10]) != datetime.datetime.now().day):
 				miReporte.info('Actualizando por cambio de dia a '+str(datetime.datetime.now().day))# el script por cambio de día')
-				exportarInformacionDeHoyO(-1)
 				# Esto tiene que estar antes del metodo nuevoDia():
 				miReporte.info('Informacion exportada, borrando: '+nombreCarpeta)
 				os.system('python3 cleanfolders.py -folder '+nombreCarpeta)

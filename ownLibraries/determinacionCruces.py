@@ -32,7 +32,7 @@ class PoliciaInfractor():
 		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)
 		self.miGrabadora = GeneradorEvidencia(self.directorioDeReporte,mifps,False)
 		self.reportarDebug = debug
-		self.minimosFramesVideoNormalDebug = 5*mifps # minimo 5 segundos de debug
+		self.minimosFramesVideoNormalDebug = 1*mifps # minimo 1 segundos de debug
 
 		# Se cargan las variables de creación de la clase
 		self.imagenAuxiliar = cv2.cvtColor(imagenParaInicializar, cv2.COLOR_BGR2GRAY)
@@ -406,7 +406,7 @@ class PoliciaInfractor():
 			self.miGrabadora.generarReporteEnVideoDe(historial,infraccionActual,debug = self.reportarDebug)
 
 	def generarVideoMuestra(self,historial):
-		if len(historial)> self.minimosFramesVideoNormalDebug:
+		if len(historial) > self.minimosFramesVideoNormalDebug:
 			#self.miGrabadora.generarReporteInfraccion(historial, True,debug = self.reportarDebug)
 			self.miGrabadora.generarVideoDebugParaPruebas(historial)
 
