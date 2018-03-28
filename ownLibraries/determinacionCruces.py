@@ -234,15 +234,21 @@ class PoliciaInfractor():
 				# Al principio descarto los puntos negativos o en los bordes (0,0), -(x,y)
 				nuevaPosicionVehiculo, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
 				
-				# Si ya no hay puntos que seguir el anterior retorna NoneType, se determina como Giro,
+				# DESCARTE POR DISPERSIÓN DE PUNTOS Y POR TIMEOUT
 				NoneType = type(None)
-				if type(nuevaPosicionVehiculo) == NoneType:
+
+				dispersion = type(nuevaPosicionVehiculo) == NoneType
+				timeout = (numeroDeFrame - infraccion['frameInicial']) > self.maximoNumeroFramesParaDescarte
+				if  dispersion or timeout:
 					infraccion['estado'] = 'Salio'
+					if timeout:
+						infraccion['estado'] = 'TimeOut'
+					
 					if infraccion['infraccion'] == 'candidato':
 						infraccion['infraccion'] = ''
 						self.eliminoCarpetaDeSerNecesario(infraccion)
 						# VALIDO SOLO PARA GIRO CONTROLADO POR SEMAFORO A PARTE
-					self.estadoActual['salio'] += 1
+					self.estadoActual['ruido'] += 1
 					break
 				# DESCARTE INDIVIDUAL POR PUNTO
 				# Se descarta puntos individualmente, si un punto esta en el borde del frame o fuera de el entonces se lo mantiene congelado
@@ -252,12 +258,7 @@ class PoliciaInfractor():
 				#	if not self.puntoEstaEnRectangulo((controlVector[0][0],controlVector[0][1]),(0,0,320,240)):
 				#		nuevaPosicionVehiculo[otroIndice] = infraccion['desplazamiento'][otroIndice]
 				# DESCARTE POR TIEMPO, POR VEHICULO
-				if (numeroDeFrame - infraccion['frameInicial']) > self.maximoNumeroFramesParaDescarte:
-					infraccion['estado'] = 'TimeOut'
-					infraccion['infraccion'] = ''
-					self.estadoActual['ruido'] += 1
-					self.eliminoCarpetaDeSerNecesario(infraccion)
-					break
+
 				# Si es candidato y algun punto llego al final se confirma
 				indicesValidos = []
 				puntosQueLlegaron = 0
@@ -414,12 +415,16 @@ class PoliciaInfractor():
 			self.miGrabadora.generarVideoDebugParaPruebas(historial)
 
 	def eliminoCarpetaDeSerNecesario(self,infraccion):
-		try: 
-			carpetaABorrar = self.directorioDeReporte+'/'+infraccion['name']
-			self.miReporte.info('\t\t> Borrando: '+carpetaABorrar+' con estado '+infraccion['estado'])
-			shutil.rmtree(carpetaABorrar)
-		except Exception as e:
-			self.miReporte.warning('\t\t\tNo pude borrar carpeta fantasma: '+infraccion['name']+' por '+str(e))
+		carpetaABorrar = self.directorioDeReporte+'/'+infraccion['name']
+		self.miReporte.info('\t\t> Borrando: '+carpetaABorrar+' con estado '+infraccion['estado'])
+		try:
+			os.system('rm -rf '+carpetaABorrar)
+		except Exception as rmException:
+			self.miReporte.warning('\t\t\tFALLO rm -rf '+infraccion['name']+' por '+str(rmException))
+			try:
+				shutil.rmtree(carpetaABorrar, ignore_errors=True)
+			except Exception as rmTreeException:
+				self.miReporte.error('\t\t\tFALLO RMTREE '+infraccion['name']+' por '+str(rmTreeException))
 
 	def popInfraccion(self):
 		if self.numeroInfraccionesConfirmadas() != 0:
