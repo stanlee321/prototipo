@@ -43,6 +43,7 @@ class CreateSemaforo():
 			data = self.consumer.recv()
 			return data[0], data[1], data[2], data[3]
 		else:
+
 			# Send the images to The Producer
 			self.sender.send(raw)
 
@@ -598,14 +599,22 @@ class Real(multiprocessing.Process):
 		conn.close()
 
 	def run(self):
-		run_camera = 1 
-		while run_camera == 1:
+		while True:
 			if 	self.resiver.poll(): # Check if exist input images from main program.
 				# Read images form sender
+				tic = time.time()
 				imagen = self.resiver.recv()
-
+				tac = time.time()
 				# Return predictions 
+
+				tic2 = time.time()
 				numerical, color_prediction, flanco, periodoAMostrar = self.prediction(imagen)
+				tac2 = time.time()
+
+
+
+				print('TIC-TAC', TIC-TAC)
+				print('TIC2-TAC2', TIC-TAC2)
 
 				# if Flanco is != from 0, add the above results to DB 
 				if flanco != 0:
