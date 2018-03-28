@@ -295,7 +295,7 @@ class PoliciaInfractor():
 						if (infraccion['infraccion'] == 'candidato'):
 							infraccion['infraccion'] = 'CAPTURADO'
 							infraccion['colorFinal'] = colorSemaforo
-							infraccion['colorReporte'] = self.matrizDeterminacion[infraccion['colorInicial'],infraccion['colorFinal']]
+							infraccion['colorReporte'] = self.matrizDeterminacion[infraccion['colorInicial']][infraccion['colorFinal']]
 							infraccion['frameFinal'] = numeroDeFrame
 							self.estadoActual['infraccion'] += 1
 						
@@ -311,7 +311,7 @@ class PoliciaInfractor():
 						if (infraccion['infraccion'] == 'candidato'):
 							infraccion['infraccion'] = 'CAPTURADO_DERECHA'
 							infraccion['colorFinal'] = colorSemaforo
-							infraccion['colorReporte'] = self.matrizDeterminacion[infraccion['colorInicial'],infraccion['colorFinal']]
+							infraccion['colorReporte'] = self.matrizDeterminacion[infraccion['colorInicial']][infraccion['colorFinal']]
 							infraccion['frameFinal'] = numeroDeFrame
 							self.estadoActual['infraccion'] += 1
 						
@@ -327,7 +327,7 @@ class PoliciaInfractor():
 						if (infraccion['infraccion'] == 'candidato'):
 							infraccion['infraccion'] = 'CAPTURADO_IZQUIERDA'
 							infraccion['colorFinal'] = colorSemaforo
-							infraccion['colorReporte'] = self.matrizDeterminacion[infraccion['colorInicial'],infraccion['colorFinal']]
+							infraccion['colorReporte'] = self.matrizDeterminacion[infraccion['colorInicial']][infraccion['colorFinal']]
 							infraccion['frameFinal'] = numeroDeFrame
 							self.estadoActual['infraccion'] += 1
 						
@@ -354,7 +354,7 @@ class PoliciaInfractor():
 								'colorInicial':colorSemaforo,
 								'frameFinal':0,
 								'colorFinal':-1,
-								'multiplicidad':0,
+								'multiplicidad':1,
 								'desplazamiento':puntosMasMoviles,
 								'numeroDeVehiculos':1,
 								'estado':'Previo',
@@ -412,7 +412,7 @@ class PoliciaInfractor():
 		"""
 		Este metodo reporta un caso a la vez de existir el mismo en la base de datos de infracciones
 		"""
-		self.listaVehiculos = [vehiculosPendientes for vehiculosPendientes in self.listaVehiculos if vehiculosPendientes['estado']=='Previo' or vehiculosPendientes['infraccion']=='CAPTURADO' or vehiculosPendientes['infraccion']=='CAPTURADO DERECHA' or vehiculosPendientes['infraccion']=='CAPTURADO IZQUIERDA']
+		self.listaVehiculos = [vehiculosPendientes for vehiculosPendientes in self.listaVehiculos if vehiculosPendientes['estado']=='Previo' or vehiculosPendientes['infraccion']=='CAPTURADO' or vehiculosPendientes['infraccion']=='CAPTURADO_DERECHA' or vehiculosPendientes['infraccion']=='CAPTURADO_IZQUIERDA']
 		listaInfracciones = [infraccion for infraccion in self.listaVehiculos if infraccion['infraccion']=='CAPTURADO']
 		# Los cruces siguen evolucionando
 		# Las infracciones en calidad de 'CAPTURADO' son generadas en video
@@ -430,7 +430,7 @@ class PoliciaInfractor():
 			#self.miGrabadora.generarReporteInfraccion(historial, True,debug = self.reportarDebug)
 			self.miGrabadora.generarVideoDebugParaPruebas(historial)
 		else:
-    		self.miReporte.info('\t\t-Infraccion Descartada por longitud')
+			self.miReporte.info('\t\t-Infraccion Descartada por longitud')
 
 	def eliminoCarpetaDeSerNecesario(self,infraccion):
 		carpetaABorrar = self.directorioDeReporte+'/'+infraccion['name']
