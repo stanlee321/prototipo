@@ -27,10 +27,11 @@ directorioDeTrabajo = os.getenv('HOME') + '/trafficFlow/prototipo'
 directorioDeVideos  = os.getenv('HOME') + '/trafficFlow/trialVideos'
 folderDeInstalacion = directorioDeTrabajo + '/installationFiles'
 directorioDeLogo 	= directorioDeTrabajo + '/watermark'
+directorioDeReporte = os.getenv('HOME')+'/'+datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
 
 # Variables diarias:
 nombreCarpeta = datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
-directorioDeReporte = os.getenv('HOME') +'/'+ nombreCarpeta
+nombreCarpetaDebug = 'debug'
 
 # Configs for server
 directorioDeConfigsServer = os.getenv('HOME') +'/'+ 'trafficFlow' + '/'+ 'prototipo' + '/' +'web' + '/configs_server.npy'
@@ -40,7 +41,7 @@ content_type = 'image/jpeg'
 headers = {'content-type': content_type}
 
 # Reporte diario ruta
-reporteDiario = directorioDeReporte+'/reporteDiario.npy'
+reporteDiario = directorioDeReporte[:-18]+'debug/'+datetime.datetime.now().strftime('%Y-%m-%d')+'.npy'
 
 ### PARAMETROS DE CONTROL DE EJECUCIÓN DE PROGRAMA
 archivoDeVideo 	= ''
@@ -103,13 +104,15 @@ def main():
 
 	if not os.path.exists(directorioDeReporte):
 		os.makedirs(directorioDeReporte)
+	if not os.path.exists(directorioDeReporte[:-18]+'debug'):
+		os.makedirs(directorioDeReporte[:-18]+'debug')
 
 	# Creamos el reporte inicial
 	if generarArchivosDebug:
-		miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__,directorio=directorioDeReporte)			# Se crea por defecto con nombre de la fecha y hora actual
+		miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__,directorio=directorioDeReporte[:-18]+'debug')			# Se crea por defecto con nombre de la fecha y hora actual
 		miReporte.info('Generando DEBUG')
 	else:
-		miReporte = MiReporte(levelLogging=logging.INFO,nombre=__name__,directorio=directorioDeReporte)			# Se crea por defecto con nombre de la fecha y hora actual
+		miReporte = MiReporte(levelLogging=logging.INFO,nombre=__name__,directorio=directorioDeReporte[:-18]+'debug')			# Se crea por defecto con nombre de la fecha y hora actual
 		
 	miReporte.info('Programa iniciado exitosamente con ingreso de senal video '+archivoDeVideo+entradaReal+' con semaforo '+semaforoSimuladoTexto+str(periodoDeSemaforo) +', corriendo a '+str(mifps)+' Frames por Segundo')
 	

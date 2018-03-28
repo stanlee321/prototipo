@@ -22,6 +22,7 @@ class MiReporte():
 		self.directorioDeTrabajo = ''
 		self.fileHandlerActual = ''
 		self.initDirectory(directorio)
+		print('IMPRIMIENDO DEBUG EN ARCHIVO: '+directorio)
 
 		self.stream_handler = logging.StreamHandler()
 
@@ -31,7 +32,7 @@ class MiReporte():
 		
 	def moverRegistroACarpeta(self,nombreDeCarpeta = datetime.datetime.now().strftime('%m-%d_%H:%M')):
 		self.logger.removeHandler(self.fileHandlerActual)
-		self.fileHandlerActual = logging.FileHandler(self.directorioDeTrabajo+'/'+nombreDeCarpeta+'/LOG_'+directorio[-18:-8]+'.log')
+		self.fileHandlerActual = logging.FileHandler(self.directorioDeTrabajo+'/'+nombreDeCarpeta+'/LOG_'+datetime.datetime.now().strftime('%Y%m%d')+'.log')
 		self.fileHandlerActual.setFormatter(self.formatter)
 		self.logger.addHandler(self.fileHandlerActual)
 
@@ -39,7 +40,7 @@ class MiReporte():
 		self.directorioDeTrabajo = directorio
 		if not os.path.exists(self.directorioDeTrabajo):
 			os.makedirs(self.directorioDeTrabajo)
-		self.fileHandlerActual = logging.FileHandler(self.directorioDeTrabajo+'/LOG_'+directorio[-18:-8]+'.log')
+		self.fileHandlerActual = logging.FileHandler(self.directorioDeTrabajo+'/LOG_'+datetime.datetime.now().strftime('%Y%m%d')+'.log')
 		self.fileHandlerActual.setFormatter(self.formatter)
 		self.stream_handler = logging.StreamHandler()
 		self.logger.addHandler(self.fileHandlerActual)
