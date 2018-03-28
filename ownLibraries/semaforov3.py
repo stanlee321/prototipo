@@ -43,6 +43,7 @@ class CreateSemaforo():
 			data = self.consumer.recv()
 			return data[0], data[1], data[2], data[3]
 		else:
+
 			# Send the images to The Producer
 			self.sender.send(raw)
 
@@ -117,7 +118,6 @@ class Simulation(multiprocessing.Process):
 
 	def run(self):
 		while True:
-			time.sleep(self.sleeptime)
 			self.check_simulated_state()
 			numerico = self.actual_state
 			literal  = self.idx_to_str[self.actual_state]
@@ -309,7 +309,7 @@ class Real(multiprocessing.Process):
 
 		# GREEN range
 		lower_green = np.array([22,10,0], dtype=np.uint8)		# OPEN Green channels
-		upper_green = np.array([95,255,255 ], dtype=np.uint8)
+		upper_green = np.array([100,255,255 ], dtype=np.uint8)   #95.255.255  ideal my square.
 
 		# Combine the Channels
 		mask_red 	= cv2.inRange(hsv, lower_red, 		upper_red)
@@ -383,7 +383,6 @@ class Real(multiprocessing.Process):
 
 				self.periodosToNumpy[color_prediction].append(AUX_ROW) 			# append to periodostoNumpy
 				
-				print('color_prediction', self.periodos_dict	)
 				# calculate the mean and std of this periodos
 				self.mean_values[color_prediction] = np.mean(self.periodos_dict[color_prediction])  # TODO Check Limits 0: to...
 				self.std_values[color_prediction]  = np.std(self.periodos_dict[color_prediction])	# TODO Check Limits 0: to...
@@ -598,13 +597,12 @@ class Real(multiprocessing.Process):
 		conn.close()
 
 	def run(self):
-		run_camera = 1 
-		while run_camera == 1:
+		while True:
 			if 	self.resiver.poll(): # Check if exist input images from main program.
 				# Read images form sender
 				imagen = self.resiver.recv()
-
 				# Return predictions 
+
 				numerical, color_prediction, flanco, periodoAMostrar = self.prediction(imagen)
 
 				# if Flanco is != from 0, add the above results to DB 
