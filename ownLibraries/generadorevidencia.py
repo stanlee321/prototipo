@@ -58,7 +58,9 @@ class GeneradorEvidencia():
 		inicio = infraccion['frameInicial'] - self.ventana
 		final = infraccion['frameFinal'] + self.ventana
 		self.generarVideo(informacionTotal,estado+'_'+infraccion['name'],directorioActual,'video',inicio,final,infraccion['observacion'])
-		#if debug:
+		nuevoNombreCarpeta = infraccion['name'] + '_'+infraccion['colorReporte']+'_'+infraccion['estado']+'_x{}_-_v_x_ind'.format(infraccion['multiplicidad'])
+		dataFile = open(directorioActual+'/'+nuevoNombreCarpeta,'wb')
+		dataFile.close()
 		#	self.generarVideo(informacionTotal,infraccion['name'],directorioActual,'debug',inicio,final,infraccion['observacion'])
 
 	def generarVideoDebugParaPruebas(self,informacionTotal):

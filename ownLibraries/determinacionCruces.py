@@ -93,6 +93,7 @@ class PoliciaInfractor():
 		self.optimalStep = 2
 
 		self.listaVehiculos = []
+		self.matrizDeterminacion = [['VERDE','-verdeEnRojo','-verdeEnAmarillo'],['rojoEnVerde','ROJO','-rojoEnAmarillo'],['-amarilloEnVerde','rojo','amarillo']]
 		"""
 		Estados de vehiculos
 		1. Previo
@@ -289,42 +290,48 @@ class PoliciaInfractor():
 						# Si llego al otro extremo, entonces cruzo:
 						infraccion['estado'] = 'Cruzo'
 						self.estadoActual['cruzo'] += 1
-						infraccion['frameFinal'] = numeroDeFrame
 						# Si era candidato y esta llegando en rojo o amarillo
 						# ESTO DESCARTA LAS LLEGADAS EN VERDE # Anulado por mala intensión
-						if (infraccion['infraccion'] == 'candidato'):#&(colorSemaforo>=1):
+						if (infraccion['infraccion'] == 'candidato'):
 							infraccion['infraccion'] = 'CAPTURADO'
+							infraccion['colorFinal'] = colorSemaforo
+							infraccion['colorReporte'] = self.matrizDeterminacion[infraccion['colorInicial'],infraccion['colorFinal']]
+							infraccion['frameFinal'] = numeroDeFrame
 							self.estadoActual['infraccion'] += 1
 						
-						self.miReporte.info(infraccion['infraccion']+'\t'+infraccion['estado']+' a horas '+infraccion['name']+' ('+str(infraccion['frameInicial'])+'-'+str(infraccion['frameFinal'])+')')
+						self.miReporte.info(infraccion['infraccion']+'\t'+infraccion['estado']+' a horas '+infraccion['hora']+' ('+str(infraccion['frameInicial'])+'-'+str(infraccion['frameFinal'])+')')
 						break
 
 					if puntosQueGiraronDerecha >= 2:
 						# Si llego al otro extremo, entonces cruzo:
-						infraccion['estado'] = 'Giro derecha'
+						infraccion['estado'] = 'GiroDerecha'
 						self.estadoActual['derecha'] += 1
-						infraccion['frameFinal'] = numeroDeFrame
 						# Si era candidato y esta llegando en rojo o amarillo
 						# ESTO DESCARTA LAS LLEGADAS EN VERDE # Anulado por mala intensión
-						if (infraccion['infraccion'] == 'candidato'):#&(colorSemaforo>=1):
+						if (infraccion['infraccion'] == 'candidato'):
 							infraccion['infraccion'] = 'CAPTURADO_DERECHA'
+							infraccion['colorFinal'] = colorSemaforo
+							infraccion['colorReporte'] = self.matrizDeterminacion[infraccion['colorInicial'],infraccion['colorFinal']]
+							infraccion['frameFinal'] = numeroDeFrame
 							self.estadoActual['infraccion'] += 1
 						
-						self.miReporte.info(infraccion['infraccion']+'\t'+infraccion['estado']+' a horas '+infraccion['name']+' ('+str(infraccion['frameInicial'])+'-'+str(infraccion['frameFinal'])+')')
+						self.miReporte.info(infraccion['infraccion']+'\t'+infraccion['estado']+' a horas '+infraccion['hora']+' ('+str(infraccion['frameInicial'])+'-'+str(infraccion['frameFinal'])+')')
 						break
 
 					if puntosQueGiraronIzquierda >= 2:
 						# Si llego al otro extremo, entonces cruzo:
-						infraccion['estado'] = 'Giro izquierda'
+						infraccion['estado'] = 'GiroIzquierda'
 						self.estadoActual['izquierda'] += 1
-						infraccion['frameFinal'] = numeroDeFrame
 						# Si era candidato y esta llegando en rojo o amarillo
 						# ESTO DESCARTA LAS LLEGADAS EN VERDE # Anulado por mala intensión
-						if (infraccion['infraccion'] == 'candidato'):#&(colorSemaforo>=1):
+						if (infraccion['infraccion'] == 'candidato'):
 							infraccion['infraccion'] = 'CAPTURADO_IZQUIERDA'
+							infraccion['colorFinal'] = colorSemaforo
+							infraccion['colorReporte'] = self.matrizDeterminacion[infraccion['colorInicial'],infraccion['colorFinal']]
+							infraccion['frameFinal'] = numeroDeFrame
 							self.estadoActual['infraccion'] += 1
 						
-						self.miReporte.info(infraccion['infraccion']+'\t'+infraccion['estado']+' a horas '+infraccion['name']+' ('+str(infraccion['frameInicial'])+'-'+str(infraccion['frameFinal'])+')')
+						self.miReporte.info(infraccion['infraccion']+'\t'+infraccion['estado']+' a horas '+infraccion['hora']+' ('+str(infraccion['frameInicial'])+'-'+str(infraccion['frameFinal'])+')')
 						break
 				# Se continuara solamente con los puntos validos
 				infraccion['desplazamiento'] = nuevaPosicionVehiculo[indicesValidos]
@@ -334,14 +341,20 @@ class PoliciaInfractor():
 			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,self.lineaDeResguardoAlteradaDelantera,informacion)
 			
 			# Cada vehiculo tiene un numbre que biene a xer ela fecja y hora de la infracción en cuestion
-			nombreInicialParaInfraccionYFolder = datetime.datetime.now().strftime('%Y%m%d_%H%M%S') # Eliminada redundancia en nombre de archivo %Y-%m-%d_
+			fechaNueva = datetime.datetime.now().strftime('%Y%m%d')
+			horaNueva = datetime.datetime.now().strftime('%H%M%S')
+			nombreInicialParaInfraccionYFolder = fechaNueva+'_'+horaNueva
 
 			# CREACION NUEVO VEHICULO
 			nuevoVehiculo = {	'name':nombreInicialParaInfraccionYFolder,
+								'fecha':fechaNueva,
+								'hora':horaNueva,
+								'colorReporte':'none',
 								'frameInicial':numeroDeFrame,
 								'colorInicial':colorSemaforo,
 								'frameFinal':0,
 								'colorFinal':-1,
+								'multiplicidad':0,
 								'desplazamiento':puntosMasMoviles,
 								'numeroDeVehiculos':1,
 								'estado':'Previo',
@@ -359,10 +372,9 @@ class PoliciaInfractor():
 				if os.uname()[1] == 'raspberrypi':
 					# AQUI!
 					self.camaraAlta.encenderCamaraEnSubDirectorio(direccionDeGuardadoFotos)
-					#self.camaraAlta.encenderCamaraEnSubDirectorio(nombreInicialParaInfraccionYFolder)
 			
 			self.listaVehiculos.append(nuevoVehiculo)
-			self.miReporte.info('\t\tCreado vehiculo '+nuevoVehiculo['name']+' en frame '+str(nuevoVehiculo['frameInicial'])+' con nivel '+nuevoVehiculo['infraccion']+' guardado en '+direccionDeGuardadoFotos[19:])
+			self.miReporte.info('\t\tCreado vehiculo '+nuevoVehiculo['hora']+' en frame '+str(nuevoVehiculo['frameInicial'])+' con nivel '+nuevoVehiculo['infraccion']+' guardado en '+direccionDeGuardadoFotos[19:])
 
 		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
 
@@ -417,6 +429,8 @@ class PoliciaInfractor():
 		if len(historial) > self.minimosFramesVideoNormalDebug:
 			#self.miGrabadora.generarReporteInfraccion(historial, True,debug = self.reportarDebug)
 			self.miGrabadora.generarVideoDebugParaPruebas(historial)
+		else:
+    		self.miReporte.info('\t\t-Infraccion Descartada por longitud')
 
 	def eliminoCarpetaDeSerNecesario(self,infraccion):
 		carpetaABorrar = self.directorioDeReporte+'/'+infraccion['name']
@@ -446,7 +460,7 @@ class PoliciaInfractor():
 			self.miReporte.info(infraccion['frameInicial']+' a '+str(infraccion['frameFinal'])+' con estado: '+infraccion['estado'])
 		self.miReporte.info('Infracciones Confirmadas:')
 		for infraccion in self.listaVehiculos:
-			self.miReporte.info(infraccion['name']+' de '+str(infraccion['frameInicial'])+' a '+str(infraccion['frameFinal'])+' con estado: '+infraccion['estado'])
+			self.miReporte.info('\t-> '+infraccion['hora']+' de '+str(infraccion['frameInicial'])+' a '+str(infraccion['frameFinal'])+' con estado: '+infraccion['estado'])
 
 	def obtenerLinea(self):
 		"""
