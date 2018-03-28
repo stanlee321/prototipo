@@ -17,7 +17,7 @@ import requests
 from ownLibraries.irswitch import IRSwitch
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.visualizacion import Acetato
-from ownLibraries.semaforov2 import CreateSemaforo
+from ownLibraries.semaforov3 import CreateSemaforo
 from ownLibraries.determinacionCruces import PoliciaInfractor
 from ownLibraries.obtenerHistogramaHorario import exportarInformacionDeHoyO
 

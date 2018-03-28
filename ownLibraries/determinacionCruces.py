@@ -235,6 +235,7 @@ class PoliciaInfractor():
 				if (infraccion['infraccion'] == 'candidato')&(colorSemaforo==0):
 					#infraccion['observacion'] = 'LlegoEnVerde'
 					self.miReporte.info('Infraccion Descartada Por Llegar En Verde')
+					self.eliminoCarpetaDeSerNecesario(infraccion)
 					infraccion['infraccion'] = ''
 				# Al principio descarto los puntos negativos o en los bordes (0,0), -(x,y)
 				nuevaPosicionVehiculo, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
