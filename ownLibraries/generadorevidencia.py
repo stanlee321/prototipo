@@ -15,9 +15,11 @@ from collections import defaultdict
 from ownLibraries.mireporte import MiReporte
 font = cv2.FONT_HERSHEY_SIMPLEX
 
+directorioDeReporte = os.getenv('HOME')+'/'+datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
+
 class GeneradorEvidencia():
 	def __init__(self, carpetaReporte,mifps = 10,guardoRecortados = True):
-		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)
+		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__,directorio=directorioDeReporte[:-18]+'debug')
 		self.carpetaDeReporteActual = carpetaReporte
 		self.framesPorSegundoEnVideo = mifps
 		self.ventana = 5

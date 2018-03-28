@@ -33,7 +33,7 @@ class PoliciaInfractor():
 	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada,poligonoDerecha,poligonoIzquierda,mifps = 8,directorioDeReporte=os.getenv('HOME')+'/'+datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte',debug = False,flujoAntiguo = False, anguloCarril = 0):
 		# Tomo la imagen de inicialización y obtengo algunas caracteristicas de la misma
 		self.directorioDeReporte = directorioDeReporte
-		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__)
+		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__,directorio=directorioDeReporte[:-18]+'debug')
 		self.miGrabadora = GeneradorEvidencia(self.directorioDeReporte,mifps,False)
 		self.reportarDebug = debug
 		self.minimosFramesVideoNormalDebug = 1*mifps # minimo 1 segundos de debug
@@ -121,7 +121,7 @@ class PoliciaInfractor():
 
 	def nuevoDia(self,directorioDeReporte):
 		self.directorioDeReporte = directorioDeReporte
-		self.miReporte.setDirectory(directorioDeReporte)
+		self.miReporte.setDirectory(directorioDeReporte[:-18]+'debug')
 		self.miGrabadora.nuevoDia()
 		self.reestablecerEstado()
 
@@ -413,7 +413,7 @@ class PoliciaInfractor():
 		Este metodo reporta un caso a la vez de existir el mismo en la base de datos de infracciones
 		"""
 		self.listaVehiculos = [vehiculosPendientes for vehiculosPendientes in self.listaVehiculos if vehiculosPendientes['estado']=='Previo' or vehiculosPendientes['infraccion']=='CAPTURADO' or vehiculosPendientes['infraccion']=='CAPTURADO_DERECHA' or vehiculosPendientes['infraccion']=='CAPTURADO_IZQUIERDA']
-		listaInfracciones = [infraccion for infraccion in self.listaVehiculos if infraccion['infraccion']=='CAPTURADO']
+		listaInfracciones = [infraccion for infraccion in self.listaVehiculos if infraccion['infraccion']=='CAPTURADO' or infraccion['infraccion']=='CAPTURADO_DERECHA' or infraccion['infraccion']=='CAPTURADO_IZQUIERDA']
 		# Los cruces siguen evolucionando
 		# Las infracciones en calidad de 'CAPTURADO' son generadas en video
 		# Los cruces en ruido son eliminados	
