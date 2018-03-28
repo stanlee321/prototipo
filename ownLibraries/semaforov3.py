@@ -127,7 +127,34 @@ class Simulation(multiprocessing.Process):
 
 
 class Real(multiprocessing.Process):
+	"""
+		TRAFFIC LIGHT STATE DETECTOR
 
+		INPUTS: 	Raw (24*8*3) raw numpy array pixels
+
+		OUTPUTS:	list of type [numerical, color_prediction, flanco, periodoAMostrar]
+					
+		INNER STATES RESUMEN:
+
+			if current state == past state:					
+				return flanco 0
+			elif (current state == 'verde') and (past state == 'rojo')
+				return flanco -1	
+			elif (current state == 'amarillo') and (past state == 'verde')
+				return flanco 1
+			elif (current state == 'rojo')  and (past state == 'amarillo')
+				return flanco 2
+			elif (current == 'verde') and (past == 'else')
+				return flanco -1
+			else
+				print('No match found, current state: {},  past state: {}, returning 0'.format(current, past))
+
+		SEMAFORO COLOR RETURNS AND NAMES (color_prediction and numerical values)
+
+			{'verde':0 , 'else': 1, 'amarillo':2, 'rojo': 1, 'off': -1}
+
+	"""
+		
 
 	def __init__(self, input_q, ouput_q):
 		super(Real, self).__init__()
@@ -185,8 +212,8 @@ class Real(multiprocessing.Process):
 		self.logger = logging.getLogger()
 
 		# idx to string
-		self.idx_to_str = {0:'verde', 1:'else'}
-		self.str_to_ids = {'verde':0 , 'else': 1, 'amarillo':2, 'rojo': 1 }
+		self.idx_to_str = {0:'verde', 1:'else', -1:'off'}
+		self.str_to_ids = {'verde':0 , 'else': 1, 'amarillo':2, 'rojo': 1, 'off': -1}
 
 		# Expected shape INPUT of the image_semaphoro_raw (Weidth,Height,Channels)
 		self.SHAPE = (24,8,3)
@@ -390,7 +417,7 @@ class Real(multiprocessing.Process):
 
 		# Check if  acumulate mean_values of "ELSE" are mayor of 150
 		if self.mean_values['else'] > self.no_traffic_light_time:			# TODO check if is comvenient use STD
-			return -1, 'Off', 0, 0
+			return self.str_to_ids['off'], self.idx_to_str[-1], 0, self.mean_values['else'] # -1, off, 0, exceded time
 
 
 		# if STD of verde and else are less of 1.5 in the distribution ...continue to the G-Y-R semaphoro
