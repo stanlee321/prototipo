@@ -36,7 +36,7 @@ class CreateSemaforo():
 	def obtenerColorEnSemaforo(self, raw):
 
 		# If Debug with video pass else uncomment
-		#raw 	= np.reshape(raw,(24,8,3))
+		raw 	= np.reshape(raw,(24,8,3))
 		
 		if self.periodo > 0:  # If simulation
 			# Read the data from the producer in simulation.
