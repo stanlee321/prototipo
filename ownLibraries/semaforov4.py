@@ -219,9 +219,8 @@ class Real(multiprocessing.Process):
 		self.logger = logging.getLogger()
 
 		# idx to string
-		self.bool_to_str 	= { False:'verde', True:'else', -1:'off' }
-		self.str_to_ids 	= { 'verde': 0 , 'else': 1, 'amarillo':2, 'rojo': 1, 'off': -1 }
-		self.bool_to_int 	= {  False: 0, True:1, 'amarillo':2, 'rojo':1, 'off':-1 }
+		self.idx_to_str = {0:'verde', 1:'else', -1:'off'}
+		self.str_to_ids = {'verde':0 , 'else': 1, 'amarillo':2, 'rojo': 1, 'off': -1}
 
 		# Expected shape INPUT of the image_semaphoro_raw (Weidth,Height,Channels)
 		self.SHAPE = (24,8,3)
@@ -252,7 +251,6 @@ class Real(multiprocessing.Process):
 		# Deques for states data circulation 
 		self.principal_shard    = collections.deque(maxlen=2)	# GLOBAL maxlen of 2 for check transitions in Flanco
 		self.raw_states 		= collections.deque(maxlen=2)	# LOCAL  maxlen of 2 for check transitions in Flanco
-
 		VERDE_deque				= collections.deque(maxlen=20)  # For keep track the VERDE periods
 		ELSE_deque				= collections.deque(maxlen=20)	# For keep track the ELSE periods.
 
@@ -281,8 +279,8 @@ class Real(multiprocessing.Process):
 		self.raw_states.append(self.global_actual_state)
 		
 		# Init Flanco to 0
-		self.flancoRaw = 0
-		self.flancoSmoth = 0
+		self.flanco = 0
+
 		# Limit to know if this period is Noice, less of this time, this periodo es noice...
 		self.is_noice_thress = 0
 
@@ -301,52 +299,42 @@ class Real(multiprocessing.Process):
 		# Create DB for keep track of Traffic Light states across the day
 		self._createTable(self.today_semaphoro_db_path)
 
-		# Litle filter
-		#self.rawAssignation = collections.deque(maxlen=50)
-		#self.assignation = collections.deque(maxlen=50)
+		# Little Filter
 
-
-		self.rawAssignation = {1 : collections.deque(maxlen=30) , 0:  collections.deque(maxlen=30) }
-		self.assignation = {1 : collections.deque(maxlen=30) , 0:  collections.deque(maxlen=30) }
-		self.periodosChecker = {1 : collections.deque(maxlen=30) , 0:  collections.deque(maxlen=30) }
-		self.maximoPeriodoForState = {1 : 0.0, 0:  0.0 }
-		self.pastState = {1 : collections.deque(maxlen=30) , 0:  collections.deque(maxlen=30) }
-		self.flancoLastDurationRaw = {1 : 0.0 , 0:  0.0}
-		self.flancoLastDurationFlaw = {1 : 0.0, 0:  0.0} 
-
-		self.flancoRawDuration = {1 : collections.deque(maxlen=30) , 0:  collections.deque(maxlen=30) }
-		self.Y_local = 0
-
-
-		# For animation
-
+		self.littleFilter =  collections.deque(maxlen=20)
+		self.numeroDeVerdes = 0
+		self.numeroDeRojos = 0
 	@staticmethod	
 	def _extract_feature(raw_image):
-		SHAPE 		= (24, 8)
-		img 		= cv2.cvtColor(raw_image, cv2.COLOR_BGR2RGB)
+		SHAPE 		= (8, 24)
+
+
+		#img 		= cv2.cvtColor(raw_image, cv2.COLOR_BGR2RGB)
 		hsv 		= cv2.cvtColor(raw_image, cv2.COLOR_BGR2HSV)
 
-		# SOME MASKS
-		#lower_yellow = 	np.array([20,100,100], dtype=np.uint8) # CLOSE all the colors for YELLOW
-		#upper_yellow =	np.array([30,255,255], dtype=np.uint8)
-
-		# RED range
-		#lower_red 	= np.array([255,255, 255], dtype=np.uint8) 	# CLOSE all the colors for RED
-		#upper_red 	= np.array([180,255,255], dtype=np.uint8)
 
 		# GREEN range
-		lower_green = np.array([50,20,0], dtype=np.uint8)		# OPEN Green channels
+		lower_green = np.array([40,20,0], dtype=np.uint8)		# OPEN Green channels
 		upper_green = np.array([90,255,255 ], dtype=np.uint8)   #95.255.255  ideal my square.
 
 		# Combine the Channels
-		#mask_red 	= cv2.inRange(hsv, lower_red, 		upper_red)
-		#mask_yellow = cv2.inRange(hsv, lower_yellow,	upper_yellow)
-		mask_green 	= cv2.inRange(hsv, lower_green, 	upper_green)
+		mask_green 	= cv2.inRange(hsv, lower_green, upper_green)
 		full_mask 	= mask_green
 
 		# Put the mask and filter the R, Y , G colors in _imagen_
-		res 		= cv2.bitwise_and(hsv, img, mask = full_mask)
+		#res 		= cv2.bitwise_and(hsv, img, mask = full_mask)
+		res =  np.stack((full_mask,)*3, -1)
+
 		inputImage 	= cv2.resize(res, SHAPE, interpolation = cv2.INTER_CUBIC)
+
+		meanValueInput = np.mean(inputImage)
+		print('meanValue', meanValueInput)
+
+		if (meanValueInput) < 9:
+			inputImage = np.ones((24,8,3),  dtype=np.uint8)
+		else:
+			inputImage = cv2.resize(res, SHAPE, interpolation = cv2.INTER_CUBIC)
+		
 		# Set 1D array
 		inputImage 	= inputImage.flatten()
 		
@@ -371,89 +359,259 @@ class Real(multiprocessing.Process):
 		###########################
 		# Return prediction from SVM
 
-		if Y == 'green':
-			return False
+		if   Y == 'green':
+			return 0
 		else:
-			return True
+			return 1
+
 
 	def prediction(self, imagen_raw):
 
 		# Obtain the prediction
+
+
 		Y = self._find_color(imagen_raw)
 
+		# Use litle filter
+		self.littleFilter.append(Y)
+
+		numeroDeEstados = dict(collections.Counter(self.littleFilter))
+		#print('numerode estados', numeroDeEstados)
+		for k, v in numeroDeEstados.items():
+			if k == 0:
+				self.numeroDeVerdes = v
+			elif k == 1:
+				self.numeroDeRojos = v
+
+		#self.logger.warning('This is the Number of sttates; ROJOS: {}, VERDE:{}'.format(self.numeroDeRojos, self.numeroDeVerdes))
+		print('ESTADOS', numeroDeEstados)
+		
+		if self.numeroDeVerdes > 16:
+			Y = 0
+		else:
+			Y = 1
+		if self.numeroDeRojos > 16:
+			Y = 1
+		else:
+			Y = 0
 
 		# Reset global counter
 		periodoAMostrar = 0
+		
+		# get color as literal
+		color_prediction = self.idx_to_str[Y]
 
-		# convert integet to string
-		color_prediction = self.bool_to_str[Y]
 
-		# Append the prediction to calculate the flanco
+		# Append the prediction to global buffer
 		self.raw_states.append(color_prediction)
 
-		# Calculate the flanco signal if exist transition
+
+		# Calculate the global flanco
 		self._checkflanco_simple()
-
-
-		# Is exist change in flanco
-
-		if self.flancoRaw == 1:
-
-			# Calculate the duration of this period
+		
+		# Check the global flanco and calculate the mean and std of this past period
+		if self.flanco == 1:
 			periodoAMostrar 	   = self.ultimoPeriodo
-
-			# Append to periodos checker dict into the past state
-			self.periodosChecker[not Y].append(periodoAMostrar)
-
-
-			# check if the changes in period have sence
-
-			for k, v in self.periodosChecker.items():
-				# Get the max value in the keys
-				self.maximoPeriodoForState[not Y] = np.max(self.periodosChecker[not Y])
-
-				# Use this value as reference to past state
-				self.pastState[not Y] = self.maximoPeriodoForState[not Y]
-
-			if periodoAMostrar < self.maximoPeriodoForState[Y]:
-				# append the values in actual State Y from periodosChecker past state Y
-				self.flancoRawDuration[Y] = self.periodosChecker[Y]
-
-			# Corrent the actual periodoAMostrar
-			periodoAMostrar = np.sum(self.flancoRawDuration[Y])
-
-			# Corrent the state
-			color_prediction = self.bool_to_str[not Y]
-
-			# Reset the counter 
 			self.tiempoParaPeriodo = time.time()
 
+			if round(periodoAMostrar) <= self.is_noice_thress: # If periodo para mostrar is less of 0 , this is noice ... pass
+				self.logger.warning('NOICE NOICE with  periodoAMostrar: {}'.format(periodoAMostrar))
+			else:
+				self.periodos_dict[color_prediction].append(periodoAMostrar) 	# append the periods to the global dict deques
+				
+				actualTime 	= datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S') # Get acutal time to row data
+				AUX_ROW 	= {'periodo': periodoAMostrar, 'time': actualTime}		# Auxilar Dictionary to pass into the dicts.
 
+				self.periodosToNumpy[color_prediction].append(AUX_ROW) 			# append to periodostoNumpy
+				
+				# calculate the mean and std of this periodos
+				self.mean_values[color_prediction] = np.mean(self.periodos_dict[color_prediction])  # TODO Check Limits 0: to...
+				self.std_values[color_prediction]  = np.std(self.periodos_dict[color_prediction])	# TODO Check Limits 0: to...
+
+
+				# Check if list is in the limit of 40 elements.
+				if (len(self.periodosToNumpy['verde']) == self.bucketLimit) and (len(self.periodosToNumpy['else']) == self.bucketLimit):
+					# Save to disk uncompleted data
+					df  	= pd.DataFrame.from_dict(self.periodosToNumpy, orient='index')
+					data 	= df.transpose()
+
+					# Loggers amd Path infoLOG_FOLDER  = 	'
+					now 	= datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+					PATH_TO_SAVE_CSV  =	self.TS_DATA_FOLDER  + 'periodos-{}-{}.csv'.format(now, self.bucketIndex)
+					self.logger.info('SAVING periodosToNumpy with route {} '.format(PATH_TO_SAVE_CSV))
+					# Save to disk
+					data.to_csv(PATH_TO_SAVE_CSV, sep='\t', encoding='utf-8')
+
+					# Reset the Dict
+					self.periodosToNumpy = {'verde' : [] , 'else': []}
+
+					# Increase bucketIndex 
+					self.bucketIndex += 1
 		else:
 			pass
 
-		# Time until now fron actual period
+		# Update the last period
 		self.ultimoPeriodo = time.time() - self.tiempoParaPeriodo
-		flanco = self.bool_to_int[self.flancoRaw]
-		numerico = 	self.bool_to_int[Y]
+		
 
-		return 	numerico, color_prediction, flanco, periodoAMostrar
+		# Check if  acumulate mean_values of "ELSE" are mayor of 150
+		if self.mean_values['else'] > self.no_traffic_light_time:			# TODO check if is comvenient use STD
+			return self.str_to_ids['off'], self.idx_to_str[-1], 0, self.mean_values['else'] # -1, off, 0, exceded time
+
+
+		# if STD of verde and else are less of 1.5 in the distribution ...continue to the G-Y-R semaphoro
+		if (self.std_values['verde'] < 1.5 ) and (self.std_values['else'] < 1.5 ) :
+
+			# if exist enought values in the distribution to calculate the 
+			# STD above of 0.0 continue to G-Y-R semaphoro 
+			if (self.std_values['verde'] != 0.0 ) and (self.std_values['else'] != 0.0 ):
+				
+				# Start to calculate the periodos of the three colors:
+				periodo_verde 	 = self.mean_values['verde'] + self.std_values['verde']
+				periodo_else	 = self.mean_values['else'] + self.std_values['else']
+
+				# Inference, this must be the colors of yellow and red.
+				periodo_amarillo = periodo_else - periodo_verde
+				periodo_rojo 	 = periodo_else - periodo_amarillo
+
+				# Assing to the global_actual_sate the value of actual color_prediction
+				self.global_actual_state = color_prediction
+
+
+				# if exist verde and else  in deque buffer of len two , transition.... from
+				if self.raw_states[-2] == 'verde' and self.raw_states[-1] == 'else':
+					# TRANSITION FROM  verde to else 'amarillo'
+					self.local_previous_state 	= 'verde'
+					self.local_actual_state		= 'amarillo'
+					# Init  the stopmatch for the amarillo period
+					self.countdown.init_time = time.time()
+				else:
+					pass
+				
+				# Check if stopmatch time was started, else pass
+				if self.countdown.init_time != None:
+					# if started check the time
+					value = float(self.countdown.elapsed().split(': ')[-1])
+
+					# if time is above of amarillo period
+					if value  > periodo_amarillo:
+						self.local_previous_state 	= 'amarillo'
+						self.local_actual_state 	= 'rojo'
+						self.countdown.stop()
+					else:
+						pass
+				else:
+					pass
+
+				# Check if exist transition from else 'rojo' from global buffer to 'verde'
+				if (self.raw_states[-2] == 'else') and (self.raw_states[-1] == 'verde'):
+					# TRANSITION FROM  else 'rojo' to verde
+					self.local_previous_state 	= 'rojo'
+					self.local_actual_state 	= 'verde'
+				else:
+					pass
+
+				# append this to principal_shard which mantain the G-Y-R transitions.
+				self.principal_shard.append(self.local_actual_state)
+
+
+				# Statements for   check the local flancos
+				if self.local_actual_state == 'verde':
+					self.local_previous_state  == 'rojo'
+					flanco 		= self._checkflanco_full()
+					numerico	= self.str_to_ids[self.local_actual_state]
+
+					if flanco != 0:
+						return numerico, self.local_actual_state, flanco, periodo_rojo
+					else:
+						return numerico, self.local_actual_state, flanco, 0
+
+
+				elif self.local_actual_state == 'amarillo':
+					self.local_previous_state  == 'verde'
+					flanco 			= self._checkflanco_full()
+					numerico		= self.str_to_ids[self.local_actual_state]
+
+					if flanco != 0:
+						return numerico, self.local_actual_state, flanco, periodo_verde
+					else:
+						return numerico, self.local_actual_state, flanco, 0
+
+
+				elif self.local_actual_state == 'rojo':
+					self.local_previous_state  == 'amarillo'
+					flanco 		= self._checkflanco_full()
+					numerico	= self.str_to_ids[self.local_actual_state]
+
+					if flanco != 0:
+						return numerico, self.local_actual_state, flanco, periodo_amarillo
+					else:
+						return numerico, self.local_actual_state, flanco, 0
+				else:
+					# Off semaforo case
+					pass
+			else:
+				#print('Still returiong the binary case...')
+				numerico = 	self.str_to_ids[color_prediction]
+				return numerico, color_prediction, self.flanco, periodoAMostrar
+
+		else:
+			numerico = 	self.str_to_ids[color_prediction]
+			#print('Returning Single  binary return...')
+			return numerico, color_prediction, self.flanco, periodoAMostrar
 			
 
 	def _checkflanco_simple(self):
-		past, current = self.raw_states[0], self.raw_states[-1]
-
-
+		past, current = self.raw_states[0], self.raw_states[1]
 		#
 		# Compare the current and pass colors to set self.flanco value 
 		#
 		if current == past:
-			self.flancoRaw = False
+			self.flanco = 0
 		elif current !=  past:
-			self.flancoRaw = True
+			self.flanco = 1
 		else:
+			# transition to  RYG
 			print('No match found, current: {},  past: {}, returning 0'.format(current, past))
 
+	def _checkflanco_full(self):
+		if len(self.principal_shard) == 2:
+			past, current = self.principal_shard[0], self.principal_shard[1]
+			#
+			# Compare the current and pass colors to set self.flanco value 
+			#
+			if current == past:					
+				return  0
+			elif (current == 'verde') and (past == 'rojo'):	
+				return -1	
+			elif (current == 'amarillo') and (past == 'verde'):
+				return  1
+			elif (current == 'rojo')  and (past == 'amarillo'):
+				return 2
+			elif (current == 'verde') and (past == 'else'):
+				return -1
+			else:
+				print('No match found, current: {},  past: {}, returning 0'.format(current, past))
+		else:
+			return 0
+	"""
+	TODO MAKE THIS FUNCTIONAL
+	def filter(self):
+		queue		= list(self.global_shard)
+		try:
+			n_elements	= dict(Counter(queue))
+			print(n_elements)
+			n_elses 	= n_elements['else']
+			n_greens 	= n_elements['verde']
+			prob_elses  = np.mean(Real.sigmoid(n_elses))
+			prob_greens = np.mean(Real.sigmoid(n_greens))
+			if prob_elses > prob_greens:
+				return 'else'
+			else:
+				return 'verde'
+		except:
+			return queue[-1]
+	"""
 
 	@staticmethod
 	def _createTable(path_to_semaphoro_db):
@@ -487,13 +645,15 @@ class Real(multiprocessing.Process):
 
 				# if Flanco is != from 0, add the above results to DB 
 
-				"""
 				if flanco != 0:
 
 					if os.path.isfile(self.today_semaphoro_db_path): # If Model exist load into memory
 						date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-						Real.dynamic_data_entry(self.today_semaphoro_db_path, date, color_prediction, flanco, periodoAMostrar)		
-
+						try:
+							Real.dynamic_data_entry(self.today_semaphoro_db_path, date, color_prediction, flanco, periodoAMostrar)		
+						except Exception as e:
+							self.logger.warning('ERROR TRYGIN TO WRITE IN DB! with: {}'.format(e))
+							
 					else:
 						# Notify that there was not folder
 						self.logger.info('THERE WAS NOT DB FOLDER in {}'. format(self.today_semaphoro_db_path))
@@ -509,9 +669,10 @@ class Real(multiprocessing.Process):
 						self.logger.info('SAVING DB DATA in... {}'.format(self.today_semaphoro_db_path))
 
 						date = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-						Real.dynamic_data_entry(self.today_semaphoro_db_path, date, color_prediction, flanco, periodoAMostrar)		
-
-				"""
+						try:
+							Real.dynamic_data_entry(self.today_semaphoro_db_path, date, color_prediction, flanco, periodoAMostrar)		
+						except Exception as e:
+							self.logger.warning('ERROR TRYGIN TO WRITE IN DB! with: {}'.format(e))
 				# Send the results back to consumer in main program				
 				self.producer.send([numerical, color_prediction, flanco, periodoAMostrar])
 			
@@ -566,20 +727,11 @@ def main(video):
 
 	parametrosInstalacion = np.load(directorioDeVideos+'/'+archivoParametrosACargar)
 	indicesSemaforo 	= parametrosInstalacion[0]
-	poligonoSemaforo 	= np.array([indicesSemaforo[0],indicesSemaforo[184],indicesSemaforo[191],indicesSemaforo[7]])
-	verticesPartida 	= parametrosInstalacion[1]
-	verticesLlegada 	= parametrosInstalacion[2]
-	verticesDerecha 	= parametrosInstalacion[3]
-	verticesIzquierda 	= parametrosInstalacion[4]
-	angulo 				= parametrosInstalacion[5][0]
-	poligonoEnAlta 		= parametrosInstalacion[6]
 
 	cap = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
 	# Create semaphoro class
 	semaphoro = CreateSemaforo(periodo = 0)
 
-	fig = plt.figure()
-	ax1 = fig.add_subplot(1,1,1)
 	while True:
 		_, frameVideo = cap.read()
 
@@ -594,25 +746,38 @@ def main(video):
 
 		raw 	= np.reshape(pixeles,(24,8,3))
 
-		SHAPE 		= (320,240)
+		SHAPE 		= (8,24)
 		img 		= cv2.cvtColor(raw, cv2.COLOR_BGR2RGB)
 		hsv 		= cv2.cvtColor(raw, cv2.COLOR_BGR2HSV)
 
 		# GREEN range
 		lower_green = np.array([50,20,0], dtype=np.uint8)		#50# OPEN Green channels
-		upper_green = np.array([90,255,255 ], dtype=np.uint8)   #95.255.255  ideal my square.
+		upper_green = np.array([90,255,255], dtype=np.uint8)   #95.255.255  ideal my square.
 
+		
 		# Combine the Channels
 		mask_green 	= cv2.inRange(hsv, lower_green, 	upper_green)
 		full_mask 	= mask_green
 
+
+		#res 		= cv2.bitwise_and(img, hsv, mask = full_mask)
+		res =  np.stack((full_mask,)*3, -1)
+
+		#print(res.shape)
 		# Put the mask and filter the R, Y , G colors in _imagen_
 		#res 		= cv2.bitwise_and(img, hsv, mask = full_mask)
 
-		inputImage 	= cv2.resize(full_mask, SHAPE, interpolation = cv2.INTER_CUBIC)
+		inputImage 	= cv2.resize(res, SHAPE, interpolation = cv2.INTER_CUBIC)
+		#print('Mean image', np.mean(inputImage))
+		
+		if np.mean(inputImage) < 10:
+			inputImage = np.ones((24,8,3),  dtype=np.uint8)
+		else:
+			inputImage 	= cv2.resize(res, SHAPE, interpolation = cv2.INTER_CUBIC)
 
+			
 
-
+		#cv2.imshow('Ohne', full_mask)
 		cv2.imshow('fitler', inputImage)
 		cv2.imshow('Semaphoro', cv2.resize(np.reshape(pixeles, (24,8,3)),(320,240)))
 		#cv2.imshow('Semaphoro', cv2.resize(frameVideo,(320,240)))
@@ -623,7 +788,6 @@ def main(video):
 			semaphoro.stop()
 			break
 	cv2.destroyAllWindows()
-	c = cv2.waitKey(0)
 
 if __name__ == '__main__':
 	print(sys.argv)
