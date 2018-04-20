@@ -19,7 +19,6 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import style
 
-style.use("fivethirtyeight")
 
 class CreateSemaforo():
 	"""
@@ -199,14 +198,12 @@ class Real(multiprocessing.Process):
 		self.today_semaphoro_db_path = os.getenv('HOME') + '/' + 'WORKDIR' + '/' +'DBS/' + 'semaphoro_periods_{}.db'.format(TODAYDATE)
 
 		# Paths to Machine Learning models
-		path_to_svm_model 		= os.getenv('HOME') + '/' + 'trafficFlow' + \
-									'/' + 'prototipo' +'/' + 'model' + '/' + 'binary.pkl'
-		path_to_keras_model	 	= os.getenv('HOME') + '/' + 'trafficFlow' + \
-									'/' + 'prototipo' +'/' + 'model' + '/' + 'model.h5'
+		path_to_svm_model 		= os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'linear_3.pkl'#'linear_2.pkl'#'binary_bw3F.pkl'
+
 		# Check Models path
 		if os.path.isfile(path_to_svm_model): # If Model exist load into memory
 			print ("Using previous model... {}".format(path_to_svm_model))
-			self.svm = pickle.load(open(path_to_svm_model, "rb"))
+			self.model = pickle.load(open(path_to_svm_model, "rb"))
 		else:
 			print ("No model found in {}, please check the path to the ML model!!".format(path_to_svm_model))
 
@@ -282,7 +279,7 @@ class Real(multiprocessing.Process):
 		self.flanco = 0
 
 		# Limit to know if this period is Noice, less of this time, this periodo es noice...
-		self.is_noice_thress = 0
+		self.is_noice_thress = 2
 
 		# No Traffic Light limit
 		self.no_traffic_light_time		= 150			# 150 Segs limit ot say there'r not TrafficLight 
@@ -301,17 +298,16 @@ class Real(multiprocessing.Process):
 
 		# Little Filter
 
-		self.littleFilter =  collections.deque(maxlen=20)
+		self.littleFilter =  collections.deque(maxlen=30)
 		self.numeroDeVerdes = 0
 		self.numeroDeRojos = 0
 	@staticmethod	
 	def _extract_feature(raw_image):
+
 		SHAPE 		= (8, 24)
 
-
-		#img 		= cv2.cvtColor(raw_image, cv2.COLOR_BGR2RGB)
+		
 		hsv 		= cv2.cvtColor(raw_image, cv2.COLOR_BGR2HSV)
-
 
 		# GREEN range
 		lower_green = np.array([40,20,0], dtype=np.uint8)		# OPEN Green channels
@@ -319,21 +315,20 @@ class Real(multiprocessing.Process):
 
 		# Combine the Channels
 		mask_green 	= cv2.inRange(hsv, lower_green, upper_green)
-		full_mask 	= mask_green
 
-		# Put the mask and filter the R, Y , G colors in _imagen_
-		#res 		= cv2.bitwise_and(hsv, img, mask = full_mask)
-		res =  np.stack((full_mask,)*3, -1)
-
-		inputImage 	= cv2.resize(res, SHAPE, interpolation = cv2.INTER_CUBIC)
+		filter_g = cv2.GaussianBlur(mask_green,(15,15),0)
+		full_mask 	= filter_g
+		
+		inputImage 	= cv2.resize(full_mask, SHAPE, interpolation = cv2.INTER_CUBIC)
 
 		meanValueInput = np.mean(inputImage)
+		
 		print('meanValue', meanValueInput)
-
-		if (meanValueInput) < 9:
-			inputImage = np.ones((24,8,3),  dtype=np.uint8)
+	
+		if (meanValueInput) < 3:
+			inputImage = np.ones(SHAPE,  dtype=np.uint8)
 		else:
-			inputImage = cv2.resize(res, SHAPE, interpolation = cv2.INTER_CUBIC)
+			inputImage = cv2.resize(full_mask, SHAPE, interpolation = cv2.INTER_CUBIC)
 		
 		# Set 1D array
 		inputImage 	= inputImage.flatten()
@@ -353,22 +348,20 @@ class Real(multiprocessing.Process):
 	def _find_color(self, imagen):
 		# ML PROCESS
 		X = self._extract_feature(imagen)
-		Y = self.svm.predict(X)[0]
-		###########################
-		# END SVM PART (CLASSIFICATION) 
-		###########################
-		# Return prediction from SVM
+		tic = time.time()
+		Y = self.model.predict(X)[0]
+		tac = time.time()
+
+		print('TIME IS', tac - tic)
 
 		if   Y == 'green':
 			return 0
 		else:
 			return 1
 
-
 	def prediction(self, imagen_raw):
 
 		# Obtain the prediction
-
 
 		Y = self._find_color(imagen_raw)
 
@@ -383,14 +376,13 @@ class Real(multiprocessing.Process):
 			elif k == 1:
 				self.numeroDeRojos = v
 
-		#self.logger.warning('This is the Number of sttates; ROJOS: {}, VERDE:{}'.format(self.numeroDeRojos, self.numeroDeVerdes))
 		print('ESTADOS', numeroDeEstados)
 		
-		if self.numeroDeVerdes > 16:
+		if self.numeroDeVerdes > 26:
 			Y = 0
 		else:
 			Y = 1
-		if self.numeroDeRojos > 16:
+		if self.numeroDeRojos > 26:
 			Y = 1
 		else:
 			Y = 0
@@ -401,21 +393,20 @@ class Real(multiprocessing.Process):
 		# get color as literal
 		color_prediction = self.idx_to_str[Y]
 
-
 		# Append the prediction to global buffer
 		self.raw_states.append(color_prediction)
 
-
 		# Calculate the global flanco
 		self._checkflanco_simple()
-		
+
 		# Check the global flanco and calculate the mean and std of this past period
 		if self.flanco == 1:
 			periodoAMostrar 	   = self.ultimoPeriodo
 			self.tiempoParaPeriodo = time.time()
 
-			if round(periodoAMostrar) <= self.is_noice_thress: # If periodo para mostrar is less of 0 , this is noice ... pass
+			if periodoAMostrar <= self.is_noice_thress: # If periodo para mostrar is less of 2 , this is noice ... pass
 				self.logger.warning('NOICE NOICE with  periodoAMostrar: {}'.format(periodoAMostrar))
+				print(periodoAMostrar)
 			else:
 				self.periodos_dict[color_prediction].append(periodoAMostrar) 	# append the periods to the global dict deques
 				
@@ -594,24 +585,6 @@ class Real(multiprocessing.Process):
 				print('No match found, current: {},  past: {}, returning 0'.format(current, past))
 		else:
 			return 0
-	"""
-	TODO MAKE THIS FUNCTIONAL
-	def filter(self):
-		queue		= list(self.global_shard)
-		try:
-			n_elements	= dict(Counter(queue))
-			print(n_elements)
-			n_elses 	= n_elements['else']
-			n_greens 	= n_elements['verde']
-			prob_elses  = np.mean(Real.sigmoid(n_elses))
-			prob_greens = np.mean(Real.sigmoid(n_greens))
-			if prob_elses > prob_greens:
-				return 'else'
-			else:
-				return 'verde'
-		except:
-			return queue[-1]
-	"""
 
 	@staticmethod
 	def _createTable(path_to_semaphoro_db):
@@ -746,8 +719,7 @@ def main(video):
 
 		raw 	= np.reshape(pixeles,(24,8,3))
 
-		SHAPE 		= (8,24)
-		img 		= cv2.cvtColor(raw, cv2.COLOR_BGR2RGB)
+		SHAPE 		= (8*3,24*3)
 		hsv 		= cv2.cvtColor(raw, cv2.COLOR_BGR2HSV)
 
 		# GREEN range
@@ -758,7 +730,12 @@ def main(video):
 		# Combine the Channels
 		mask_green 	= cv2.inRange(hsv, lower_green, 	upper_green)
 		full_mask 	= mask_green
-
+		
+		
+		#filter_g = cv2.bilateralFilter(mask_green,35,5,75)
+		filter_g = cv2.GaussianBlur(mask_green,(15,15),0)
+		full_mask 	= filter_g
+		
 
 		#res 		= cv2.bitwise_and(img, hsv, mask = full_mask)
 		res =  np.stack((full_mask,)*3, -1)
