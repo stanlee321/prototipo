@@ -374,7 +374,7 @@ class ColorTrafficLight(Semaforo):
 		return colorPrediction, literalColour, self.flanco
 	
 
-class CreateSemaforo(Semaforo):
+class TrafficLight(Semaforo):
 	"""
 	Create the requested semaforo according the the periodoSemaforo values,
 	Attributes:
@@ -459,7 +459,7 @@ if __name__ == '__main__':
 	cap = cv2.VideoCapture('./installationFiles/sar.mp4')
 	data = np.load('./installationFiles/sar.npy')
 	print(data)
-	semaforo = CreateSemaforo(periodoSemaforo = 0)
+	semaforo = TrafficLight(periodoSemaforo = 0)
 	poligono  = data[0]
 	print(data[0])
 	while True:
