@@ -55,7 +55,7 @@ class CreateSemaforo():
 
 			# Read the ouputs from The Producer
 			data = self.consumer.recv()
-			return data[0], data[1], data[2], data[3] #numerico, literal, flanco, period
+			return data[0], data[1], data[2], data[3], data[4], data[5], data[6] #numerico, literal, flanco, period
 	def stop(self):
 		self.semaphoro.terminate()
 		self.semaphoro.join()
@@ -279,7 +279,7 @@ class Real(multiprocessing.Process):
 		self.flanco = 0
 
 		# Limit to know if this period is Noice, less of this time, this periodo es noice...
-		self.is_noice_thress = 2
+		self.is_noice_thress = 6
 
 		# No Traffic Light limit
 		self.no_traffic_light_time		= 150			# 150 Segs limit ot say there'r not TrafficLight 
@@ -298,46 +298,243 @@ class Real(multiprocessing.Process):
 
 		# Little Filter
 
-		self.littleFilter =  collections.deque(maxlen=30)
+		self.littleFilter =  collections.deque(maxlen=20)
 		self.numeroDeVerdes = 0
 		self.numeroDeRojos = 0
-	@staticmethod	
-	def _extract_feature(raw_image):
 
-		SHAPE 		= (8, 24)
+
+		# Automata controllers
+		self.correctionX = 0
+		self.correctionY = 0
+		self.automataIndex = 0
+
+		# Mean values dequeue
+		self.maxLenMeanImages = 1000
+		self.lastMeanImage = 0
+		self.meansImagesDeque = collections.deque(maxlen= self.maxLenMeanImages)
+		
+		# Centroids in imagen
+		self.centroidsXDeque = collections.deque(maxlen=self.maxLenMeanImages)
+		self.centroidsYDeque = collections.deque(maxlen=self.maxLenMeanImages)
+		# Time tracks
+		self.datetimeDeque = collections.deque(maxlen=self.maxLenMeanImages)
+
+		# append signal for initial values
+		self.append = True
+
+		# send the signal to move or no the semaforo
+		self.move = False
+
+		# send signal to analyse queue
+
+		self.actualImagesMeans = collections.deque(maxlen= self.maxLenMeanImages)
+		self.actualCentroidsXDeque = collections.deque(maxlen= self.maxLenMeanImages)
+		self.actualCentroidsYDeque = collections.deque(maxlen= self.maxLenMeanImages)
+
+		# Tokers for move the imagen 
+		self.tokens = 5
+
+		# If 1000 queues completed, send signal to analyce state of semaforo
+		self.analyce = False
+		
+		# Placeholder for Actual state of semaforo
+		self.actualState = 0
+		
+		# Acumulador de periodos
+		self.acumulator = {'verde' : [] , 'else': []}
+
+
+	@staticmethod
+	def _calCentroid(x, y, w, h):
+		x1 = int(w / 2)
+		y1 = int(h / 2)
+		cx = x + x1
+		cy = y + y1
+		return (cx, cy)
+
+	@staticmethod
+	def _getCentroid(full_mask):
+		"""
+			Find the contour  and later calculate the centroid of this contour
+		"""
+
+		_, contours, _ = cv2.findContours(full_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
+
+
+		for (_, contour) in enumerate(contours):
+			(x, y, w, h) = cv2.boundingRect(contour)
+			centroid = Real._calCentroid(x, y, w, h)
+			return centroid
+
+
+
+	def _imagesStats(self, inputImage):
+		
+		centroid 	= Real._getCentroid(inputImage)
+		mean 		= np.mean(inputImage)
+
+		self.lastMeanImage  = mean
+		if (centroid is not None) and ( mean != 0.0):
+			# append to deque of meansImages
+			if self.append is False:
+				if self.actualState == 0:	
+					self.actualImagesMeans.append(mean)
+					self.actualCentroidsXDeque.append(centroid[0])
+					self.actualCentroidsYDeque.append(centroid[1])
+				else:
+					pass
+			else:
+				self.meansImagesDeque.append(mean)
+				self.centroidsXDeque.append(centroid[0])
+				self.centroidsYDeque.append(centroid[1])
+		else:
+			pass
+
+		if len(self.meansImagesDeque) == self.maxLenMeanImages:
+
+			if self.append is True:
+
+				patronMean =  np.max(np.mean(self.meansImagesDeque))
+				
+				xcmax  =  np.max(self.centroidsXDeque)
+				ycmax  =  np.max(self.centroidsYDeque)
+				xcmin  =  np.min(self.centroidsXDeque)
+				ycmin  =  np.min(self.centroidsYDeque)
+				
+				centroidXMean = np.mean(self.centroidsXDeque)
+				centroidYMean = np.mean(self.centroidsYDeque)
+
+				print('LIMIT REACHED; SAVING FILES')
+				# Automata dict info
+				automataInfo = {'patronMean': patronMean, \
+								'xcmax': xcmax, 'ycmax': ycmax,\
+								'xcmin': xcmin, 'ycmin': ycmin,
+								'centroidXMean': centroidXMean, 'centroidYMean':centroidYMean}
+
+				# Create dataframe from dict
+				df  	= pd.DataFrame.from_dict(automataInfo, orient='index')
+				data 	= df.transpose()
+
+				# Loggers amd Path infoLOG_FOLDER  
+				now 	= datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+				PATH_TO_SAVE_CSV  =	self.TS_DATA_FOLDER  + 'initial_values-{}-{}.csv'.format(now, self.automataIndex)
+				self.logger.info('SAVING periodosToNumpy with route {} '.format(PATH_TO_SAVE_CSV))
+
+				# Save to disk
+				data.to_csv(PATH_TO_SAVE_CSV, sep=',', encoding='utf-8')
+
+				
+				# Reset queues
+				self.meansImagesDeque = collections.deque(maxlen= self.maxLenMeanImages)		
+				# Centroids in imagen
+				self.centroidsXDeque = collections.deque(maxlen=self.maxLenMeanImages)
+				self.centroidsYDeque = collections.deque(maxlen=self.maxLenMeanImages)
+				# Time tracks
+				self.datetimeDeque = collections.deque(maxlen=self.maxLenMeanImages)
+
+				# Not longer enter here
+				self.append = False
+			else:
+				pass
+		if len(self.actualImagesMeans) == self.maxLenMeanImages:
+			#	# Analyice queue
+			self.analyce = True
+			self.actualImagesMeans = collections.deque(maxlen= self.maxLenMeanImages)
+
 
 		
+	def _extract_feature(self, raw_image):
+		SHAPE 		= (8, 24)
 		hsv 		= cv2.cvtColor(raw_image, cv2.COLOR_BGR2HSV)
 
 		# GREEN range
 		lower_green = np.array([40,20,0], dtype=np.uint8)		# OPEN Green channels
 		upper_green = np.array([90,255,255 ], dtype=np.uint8)   #95.255.255  ideal my square.
-
 		# Combine the Channels
 		mask_green 	= cv2.inRange(hsv, lower_green, upper_green)
 
-		filter_g = cv2.GaussianBlur(mask_green,(15,15),0)
-		full_mask 	= filter_g
-		
-		inputImage 	= cv2.resize(full_mask, SHAPE, interpolation = cv2.INTER_CUBIC)
+		"""
+		TODO PUT A BILATERAL FILTER HERE
+		"""
+		filter_G = cv2.GaussianBlur(mask_green,(15,15),0)
+		inputImage 	= cv2.resize(filter_G, SHAPE, interpolation = cv2.INTER_CUBIC)
 
-		meanValueInput = np.mean(inputImage)
-		
-		print('meanValue', meanValueInput)
-	
-		if (meanValueInput) < 3:
+		if (np.mean(inputImage)) < 10:
 			inputImage = np.ones(SHAPE,  dtype=np.uint8)
 		else:
-			inputImage = cv2.resize(full_mask, SHAPE, interpolation = cv2.INTER_CUBIC)
-		
+			#inputImage = cv2.resize(full_mask, SHAPE, interpolation = cv2.INTER_CUBIC)
+			pass
+		self._imagesStats(inputImage)	
+	
+		# Check automat
+		if self.append is False:
+			self._automata()
+
 		# Set 1D array
 		inputImage 	= inputImage.flatten()
-		
 		# Normalize to 0-1 range
 		inputImage 	= inputImage / 255
 
 		# Return Data for Machine Learning Classifica
 		return inputImage.reshape(1, -1)
+
+	def _automata(self):
+
+		
+		records = [f for f in os.listdir(self.TS_DATA_FOLDER) if ('temp-record-' not in f)]
+		
+		dataframes = [pd.read_csv(self.TS_DATA_FOLDER + '/' + record) for record in records]
+
+		df = pd.concat(dataframes)
+
+
+		patronMean =  df['patronMean'].tolist()[0]
+		distance = patronMean - np.mean(self.actualImagesMeans)		
+		
+		"""
+		TODO calculate the displamente with the referecne
+		and the actualDqueues
+
+		xcmax  =  df['xcmax'].tolist()[0]
+		ycmax  =  df['ycmax'].tolist()[0]
+		xcmin  =  df['xcmin'].tolist()[0]
+		ycmin  =  df['ycmin'].tolist()[0]
+		
+
+		centroidXMean = df['centroidXMean'].tolist()[0]
+		centroidYMean = df['centroidYMean'].tolist()[0]
+
+		if (len(self.actualCentroidsXDeque) != 0) and (len(self.actualCentroidsYDeque) !=0):
+				diffX  =  centroidXMean - np.max(self.actualCentroidsXDeque)
+				diffY  =  centroidYMean - np.max(self.actualCentroidsYDeque) 
+		else:
+			diffX  =  centroidXMean
+			diffY  =  centroidYMean
+		"""
+		
+		self.logger.info('Patron fron Init Condition:: {}'.format(patronMean))
+		self.logger.info('Actual separation Distance:: {}'.format(distance))
+
+		if  (distance) > 20:
+			self.logger.warning('Semaforo are moving, reacalibrando...aviable Tokens {}'. format(self.tokens))
+			if self.tokens  > 0:	
+				if self.analyce is True:
+					self.correctionX = 1 #diffX  * beta
+					self.correctionY = 1 #diffY  * beta
+					self.move = True
+					self.tokens -= 1
+					self.analyce = False
+					self.logger.warning('Token used, remains {}'. format(self.tokens))
+				else:
+					self.move = False
+			else:
+				self.move = False
+		else:
+			self.correctionX = 0
+			self.correctionY = 0
+
+		#PATH_TO_SAVE_CSV  =	self.TS_DATA_FOLDER  + 'temp-record.csv'
+		#tracksDF.to_csv(PATH_TO_SAVE_CSV, sep=',', encoding='utf-8')
 
 	@staticmethod
 	def _sigmoid(x):
@@ -354,7 +551,7 @@ class Real(multiprocessing.Process):
 
 		print('TIME IS', tac - tic)
 
-		if   Y == 'green':
+		if  Y == 'green':
 			return 0
 		else:
 			return 1
@@ -364,7 +561,7 @@ class Real(multiprocessing.Process):
 		# Obtain the prediction
 
 		Y = self._find_color(imagen_raw)
-
+		self.actualState = Y
 		# Use litle filter
 		self.littleFilter.append(Y)
 
@@ -376,13 +573,12 @@ class Real(multiprocessing.Process):
 			elif k == 1:
 				self.numeroDeRojos = v
 
-		print('ESTADOS', numeroDeEstados)
 		
-		if self.numeroDeVerdes > 26:
+		if self.numeroDeVerdes > 18:
 			Y = 0
 		else:
 			Y = 1
-		if self.numeroDeRojos > 26:
+		if self.numeroDeRojos > 16:
 			Y = 1
 		else:
 			Y = 0
@@ -404,11 +600,13 @@ class Real(multiprocessing.Process):
 			periodoAMostrar 	   = self.ultimoPeriodo
 			self.tiempoParaPeriodo = time.time()
 
-			if periodoAMostrar <= self.is_noice_thress: # If periodo para mostrar is less of 2 , this is noice ... pass
+			if periodoAMostrar <= self.is_noice_thress: # If periodo para mostrar is less of 6 , this is noice ... pass
 				self.logger.warning('NOICE NOICE with  periodoAMostrar: {}'.format(periodoAMostrar))
 				print(periodoAMostrar)
+				#self.acumulator[color_prediction].append(periodoAMostrar)
 			else:
 				self.periodos_dict[color_prediction].append(periodoAMostrar) 	# append the periods to the global dict deques
+				
 				
 				actualTime 	= datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S') # Get acutal time to row data
 				AUX_ROW 	= {'periodo': periodoAMostrar, 'time': actualTime}		# Auxilar Dictionary to pass into the dicts.
@@ -421,6 +619,7 @@ class Real(multiprocessing.Process):
 
 
 				# Check if list is in the limit of 40 elements.
+				# Then save to disk this info
 				if (len(self.periodosToNumpy['verde']) == self.bucketLimit) and (len(self.periodosToNumpy['else']) == self.bucketLimit):
 					# Save to disk uncompleted data
 					df  	= pd.DataFrame.from_dict(self.periodosToNumpy, orient='index')
@@ -441,6 +640,11 @@ class Real(multiprocessing.Process):
 		else:
 			pass
 
+		print('PREIDOS DICT : DQUEUE: ', self.periodos_dict)
+		print('PERIODOS',self.periodosToNumpy)		# append to periodostoNumpy		
+		# calculate the mean and std of this periodos
+		print('MEAN VALUES',self.mean_values)
+		print('STD VALUES', self.std_values)
 		# Update the last period
 		self.ultimoPeriodo = time.time() - self.tiempoParaPeriodo
 		
@@ -448,7 +652,6 @@ class Real(multiprocessing.Process):
 		# Check if  acumulate mean_values of "ELSE" are mayor of 150
 		if self.mean_values['else'] > self.no_traffic_light_time:			# TODO check if is comvenient use STD
 			return self.str_to_ids['off'], self.idx_to_str[-1], 0, self.mean_values['else'] # -1, off, 0, exceded time
-
 
 		# if STD of verde and else are less of 1.5 in the distribution ...continue to the G-Y-R semaphoro
 		if (self.std_values['verde'] < 1.5 ) and (self.std_values['else'] < 1.5 ) :
@@ -647,7 +850,7 @@ class Real(multiprocessing.Process):
 						except Exception as e:
 							self.logger.warning('ERROR TRYGIN TO WRITE IN DB! with: {}'.format(e))
 				# Send the results back to consumer in main program				
-				self.producer.send([numerical, color_prediction, flanco, periodoAMostrar])
+				self.producer.send([numerical, color_prediction, flanco, periodoAMostrar, self.correctionX, self.correctionY, self.move])
 			
 			#else:
 			#	print('DEBUGS Error Here in reading images, returning feaults  WE..')
@@ -694,21 +897,36 @@ directorioDeVideos  = os.getenv('HOME') + '/trafficFlow/trialVideos'
 folderDeInstalacion = directorioDeTrabajo + '/installationFiles'
 
 
+def get_centroid(x, y, w, h):
+	x1 = int(w / 2)
+	y1 = int(h / 2)
+	cx = x + x1
+	cy = y + y1
+	return (cx, cy)
+
 def main(video):
 	archivoDeVideo = video
 	archivoParametrosACargar = archivoDeVideo[:-4]+'.npy'
 
 	parametrosInstalacion = np.load(directorioDeVideos+'/'+archivoParametrosACargar)
-	indicesSemaforo 	= parametrosInstalacion[0]
+	indicesSemaforo 	=  parametrosInstalacion[0]
 
+	# Indice as array
+	indicesSemaforo = np.array(indicesSemaforo)
 	cap = cv2.VideoCapture(directorioDeVideos+'/'+archivoDeVideo)
 	# Create semaphoro class
 	semaphoro = CreateSemaforo(periodo = 0)
-
+	mover = True
+	montoAMober = []
 	while True:
 		_, frameVideo = cap.read()
-
+		#print('Indices from while are ', indicesSemaforo)
 		# Feed with images to semaphoro
+		print('dinices semaforo shape', indicesSemaforo.shape)
+		print('axis0', indicesSemaforo[0])
+		#print('axis1', indicesSemaforo[0][1])
+		#print('indices', indicesSemaforo)
+
 		pixeles = np.array([frameVideo[indicesSemaforo[0][1],indicesSemaforo[0][0]]])
 		for indiceSemaforo in indicesSemaforo[1:]:
 			pixeles = np.append(pixeles,[frameVideo[indiceSemaforo[1],indiceSemaforo[0]]], axis=0)
@@ -719,7 +937,7 @@ def main(video):
 
 		raw 	= np.reshape(pixeles,(24,8,3))
 
-		SHAPE 		= (8*3,24*3)
+		SHAPE 		= (8*6,24*6)
 		hsv 		= cv2.cvtColor(raw, cv2.COLOR_BGR2HSV)
 
 		# GREEN range
@@ -729,30 +947,46 @@ def main(video):
 		
 		# Combine the Channels
 		mask_green 	= cv2.inRange(hsv, lower_green, 	upper_green)
-		full_mask 	= mask_green
-		
-		
-		#filter_g = cv2.bilateralFilter(mask_green,35,5,75)
-		filter_g = cv2.GaussianBlur(mask_green,(15,15),0)
+	
+		filter_g = cv2.bilateralFilter(mask_green,35,5,75)
+		filter_g = cv2.GaussianBlur(mask_green,(5,5),0)
 		full_mask 	= filter_g
 		
+		_, contours, _ = cv2.findContours(full_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
+	
+		for (i, contour) in enumerate(contours):
+			(x, y, w, h) = cv2.boundingRect(contour)
+			centroid = get_centroid(x, y, w, h)
+		print('MOVE BY THIs UNIT', data[4], data[5])
+		mover = data[6]
+		if (data[6] is True):
+			if data[5] != 0:	
+				print('MVOIENDO SEMAFORO')
 
+				for i, indice in enumerate(indicesSemaforo):
+					indice[0] -= data[4]**2  
+					indice[1] += data[5]**2
+
+				mover = False
+			else:
+				pass
+		else:
+			pass
 		#res 		= cv2.bitwise_and(img, hsv, mask = full_mask)
 		res =  np.stack((full_mask,)*3, -1)
 
 		#print(res.shape)
-		# Put the mask and filter the R, Y , G colors in _imagen_
-		#res 		= cv2.bitwise_and(img, hsv, mask = full_mask)
 
 		inputImage 	= cv2.resize(res, SHAPE, interpolation = cv2.INTER_CUBIC)
 		#print('Mean image', np.mean(inputImage))
 		
 		if np.mean(inputImage) < 10:
-			inputImage = np.ones((24,8,3),  dtype=np.uint8)
+			inputImage = np.ones((24*6,8*6),  dtype=np.uint8)
 		else:
 			inputImage 	= cv2.resize(res, SHAPE, interpolation = cv2.INTER_CUBIC)
-
-			
+	
+		cv2.circle(inputImage, (centroid[0]*6, centroid[1]*6), 2, (0,255,0), -1)
+		#cv2.circle(inputImage, (x, h), 2, (0,255,0), -1)
 
 		#cv2.imshow('Ohne', full_mask)
 		cv2.imshow('fitler', inputImage)
