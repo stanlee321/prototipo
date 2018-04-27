@@ -198,7 +198,7 @@ class Real(multiprocessing.Process):
 		self.today_semaphoro_db_path = os.getenv('HOME') + '/' + 'WORKDIR' + '/' +'DBS/' + 'semaphoro_periods_{}.db'.format(TODAYDATE)
 
 		# Paths to Machine Learning models
-		path_to_svm_model 		= os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'linear_3.pkl'#'linear_2.pkl'#'binary_bw3F.pkl'
+		path_to_svm_model 		= os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'NN_relu.pkl'# 'NN_4.pkl' # 'linear_3.pkl'#'linear_2.pkl'#'binary_bw3F.pkl'
 
 		# Check Models path
 		if os.path.isfile(path_to_svm_model): # If Model exist load into memory
@@ -453,16 +453,14 @@ class Real(multiprocessing.Process):
 		# Combine the Channels
 		mask_green 	= cv2.inRange(hsv, lower_green, upper_green)
 
-		"""
-		TODO PUT A BILATERAL FILTER HERE
-		"""
-		filter_G = cv2.GaussianBlur(mask_green,(15,15),0)
+		filter_1 = cv2.bilateralFilter(mask_green,35,75,75)
+		filter_G = cv2.GaussianBlur(filter_1,(5,5),0)
+		#filter_G = cv2.GaussianBlur(mask_green,(15,15),0)
 		inputImage 	= cv2.resize(filter_G, SHAPE, interpolation = cv2.INTER_CUBIC)
 
 		if (np.mean(inputImage)) < 10:
 			inputImage = np.ones(SHAPE,  dtype=np.uint8)
 		else:
-			#inputImage = cv2.resize(full_mask, SHAPE, interpolation = cv2.INTER_CUBIC)
 			pass
 		self._imagesStats(inputImage)	
 	
@@ -948,7 +946,7 @@ def main(video):
 		# Combine the Channels
 		mask_green 	= cv2.inRange(hsv, lower_green, 	upper_green)
 	
-		filter_g = cv2.bilateralFilter(mask_green,35,5,75)
+		filter_g = cv2.bilateralFilter(mask_green,35,75,75)
 		filter_g = cv2.GaussianBlur(mask_green,(5,5),0)
 		full_mask 	= filter_g
 		
