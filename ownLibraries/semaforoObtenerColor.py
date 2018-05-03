@@ -251,6 +251,8 @@ def main(video):
 	semaphoro = GetColor()
 	mover = True
 	montoAMober = []
+	
+	# Simulate a working process
 	while True:
 		_, frameVideo = cap.read()
 
@@ -258,16 +260,14 @@ def main(video):
 		for indiceSemaforo in indicesSemaforo[1:]:
 			pixeles = np.append(pixeles,[frameVideo[indiceSemaforo[1],indiceSemaforo[0]]], axis=0)
 
+
 		data = semaphoro(pixeles)
 		print(data)
+
+		# Show semaforo
 		raw 	= np.reshape(pixeles,(24,8,3))
-
 		SHAPE 		= (8*6,24*6)
-
-	
 		inputImage 	= cv2.resize(raw, SHAPE, interpolation = cv2.INTER_CUBIC)
-		
-	
 		cv2.imshow('fitler', inputImage)
 
 		#cv2.imshow('Semaphoro', frameVideo)
