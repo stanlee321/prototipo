@@ -607,7 +607,6 @@ class Real(multiprocessing.Process):
 			else:
 				self.periodos_dict[color_prediction].append(periodoAMostrar) 	# append the periods to the global dict deques
 				
-				
 				actualTime 	= datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S') # Get acutal time to row data
 				AUX_ROW 	= {'periodo': periodoAMostrar, 'time': actualTime}		# Auxilar Dictionary to pass into the dicts.
 
@@ -616,7 +615,6 @@ class Real(multiprocessing.Process):
 				# calculate the mean and std of this periodos
 				self.mean_values[color_prediction] = np.mean(self.periodos_dict[color_prediction])  # TODO Check Limits 0: to...
 				self.std_values[color_prediction]  = np.std(self.periodos_dict[color_prediction])	# TODO Check Limits 0: to...
-
 
 				# Check if list is in the limit of 40 elements.
 				# Then save to disk this info
