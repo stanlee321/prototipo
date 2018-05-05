@@ -183,7 +183,7 @@ def main():
 	
 	# Prueba sin filtro todo el dia
 	
-	miAcetatoInformativo = Acetato()
+	miAcetatoInformativo = Visualizacion()
 	miSemaforo = TrafficLight(periodoDeSemaforo)
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
 	miAcetatoInformativo.colocarPoligono(np.array(verticesPartida))
