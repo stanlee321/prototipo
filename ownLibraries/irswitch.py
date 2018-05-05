@@ -19,7 +19,8 @@ class IRSwitch():
 		- Visual window size: 8mm (diameter)
 	"""
 	def __init__(self,tiempoPulsoMiliSegundos = 50):
-		self.tiempoParaPulso = tiempoPulsoMiliSegundos/1000
+		self.tiempoParaPulso = 50
+		self.establecerDuracionPulso(tiempoPulsoMiliSegundos)
 		self.tiempoDeInercia = self.tiempoParaPulso/10
 		self.forwardPin = 3
 		self.backwardPin = 4
@@ -34,10 +35,17 @@ class IRSwitch():
 			GPIO.setup(self.backwardPin,GPIO.OUT)
 			self.ultimoEstado = 'Inicializado'
 
-	def paralelizar(self):
-		pass
+	def establecerDuracionPulso(self,tiempoMilisegundos):
+		if (tiempoMilisegundos<100) &(tiempoMilisegundos>0):
+			self.tiempoParaPulso = tiempoMilisegundos/1000
+
+	def forzarVisionNoctuna(self):
+		self._quitarFiltroIR()
+
+	def forzarVisionDiurna(self):
+		self._colocarFiltroIR()	
 		
-	def colocarFiltroIR(self):
+	def _colocarFiltroIR(self):
 		"""
 		Genera la salida BCMGPIO02 -> HIGH (pin fisico 3)
 		Genera la salida BCMGPIO03 -> LOW (pin fisico 5)
@@ -53,7 +61,7 @@ class IRSwitch():
 			GPIO.output(self.enable,GPIO.LOW)
 		self.ultimoEstado = 'Filtro Activado'
 
-	def quitarFiltroIR(self):
+	def _quitarFiltroIR(self):
 		"""
 		Genera la salida BCMGPIO02 -> LOW (pin fisico 3)
 		Genera la salida BCMGPIO03 -> HIGH (pin fisico 5)
@@ -76,10 +84,10 @@ if __name__ == '__main__':
 	miFiltroPrueba = IRSwitch(50)
 	counter = 0
 	while (counter<100):
-		miFiltroPrueba.colocarFiltroIR()
+		miFiltroPrueba._colocarFiltroIR()
 		print(miFiltroPrueba.obtenerUltimoEstado())
 		time.sleep(1)
-		miFiltroPrueba.quitarFiltroIR()
+		miFiltroPrueba._quitarFiltroIR()
 		print(miFiltroPrueba.obtenerUltimoEstado())
 		time.sleep(3)
 		counter+=1

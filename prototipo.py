@@ -180,7 +180,7 @@ def main():
 	miPoliciaReportando = Interprete(frameFlujo,verticesPartida,verticesLlegada,verticesDerecha,verticesIzquierda,mifps,directorioDeReporte,generarArchivosDebug,flujoAntiguo = oldFlow,anguloCarril = angulo)
 	
 	miFiltro = IRSwitch()
-	miFiltro.paralelizar()
+	
 	# Prueba sin filtro todo el dia
 	
 	miAcetatoInformativo = Acetato()
@@ -279,10 +279,10 @@ def main():
 			tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
 			
 			if (tiempoAhora > amaneciendo) & (tiempoAhora < anocheciendo) & ((miFiltro.ultimoEstado == 'Filtro Desactivado')|(miFiltro.ultimoEstado =='Inicializado')):
-				miFiltro.colocarFiltroIR()
+				miFiltro.forzarVisionDiurna()
 				miReporte.info('Active Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
 			if ((tiempoAhora < amaneciendo) | (tiempoAhora > anocheciendo)) & ((miFiltro.ultimoEstado == 'Filtro Activado')|(miFiltro.ultimoEstado =='Inicializado')):
-				miFiltro.quitarFiltroIR()
+				miFiltro.forzarVisionNoctuna()
 				miReporte.info('Desactive Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
 			
 			if len(historial)> 2*60*mifps:	# Si es mayor a dos minutos en el pasado
