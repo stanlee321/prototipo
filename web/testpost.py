@@ -19,14 +19,15 @@ import io
 # Función principal
 def _mainProgram( ingest_queue = None):
 	# Import some global varialbes
-	addr = 'https://60hy47r5sk.execute-api.us-east-1.amazonaws.com/prod'
-	test_url = addr + '/PostAsset'
+	#addr = 'https://60hy47r5sk.execute-api.us-east-1.amazonaws.com/prod'
+	addr = 'https://fkhqxq9cf9.execute-api.us-east-1.amazonaws.com/prod'
+	test_url = addr + '/plateRecog'
 
 	content_type = 'application/json'
 	headers = {'Content-Type': content_type, 
 				'contentHandling': 'CONVERT_TO_TEXT'}
 	# Read camera
-	image = cv2.imread('index.jpeg')
+	image = cv2.imread('out.jpg')
 
 	# Encode
 	_, img_encoded = cv2.imencode('.jpeg', image)
