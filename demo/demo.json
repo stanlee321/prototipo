@@ -1,0 +1,8 @@
+{
+    "date": "2018-01-18",
+    "hour": "11:55:22",
+    "image_path": "https://s3.amazonaws.com/raw-assets-dems/demo/plate_detected.jpg",
+    "plate": "4539FFT",
+    "prob": "0.95",
+    "video_path": "https://s3.amazonaws.com/raw-assets-dems/demo/2018-01-18_11-55-22_video_.avi"
+}
