@@ -224,7 +224,7 @@ class PlateDetector():
 					input_image = self.increase_brightness(input_image, value = options.get('brightness'))
 					input_image = self.increase_contrast(input_image, kernel = (32,32))
 
-					scale = 0.10 # if 0.0 shows original points
+					scale = options.get('scale') # if 0.0 shows original points
 
 					p1 = (box[0][0] + int(scale*box[0][0]) , box[0][1] + int(scale*box[0][1]))
 					p2 = (box[1][0] - int(scale*box[1][0]), box[1][1] + int(scale*box[1][1]))
@@ -274,7 +274,7 @@ if __name__ == '__main__':
 	path = sys.argv[1]
 	t1 = time.time()
 	plateDetector = PlateDetector()
-	o1 = plateDetector.process_image(path, fromDisk = True, type='rect', crop='rect', draw = False, brightness = 50, thresh = 0.4)
+	o1 = plateDetector.process_image(path, fromDisk = True, type='rect', crop='rect', draw = False, brightness = 50, thresh = 0.40, scale=0.200)
 
 	for i, image in enumerate(o1):
 		cv2.imwrite('{}-{}-detected.png'.format(path[:path.rfind('.')],i), image)
