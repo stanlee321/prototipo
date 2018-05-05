@@ -7,7 +7,7 @@ import numpy as np
 # Draw a diagonal blue line with thickness of 5 px
 from abc import ABCMeta, abstractmethod
 
-class Acetato(object):
+class Visualizacion(object):
 	"""docstring for Acetato"""
 	def __init__(self):
 		self.miFechaHora = datetime.datetime.now().strftime('%A %d %B %Y %I:%M:%S%p')
@@ -165,10 +165,3 @@ class Acetato(object):
 
 	def establecerNumeroFrame(self,numero):
 		self.numeroFrame = numero
-
-class Target(object):
-	"""docstring for Target"""
-	def __init__(self, arg):
-		super(Target, self).__init__()
-		self.arg = arg
-		

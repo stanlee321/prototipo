@@ -124,7 +124,7 @@ class Semaforo(object):
 		return self.numericValue, self.state, self.flanco
 
 
-class Simulado(Semaforo):
+class EmulatedTrafficLight(Semaforo):
 
 	""" Simulated Semaforo that runs forever in the Background once that this object
 	is created
@@ -135,7 +135,7 @@ class Simulado(Semaforo):
 		super().__init__(), es para iniciar los atributos de la clase parent.
 		thread, es el proceso paralelo que se crea para que el programa corra 
 				de forma continua en el Background
-		Simulado.run(), es el progreso que se mantiene constante en el thread
+		EmulatedTrafficLight.run(), es el progreso que se mantiene constante en el thread
 	"""
 
 	def __init__(self, periodoSemaforo = 10 ):
@@ -164,7 +164,7 @@ class Simulado(Semaforo):
 
 
 
-class Real(Semaforo):
+class ColorTrafficLight(Semaforo):
 	"""
 	Real Method,  use a SVM classifier to find color in some input ROI imagen, ouputs are:
 	colorPrediction, literalColour, flanco
@@ -180,17 +180,15 @@ class Real(Semaforo):
 	def __init__(self):
 
 		# LOAD THE TRAINED SVM MODEL ... INTO THE MEMORY????
-		print( '>>>>>> STARTING #### REAL REAL REAL ### SEMAPHORO <<<<<<')
-		print( 'checking for model....')
+		print( '>> Starting, REAL Traffic Light, checking for model.... <<')
 		#path_to_svm_model = os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'svm_model_(8, 24)_96_39.pkl'
 		path_to_svm_model = os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'binary.pkl'
 
 		if os.path.isfile(path_to_svm_model):
-			print("Model Found!!!!")
-			print ("Using previous model... {}".format(path_to_svm_model))
+			print ("Model Found!!!! Using previous model: {}".format(path_to_svm_model))
 			self.svm = pickle.load(open(path_to_svm_model, "rb"))
 		else:
-			print ("No model found in {}, please check the path to the ML model!!".format(path_to_svm_model))
+			print ("No model found in: {}, please check the path to the ML model!!".format(path_to_svm_model))
 
 
 		# Init parent class attributes
@@ -376,7 +374,7 @@ class Real(Semaforo):
 		return colorPrediction, literalColour, self.flanco
 	
 
-class CreateSemaforo(Semaforo):
+class TrafficLight(Semaforo):
 	"""
 	Create the requested semaforo according the the periodoSemaforo values,
 	Attributes:
@@ -395,9 +393,9 @@ class CreateSemaforo(Semaforo):
 		self.blueprint_semaforo = None
 		self.numericoAuxiliar = 0
 		if self.periodoSemaforo > 0 :
-			self.blueprint_semaforo =  Simulado(periodoSemaforo = self.periodoSemaforo)
+			self.blueprint_semaforo =  EmulatedTrafficLight(periodoSemaforo = self.periodoSemaforo)
 		else:
-			self.blueprint_semaforo = Real()
+			self.blueprint_semaforo = ColorTrafficLight()
 	
 	def obtenerColorEnSemaforo(self, imagenUnidimensional):
 		numerico, literal, flancoErrado = self.blueprint_semaforo.encontrarSemaforoObtenerColor(imagen = imagenUnidimensional )
@@ -461,7 +459,7 @@ if __name__ == '__main__':
 	cap = cv2.VideoCapture('./installationFiles/sar.mp4')
 	data = np.load('./installationFiles/sar.npy')
 	print(data)
-	semaforo = CreateSemaforo(periodoSemaforo = 0)
+	semaforo = TrafficLight(periodoSemaforo = 0)
 	poligono  = data[0]
 	print(data[0])
 	while True:

@@ -16,9 +16,9 @@ import requests
 # Own Libraries
 from ownLibraries.irswitch import IRSwitch
 from ownLibraries.mireporte import MiReporte
-from ownLibraries.visualizacion import Acetato
-from ownLibraries.semaforov2 import CreateSemaforo
-from ownLibraries.determinacionCruces import PoliciaInfractor
+from ownLibraries.visualizacion import Visualizacion
+from ownLibraries.trafficlight import TrafficLight
+from ownLibraries.interprete import Interprete
 from ownLibraries.obtenerHistogramaHorario import exportarInformacionDeHoyO
 
 
@@ -81,7 +81,7 @@ conVideoGrabado = False
 def nuevoDia():
 	nombreCarpeta 		= datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte'
 	directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
-	reporteDiario 		= directorioDeReporte+'/reporteDiario.npy'
+	reporteDiario		= directorioDeReporte+'/reporteDiario.npy'
 	miReporte.setDirectory(directorioDeReporte)
 	miPoliciaReportando.nuevoDia(directorioDeReporte)
 
@@ -177,14 +177,14 @@ def main():
 		trabajoConPiCamara = True
 	else:
 		trabajoConPiCamara = False
-	miPoliciaReportando = PoliciaInfractor(frameFlujo,verticesPartida,verticesLlegada,verticesDerecha,verticesIzquierda,mifps,directorioDeReporte,generarArchivosDebug,flujoAntiguo = oldFlow,anguloCarril = angulo)
+	miPoliciaReportando = Interprete(frameFlujo,verticesPartida,verticesLlegada,verticesDerecha,verticesIzquierda,mifps,directorioDeReporte,generarArchivosDebug,flujoAntiguo = oldFlow,anguloCarril = angulo)
 	
 	miFiltro = IRSwitch()
-	miFiltro.paralelizar()
+	
 	# Prueba sin filtro todo el dia
 	
-	miAcetatoInformativo = Acetato()
-	miSemaforo = CreateSemaforo(periodoDeSemaforo)
+	miAcetatoInformativo = Visualizacion()
+	miSemaforo = TrafficLight(periodoDeSemaforo)
 	miAcetatoInformativo.colocarPoligono(np.array(poligonoSemaforo)//2)
 	miAcetatoInformativo.colocarPoligono(np.array(verticesPartida))
 	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))
@@ -279,10 +279,10 @@ def main():
 			tiempoAhora = datetime.datetime.now().hour*60 + datetime.datetime.now().minute
 			
 			if (tiempoAhora > amaneciendo) & (tiempoAhora < anocheciendo) & ((miFiltro.ultimoEstado == 'Filtro Desactivado')|(miFiltro.ultimoEstado =='Inicializado')):
-				miFiltro.colocarFiltroIR()
+				miFiltro.forzarVisionDiurna()
 				miReporte.info('Active Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
 			if ((tiempoAhora < amaneciendo) | (tiempoAhora > anocheciendo)) & ((miFiltro.ultimoEstado == 'Filtro Activado')|(miFiltro.ultimoEstado =='Inicializado')):
-				miFiltro.quitarFiltroIR()
+				miFiltro.forzarVisionNoctuna()
 				miReporte.info('Desactive Filtro a horas '+ datetime.datetime.now().strftime('%H:%M:%S'))
 			
 			if len(historial)> 2*60*mifps:	# Si es mayor a dos minutos en el pasado
