@@ -8,6 +8,7 @@ import cv2
 import time
 import math
 import shutil
+import sqlite3
 import logging
 import datetime
 import numpy as np
