@@ -182,7 +182,7 @@ class ColorTrafficLight(Semaforo):
 		# LOAD THE TRAINED SVM MODEL ... INTO THE MEMORY????
 		print( '>> Starting, REAL Traffic Light, checking for model.... <<')
 		#path_to_svm_model = os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'svm_model_(8, 24)_96_39.pkl'
-		path_to_svm_model = os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'NN_relu.pkl'
+		path_to_svm_model = os.getenv('HOME') + '/' + 'trafficFlow' + '/' + 'prototipo' +'/' + 'model' + '/' + 'binary.pkl'
 
 		if os.path.isfile(path_to_svm_model):
 			print ("Model Found!!!! Using previous model: {}".format(path_to_svm_model))
