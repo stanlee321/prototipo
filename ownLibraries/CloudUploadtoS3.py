@@ -33,27 +33,29 @@ class UploadToS3():
 					UploadToS3.s3Sync(s3_client, s3_path, local_path, bucket, destination)
 				else:
 					pass
-				"""
-				
-				"""
-				# try:
-					# client.delete_object(Bucket=bucket, Key=s3_path)
-				# except:
-					# print "Unable to delete %s..." % s3_path
+		print('SYC TO s3 sucessfull!')
+
 	@staticmethod
 	def s3Sync(s3_client, s3_path, local_path, bucket, destination):
 		try:
 			if '.json' in s3_path:
 				print ("Uploading {} to  {}...".format( local_path, bucket +'/'+ destination + '/' + s3_path))
-				s3_client.upload_file(local_path, bucket, 'databases' + '/' + s3_path)
+				s3_client.upload_file(	local_path,
+										bucket,
+										'databases' + '/' + s3_path,
+										ExtraArgs={'ACL' : 'public-read'})
 			else:
 				print ("Uploading {} to  {}...".format( local_path, bucket +'/'+ destination + '/' + s3_path))
-				s3_client.upload_file(local_path, bucket, destination + '/' + s3_path)
+				s3_client.upload_file(	local_path,
+										bucket,
+										destination + '/' + s3_path,
+										ExtraArgs={'ACL' : 'public-read'})
 
 		except Exception as e:
 			print('ERROR in Upload:::', e)
 
 if __name__ == '__main__':
+
 	local_directory, bucket, destination = sys.argv[1:4]
 
 	upload = UploadToS3()
