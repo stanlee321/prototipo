@@ -18,6 +18,7 @@ import matplotlib.pyplot as graficaActual
 from ownLibraries.mireporte import MiReporte
 from ownLibraries.perspectiva import Perspective
 from ownLibraries.analisisonda import AnalisisOnda
+from ownLibraries.controlledregion import ControlledRegion
 from ownLibraries.generadorevidencia import GeneradorEvidencia
 if os.uname()[1] == 'raspberrypi':
 	from ownLibraries.shutterControllerv5 import ControladorCamara # Downgraded for tests
@@ -27,67 +28,35 @@ directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
 
 class Interprete():
 	"""
-	This program translates an image to values relevant for infringement detection
+	This class evolves the automaton and creates all objects when necessary
 	"""
-	def __init__(self,imagenParaInicializar,poligonoPartida,poligonoLlegada,poligonoDerecha,poligonoIzquierda,mifps = 8,directorioDeReporte=os.getenv('HOME')+'/'+datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte',debug = False,flujoAntiguo = False, anguloCarril = 0):
+	def __init__(self,imagenParaInicializar,controlledRegionFromMain,mifps = 8,directorioDeReporte=os.getenv('HOME')+'/'+datetime.datetime.now().strftime('%Y-%m-%d')+'_reporte',debug = False,flujoAntiguo = False, anguloCarril = 0):
 		# Tomo la imagen de inicialización y obtengo algunas caracteristicas de la misma
 		self.directorioDeReporte = directorioDeReporte
+		self.controlledRegion = controlledRegionFromMain
 		self.miReporte = MiReporte(levelLogging=logging.DEBUG,nombre=__name__,directorio=directorioDeReporte[:-18]+'debug')
 		self.miGrabadora = GeneradorEvidencia(self.directorioDeReporte,mifps,False)
 		self.reportarDebug = debug
-		self.minimosFramesVideoNormalDebug = 1*mifps # minimo 1 segundos de debug
-
+		
 		# Se cargan las variables de creación de la clase
 		self.imagenAuxiliar = cv2.cvtColor(imagenParaInicializar, cv2.COLOR_BGR2GRAY)
-		self.areaDeResguardo = np.array(poligonoPartida)
-		self.areaDeConfirmacion = np.array(poligonoLlegada)
-		self.areaDeGiroDerecha = np.array(poligonoDerecha)
-		self.areaDeGiroIzquierda = np.array(poligonoIzquierda)
-		self.anguloCarril = -anguloCarril
-		self.desplazamiento = np.array([8*math.cos(self.anguloCarril),8*math.sin(self.anguloCarril)])
+		self.colorALiteral = {0:'Verde',1:'Rojo',2:'Amarillo',3:'Semaforo Anomalo',-1:'No hay semaforo'}
 
-		# CONDICIONES DE DESCARTE
+		# CONFIG
 		# En si un punto sale del carril valido (ensanchado debidamente) se descarta el punto individual
-		
-		self.carrilValido = self.generarCarrilValido(poligonoPartida,poligonoLlegada,poligonoDerecha,poligonoIzquierda)
 		self.maximoNumeroFramesParaDescarte = 80
-		self.numeroDePuntosASeguirDeInicializacion = 4
-
-		# la linea de referencia para tamanio sera del largo del paso de cebra, su longitud servira para descartar puntos que se alejen del resto
-		self.maximaDistanciaEntrePuntos = self.tamanoVector(np.array(poligonoPartida[0])-np.array(poligonoPartida[1]))
+		self.controlledRegion.numeroDePuntosASeguirDeInicializacion = 4
+		self.minimosFramesVideoNormalDebug = 1*mifps # minimo 1 segundos de debug
 
 		# Se crea la clase correspondiente
 		self.miFiltro = AnalisisOnda()
-		self.angulo = 18
-
-		# La linea de pintado LK y trasera son los puntos del paso de cebra
-		self.lineaDePintadoLK =  np.array([poligonoPartida[0],poligonoPartida[3]])
-		self.lineaTraseraLK =  np.array([poligonoPartida[1],poligonoPartida[2]])
-
-		ditanciaEnX = self.lineaDePintadoLK[1][0] - self.lineaDePintadoLK[0][0]
-		ditanciaEnY = self.lineaDePintadoLK[1][1] - self.lineaDePintadoLK[0][1]
-		vectorParalelo = self.lineaDePintadoLK[1] - self.lineaDePintadoLK[0]
-		self.vectorParaleloUnitario = (vectorParalelo)/self.tamanoVector(vectorParalelo)
-		self.vectorPerpendicularUnitario = np.array([self.vectorParaleloUnitario[1],-self.vectorParaleloUnitario[0]])
-		self.numeroDePuntos = 15
+		
 		self.flujoAntiguo = False
 		if flujoAntiguo == True:
 			self.flujoAntiguo = True
-			self.numeroDePuntos = 9
-		self.stepX = ditanciaEnX/self.numeroDePuntos
-		self.stepY = ditanciaEnY/self.numeroDePuntos
-		self.lk_params = dict(  winSize  = (15,15),
-								maxLevel = 7,
-								criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+			self.controlledRegion.numeroDePuntos = 9
 
-		self.lineaFijaDelantera = np.zeros((self.numeroDePuntos+1,1,2))
-		self.lineaDeResguardoDelantera = self.crearLineaDeResguardo()
-		self.lineaDeResguardoAlteradaDelantera = self.lineaDeResguardoDelantera
-
-		# Se inicializa la perspectiva con 1/9 del largo del paso de cebra como ancho
-
-		self.areaFlujo = self.obtenerRegionFlujo(self.areaDeResguardo)
-		self.miPerspectiva = Perspective(self.areaFlujo)
+		self.miPerspectiva = Perspective(self.controlledRegion.areaFlujo)
 		self.anteriorFranja = self.miPerspectiva.transformarAMitad(self.imagenAuxiliar)
 		self.optimalStep = 2
 
@@ -105,126 +74,31 @@ class Interprete():
 		if os.uname()[1] == 'raspberrypi':
 			self.camaraAlta = ControladorCamara()
 
-	def obtenerRegionFlujo(self,npArrayDePartida):
-		punto01 = npArrayDePartida[0]
-		punto02 = npArrayDePartida[1]
-		punto03 = npArrayDePartida[2]
-		punto04 = npArrayDePartida[3]
-		unitario12 = (punto02 - punto01)/self.tamanoVector(punto02 - punto01)
-		unitario43 = (punto03 - punto04)/self.tamanoVector(punto03 - punto04)
-		largoPasoCebra = self.tamanoVector(punto04-punto01)
-		punto02 = punto01+largoPasoCebra/3*unitario12
-		punto03 = punto04+largoPasoCebra/3*unitario43
-
-		return np.array([punto01,punto02,punto03,punto04]).astype(int)
-
 	def nuevoDia(self,directorioDeReporte):
 		self.directorioDeReporte = directorioDeReporte
 		self.miReporte.setDirectory(directorioDeReporte[:-18]+'debug')
 		self.miGrabadora.nuevoDia()
 		self.reestablecerEstado()
 
-	def generarCarrilValido(self, poligonoPartida,poligonoLlegada,poligonoDerecha,poligonoIzquierda):
-		# Input type: self.carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
-		# Se modifican los puntos
-		# partida: 0-,3+
-		# llegada: 1+,2-
-		# La matriz de rotacion por un angulo de 15 grados
-		carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
-		self.angulo = 14
-		cos15 = math.cos(self.angulo*math.pi/180)
-		sin15 = math.sin(self.angulo*math.pi/180)
-		rotacionNegativa = np.array([[cos15,sin15],[-sin15,cos15]])
-		rotacionPositiva = np.array([[cos15,-sin15],[sin15,cos15]])
-		llegada1_p7 = carrilValido[6]+rotacionPositiva.dot(carrilValido[7]-carrilValido[6])
-		llegada1_p4 = carrilValido[5]+rotacionNegativa.dot(carrilValido[4]-carrilValido[5])
-
-		llegada1_p0 = carrilValido[1]+rotacionNegativa.dot(carrilValido[0]-carrilValido[1])
-		llegada1_p3 = carrilValido[2]+rotacionPositiva.dot(carrilValido[3]-carrilValido[2])
-
-		carrilValido[0]=llegada1_p0
-		carrilValido[3]=llegada1_p3
-		carrilValido[4]=llegada1_p4
-		carrilValido[7]=llegada1_p7
-
-		# Hasta este punto se obtiene el carril valido simplemente ensanchado
-		# Ahora concatenamos con los puntos de llegada a Derecha e Izquierda
-
-		carrilValido = np.array([	carrilValido[0],
-									carrilValido[1],
-									carrilValido[2],
-									carrilValido[3],
-									poligonoDerecha[2],
-									poligonoDerecha[3],
-									poligonoDerecha[0],
-									poligonoDerecha[1],
-									carrilValido[4],
-									carrilValido[5],
-									carrilValido[6],
-									carrilValido[7],
-									poligonoIzquierda[2],
-									poligonoIzquierda[3],
-									poligonoIzquierda[0],
-									poligonoIzquierda[1]])
-
-		return carrilValido
-
-	def tamanoVector(self,vector):
-		# Metodo auxiliar por la recurencia de esta aplicacion
-		return math.sqrt(vector[0]**2+vector[1]**2)
-
-	def puntoEstaEnRectangulo(self,punto,rectangulo):
-		# Metodo auxiliar por la recurencia de esta aplicacion
-		estadoARetornar = False
-		if (punto[0]>rectangulo[0])&(punto[0]<rectangulo[0]+rectangulo[2])&(punto[1]>rectangulo[1])&(punto[1]<rectangulo[1]+rectangulo[3]):
-			estadoARetornar = True
-		return estadoARetornar
-
-	# No longer needed
-	def inicializarAgente(self,):
-		"""
-		Resets the starting line to get ready to the next frame
-		"""
-		del self.listaVehiculos
-		self.listaVehiculos = []
-
-	def crearLineaDeResguardo(self):
-		"""
-		La linea de resguardo es una linea preparada para entrar en el algoritmo de lucas Kanade y controlar el flujo o seguir objetos que crucen la zona de partida
-		"""
-		lineaAuxiliar = np.array([[self.lineaDePintadoLK[0]]])
-		for numeroDePunto in range(1,self.numeroDePuntos+1):
-			lineaAuxiliar = np.append(lineaAuxiliar,[[self.lineaDePintadoLK[0]+numeroDePunto*np.array([self.stepX,self.stepY])]],axis=0)
-		self.lineaFijaDelantera = lineaAuxiliar
-		self.lineaFijaDelantera = np.array(self.lineaFijaDelantera,dtype = np.float32)
-		return lineaAuxiliar
-
-	def seguirImagen(self,numeroDeFrame,imagenActual,informacion = False,colorSemaforo = 1):
+	def seguirImagen(self,numeroDeFrame,imagenActual,informacion = False,colorSemaforo = 1):	
+		
 		"""
 		Metodo mas importante del infractor: Se encarga de:
 		1. Crear vehiculos de ser necesario
 		2. Seguir vehiculos
 		3. Confirmar o descartar vehículos
 		"""
-		#print('>> 01 Inicio Seguir')
-		if colorSemaforo == 1:
-			self.estadoActual['colorSemaforo'] = 'Rojo'
-		elif colorSemaforo == 0:
-			self.estadoActual['colorSemaforo'] = 'Verde'
-		elif colorSemaforo == 2:
-			self.estadoActual['colorSemaforo'] = 'Amarillo'
-		else:
-			self.estadoActual['colorSemaforo'] = 'No hay semaforo'
+		self.estadoActual['colorSemaforo'] = self.colorALiteral[colorSemaforo]
 
 		imagenActualEnGris = cv2.cvtColor(imagenActual, cv2.COLOR_BGR2GRAY)
 
-		arrayAuxiliarParaVelocidad, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.lineaFijaDelantera, None, **self.lk_params)
-		self.lineaDeResguardoAlteradaDelantera = arrayAuxiliarParaVelocidad
+		arrayAuxiliarParaVelocidad, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, self.controlledRegion.lineaFijaDelantera, None, **self.controlledRegion.lk_params)
+		self.controlledRegion.lineaDeResguardoAlteradaDelantera = arrayAuxiliarParaVelocidad
 		
 		if self.flujoAntiguo:
 			velocidadEnBruto = self.obtenerMagnitudMovimientoEnRegion(self.miPerspectiva.transformarAMitad(imagenActualEnGris))
 		else:
-			velocidadEnBruto = self.obtenerMagnitudMovimiento(self.lineaFijaDelantera,self.lineaDeResguardoAlteradaDelantera)
+			velocidadEnBruto = self.obtenerMagnitudMovimiento(self.controlledRegion.lineaFijaDelantera,self.controlledRegion.lineaDeResguardoAlteradaDelantera)
 		velocidadFiltrada, pulsoVehiculos = self.miFiltro.obtenerOndaFiltrada(velocidadEnBruto)
 
 		# Se evoluciona el resto de vehiculos solo si son 'Previo'
@@ -237,7 +111,7 @@ class Interprete():
 					self.eliminoCarpetaDeSerNecesario(infraccion)
 					infraccion['infraccion'] = ''
 				# Al principio descarto los puntos negativos o en los bordes (0,0), -(x,y)
-				nuevaPosicionVehiculo, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.lk_params)	
+				nuevaPosicionVehiculo, activo, err = cv2.calcOpticalFlowPyrLK(self.imagenAuxiliar, imagenActualEnGris, infraccion['desplazamiento'], None, **self.controlledRegion.lk_params)	
 				
 				# DESCARTE POR DISPERSIÓN DE PUNTOS Y POR TIMEOUT
 				NoneType = type(None)
@@ -276,14 +150,14 @@ class Interprete():
 					
 					xTest, yTest = vector[0][0], vector[0][1]
 					# hago una lista de los indices que aun son validos
-					if cv2.pointPolygonTest(self.carrilValido,(xTest, yTest),True)>=0:	# Si esta dentro del carril valido se mantiene el punto
+					if cv2.pointPolygonTest(self.controlledRegion.carrilValido,(xTest, yTest),True)>=0:	# Si esta dentro del carril valido se mantiene el punto
 						indicesValidos.append(indiceVector)
 					# Confirmo la llegada de uno
-					if cv2.pointPolygonTest(self.areaDeConfirmacion,(xTest, yTest ),True)>=0:	# Si esta dentro del espacio de llegada se confirma
+					if cv2.pointPolygonTest(self.controlledRegion.arrivalArea,(xTest, yTest ),True)>=0:	# Si esta dentro del espacio de llegada se confirma
 						puntosQueLlegaron += 1
-					if cv2.pointPolygonTest(self.areaDeGiroDerecha,(xTest, yTest ),True)>=0:	# Si esta dentro del espacio de llegada se confirma
+					if cv2.pointPolygonTest(self.controlledRegion.rightArrivalArea,(xTest, yTest ),True)>=0:	# Si esta dentro del espacio de llegada se confirma
 						puntosQueGiraronDerecha += 1
-					if cv2.pointPolygonTest(self.areaDeGiroIzquierda,(xTest, yTest ),True)>=0:	# Si esta dentro del espacio de llegada se confirma
+					if cv2.pointPolygonTest(self.controlledRegion.leftArrivalArea,(xTest, yTest ),True)>=0:	# Si esta dentro del espacio de llegada se confirma
 						puntosQueGiraronIzquierda += 1
 					
 					if puntosQueLlegaron >= 2:
@@ -338,7 +212,7 @@ class Interprete():
 
 		if pulsoVehiculos == 1:
 			# Se determina los mejores puntos para seguir para ser parte del objeto Vehiculo
-			puntosMasMoviles = self.obtenerPuntosMoviles(self.lineaFijaDelantera,self.lineaDeResguardoAlteradaDelantera,informacion)
+			puntosMasMoviles = self.obtenerPuntosMoviles(self.controlledRegion.lineaFijaDelantera,self.controlledRegion.lineaDeResguardoAlteradaDelantera,informacion)
 			
 			# Cada vehiculo tiene un numbre que biene a xer ela fecja y hora de la infracción en cuestion
 			fechaNueva = datetime.datetime.now().strftime('%Y%m%d')
@@ -376,8 +250,6 @@ class Interprete():
 			self.listaVehiculos.append(nuevoVehiculo)
 			self.miReporte.info('\t\tCreado vehiculo '+nuevoVehiculo['hora']+' en frame '+str(nuevoVehiculo['frameInicial'])+' con nivel '+nuevoVehiculo['infraccion']+' guardado en '+direccionDeGuardadoFotos[19:])
 
-		infraccionesConfirmadas = self.numeroInfraccionesConfirmadas()
-
 		self.imagenAuxiliar = imagenActualEnGris
 		#print(self.estadoActual)
 		#sys.stdout.write("\033[F") # Cursor up one line
@@ -393,7 +265,6 @@ class Interprete():
 								'infraccion':0,
 								'infraccionAmarillo':0,
 								'colorSemaforo':'Verde'}
-
 
 	def numeroInfraccionesConfirmadas(self):
 		contadorInfraccionesConfirmadas = 0
@@ -476,10 +347,10 @@ class Interprete():
 	def obtenerLineasDeResguardo(self,alterada=False):
 		aDevolver = []
 		if alterada:
-			for punto in self.lineaDeResguardoAlteradaDelantera:
+			for punto in self.controlledRegion.lineaDeResguardoAlteradaDelantera:
 				aDevolver.append(tuple(punto[0]))
 		else:
-			for punto in self.lineaDeResguardoDelantera:
+			for punto in self.controlledRegion.lineaDeResguardoDelantera:
 				aDevolver.append(tuple(punto[0]))
 		return aDevolver
 
@@ -489,11 +360,11 @@ class Interprete():
 		"""
 		x = 0
 		y = 0
-		for numeroDePunto in range(1,self.numeroDePuntos+1):
+		for numeroDePunto in range(1,self.controlledRegion.numeroDePuntos+1):
 			x += nuevoVector[numeroDePunto][0][0] - vectorAntiguo[numeroDePunto][0][0]
 			y += nuevoVector[numeroDePunto][0][1] - vectorAntiguo[numeroDePunto][0][1]
-		x = 10*x/(self.numeroDePuntos+1)
-		y = 10*y/(self.numeroDePuntos+1)
+		x = 10*x/(self.controlledRegion.numeroDePuntos+1)
+		y = 10*y/(self.controlledRegion.numeroDePuntos+1)
 		return (x,y)
 
 	def obtenerPuntosMoviles(self,vectorAntiguo, nuevoVector,informacion = False):
@@ -502,12 +373,12 @@ class Interprete():
 		"""
 		##### OJO AQUI TAMBIEN PUEDO FILTRAR RUIDO???
 		dif2 = []	# Para todos los puntos de resguardo veo los que tienen mayor movimiento
-		for numeroDePunto in range(1,self.numeroDePuntos+1):
+		for numeroDePunto in range(1,self.controlledRegion.numeroDePuntos+1):
 			x = nuevoVector[numeroDePunto][0][0] - vectorAntiguo[numeroDePunto][0][0]
 			y = nuevoVector[numeroDePunto][0][1] - vectorAntiguo[numeroDePunto][0][1]
 			dif2.append(x**2+y**2)
 		indiceDeMayores = []
-		for numeroDePuntoASeguir in range(self.numeroDePuntosASeguirDeInicializacion):
+		for numeroDePuntoASeguir in range(self.controlledRegion.numeroDePuntosASeguirDeInicializacion):
 			indice = dif2.index(max(dif2))
 			indiceDeMayores.append(indice)
 			dif2.pop(indice)
@@ -515,17 +386,16 @@ class Interprete():
 		listaNuevosPuntos = np.array(nuevoVector[indiceDeMayores])
 		
 		for indice in range(len(listaNuevosPuntos)):
-			listaNuevosPuntos[indice][0] = listaNuevosPuntos[indice][0] + self.desplazamiento
+			listaNuevosPuntos[indice][0] = listaNuevosPuntos[indice][0] + self.controlledRegion.desplazamiento
 
 		return listaNuevosPuntos #np.array([[nuevoVector[indiceDeMayores[0]][0]],[nuevoVector[indiceDeMayores[1]][0]],[nuevoVector[indiceDeMayores[2]][0]]])
 			
-
 	def obtenerMagnitudMovimiento(self,vectorAntiguo, nuevoVector):
 		"""
 		Gets the real magnitud of movement perpendicular to the starting point
 		"""
 		(x,y) = self.obtenerVectorMovimiento(vectorAntiguo, nuevoVector)
-		moduloPerpendicular = self.vectorPerpendicularUnitario[0]*x+self.vectorPerpendicularUnitario[1]*y
+		moduloPerpendicular = self.controlledRegion.vectorPerpendicularUnitario[0]*x+self.controlledRegion.vectorPerpendicularUnitario[1]*y
 		return moduloPerpendicular
 
 	def obtenerMagnitudMovimientoEnRegion(self,nuevaFranja):
@@ -552,10 +422,8 @@ class Interprete():
 		
 		return flujoPerpendicular
 
-
 	def apagarCamara(self):
 		self.camaraAlta.apagarControlador()
-
 
 
 if __name__ == '__main__':

@@ -16,9 +16,10 @@ import requests
 # Own Libraries
 from ownLibraries.irswitch import IRSwitch
 from ownLibraries.mireporte import MiReporte
-from ownLibraries.visualizacion import Visualizacion
-from ownLibraries.trafficlight import TrafficLight
 from ownLibraries.interprete import Interprete
+from ownLibraries.trafficlight import TrafficLight
+from ownLibraries.visualizacion import Visualizacion
+from ownLibraries.controlledregion import ControlledRegion
 from ownLibraries.obtenerHistogramaHorario import exportarInformacionDeHoyO
 
 
@@ -84,8 +85,6 @@ def nuevoDia():
 	reporteDiario		= directorioDeReporte+'/reporteDiario.npy'
 	miReporte.setDirectory(directorioDeReporte)
 	miPoliciaReportando.nuevoDia(directorioDeReporte)
-
-
 
 # Función principal
 def main():
@@ -177,7 +176,8 @@ def main():
 		trabajoConPiCamara = True
 	else:
 		trabajoConPiCamara = False
-	miPoliciaReportando = Interprete(frameFlujo,verticesPartida,verticesLlegada,verticesDerecha,verticesIzquierda,mifps,directorioDeReporte,generarArchivosDebug,flujoAntiguo = oldFlow,anguloCarril = angulo)
+	controlledRegionInMain = ControlledRegion(verticesPartida,verticesLlegada,verticesDerecha,verticesIzquierda)
+	miPoliciaReportando = Interprete(frameFlujo,controlledRegionInMain,mifps,directorioDeReporte,generarArchivosDebug,flujoAntiguo = oldFlow,anguloCarril = angulo)
 	
 	miFiltro = IRSwitch()
 	
@@ -190,7 +190,7 @@ def main():
 	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))
 	miAcetatoInformativo.colocarPoligono(np.array(verticesDerecha))
 	miAcetatoInformativo.colocarPoligono(np.array(verticesIzquierda))
-	miAcetatoInformativo.colocarPoligono(miPoliciaReportando.carrilValido)
+	miAcetatoInformativo.colocarPoligono(miPoliciaReportando.controlledRegion.carrilValido)
 	miAcetatoInformativo.establecerLogo(directorioDeLogo+'/dems.png')
 
 	# El historial sera una lista de la siguiente forma:
