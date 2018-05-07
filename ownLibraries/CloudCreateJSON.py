@@ -66,10 +66,13 @@ class CreateJSON():
 
 	def __call__(self, path_to_image = '',  prob = 0, plate = '' ):
 
-		
+		print('path_to_image')
+		print('path_to_image')
 		# Create names placeholders
 		path_to_folder, image_name, video_name, subDirName = self._getNames(path_to_image)
 
+		print('_getNames')
+		print(path_to_folder, image_name, video_name, subDirName)
 
 		self.path_to_image_on_S3 = self.S3Path + self.S3Bucket + '/' + subDirName + '/' +  image_name
 		self.path_to_video_on_S3 = self.S3Path + self.S3Bucket + '/' + subDirName + '/' +  video_name

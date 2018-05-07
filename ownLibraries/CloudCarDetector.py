@@ -109,6 +109,9 @@ class CarDetector():
 
 	def __call__(self, folder_to_images):
 
+		# append croped cars
+		cars_regions  = []
+
 		objects_coord = self.get_coord(folder_to_images)
 		for original in self.original_local_files:
 			for obj_coor in objects_coord:
@@ -136,12 +139,15 @@ class CarDetector():
 															 x0: x1]
 
 					cv2.imwrite('{}_croped.jpg'.format(original[:original.rfind('.')]), croped_original)
+
+					cars_regions.append('{}_croped.jpg'.format(original[:original.rfind('.')]))
+
 				else:
 					print('not match')
 
 				#if image_detected[:image_detected.rfind('x')]
 
-
+		return cars_regions
 
 if __name__ == '__main__':
 
@@ -150,5 +156,5 @@ if __name__ == '__main__':
 	directorioDeTrabajo = os.getenv('HOME') + '/2018-02-21_reporte/' + '11-04-53_ROJO_izquierdo_x1_-Infraccion_3855PFB_100/'
 	paths_to_images = carDetector(directorioDeTrabajo)
 
-	print(paths_to_images)
+	print('Cars REGIONS ARE:', paths_to_images)
 
