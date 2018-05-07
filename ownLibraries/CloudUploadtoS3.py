@@ -25,7 +25,7 @@ class UploadToS3():
 				relative_path = os.path.relpath(local_path, local_directory)
 				s3_path = os.path.join(relative_path)
 
-				if '.avi' in s3_path:
+				if '.mp4' in s3_path:
 					UploadToS3.s3Sync(s3_client, s3_path, local_path, bucket, destination)
 				elif '_detected.jpg' in s3_path:
 					UploadToS3.s3Sync(s3_client, s3_path, local_path, bucket, destination)

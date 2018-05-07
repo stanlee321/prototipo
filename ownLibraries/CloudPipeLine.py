@@ -25,12 +25,12 @@ class CloudSync():
 
 
 	def __call__(self, path_to_folder = '../'):
-		"""
+
 		plates_region_detected = []
 		region_images_paths = self.plateRegionDetector(folder_to_images= path_to_folder)
 
 		for possible_path_to_image in region_images_paths:
-			print('working on posible region')
+			print(':::::Working on posible region')
 			print(possible_path_to_image)
 
 			# Get infomration
@@ -88,14 +88,8 @@ class CloudSync():
 			recognition = []
 
 		
-		# Serve the last recognition
-		print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-		print('>>>>>>>>>>>>>>>>> RECOGNITION IS >>>>>>>>>>>>>>>>>>>>>>>>>>')
-		print(recognition)
 
-		"""
-		print('"""""""""""""""""""""""" SINC TO AWS"""""""""""""""""""""""')
-		recognition = ['/home/stanlee321/2018-02-21_reporte/11-04-53_ROJO_izquierdo_x1_-Infraccion_3855PFB_100/2018-02-21_11-04-53_2wm_croped.jpg', [{'y': 294, 'x': 165}, {'y': 318, 'x': 290}, {'y': 370, 'x': 277}, {'y': 347, 'x': 155}], '0.93', '3855PFB']
+		#recognition = ['/home/stanlee321/2018-02-21_reporte/11-04-53_ROJO_izquierdo_x1_-Infraccion_3855PFB_100/2018-02-21_11-04-53_2wm_croped.jpg', [{'y': 294, 'x': 165}, {'y': 318, 'x': 290}, {'y': 370, 'x': 277}, {'y': 347, 'x': 155}], '0.93', '3855PFB']
 
 
 		if len(recognition) > 1:
@@ -122,8 +116,9 @@ class CloudSync():
 			bucket 			= 	parameters['bucket']
 			destination 	=	parameters['destination']
 
+
 			# Upload to S3
-			uploadToS3.upload(local_directory, bucket, destination)
+			self.uploadToS3.upload(local_directory, bucket, destination)
 		else:
 			print('NO INFORMATION for proceed')
 
@@ -141,7 +136,9 @@ if __name__ == '__main__':
 
 	cloudSync =  CloudSync()
 	
-	directorioDeTrabajo = os.getenv('HOME') + '/2018-02-21_reporte/' + '11-04-53_ROJO_izquierdo_x1_-Infraccion_3855PFB_100/'
+	directorioDeTrabajo = os.getenv('HOME') + \
+						 '/2018-02-21_reporte/' + \
+						 '11-47-35_ROJO_izquierdo_x1_-Infraccion_1880ZRF_100/'
 
 
 	paths_to_images = cloudSync(path_to_folder = directorioDeTrabajo)

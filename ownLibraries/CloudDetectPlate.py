@@ -73,7 +73,7 @@ class PlateRecognition():
 		try:
 			information =  PlateRecognition.get_information_of_images(path_to_image)
 		except Exception as e:
-			print('EEROR in getting information of image OR:', e)
+			print(':::EEROR in getting information of image OR:', e)
 			print('Returning empty list')
 			information = []
 
