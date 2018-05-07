@@ -114,27 +114,28 @@ class Visualizacion(object):
 		self.targets.append([rectangulo,estado])
 
 	def colocarObjeto(self,puntosList,estado):
-		x,y,h,w = self.unificarPuntos(puntosList)
-		self.colocarObjetivo([x,y,h,w],estado)
-		self.colocarPuntos(puntosList,estado)
+		if len(puntosList)>0:
+			x,y,h,w = self.obtenerCentroYRadio(puntosList)
+			self.colocarObjetivo([x,y,h,w],estado)
+			self.colocarPuntos(puntosList,estado)
+		else:
+			print('Received empty object, not visualizing')
+			pass
 
-	def unificarPuntos(self,puntosList):
-		x = 0
-		y = 0
-		n = 0
-		for punto in puntosList:
-			x += tuple(punto)[0]
-			y += tuple(punto)[1]
-			n += 1
+	def obtenerCentroYRadio(self,puntosList):
+		n = len(puntosList)
 		if n == 0:
 			return 0,0,0,0
-		x = int(x/n)
-		y = int(y/n)
-		h = 0
-		w = 0
+		x,y,h,w = 0,0,0,0
 		for punto in puntosList:
-			w += (tuple(punto)[0]-x)*(tuple(punto)[0]-x)
-			h += (tuple(punto)[1]-y)*(tuple(punto)[1]-y)
+			x += punto[0]
+			y += punto[1]
+		
+		x = x//n
+		y = y//n
+		for punto in puntosList:
+			w += (punto[0]-x)**2
+			h += (punto[1]-y)**2
 		
 		h = int(math.sqrt(h/n))
 		w = int(math.sqrt(w/n))

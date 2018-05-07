@@ -35,7 +35,8 @@ class ControlledRegion():
 		self.vectorPerpendicularUnitario = np.array([self.vectorParaleloUnitario[1],-self.vectorParaleloUnitario[0]])
 		self.numeroDePuntos = 15
 		
-		self.carrilValido = self.createWiderWholeRoute(poligonoPartida,poligonoLlegada,poligonoDerecha,poligonoIzquierda)
+		self.carrilValido = self.createWiderWholeRoute()
+		self.carrilInicialYMedio = self.createInitialAndMiddleZone()
 
 		# la linea de referencia para tamanio sera del largo del paso de cebra, su longitud servira para descartar puntos que se alejen del resto
 		self.maximaDistanciaEntrePuntos = self._tamanoVector(np.array(poligonoPartida[0])-np.array(poligonoPartida[1]))
@@ -54,13 +55,13 @@ class ControlledRegion():
 		self.areaFlujo = self.obtenerRegionFlujo(self.departureArea)
 		self.optimalStep = 2
 
-	def createWiderWholeRoute(self, poligonoPartida,poligonoLlegada,poligonoDerecha,poligonoIzquierda):
+	def createWiderWholeRoute(self):
 		# Input type: self.carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
 		# Se modifican los puntos
 		# partida: 0-,3+
 		# llegada: 1+,2-
 		# La matriz de rotacion por un angulo de 15 grados
-		carrilValido = np.array([poligonoPartida[0],poligonoPartida[1],poligonoPartida[2],poligonoPartida[3],poligonoLlegada[2],poligonoLlegada[3],poligonoLlegada[0],poligonoLlegada[1]])
+		carrilValido = np.array([self.departureArea[0],self.departureArea[1],self.departureArea[2],self.departureArea[3],self.arrivalArea[2],self.arrivalArea[3],self.arrivalArea[0],self.arrivalArea[1]])
 		self.angulo = 14
 		cos15 = math.cos(self.angulo*math.pi/180)
 		sin15 = math.sin(self.angulo*math.pi/180)
@@ -84,20 +85,24 @@ class ControlledRegion():
 									carrilValido[1],
 									carrilValido[2],
 									carrilValido[3],
-									poligonoDerecha[2],
-									poligonoDerecha[3],
-									poligonoDerecha[0],
-									poligonoDerecha[1],
+									self.rightArrivalArea[2],
+									self.rightArrivalArea[3],
+									self.rightArrivalArea[0],
+									self.rightArrivalArea[1],
 									carrilValido[4],
 									carrilValido[5],
 									carrilValido[6],
 									carrilValido[7],
-									poligonoIzquierda[2],
-									poligonoIzquierda[3],
-									poligonoIzquierda[0],
-									poligonoIzquierda[1]])
+									self.leftArrivalArea[2],
+									self.leftArrivalArea[3],
+									self.leftArrivalArea[0],
+									self.leftArrivalArea[1]])
 
 		return carrilValido
+
+	def createInitialAndMiddleZone(self):
+		carrilInicialYMedio = np.array([self.departureArea[0],self.departureArea[1],self.departureArea[2],self.departureArea[3],self.arrivalArea[2],self.arrivalArea[1]])
+		return carrilInicialYMedio
 
 	def crearLineaDeResguardo(self):
 		"""

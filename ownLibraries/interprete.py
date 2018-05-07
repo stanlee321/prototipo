@@ -26,7 +26,7 @@ if os.uname()[1] == 'raspberrypi':
 directorioDeTrabajo = os.getenv('HOME')+'/trafficFlow/prototipo'
 directorioDeVideos = os.getenv('HOME')+'/trafficFlow/trialVideos'
 
-class Interprete():
+class Automaton():
 	"""
 	This class evolves the automaton and creates all objects when necessary
 	"""
@@ -55,9 +55,8 @@ class Interprete():
 		if flujoAntiguo == True:
 			self.flujoAntiguo = True
 			self.controlledRegion.numeroDePuntos = 9
-
-		self.miPerspectiva = Perspective(self.controlledRegion.areaFlujo)
-		self.anteriorFranja = self.miPerspectiva.transformarAMitad(self.imagenAuxiliar)
+			self.carrilPartidaEnPerspectiva = Perspective(self.controlledRegion.areaFlujo)
+			self.anteriorFranja = self.carrilPartidaEnPerspectiva.transformarAMitad(self.imagenAuxiliar)
 		self.optimalStep = 2
 
 		self.listaVehiculos = []
@@ -96,7 +95,7 @@ class Interprete():
 		self.controlledRegion.lineaDeResguardoAlteradaDelantera = arrayAuxiliarParaVelocidad
 		
 		if self.flujoAntiguo:
-			velocidadEnBruto = self.obtenerMagnitudMovimientoEnRegion(self.miPerspectiva.transformarAMitad(imagenActualEnGris))
+			velocidadEnBruto = self.obtenerMagnitudMovimientoEnRegion(self.carrilPartidaEnPerspectiva.transformarAMitad(imagenActualEnGris))
 		else:
 			velocidadEnBruto = self.obtenerMagnitudMovimiento(self.controlledRegion.lineaFijaDelantera,self.controlledRegion.lineaDeResguardoAlteradaDelantera)
 		velocidadFiltrada, pulsoVehiculos = self.miFiltro.obtenerOndaFiltrada(velocidadEnBruto)
@@ -120,6 +119,7 @@ class Interprete():
 				timeout = (numeroDeFrame - infraccion['frameInicial']) > self.maximoNumeroFramesParaDescarte
 				if  dispersion or timeout:
 					infraccion['estado'] = 'Salio'
+					infraccion['visibilidad'] = 0
 					if timeout:
 						infraccion['estado'] = 'TimeOut'
 					
@@ -233,6 +233,7 @@ class Interprete():
 								'numeroDeVehiculos':1,
 								'estado':'Previo',
 								'infraccion':'',
+								'visibilidad':8,
 								'observacion':''}
 
 			# CREACION NUEVO CANDIDATO
@@ -400,14 +401,6 @@ class Interprete():
 
 	def obtenerMagnitudMovimientoEnRegion(self,nuevaFranja):
 		flow = cv2.calcOpticalFlowFarneback(self.anteriorFranja, nuevaFranja, None, 0.5, 3, 15, 3, 5, 1.2, 0) #(self.auxiliar_image, current_image, None, 0.7, 3, 9, 3, 5, 1.2, 0)
-
-		#y, x = np.mgrid[self.optimalStep//2:nuevaFranja.shape[0]:self.optimalStep, self.optimalStep//2:nuevaFranja.shape[1]:self.optimalStep].reshape(2,-1)
-		#y = np.int32(y)
-		#x = np.int32(x)
-		#fx, fy = flow[y,x].T
-		#flowX = sum(fx)
-		#flowY = sum(fy)
-
 		flowX = 0
 		flowY = 0
 
@@ -423,11 +416,13 @@ class Interprete():
 		return flujoPerpendicular
 
 	def apagarCamara(self):
-		self.camaraAlta.apagarControlador()
+		if os.uname()[1] == 'raspberrypi':
+			self.camaraAlta.apagarControlador()
+		else:
+			pass
 
 
 if __name__ == '__main__':
-
 	#This small trial is a proff of work for the current class
 
 	try:

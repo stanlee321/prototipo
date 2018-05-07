@@ -16,7 +16,7 @@ import requests
 # Own Libraries
 from ownLibraries.irswitch import IRSwitch
 from ownLibraries.mireporte import MiReporte
-from ownLibraries.interprete import Interprete
+from ownLibraries.interprete import Automaton
 from ownLibraries.trafficlight import TrafficLight
 from ownLibraries.visualizacion import Visualizacion
 from ownLibraries.controlledregion import ControlledRegion
@@ -84,7 +84,7 @@ def nuevoDia():
 	directorioDeReporte = os.getenv('HOME')+'/'+nombreCarpeta
 	reporteDiario		= directorioDeReporte+'/reporteDiario.npy'
 	miReporte.setDirectory(directorioDeReporte)
-	miPoliciaReportando.nuevoDia(directorioDeReporte)
+	myAutomaton.nuevoDia(directorioDeReporte)
 
 # Función principal
 def main():
@@ -177,7 +177,7 @@ def main():
 	else:
 		trabajoConPiCamara = False
 	controlledRegionInMain = ControlledRegion(verticesPartida,verticesLlegada,verticesDerecha,verticesIzquierda)
-	miPoliciaReportando = Interprete(frameFlujo,controlledRegionInMain,mifps,directorioDeReporte,generarArchivosDebug,flujoAntiguo = oldFlow,anguloCarril = angulo)
+	myAutomaton = Automaton(frameFlujo,controlledRegionInMain,mifps,directorioDeReporte,generarArchivosDebug,flujoAntiguo = oldFlow,anguloCarril = angulo)
 	
 	miFiltro = IRSwitch()
 	
@@ -190,7 +190,7 @@ def main():
 	miAcetatoInformativo.colocarPoligono(np.array(verticesLlegada))
 	miAcetatoInformativo.colocarPoligono(np.array(verticesDerecha))
 	miAcetatoInformativo.colocarPoligono(np.array(verticesIzquierda))
-	miAcetatoInformativo.colocarPoligono(miPoliciaReportando.controlledRegion.carrilValido)
+	miAcetatoInformativo.colocarPoligono(myAutomaton.controlledRegion.carrilValido)
 	miAcetatoInformativo.establecerLogo(directorioDeLogo+'/dems.png')
 
 	# El historial sera una lista de la siguiente forma:
@@ -237,7 +237,7 @@ def main():
 
 			frameFlujo = cv2.resize(frameVideo,(320,240))
 		
-			velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear = miPoliciaReportando.seguirImagen(frame_number,frameFlujo,colorSemaforo = senalSemaforo)
+			velocidadEnBruto, velocidadFiltrada, pulsoVehiculos, momentumAEmplear = myAutomaton.seguirImagen(frame_number,frameFlujo,colorSemaforo = senalSemaforo)
 			
 			if senalSemaforo >= 1 :							# Si estamos en rojo, realizamos una accion
 				if flanco == 1:							# esto se inicia al principio de este estado
@@ -246,31 +246,31 @@ def main():
 			if senalSemaforo <= 0:							# Si estamos en verde realizamos otra accion
 				if flanco == -1:					# Si estamos en verde y en flanco, primer verde, realizamos algo
 					miReporte.info('SEMAFORO EN VERDE, EL PERIODO ES '+str(periodo)+' a '+datetime.datetime.now().strftime('%Y%m%d_%H%M'))
-					cruce 		= miPoliciaReportando.estadoActual['cruzo']
-					salio 		= miPoliciaReportando.estadoActual['salio']
-					derecha 	= miPoliciaReportando.estadoActual['derecha']
-					izquierda 	= miPoliciaReportando.estadoActual['izquierda']
-					infraccion 	= miPoliciaReportando.estadoActual['infraccion']
-					otro 		= miPoliciaReportando.estadoActual['ruido']
+					cruce 		= myAutomaton.estadoActual['cruzo']
+					salio 		= myAutomaton.estadoActual['salio']
+					derecha 	= myAutomaton.estadoActual['derecha']
+					izquierda 	= myAutomaton.estadoActual['izquierda']
+					infraccion 	= myAutomaton.estadoActual['infraccion']
+					otro 		= myAutomaton.estadoActual['ruido']
 
 					vectorDeInicio = [[datetime.datetime.now(),periodo,infraccion,cruce,derecha,izquierda,salio,otro]]
 					if os.path.isfile(reporteDiario):
 						np.save(reporteDiario,np.append(np.load(reporteDiario),vectorDeInicio,0))
 					else:
 						np.save(reporteDiario,vectorDeInicio)
-					miReporte.info(	'GLOBAL STATE: prev:'+str(miPoliciaReportando.estadoActual['previo'])+
-									', cru:'+str(miPoliciaReportando.estadoActual['cruzo'])+
-									', der:'+str(miPoliciaReportando.estadoActual['derecha'])+
-									', izq:'+str(miPoliciaReportando.estadoActual['izquierda'])+
-									', out:'+str(miPoliciaReportando.estadoActual['salio'])+
-									', inf:'+str(miPoliciaReportando.estadoActual['infraccion']))
-					miPoliciaReportando.reestablecerEstado()
+					miReporte.info(	'GLOBAL STATE: prev:'+str(myAutomaton.estadoActual['previo'])+
+									', cru:'+str(myAutomaton.estadoActual['cruzo'])+
+									', der:'+str(myAutomaton.estadoActual['derecha'])+
+									', izq:'+str(myAutomaton.estadoActual['izquierda'])+
+									', out:'+str(myAutomaton.estadoActual['salio'])+
+									', inf:'+str(myAutomaton.estadoActual['infraccion']))
+					myAutomaton.reestablecerEstado()
 
-				miPoliciaReportando.reportarPasoAPaso(historial)
+				myAutomaton.reportarPasoAPaso(historial)
 	
 				if generarArchivosDebug:
 					if datetime.datetime.now().hour>tiempoEnPuntoParaNormalVideo:
-						miPoliciaReportando.generarVideoMuestra(historial)
+						myAutomaton.generarVideoMuestra(historial)
 						tiempoEnPuntoParaNormalVideo = datetime.datetime.now().hour
 				if datetime.datetime.now().hour == 7:
 					tiempoEnPuntoParaNormalVideo = 7
@@ -289,16 +289,18 @@ def main():
 				del historial[min(historial)]				
 
 			# Draw frame number into image on top
-			for infraction in miPoliciaReportando.listaVehiculos:		
-				puntos 			= infraction['desplazamiento'].ravel()
-				puntosExtraidos = puntos.reshape(puntos.shape[0]//2,2)
-				miAcetatoInformativo.colocarObjeto(puntosExtraidos,infraction['estado'])
+			
+			for infraction in myAutomaton.listaVehiculos:
+				if infraction['visibilidad']>0:
+					puntos 			= infraction['desplazamiento'].ravel()
+					puntosExtraidos = puntos.reshape(puntos.shape[0]//2,2)
+					miAcetatoInformativo.colocarObjeto(puntosExtraidos,infraction['estado'])
 
-			#for puntoResguardo in miPoliciaReportando.obtenerLineasDeResguardo(False):
-			miAcetatoInformativo.colocarPuntos(miPoliciaReportando.obtenerLineasDeResguardo(True),'Referencia')
+			#for puntoResguardo in myAutomaton.obtenerLineasDeResguardo(False):
+			miAcetatoInformativo.colocarPuntos(myAutomaton.obtenerLineasDeResguardo(True),'Referencia')
 			
 			# Configs and displays for the MASK according to the semaforo
-			#miAcetatoInformativo.agregarTextoEn("I{}".format(miPoliciaReportando.infraccionesConfirmadas), 2)
+			#miAcetatoInformativo.agregarTextoEn("I{}".format(myAutomaton.infraccionesConfirmadas), 2)
 			
 			miAcetatoInformativo.colorDeSemaforo(senalSemaforo)
 
@@ -355,7 +357,7 @@ def main():
 				os.system('python3 cleanfolders.py -folder '+nombreCarpeta)
 				nuevoDia()
 				miReporte.info('Cambio de día exitoso')
-				#miPoliciaReportando.apagarCamara()
+				#myAutomaton.apagarCamara()
 				#os.execl(sys.executable, 'python3', __file__, *sys.argv[1:])
 				# As bug continues we reboot the system:
 				#os.system('sudo reboot')
@@ -375,20 +377,20 @@ def main():
 			
 			if (frame_number >= topeEjecucion) &(topeEjecucion!=0):
 				miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por indice de auto acabado predeterminado')
-				miPoliciaReportando.apagarCamara()
+				myAutomaton.apagarCamara()
 				break
 
 			ch = 0xFF & cv2.waitKey(5)
 			if ch == ord('q'):
 				miReporte.info('ABANDONANDO LA EJECUCION DE PROGRAMA por salida manual')
-				miPoliciaReportando.apagarCamara()
+				myAutomaton.apagarCamara()
 				break
 			if ch == ord('s'):
 				cv2.imwrite(datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')+'.jpg',frameFlujo)
 			
 	except KeyboardInterrupt as e:
 		miReporte.info('Salida forzada')
-		miPoliciaReportando.apagarCamara()
+		myAutomaton.apagarCamara()
 
 if __name__ == '__main__':
 	# Tomamos los ingresos para controlar el video
