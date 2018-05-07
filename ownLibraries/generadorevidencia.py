@@ -26,7 +26,8 @@ class GeneradorEvidencia():
 		self.height, self.width = 240, 320
 		self.guardoRecortados = guardoRecortados
 		self.dicts_by_name = defaultdict(list)
-		self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
+		#self.fourcc = cv2.VideoWriter_fourcc(*'XVID') # *'MP4V'
+		self.fourcc = cv2.VideoWriter_fourcc(*'MP4V')
 
 	def nuevoDia(self,carpetaReporte):
 		self.carpetaDeReporteActual = carpetaReporte
@@ -36,7 +37,9 @@ class GeneradorEvidencia():
 		self.carpetaDeReporteActual = carpetaReporte
 
 	def generarVideo(self, informacionTotal, nombreInfraccion,directorioActual, nombreFrame, inicio, final,observacion = ''):
-		aEntregar = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'_'+nombreFrame+'_'+observacion+'.avi',self.fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
+		#aEntregar = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'_'+nombreFrame+'_'+observacion+'.avi',self.fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
+		aEntregar = cv2.VideoWriter(directorioActual+'/'+nombreInfraccion+'_'+nombreFrame+'_'+observacion+'.mp4',self.fourcc, self.framesPorSegundoEnVideo,(self.width,self.height))
+
 		excepcion = ''
 		for indiceVideo in range(inicio, final):
 			conteoErrores = 0

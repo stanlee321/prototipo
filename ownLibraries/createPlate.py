@@ -24,6 +24,6 @@ class WritePlate():
 		save_in = "{}_detected.jpg".format(path_to_new_image)
 		scipy.misc.imsave(save_in, img)
 
-
+		return "{}_detected.jpg".format(path_to_new_image)
 
 

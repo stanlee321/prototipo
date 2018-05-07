@@ -6,7 +6,7 @@ import math
 import time
 import os
 
-class PlateDetector():
+class PlateRegionDetector():
 	"""
 	Plate detection algo, 
 		inputs: 
@@ -125,6 +125,7 @@ class PlateDetector():
 
 
 	def process_image(self, name, **options):
+		print('WORKING IN NAME', name)
 
 		se_shape = (16,4)
 
@@ -264,7 +265,27 @@ class PlateDetector():
 		return out_images
 
 
+	def __call__(self, path_to_folder = '../'):
 
+		#os.chdir("/mydir")
+		paths_to_images = []
+		# List directory
+		for image in glob.glob("{}*.jpg".format(path_to_folder)):
+			print('FOUND IMAGE', image)
+			paths_to_images.append(image)
+
+
+		print('FOUND TOTAL IMAGES ARE:', paths_to_images)
+		for path in paths_to_images:
+			out_images = self.process_image(path, fromDisk = True, type='rect', crop='rect', draw = False, brightness = 50, thresh = 0.40, scale=0.200) 
+			#paths_to_images.extend(out_images)
+			local_images_paths = []
+			for i, image in enumerate(out_images):
+				local_images_paths.append('{}-{}-detected.jpg'.format(path[:path.rfind('.')],i))
+				cv2.imwrite('{}-{}-detected.jpg'.format(path[:path.rfind('.')],i), image)
+			paths_to_images.extend(local_images_paths)
+
+		return paths_to_images
 if __name__ == '__main__':
 
 	if len(sys.argv) < 2:

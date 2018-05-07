@@ -117,7 +117,7 @@ if __name__ == '__main__':
 	from CloudUploadtoS3 import  UploadToS3
 
 	if len(sys.argv) < 3 :
-		print ('usage:\n python pyANPD.py <image_file_path> <y>' )
+		print ('usage:\n python pyANPD.py <image_file_path> <y/n>' )
 		exit(0)
 
 	path_to_image = sys.argv[1]
